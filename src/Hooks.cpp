@@ -8,13 +8,13 @@
 #include "LootMenu.h"  // LootMenu
 #include "Offsets.h"
 
-#include "RE/ActivateHandler.h"  // RE::ActivateHandler
-#include "RE/BSWin32GamepadDevice.h"  // RE::BSWin32GamepadDevice
-#include "RE/ButtonEvent.h"  // RE::ButtonEvent
-#include "RE/PlayerCharacter.h"  // RE::PlayerCharacter
+#include "RE/ActivateHandler.h"  // ActivateHandler
+#include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
+#include "RE/ButtonEvent.h"  // ButtonEvent
+#include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
-#include "RE/PlayerInputHandler.h"  // RE::PlayerInputHandler
-#include "RE/ReadyWeaponHandler.h"  // RE::ReadyWeaponHandler
+#include "RE/PlayerInputHandler.h"  // PlayerInputHandler
+#include "RE/ReadyWeaponHandler.h"  // ReadyWeaponHandler
 
 
 class PlayerCharacter;
@@ -38,11 +38,11 @@ namespace Hooks
 
 		bool hook_CanProcess(InputEvent* a_event)
 		{
-			static InputStringHolder* holder = InputStringHolder::GetSingleton();
+			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
 			bool result = (this->*orig_CanProcess)(a_event);
 			if (result && a_event && QuickLootRE::LootMenu::IsOpen()) {
-				result = (*a_event->GetControlID() == holder->togglePOV);
+				result = (*a_event->GetControlID() == strHolder->togglePOV);
 			}
 
 			return result;
@@ -72,10 +72,11 @@ namespace Hooks
 
 		bool hook_CanProcess(InputEvent* a_event)
 		{
+			using QuickLootRE::LootMenu;
 			typedef RE::BSWin32GamepadDevice::Gamepad Gamepad;
 
 			bool result = (this->*orig_CanProcess)(a_event);
-			if (result && a_event && QuickLootRE::LootMenu::IsOpen()) {
+			if (result && a_event && LootMenu::IsOpen()) {
 				if (a_event->deviceType == kDeviceType_Gamepad && a_event->eventType == InputEvent::kEventType_Button) {
 					ButtonEvent* button = static_cast<ButtonEvent*>(a_event);
 					result = (button->keyMask != Gamepad::kGamepad_Up && button->keyMask != Gamepad::kGamepad_Down);
@@ -108,11 +109,13 @@ namespace Hooks
 		void hook_ProcessButton(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data)
 		{
 			using QuickLootRE::LootMenu;
-			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+			static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+			static UIManager*			uiManager	= UIManager::GetSingleton();
 
 			if (LootMenu::IsOpen()) {
-				CALL_MEMBER_FN(UIManager::GetSingleton(), AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Close, 0);
-				LootMenu::ClearContainerRef();
+				CALL_MEMBER_FN(uiManager, AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Close, 0);
+				LootMenu::ClearContainerRef(false);
 				player->StartActivation();
 			} else {
 				(this->*orig_ProcessButton)(a_event, a_data);
@@ -141,12 +144,18 @@ namespace Hooks
 
 		bool hook_CanProcess(InputEvent* a_event)
 		{
-			static InputStringHolder* holder = InputStringHolder::GetSingleton();
+			using QuickLootRE::LootMenu;
+			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
-			if (QuickLootRE::LootMenu::IsOpen() && a_event && (*a_event->GetControlID() == holder->activate) && (a_event->eventType == InputEvent::kEventType_Button)) {
+			BSFixedString str = *a_event->GetControlID();
+			if (str == strHolder->activate || str == strHolder->accept) {
+				bool dummy = true;
+			}
+
+			if (LootMenu::IsOpen() && a_event && (*a_event->GetControlID() == strHolder->activate) && (a_event->eventType == InputEvent::kEventType_Button)) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsDown()) {
-					QuickLootRE::LootMenu::GetSingleton()->TakeItem();
+					LootMenu::GetSingleton()->TakeItem();
 					return false;
 				}
 			}

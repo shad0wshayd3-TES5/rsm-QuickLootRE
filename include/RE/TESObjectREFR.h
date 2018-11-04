@@ -168,7 +168,7 @@ namespace RE
 		virtual void					Unk_96(void);
 		virtual void					Unk_97(void);
 		virtual void					Unk_98(void);
-		virtual bool					IsDead(UInt8 unk1);  // unk1 = 1 for Actors
+		virtual bool					IsDead(bool isActor);
 		virtual void					Unk_9A(void);
 		virtual void					Unk_9B(void);
 

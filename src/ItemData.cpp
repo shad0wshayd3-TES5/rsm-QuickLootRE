@@ -450,7 +450,7 @@ namespace QuickLootRE
 		if (owner) {
 			return !_entryData->IsOwnedBy(player, owner, true);
 		} else {
-			return player->IsSneaking() && _container->baseForm->formType == kFormType_NPC && !_container->IsDead(1);
+			return player->IsSneaking() && _container->baseForm->formType == kFormType_NPC && !_container->IsDead(true);
 		}
 	}
 
@@ -460,7 +460,7 @@ namespace QuickLootRE
 		if (_entryData->extendDataList) {
 			ExtendDataListVisitor visitor({ kExtraData_Enchantment }, { });
 			_entryData->extendDataList->Visit(visitor);
-			if (visitor.found()) {
+			if (visitor.Found()) {
 				return true;
 			}
 		}

@@ -56,17 +56,17 @@ namespace RE
 		};
 
 
-		IMenu()	: view(0), menuDepth(3), flags(0), context(0x12), unk18(0) {}
-		virtual ~IMenu() { CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), dtor)(); }
+		IMenu()	: view(0), menuDepth(3), flags(0), context(0x12), unk18(0)	{}
+		virtual ~IMenu()													{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), dtor)(); }
 
-		inline virtual void		Accept(CallbackProcessor* processor)	{}
-		inline virtual void		Unk_02(void)							{}
-		inline virtual void		Unk_03(void)							{}
-		inline virtual UInt32	ProcessMessage(UIMessage* message)		{ return CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), ProcessMessage_internal)(message); }
-		inline virtual void		NextFrame(UInt32 arg0, UInt32 arg1)		{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), NextFrame_internal)(arg0, arg1); }
-		inline virtual void		Render(void)							{ reinterpret_cast<::IMenu*>(this)->Render(); }
-		inline virtual void		Unk_07(void)							{}
-		inline virtual void		InitMovie(void)							{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), InitMovie_internal)(reinterpret_cast<::GFxMovieView*>(view)); }
+		inline virtual void		Accept(CallbackProcessor* processor)		{}
+		inline virtual void		Unk_02(void)								{}
+		inline virtual void		Unk_03(void)								{}
+		inline virtual UInt32	ProcessMessage(UIMessage* message)			{ return CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), ProcessMessage_internal)(message); }
+		inline virtual void		NextFrame(UInt32 arg0, UInt32 arg1)			{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), NextFrame_internal)(arg0, arg1); }
+		inline virtual void		Render(void)								{ reinterpret_cast<::IMenu*>(this)->Render(); }
+		inline virtual void		Unk_07(void)								{}
+		inline virtual void		InitMovie(void)								{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), InitMovie_internal)(reinterpret_cast<::GFxMovieView*>(view)); }
 
 
 		GFxMovieView*	view;		// 10 - init'd to 0, a class, virtual fn 0x228 called in dtor

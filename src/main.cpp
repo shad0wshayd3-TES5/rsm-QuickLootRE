@@ -8,10 +8,11 @@
 
 #include <ShlObj.h>  // CSIDL_MYDOCUMENTS
 
+#include "Delegates.h"  // g_task
 #include "Events.h"  // g_crosshairRefEventHandler, g_containerChangedEventHandler
 #include "Hooks.h"  // installHooks()
 #include "Keywords.h"  // initializeKeywords()
-#include "LootMenu.h"  // LootMenuCreator, g_task
+#include "LootMenu.h"  // LootMenuCreator
 #include "Settings.h"  // Settings
 
 #include "RE/EventDispatcherList.h"  // RE::EventDispatcherList

@@ -14,6 +14,7 @@ class ItemListEntry extends BasicListEntry
 	public var enchantIcon: MovieClip;
 	public var readIcon: MovieClip;
 	public var textField: TextField;
+	public var pickPocketChance: TextField;
   	public var selectIndicator: MovieClip;
 
 	// @override BasicListEntry
@@ -71,11 +72,14 @@ class ItemListEntry extends BasicListEntry
 			}
 		}
 
-		// a_entryObject.value;
+		var iconPosX = textField._x + textField._width + 6;
 		
-		// a_entryObject.weight;
-
-		var iconPosX = textField._x + textField._width + 4;
+		stolenIcon._visible = (a_entryObject.isStolen != undefined && a_entryObject.isStolen);
+		if (stolenIcon._visible)
+		{
+			stolenIcon._x = iconPosX;
+			iconPosX += stolenIcon._width + 2;
+		}
 		
 		enchantIcon._visible = (a_entryObject.isEnchanted != undefined && a_entryObject.isEnchanted);
 		if (enchantIcon._visible)
@@ -90,21 +94,22 @@ class ItemListEntry extends BasicListEntry
 			readIcon._x = iconPosX;
 			iconPosX += readIcon._width + 2;
 		}
+		
+		pickPocketChance.autoSize = "right";
+		if(a_entryObject.itemChance == 0){
+			pickPocketChance.text = "";
+		}else{
+			var chance = a_entryObject.itemChance.toString();
+			chance += "%";
+			pickPocketChance.text = chance;
+		}
 
-		if (a_entryObject.isStolen) {
-			stolenIcon._visible = true;
-			itemIcon._visible = false;
-		}
-		else {
-			stolenIcon._visible = false;
-			itemIcon._visible = true;
-		}
+		itemIcon._visible = true;
 
 		_iconLabel = a_entryObject.iconLabel != undefined ? a_entryObject.iconLabel : "default_misc";
 		itemIcon.gotoAndStop(_iconLabel);
 	
 		var iconAlpha = isSelected ? 90 : 50;
 		itemIcon._alpha = iconAlpha;
-		stolenIcon._alpha = iconAlpha;
 	}
 }

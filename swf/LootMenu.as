@@ -8,6 +8,7 @@ class LootMenu extends MovieClip
 	private var _platform: Number;
 	private var _activateKey: Number;
 	private var _weaponKey: Number;
+	private var _povKey: Number;
 	private var _refID: Number;
 	
 	// stage elements
@@ -16,6 +17,7 @@ class LootMenu extends MovieClip
 	public var titleText: TextField;
 	public var buttonTake: ButtonPanel;
 	public var buttonSearch: ButtonPanel;
+	public var buttonTakeAll: ButtonPanel;
 	
 	public function LootMenu()
 	{
@@ -28,6 +30,7 @@ class LootMenu extends MovieClip
 		_visible = false;
 		
 		_activateKey = skse.GetMappedKey("Activate", 0, 0);
+		_povKey = skse.GetMappedKey("Toggle POV", 0, 0);
 		_weaponKey = skse.GetMappedKey("Ready Weapon", 0, 0);
 	}
 
@@ -48,6 +51,7 @@ class LootMenu extends MovieClip
 			device = 2;
 
 		_activateKey = skse.GetMappedKey("Activate", device, 0);
+		_povKey = skse.GetMappedKey("Toggle POV", device, 0);
 		_weaponKey = skse.GetMappedKey("Ready Weapon", device, 0);
 	}
 	
@@ -77,7 +81,7 @@ class LootMenu extends MovieClip
 		}
 	}
 	
-	public function openContainer(items:Array, refID:Number, title:String, sTake:String, sSearch:String, selectedIndex:Number): Void
+	public function openContainer(items:Array): Void
 	{
 		itemList.clearList();
 		itemList.listEnumeration = new BasicEnumeration(itemList.entryList);
@@ -86,13 +90,17 @@ class LootMenu extends MovieClip
 			itemList.entryList.push(entry)
 		}
 		itemList.InvalidateData();
-		
-		itemList.selectedIndex = selectedIndex;
+	}
 	
+	public function setContainer(refID:Number, title:String, sTake:String, sSearch:String, sTakeAll:String, selectedIndex:Number): Void
+	{
+		itemList.selectedIndex = selectedIndex;
+		
 		_refID = refID;
 		titleText.htmlText = title;
 		
 		buttonTake.setButton(_activateKey, sTake);
+		buttonTakeAll.setButton(_povKey, sTakeAll);
 		buttonSearch.setButton(_weaponKey, sSearch);
 
 		_visible = true;

@@ -2,27 +2,15 @@
 
 #undef PlaySound
 
-#include "common/ITypes.h"  // UInt32
-#include "skse64/CustomMenu.h"  // CustomMenuCreator, CustomMenu
-#include "skse64/GameEvents.h"  // BSTEventSink, TESContainerChangedEvent
-#include "skse64/GameInput.h"  // InputEvent
-#include "skse64/GameReferences.h"  // TESObjectREFR
-#include "skse64/GameMenus.h"  // IMenu, UIMessage
-#include "skse64/gamethreads.h"  // TaskDelegate
-#include "skse64/GameTypes.h"  // BSFixedString, SimpleLock
-#include "skse64/Hooks_UI.h"  // UIDelegate_v1
-#include "skse64/PapyrusUI.h"  // UIDelegate
-#include "skse64/PluginAPI.h"  // SKSETaskInterface
-#include "skse64/ScaleformValue.h"  // GFxValue
+#include "skse64/GameTypes.h"  // BSFixedString
 
-#include <vector>
-#include <string>  // string
+#include "RE/IMenu.h"  // IMenu
+#include "RE/MenuEventHandler.h"  // MenuEventHandler
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
-#include "RE/IMenu.h"  // RE::IMenu
-#include "RE/MenuEventHandler.h"  // RE::MenuEventHandler
-#include "RE/TESObjectREFR.h"  // RE::TESObjectREFR
-
-class GFxValue;
+class InputEvent;
+class TESObjectREFR;
+class UIMessage;
 
 namespace RE
 {
@@ -50,6 +38,7 @@ namespace QuickLootRE
 		friend class SetPlatforUIDelegate;
 		friend class SetupUIDelegate;
 		friend class OpenContainerUIDelegate;
+		friend class SetContainerUIDelegate;
 		friend class CloseContainerUIDelegate;
 		friend class SetSelectedIndexUIDelegate;
 	private:
@@ -65,6 +54,7 @@ namespace QuickLootRE
 			kScaleform_SetPlatform,
 			kScaleform_Setup,
 			kScaleform_OpenContainer,
+			kScaleform_SetContainer,
 			kScaleform_CloseContainer,
 			kScaleform_SetSelectedIndex
 		};
@@ -79,7 +69,7 @@ namespace QuickLootRE
 		static void					SetContainerRef(TESObjectREFR* a_ref);
 		static void					SetContainerRef(RE::TESObjectREFR* a_ref);
 		static RE::TESObjectREFR*	GetContainerRef();
-		static void					ClearContainerRef();
+		static void					ClearContainerRef(bool a_playAnimation = true);
 
 		static bool					CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
 		static bool					IsOpen();
@@ -113,58 +103,4 @@ namespace QuickLootRE
 		static bool					_isOpen;
 		static Platform				_platform;
 	};
-
-
-	class SetPlatforUIDelegate : public UIDelegate_v1
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class SetupUIDelegate : public UIDelegate_v1
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class OpenContainerUIDelegate : public UIDelegate_v1
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class CloseContainerUIDelegate : public UIDelegate_v1
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class SetSelectedIndexUIDelegate : public UIDelegate_v1
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class GFxValueDeallocTaskDelegate : public TaskDelegate
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-
-
-		std::vector<GFxValue*> heapAllocVals;
-	};
-
-
-	extern SKSETaskInterface* g_task;
 }

@@ -145,6 +145,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Delegates.cpp" />
     <ClCompile Include="src\HasActivateChoiceVisitor.cpp" />
     <ClCompile Include="src\RE\Actor.cpp" />
     <ClCompile Include="src\RE\ActorState.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Delegates.h" />
     <ClInclude Include="include\Events.h" />
     <ClInclude Include="include\Exceptions.h" />
     <ClInclude Include="include\ExtendDataListVisitor.h" />

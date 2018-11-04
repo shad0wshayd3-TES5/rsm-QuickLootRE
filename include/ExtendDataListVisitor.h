@@ -14,11 +14,11 @@ namespace QuickLootRE
 		~ExtendDataListVisitor();
 
 		bool Accept(BaseExtraList* a_xList);
-		bool found();
+		bool Found();
 
 	private:
-		bool checkWhiteList(BaseExtraList* a_xList);
-		bool checkBlackList(BaseExtraList* a_xList);
+		bool CheckWhiteList(BaseExtraList* a_xList);
+		bool CheckBlackList(BaseExtraList* a_xList);
 
 		std::vector<UInt32> _whiteList;
 		std::vector<UInt32> _blackList;

@@ -135,6 +135,9 @@
     <ClCompile Include="src\Settings.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Delegates.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -350,6 +353,9 @@
     </ClInclude>
     <ClInclude Include="include\RE\InventoryEntryData.h">
       <Filter>include\RE\Skyrim\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Delegates.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
