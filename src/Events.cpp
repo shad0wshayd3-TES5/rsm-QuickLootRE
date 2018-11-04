@@ -90,12 +90,14 @@ namespace QuickLootRE
 	{
 		if (LootMenu::IsOpen() && a_event) {
 			RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
-			if (a_event->fromFormId == ref->baseForm->formID || a_event->toFormId == ref->baseForm->formID) {
+			if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
 				TESContainer* container = ref->GetContainer();
 				if (container) {
 					g_invList.clear();
+					defaultMap.clear();
 					ItemData::setContainer(ref);
 					getInventoryList(&ref->extraData, container);
+					g_invList.sort();
 					LootMenu::Register(LootMenu::kScaleform_OpenContainer);
 				}
 			}

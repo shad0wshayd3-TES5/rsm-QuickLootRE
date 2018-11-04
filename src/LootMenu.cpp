@@ -409,6 +409,7 @@ namespace QuickLootRE
 		_isOpen = true;
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_OpenContainer);
+		Register(kScaleform_SetSelectedIndex);
 	}
 
 
@@ -514,7 +515,7 @@ namespace QuickLootRE
 			_containerRef->RemoveItem(&droppedHandle, item.form(), numItems, lootMode, xList, player, 0, 0);
 		}
 
-		Register(kScaleform_OpenContainer);
+		//Register(kScaleform_OpenContainer);
 	}
 
 
