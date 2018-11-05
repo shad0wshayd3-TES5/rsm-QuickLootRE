@@ -357,6 +357,9 @@
     <ClInclude Include="include\Delegates.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\RE\GFxMovie.h">
+      <Filter>include\RE\Skyrim\Scaleform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

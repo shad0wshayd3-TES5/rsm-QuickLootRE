@@ -12,6 +12,7 @@
 #include "RE/MenuControls.h"  // MenuControls
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 
 namespace QuickLootRE
@@ -21,10 +22,10 @@ namespace QuickLootRE
 		if (LootMenu::IsOpen()) {
 			GFxValue args[2];
 
-			args[0].SetNumber(LootMenu::_platform);
+			args[0].SetNumber(LootMenu::GetPlatform());
 			args[0].SetBool(false);
 
-			LootMenu::_singleton->view->Invoke("_root.Menu_mc.SetPlatform", 0, args, 2);
+			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetPlatform", 0, args, 2);
 		}
 	}
 
@@ -39,14 +40,12 @@ namespace QuickLootRE
 
 	void SetupUIDelegate::Run()
 	{
-		static RE::MenuControls* mc = RE::MenuControls::GetSingleton();
-
 		if (LootMenu::IsOpen()) {
-			mc->RegisterHandler(LootMenu::_singleton);
+			LootMenu* loot = LootMenu::GetSingleton();
 
 			GFxValue args[4];
 
-			RE::GFxMovieDef* def = LootMenu::_singleton->view->GetMovieDef();
+			RE::GFxMovieDef* def = loot->view->GetMovieDef();
 
 			double x = Settings::positionX;
 			double y = Settings::positionY;
@@ -73,7 +72,7 @@ namespace QuickLootRE
 
 			Settings::isApplied = true;
 
-			LootMenu::_singleton->view->Invoke("_root.Menu_mc.Setup", 0, args, 4);
+			loot->view->Invoke("_root.Menu_mc.Setup", 0, args, 4);
 		}
 	}
 
@@ -90,9 +89,12 @@ namespace QuickLootRE
 	{
 		if (LootMenu::IsOpen()) {
 			try {
+				LootMenu* loot = LootMenu::GetSingleton();
+				AddContainerChanges();
+
 				GFxValue args[1];
 
-				LootMenu::_singleton->view->CreateArray(&args[0]);
+				loot->view->CreateArray(&args[0]);
 				if (!args[0].objectInterface) {
 					throw bad_gfx_value_interface();
 				}
@@ -117,7 +119,7 @@ namespace QuickLootRE
 				new (iconLabel)GFxValue[size];
 
 				for (SInt32 i = 0; i < size; ++i) {
-					LootMenu::_singleton->view->CreateObject(&item[i]);
+					loot->view->CreateObject(&item[i]);
 
 					text[i].SetString(g_invList[i].name());
 					count[i].SetNumber(g_invList[i].count());
@@ -138,7 +140,7 @@ namespace QuickLootRE
 					args[0].PushBack(&item[i]);
 				}
 
-				LootMenu::_singleton->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
+				loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
 
 				GFxValueDeallocTaskDelegate* dlgt = (GFxValueDeallocTaskDelegate*)Heap_Allocate(sizeof(GFxValueDeallocTaskDelegate));
 				new (dlgt)GFxValueDeallocTaskDelegate;
@@ -166,6 +168,21 @@ namespace QuickLootRE
 	}
 
 
+	void OpenContainerUIDelegate::AddContainerChanges()
+	{
+		// Containers don't have ExtraContainerChanges if the player hasn't opened them yet, so we must add them ourselves
+		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+		RE::ExtraContainerChanges* xContainerChanges = static_cast<RE::ExtraContainerChanges*>(ref->extraData.GetByType(kExtraData_ContainerChanges));
+		RE::ExtraContainerChanges::Data* changes = xContainerChanges ? xContainerChanges->data : 0;
+		if (!changes) {
+			RE::ExtraContainerChanges::Data* changes = (RE::ExtraContainerChanges::Data*)Heap_Allocate(sizeof(RE::ExtraContainerChanges::Data));
+			new (changes)RE::ExtraContainerChanges::Data(ref);
+			ref->extraData.SetInventoryChanges(changes);
+			changes->InitContainer();
+		}
+	}
+
+
 	void SetContainerUIDelegate::Run()
 	{
 		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
@@ -177,20 +194,21 @@ namespace QuickLootRE
 		GFxValue args[6];
 
 		const char* takeType;
-		if (LootMenu::_containerRef->baseForm->formType == kFormType_NPC) {
-			takeType = !LootMenu::_containerRef->IsDead(true) && player->IsSneaking() ? sSteal : sTake;
+		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+		if (ref->baseForm->formType == kFormType_NPC) {
+			takeType = !ref->IsDead(true) && player->IsSneaking() ? sSteal : sTake;
 		} else {
-			takeType = LootMenu::_containerRef->IsOffLimits() ? sSteal : sTake;
+			takeType = ref->IsOffLimits() ? sSteal : sTake;
 		}
 
-		args[0].SetNumber(LootMenu::_containerRef->formID);
-		args[1].SetString(LootMenu::_containerRef->GetReferenceName());
+		args[0].SetNumber(ref->formID);
+		args[1].SetString(ref->GetReferenceName());
 		args[2].SetString(takeType);
 		args[3].SetString(sSearch);
 		args[4].SetString(sTakeAll);
-		args[5].SetNumber(LootMenu::_selectedIndex);
+		args[5].SetNumber(LootMenu::GetSelectedIndex());
 
-		LootMenu::_singleton->view->Invoke("_root.Menu_mc.setContainer", 0, args, 6);
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.setContainer", 0, args, 6);
 	}
 
 
@@ -204,7 +222,7 @@ namespace QuickLootRE
 
 	void CloseContainerUIDelegate::Run()
 	{
-		LootMenu::_singleton->view->Invoke("_root.Menu_mc.closeContainer", 0, 0, 0);
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.closeContainer", 0, 0, 0);
 	}
 
 
@@ -221,9 +239,9 @@ namespace QuickLootRE
 		if (LootMenu::IsOpen()) {
 			GFxValue args[1];
 
-			args[0].SetNumber(LootMenu::_selectedIndex);
+			args[0].SetNumber(LootMenu::GetSelectedIndex());
 
-			LootMenu::_singleton->view->Invoke("_root.Menu_mc.setSelectedIndex", 0, args, 1);
+			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.setSelectedIndex", 0, args, 1);
 		}
 	}
 

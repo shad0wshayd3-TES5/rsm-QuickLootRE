@@ -32,6 +32,9 @@ namespace QuickLootRE
 	public:
 		virtual void Run() override;
 		virtual void Dispose() override;
+
+	private:
+		void AddContainerChanges();
 	};
 
 

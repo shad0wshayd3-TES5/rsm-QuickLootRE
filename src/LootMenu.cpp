@@ -57,11 +57,12 @@ namespace QuickLootRE
 	LootMenu::LootMenu(const char* a_swfPath)
 	{
 		typedef RE::GFxMovieView::ScaleModeType ScaleModeType;
+		typedef RE::InputManager::Context		Context;
 
 		RE::GFxLoader* loader = RE::GFxLoader::GetSingleton();
 		if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kScaleModeType_ShowAll, 0.0)) {
-			flags = kFlag_DoNotDeleteOnClose | kFlag_DoNotPreventGameSave | kFlag_Unk10000;
-			context = 0x02;  // menuDepth, set lower than fade menu (3)
+			flags = Flag(kFlag_DoNotDeleteOnClose | kFlag_DoNotPreventGameSave | kFlag_Unk10000);
+			context = Context::kContext_Console;  // menuDepth, set lower than fade menu (3)
 		}
 	}
 
@@ -80,10 +81,79 @@ namespace QuickLootRE
 	}
 
 
+	SInt32 LootMenu::GetSelectedIndex()
+	{
+		return _selectedIndex;
+	}
+
+
+	RE::TESObjectREFR* LootMenu::GetContainerRef()
+	{
+		return _containerRef;
+	}
+
+
+	bool LootMenu::IsOpen()
+	{
+		return _isOpen;
+	}
+
+
+	bool LootMenu::IsVisible()
+	{
+		return _singleton && _singleton->view->GetVisible();;
+	}
+
+
+	bool LootMenu::InTakeAllMode()
+	{
+		return _inTakeAllMode;
+	}
+
+
+	LootMenu::Platform LootMenu::GetPlatform()
+	{
+		return _platform;
+	}
+
+
 	BSFixedString LootMenu::GetName()
 	{
 		static BSFixedString name = "LootMenu";
 		return name;
+	}
+
+
+	void LootMenu::Open()
+	{
+		static UIManager* uiManager = UIManager::GetSingleton();
+		CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Open, 0);
+	}
+
+
+	void LootMenu::Close()
+	{
+		static UIManager* uiManager = UIManager::GetSingleton();
+		CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Close, 0);
+	}
+
+
+	void LootMenu::SetVisible(bool a_visible)
+	{
+		typedef RE::InputManager::Context Context;
+
+		static RE::MenuControls* mc = RE::MenuControls::GetSingleton();
+
+		if (IsOpen()) {
+			_singleton->view->SetVisible(a_visible);
+			if (a_visible && !_isRegistered) {
+				mc->RegisterHandler(_singleton);
+				_isRegistered = true;
+			} else if (_isRegistered) {
+				mc->RemoveHandler(_singleton);
+				_isRegistered = false;
+			}
+		}
 	}
 
 
@@ -99,12 +169,6 @@ namespace QuickLootRE
 	}
 
 
-	RE::TESObjectREFR* LootMenu::GetContainerRef()
-	{
-		return _containerRef;
-	}
-
-
 	void LootMenu::ClearContainerRef(bool a_playAnimation)
 	{
 		if (a_playAnimation && IsOpen()) {
@@ -116,11 +180,11 @@ namespace QuickLootRE
 
 	bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	{
-		static RE::MenuManager*		mm						= RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping					= RE::InputManager::GetSingleton();
-		static RE::PlayerCharacter*	player					= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static BSFixedString		strAnimationDriven		= "bAnimationDriven";
-		static TESFaction*			CurrentFollowerFaction	= static_cast<TESFaction*>(LookupFormByID(0x0005C84E));
+		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
+		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static BSFixedString		strAnimationDriven = "bAnimationDriven";
+		static TESFaction*			CurrentFollowerFaction = static_cast<TESFaction*>(LookupFormByID(kFormID_CurrentFollowerFaction));
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
@@ -213,12 +277,6 @@ namespace QuickLootRE
 	}
 
 
-	bool LootMenu::IsOpen()
-	{
-		return _isOpen;
-	}
-
-
 	void LootMenu::Register(Scaleform a_reg)
 	{
 		switch (a_reg) {
@@ -238,9 +296,13 @@ namespace QuickLootRE
 		}
 		case kScaleform_OpenContainer:
 		{
-			OpenContainerUIDelegate* dlgt = (OpenContainerUIDelegate*)Heap_Allocate(sizeof(OpenContainerUIDelegate));
-			new (dlgt)OpenContainerUIDelegate;
-			g_task->AddUITask(dlgt);
+			if (Settings::disableIfEmpty && g_invList.empty()) {
+				Register(kScaleform_CloseContainer);
+			} else {
+				OpenContainerUIDelegate* dlgt = (OpenContainerUIDelegate*)Heap_Allocate(sizeof(OpenContainerUIDelegate));
+				new (dlgt)OpenContainerUIDelegate;
+				g_task->AddUITask(dlgt);
+			}
 			break;
 		}
 		case kScaleform_SetContainer:
@@ -291,7 +353,7 @@ namespace QuickLootRE
 	void LootMenu::Render()
 	{
 		if (IsOpen()) {
-			view->Render();
+			view->Display();
 		}
 	}
 
@@ -310,8 +372,7 @@ namespace QuickLootRE
 			BSFixedString controlID = *a_event->GetControlID();
 
 			if (controlID == strHolder->sneak ||
-				controlID == strHolder->pause ||
-				controlID == strHolder->journal) {
+				controlID == strHolder->togglePOV) {
 				return true;
 			}
 
@@ -333,9 +394,8 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static InputStringHolder*	strHolder	= InputStringHolder::GetSingleton();
-		static UIManager*			uiManager	= UIManager::GetSingleton();
-		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static InputStringHolder*	strHolder = InputStringHolder::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!a_event->IsDown()) {
 			return true;
@@ -343,14 +403,14 @@ namespace QuickLootRE
 
 		BSFixedString controlID = *a_event->GetControlID();
 		if (controlID == strHolder->sneak) {
-			CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Close, 0);
+			Close();
 			if (CanOpen(_containerRef, !player->IsSneaking())) {
-				CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Open, 0);
+				Open();
 			}
 			return true;
-		} else if (controlID == strHolder->pause ||
-				   controlID == strHolder->journal) {
-			CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Close, 0);
+		} else if (controlID == strHolder->togglePOV) {
+			TakeAllItems();
+			Register(kScaleform_OpenContainer);
 		}
 
 		switch (a_event->deviceType) {
@@ -410,12 +470,14 @@ namespace QuickLootRE
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_OpenContainer);
 		Register(kScaleform_SetSelectedIndex);
+		SetVisible(true);
 	}
 
 
 	void LootMenu::OnMenuClose()
 	{
 		if (IsOpen()) {
+			SetVisible(false);
 			_isOpen = false;
 			Register(kScaleform_CloseContainer);
 		}
@@ -424,11 +486,6 @@ namespace QuickLootRE
 
 	void LootMenu::TakeItem()
 	{
-		typedef RE::PlayerCharacter::EventType	EventType;
-		typedef RE::TESObjectREFR::RemoveType	RemoveType;
-
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!IsOpen() || !_containerRef || g_invList.empty()) {
 			return;
 		}
@@ -444,78 +501,37 @@ namespace QuickLootRE
 			ModSelectedIndex(0);
 		}
 
-		// Containers don't have ExtraContainerChanges if the player hasn't opened them yet, so we must add them ourselves
-		RE::ExtraContainerChanges* xContainerChanges = static_cast<RE::ExtraContainerChanges*>(_containerRef->extraData.GetByType(kExtraData_ContainerChanges));
-		RE::ExtraContainerChanges::Data* changes = xContainerChanges ? xContainerChanges->data : 0;
-		if (!changes) {
-			RE::ExtraContainerChanges::Data* changes = (RE::ExtraContainerChanges::Data*)Heap_Allocate(sizeof(RE::ExtraContainerChanges::Data));
-			new (changes)RE::ExtraContainerChanges::Data(_containerRef);
-			_containerRef->extraData.SetInventoryChanges(changes);
-			changes->InitContainer();
+		TakeItem(item, numItems, true);
+	}
+
+
+	void LootMenu::TakeAllItems()
+	{
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+		if (!IsOpen() || !_containerRef || g_invList.empty()) {
+			return;
 		}
 
-		// Locate item's extra list (if any)
-		BaseExtraList* xList = 0;
-		if (item.entryData()->extendDataList && item.entryData()->extendDataList->Count() > 0) {
-			xList = item.entryData()->extendDataList->GetNthItem(0);
-		}
-
-		// Pickup dropped items
-		if (xList && xList->HasType(kExtraData_ItemDropper)) {
-			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((UInt64)xList - 0x70);
-			player->PickUpItem(refItem, 1, false, true);
+		if (_containerRef->baseForm->formType == kFormType_NPC) {
+			if (!_containerRef->IsDead(true) && player->IsSneaking()) {
+				return;
+			}
 		} else {
-			RemoveType lootMode = RemoveType::kRemoveType_Take;
-
-			if (_containerRef->baseForm->formType == kFormType_NPC) {
-				if (_containerRef->IsDead(false)) {
-					player->PlayPickupEvent(item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_DeadBody);
-				} else {
-					RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
-					bool pickSuccess = player->TryToPickPocket(target, item.entryData(), item.count(), true);
-					player->PlayPickupEvent(item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
-					lootMode = RemoveType::kRemoveType_Steal;
-					if (!pickSuccess) {
-						return;
-					} else {
-						(*Hooks::SendItemsPickPocketedEvent)(item.count());
-					}
-				}
-			} else {
-				player->PlayPickupEvent(item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_Container);
-
-				if (_containerRef->IsOffLimits()) {
-					lootMode = RemoveType::kRemoveType_Steal;
-				}
+			if (_containerRef->IsOffLimits()) {
+				return;
 			}
-
-			// Remove projectile 3D
-			RE::TESBoundObject* bound = static_cast<RE::TESBoundObject*>(item.form());
-			if (bound) {
-				bound->OnRemovedFrom(_containerRef);
-			}
-
-			if (_containerRef->baseForm->formType == kFormType_Character) {
-
-				// Dispell worn item enchantments
-				RE::Actor* actor = static_cast<RE::Actor*>(_containerRef);
-				if (actor->processManager) {
-					actor->DispelWornItemEnchantments();
-					actor->processManager->UpdateEquipment_Hooked(actor);
-				}
-			} else {
-				if (_containerRef->IsOffLimits()) {
-					player->SendStealAlarm(_containerRef, item.entryData()->type, numItems, item.value(), _containerRef->GetOwner(), true);
-				}
-			}
-
-			player->PlaySounds(item.form(), true, false);
-
-			UInt32 droppedHandle = 0;
-			_containerRef->RemoveItem(&droppedHandle, item.form(), numItems, lootMode, xList, player, 0, 0);
 		}
 
-		//Register(kScaleform_OpenContainer);
+		_inTakeAllMode = true;
+
+		for (auto& item : g_invList) {
+			TakeItem(item, item.count(), false);
+		}
+		g_invList.clear();
+
+		_inTakeAllMode = false;
+		Register(kScaleform_OpenContainer);
 	}
 
 
@@ -597,7 +613,7 @@ namespace QuickLootRE
 				return;
 			}
 
-			(*Hooks::PlayAnimation)(_containerRef, manager, toSeq, fromSeq, false);
+			Hooks::PlayAnimation(_containerRef, manager, toSeq, fromSeq, false);
 		}
 	}
 
@@ -627,7 +643,81 @@ namespace QuickLootRE
 
 		BGSPickupPutdownSounds* sounds = DYNAMIC_CAST(a_item, TESForm, BGSPickupPutdownSounds);
 		if (sounds && sounds->pickUp) {
-			(*Hooks::PlaySound)(sounds->pickUp, false, &_containerRef->pos, player->GetNiNode());
+			Hooks::PlaySound(sounds->pickUp, false, &_containerRef->pos, player->GetNiNode());
+		}
+	}
+
+
+	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_enableTheft)
+	{
+		typedef RE::PlayerCharacter::EventType	EventType;
+		typedef RE::TESObjectREFR::RemoveType	RemoveType;
+
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static UInt32				droppedHandle = 0;
+
+		// Locate item's extra list (if any)
+		BaseExtraList* xList = 0;
+		if (a_item.entryData()->extendDataList && a_item.entryData()->extendDataList->Count() > 0) {
+			xList = a_item.entryData()->extendDataList->GetNthItem(0);
+		}
+
+		// Pickup dropped items
+		if (xList && xList->HasType(kExtraData_ItemDropper)) {
+			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((UInt64)xList - 0x70);
+			player->PickUpItem(refItem, 1, false, true);
+		} else {
+			RemoveType lootMode = RemoveType::kRemoveType_Take;
+
+			if (_containerRef->baseForm->formType == kFormType_NPC) {
+				// Dead body
+				if (_containerRef->IsDead(false)) {
+					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_DeadBody);
+				// Pickpocket
+				} else if (a_enableTheft) {
+					RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
+					bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
+					player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
+					lootMode = RemoveType::kRemoveType_Steal;
+					if (!pickSuccess) {
+						return;
+					} else {
+						Hooks::SendItemsPickPocketedEvent(a_item.count());
+					}
+				}
+			} else {
+				// Container
+				player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_Container);
+
+				// Stealing
+				if (_containerRef->IsOffLimits() && a_enableTheft) {
+					lootMode = RemoveType::kRemoveType_Steal;
+				}
+			}
+
+			// Remove projectile 3D
+			RE::TESBoundObject* bound = static_cast<RE::TESBoundObject*>(a_item.form());
+			if (bound) {
+				bound->OnRemovedFrom(_containerRef);
+			}
+
+			if (_containerRef->baseForm->formType == kFormType_Character) {
+				// Dispell worn item enchantments
+				RE::Actor* actor = static_cast<RE::Actor*>(_containerRef);
+				if (actor->processManager) {
+					actor->DispelWornItemEnchantments();
+					actor->processManager->UpdateEquipment_Hooked(actor);
+				}
+			} else {
+				// Stealing
+				if (_containerRef->IsOffLimits() && a_enableTheft) {
+					player->SendStealAlarm(_containerRef, a_item.entryData()->type, a_numItems, a_item.value(), _containerRef->GetOwner(), true);
+				}
+			}
+
+			player->PlaySounds(a_item.form(), true, false);
+
+			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}
 	}
 
@@ -636,5 +726,7 @@ namespace QuickLootRE
 	SInt32				LootMenu::_selectedIndex = 0;
 	RE::TESObjectREFR*	LootMenu::_containerRef = 0;
 	bool				LootMenu::_isOpen = false;
+	bool				LootMenu::_inTakeAllMode = false;
+	bool				LootMenu::_isRegistered = false;
 	LootMenu::Platform	LootMenu::_platform = kPlatform_PC;
 }

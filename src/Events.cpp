@@ -3,6 +3,7 @@
 #include "skse64/GameEvents.h"  // EventResult, EventDispatcher
 #include "skse64/GameExtraData.h"  // ExtraContainerChanges
 #include "skse64/GameFormComponents.h"  // TESContainer
+#include "skse64/GameMenus.h"  // UIStringHolder
 #include "skse64/GameReferences.h"  // TESObjectREFR
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/GameMenus.h"  // UIManager
@@ -13,10 +14,12 @@
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 
-#include "RE/BaseExtraList.h"  // RE::BaseExtraList
-#include "RE/InventoryEntryData.h"  // RE::InventoryEntryData
-#include "RE/PlayerCharacter.h"  // RE::PlayerCharacter
-#include "RE/TESObjectREFR.h"  // RE::TESObjectREFR
+#include "RE/BaseExtraList.h"  // BaseExtraList
+#include "RE/IMenu.h"  // IMenu
+#include "RE/InventoryEntryData.h"  // InventoryEntryData
+#include "RE/MenuManager.h"  // MenuManager
+#include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 
 namespace QuickLootRE
@@ -57,7 +60,7 @@ namespace QuickLootRE
 		// If player is not looking at anything
 		if (!a_event || !a_event->crosshairRef) {
 			if (LootMenu::IsOpen()) {
-				CALL_MEMBER_FN(uiManager, AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Close, 0);
+				LootMenu::Close();
 				LootMenu::ClearContainerRef();
 			}
 			return kEvent_Continue;
@@ -66,7 +69,7 @@ namespace QuickLootRE
 		// If player went from container -> container
 		RE::TESObjectREFR* ref = reinterpret_cast<RE::TESObjectREFR*>(a_event->crosshairRef);
 		if (LootMenu::IsOpen() && (LootMenu::GetContainerRef() != ref)) {
-			CALL_MEMBER_FN(uiManager, AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Close, 0);
+			LootMenu::Close();
 			LootMenu::ClearContainerRef();
 		}
 
@@ -79,8 +82,35 @@ namespace QuickLootRE
 			ItemData::setContainer(ref);
 			getInventoryList(&ref->extraData, container);
 			g_invList.sort();
-			CALL_MEMBER_FN(uiManager, AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Close, 0);
-			CALL_MEMBER_FN(uiManager, AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Open, 0);
+			LootMenu::Close();
+			LootMenu::Open();
+		}
+		return kEvent_Continue;
+	}
+
+
+	EventResult MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* a_event, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
+	{
+		static UIStringHolder*	strHolder	= UIStringHolder::GetSingleton();
+		static RE::MenuManager*	mm			= RE::MenuManager::GetSingleton();
+
+		if (a_event && LootMenu::IsOpen()) {
+			LootMenu* loot = LootMenu::GetSingleton();
+			if (a_event->opening) {
+				RE::IMenu* menu = mm->GetMenu(&a_event->menuName);
+				if (menu) {
+					if (menu->StopsCrosshairUpdates() && a_event->menuName != strHolder->tweenMenu) {
+						LootMenu::Close();
+					} else if (menu->PausesGame()) {
+						LootMenu::SetVisible(false);
+					}
+				}
+			} else {
+				if (mm->GameIsPaused() && !LootMenu::IsVisible()) {
+					LootMenu::SetVisible(true);
+					LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+				}
+			}
 		}
 		return kEvent_Continue;
 	}
@@ -88,7 +118,7 @@ namespace QuickLootRE
 
 	EventResult TESContainerChangedEventHandler::ReceiveEvent(TESContainerChangedEvent* a_event, EventDispatcher<TESContainerChangedEvent>* a_dispatcher)
 	{
-		if (LootMenu::IsOpen() && a_event) {
+		if (a_event && LootMenu::IsVisible() && !LootMenu::InTakeAllMode()) {
 			RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
 			if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
 				TESContainer* container = ref->GetContainer();
@@ -127,5 +157,6 @@ namespace QuickLootRE
 
 
 	CrosshairRefEventHandler g_crosshairRefEventHandler;
+	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
 	TESContainerChangedEventHandler g_containerChangedEventHandler;
 }

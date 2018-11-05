@@ -58,6 +58,8 @@ namespace RE
 		inline bool									IsShowingMenus()								{ return reinterpret_cast<::MenuManager*>(this)->IsShowingMenus(); }
 		inline void									Register(const char* name, CreatorFunc creator)	{ reinterpret_cast<::MenuManager*>(this)->Register(name, reinterpret_cast<::MenuManager::CreatorFunc>(creator)); }
 
+		inline bool									GameIsPaused()									{ return numPauseGame == 0; }
+
 
 		// members
 		UnkArray								menuStack;						// 110

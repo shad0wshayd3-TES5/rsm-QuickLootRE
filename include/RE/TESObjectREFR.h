@@ -7,9 +7,9 @@
 
 #include "Offsets.h"
 
-#include "RE/BaseExtraList.h"  // RE::BaseExtraList
-#include "RE/ExtraLock.h"  // RE::LockState
-#include "RE/IAnimationGraphManagerHolder.h"  // RE::IAnimationGraphManagerHolder
+#include "RE/BaseExtraList.h"  // BaseExtraList
+#include "RE/ExtraLock.h"  // LockState
+#include "RE/IAnimationGraphManagerHolder.h"  // IAnimationGraphManagerHolder
 
 class ActorWeightModel;
 class BaseExtraList;

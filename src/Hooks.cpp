@@ -22,10 +22,9 @@ class PlayerCharacter;
 
 namespace Hooks
 {
-	RelocAddr<_PlayAnimation> PlayAnimation(PLAY_ANIMATION);
-	RelocAddr<_PlaySound> PlaySound(PLAY_SOUND);
-
-	RelocAddr<_SendItemsPickPocketedEvent> SendItemsPickPocketedEvent(SEND_ITEMS_PICKPOCKETED_EVENT);
+	RelocAddr<_PlayAnimation*>				PlayAnimation(PLAY_ANIMATION);
+	RelocAddr<_PlaySound*>					PlaySound(PLAY_SOUND);
+	RelocAddr<_SendItemsPickPocketedEvent*>	SendItemsPickPocketedEvent(SEND_ITEMS_PICKPOCKETED_EVENT);
 
 
 	template <uintptr_t offset>
@@ -41,8 +40,8 @@ namespace Hooks
 			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
 			bool result = (this->*orig_CanProcess)(a_event);
-			if (result && a_event && QuickLootRE::LootMenu::IsOpen()) {
-				result = (*a_event->GetControlID() == strHolder->togglePOV);
+			if (a_event && result && QuickLootRE::LootMenu::IsVisible()) {
+				result = (*a_event->GetControlID() != strHolder->togglePOV);
 			}
 
 			return result;
@@ -76,7 +75,7 @@ namespace Hooks
 			typedef RE::BSWin32GamepadDevice::Gamepad Gamepad;
 
 			bool result = (this->*orig_CanProcess)(a_event);
-			if (result && a_event && LootMenu::IsOpen()) {
+			if (a_event && result && LootMenu::IsVisible()) {
 				if (a_event->deviceType == kDeviceType_Gamepad && a_event->eventType == InputEvent::kEventType_Button) {
 					ButtonEvent* button = static_cast<ButtonEvent*>(a_event);
 					result = (button->keyMask != Gamepad::kGamepad_Up && button->keyMask != Gamepad::kGamepad_Down);
@@ -114,7 +113,7 @@ namespace Hooks
 			static UIManager*			uiManager	= UIManager::GetSingleton();
 
 			if (LootMenu::IsOpen()) {
-				CALL_MEMBER_FN(uiManager, AddMessage)(&LootMenu::GetName(), UIMessage::kMessage_Close, 0);
+				LootMenu::Close();
 				LootMenu::ClearContainerRef(false);
 				player->StartActivation();
 			} else {
@@ -152,7 +151,7 @@ namespace Hooks
 				bool dummy = true;
 			}
 
-			if (LootMenu::IsOpen() && a_event && (*a_event->GetControlID() == strHolder->activate) && (a_event->eventType == InputEvent::kEventType_Button)) {
+			if (LootMenu::IsVisible() && a_event && (*a_event->GetControlID() == strHolder->activate) && (a_event->eventType == InputEvent::kEventType_Button)) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsDown()) {
 					LootMenu::GetSingleton()->TakeItem();
