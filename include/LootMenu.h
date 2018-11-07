@@ -106,7 +106,6 @@ namespace QuickLootRE
 		void						PlayAnimation(const char* fromName, const char* toName);
 		void						PlayAnimationOpen();
 		void						PlayAnimationClose();
-		void						PlaySound(TESForm* a_item);
 		void						TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_enableTheft);
 
 

@@ -96,17 +96,17 @@ namespace RE
 		virtual void					Unk_4E(void);
 		virtual void					Unk_4F(void);
 		virtual void					Unk_50(void);
-		virtual void					GetStartingPos(::NiPoint3 * pos);
+		virtual void					GetStartingPos(::NiPoint3* a_pos);
 		virtual void					Unk_52(void);
 		virtual void					Unk_53(void);
 		virtual void					Unk_54(void);
 		virtual void					Unk_55(void);
-		virtual void					RemoveItem(UInt32* droppedItemHandle, TESForm* akItem, UInt32 aiCount, RemoveType mode, ::BaseExtraList* extraList, TESObjectREFR* moveToRef, UInt32 unk7, UInt32 unk8);
+		virtual void					RemoveItem(UInt32* a_droppedItemHandle, TESForm* a_akItem, UInt32 a_aiCount, RemoveType a_mode, ::BaseExtraList* a_extraList, TESObjectREFR* a_moveToRef, UInt32 a_unk7, UInt32 a_unk8);
 		virtual void					Unk_57(void);
 		virtual void					Unk_58(void);
 		virtual void					Unk_59(void);
 		virtual void					Unk_5A(void);
-		virtual void					GetMarkerPosition(::NiPoint3 * pos);
+		virtual void					GetMarkerPosition(::NiPoint3* a_pos);
 		virtual void					Unk_5C(void);
 		virtual void					Unk_5D(void);
 		virtual bool					IsChild() const;
@@ -124,9 +124,9 @@ namespace RE
 		virtual void					Unk_6A(void);
 		virtual void					Unk_6B(void);
 		virtual void					Unk_6C(void);
-		virtual void					SetNiNode(NiNode * root, UInt32 unk1);  // NULL, 1?
+		virtual void					SetNiNode(NiNode* a_root, UInt32 a_unk1);  // NULL, 1?
 		virtual void					Unk_6E(void);
-		virtual NiNode*					GetNiRootNode(UInt32 firstPerson);
+		virtual NiNode*					GetNiRootNode(UInt32 a_firstPerson);
 		virtual NiNode*					GetNiNode(void);  // Root of the skeleton (Get3D)
 		virtual void					Unk_71(void);
 		virtual void					Unk_72(void);
@@ -141,7 +141,7 @@ namespace RE
 		virtual void					Unk_7B(void);
 		virtual void					Unk_7C(void);
 		virtual void					Unk_7D(void);
-		virtual ActorWeightModel*		GetWeightModel(UInt32 weightModel);  // 0 Small 1 Large
+		virtual ActorWeightModel*		GetWeightModel(UInt32 a_weightModel);  // 0 Small 1 Large
 		virtual void					Unk_7F(void);
 		virtual void					Unk_80(void);
 		virtual void					Unk_81(void);
@@ -153,7 +153,7 @@ namespace RE
 		virtual void					Unk_87(void);
 		virtual void					Unk_88(void);
 		virtual void					Unk_89(void);
-		virtual void					ResetInventory(bool unk);
+		virtual void					ResetInventory(bool a_unk);
 		virtual void					Unk_8B(void);
 		virtual void					Unk_8C(void);
 		virtual void					Unk_8D(void);
@@ -168,39 +168,40 @@ namespace RE
 		virtual void					Unk_96(void);
 		virtual void					Unk_97(void);
 		virtual void					Unk_98(void);
-		virtual bool					IsDead(bool isActor);
+		virtual bool					IsDead(bool a_isActor);
 		virtual void					Unk_9A(void);
 		virtual void					Unk_9B(void);
 
 
-		inline float			GetBaseScale()													{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetBaseScale)(); }
-		inline bool				IsOffLimits()													{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), IsOffLimits)(); }
-		inline float			GetWeight()														{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWeight)(); }
-		inline const char*		GetReferenceName()												{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetReferenceName)(); }
-		inline TESWorldSpace*	GetWorldspace()													{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWorldspace)(); }
-		inline UInt32			CreateRefHandle()												{ return reinterpret_cast<::TESObjectREFR*>(this)->CreateRefHandle(); }
+		inline float			GetBaseScale()																															{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetBaseScale)(); }
+		inline bool				IsOffLimits()																															{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), IsOffLimits)(); }
+		inline float			GetWeight()																																{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWeight)(); }
+		inline const char*		GetReferenceName()																														{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetReferenceName)(); }
+		inline TESWorldSpace*	GetWorldspace()																															{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWorldspace)(); }
+		inline UInt32			CreateRefHandle()																														{ return reinterpret_cast<::TESObjectREFR*>(this)->CreateRefHandle(); }
 
 		TESNPC*					GetActorOwner();
-		inline TESForm*			GetBaseObject()													{ return baseForm; }
+		inline TESForm*			GetBaseObject()																															{ return baseForm; }
 		TESContainer*			GetContainer();
 		const char*				GetFullName();
 		TESFaction*				GetFactionOwner();
-		inline TESForm*			GetOwner()														{ return CALL_MEMBER_FN(this, GetOwner_Impl)(); }
-		inline TESObjectCELL*	GetParentCell()													{ return parentCell; }
-		inline float			GetPositionX()													{ return pos.x; }
-		inline float			GetPositionY()													{ return pos.y; }
-		inline float			GetPositionZ()													{ return pos.z; }
-		inline bool				Is3DLoaded()													{ return GetNiNode() != 0; }
-		inline bool				IsDeleted()														{ return (flags & kTESFormFlag_Deleted) != 0; }
-		inline bool				IsDisabled()													{ return (flags & kTESFormFlag_Disabled) != 0; }
-		inline bool				IsIgnoringFriendlyHits()										{ return (flags & kTESFormFlag_IgnoreFriendlyHits) != 0; }
+		inline TESForm*			GetOwner()																																{ return CALL_MEMBER_FN(this, GetOwner_Impl)(); }
+		inline TESObjectCELL*	GetParentCell()																															{ return parentCell; }
+		inline float			GetPositionX()																															{ return pos.x; }
+		inline float			GetPositionY()																															{ return pos.y; }
+		inline float			GetPositionZ()																															{ return pos.z; }
+		inline bool				Is3DLoaded()																															{ return GetNiNode() != 0; }
+		inline bool				IsDeleted()																																{ return (flags & kTESFormFlag_Deleted) != 0; }
+		inline bool				IsDisabled()																															{ return (flags & kTESFormFlag_Disabled) != 0; }
+		inline bool				IsIgnoringFriendlyHits()																												{ return (flags & kTESFormFlag_IgnoreFriendlyHits) != 0; }
 		bool					SetDisplayName(const BSFixedString& name, bool force);
-		inline static bool		LookupByHandle(UInt32& refHandle, TESObjectREFR*& refrOut)		{ ::TESObjectREFR* ref = reinterpret_cast<::TESObjectREFR*>(refrOut); return (*LookupREFRByHandle)(&refHandle, &ref); }
-		inline static bool		LookupByHandle(UInt32& refHandle, ::TESObjectREFR*& refrOut)	{ return (*LookupREFRByHandle)(&refHandle, &refrOut); }
-		inline bool				IsLocked()														{ LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)(); return (state && state->isLocked); }
-		inline UInt32			GetNumItems(bool unk1, bool unk2)								{ return CALL_MEMBER_FN(this, GetNumItems)(unk1, unk2); }
-		inline UInt32			ActivateRefChildren(TESObjectREFR* activator)					{ return CALL_MEMBER_FN(this, ActivateRefChildren)(activator); }
-		inline UInt32			ActivateRefChildren(::TESObjectREFR* activator)					{ return CALL_MEMBER_FN(this, ActivateRefChildren)(reinterpret_cast<TESObjectREFR*>(activator)); }
+		inline static bool		LookupByHandle(UInt32& a_refHandle, TESObjectREFR*& a_refrOut)																			{ ::TESObjectREFR* ref = reinterpret_cast<::TESObjectREFR*>(a_refrOut); return (*LookupREFRByHandle)(&a_refHandle, &ref); }
+		inline static bool		LookupByHandle(UInt32& a_refHandle, ::TESObjectREFR*& a_refrOut)																		{ return (*LookupREFRByHandle)(&a_refHandle, &a_refrOut); }
+		inline bool				IsLocked()																																{ LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)(); return (state && state->isLocked); }
+		inline UInt32			GetNumItems(bool a_unk1, bool a_unk2)																									{ return CALL_MEMBER_FN(this, GetNumItems)(a_unk1, a_unk2); }
+		inline UInt32			ActivateRefChildren(TESObjectREFR* a_activator)																							{ return CALL_MEMBER_FN(this, ActivateRefChildren)(a_activator); }
+		inline UInt32			ActivateRefChildren(::TESObjectREFR* a_activator)																						{ return CALL_MEMBER_FN(this, ActivateRefChildren)(reinterpret_cast<TESObjectREFR*>(a_activator)); }
+		inline void				PlayAnimation(RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk)	{ CALL_MEMBER_FN(this, PlayAnimation)(a_manager, a_toSeq, a_fromSeq, a_unk); }
 
 
 		// members
@@ -221,7 +222,8 @@ namespace RE
 		MEMBER_FN_PREFIX(TESObjectREFR);
 		DEFINE_MEMBER_FN(GetOwner_Impl, TESForm*, TES_OBJECT_REFR_GET_OWNER_IMPL);
 		DEFINE_MEMBER_FN(GetLockState_Impl, LockState*, TES_OBJECT_REFR_GET_LOCK_STATE_IMPL);
-		DEFINE_MEMBER_FN(GetNumItems, UInt32, TES_OBJECT_REFR_GET_NUM_ITEMS, bool unk1, bool unk2);
-		DEFINE_MEMBER_FN(ActivateRefChildren, UInt32, TES_OBJECT_REFR_ACTIVATE_CHILDREN, TESObjectREFR* activator);
+		DEFINE_MEMBER_FN(GetNumItems, UInt32, TES_OBJECT_REFR_GET_NUM_ITEMS, bool a_unk1, bool a_unk2);
+		DEFINE_MEMBER_FN(ActivateRefChildren, UInt32, TES_OBJECT_REFR_ACTIVATE_CHILDREN, TESObjectREFR* a_activator);
+		DEFINE_MEMBER_FN(PlayAnimation, void, TES_OBJECT_REFR_PLAY_ANIMATION, RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk);
 	};
 };

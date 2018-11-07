@@ -32,9 +32,9 @@ namespace RE
 
 
 		// members
-		TESForm*		type;
-		ExtendDataList*	extendDataList;
-		SInt32			countDelta;
+		TESForm*		type;			// 00
+		ExtendDataList*	extendDataList;	// 08
+		SInt32			countDelta;		// 10
 
 	private:
 		MEMBER_FN_PREFIX(InventoryEntryData);

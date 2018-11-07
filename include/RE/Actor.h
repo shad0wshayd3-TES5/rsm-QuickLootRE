@@ -6,9 +6,10 @@
 
 #include "Offsets.h"
 
-#include "RE/ActorState.h"  // RE::ActorState
-#include "RE/BGSEntryPointPerkEntry.h"  // RE::BGSEntryPointPerkEntry
-#include "RE/TESObjectREFR.h"  // RE::TESObjectREFR
+#include "RE/ActorProcessManager.h"  // ActorProcessManager
+#include "RE/ActorState.h"  // ActorState
+#include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 class BaseExtraList;
 class BGSPerk;
@@ -21,7 +22,6 @@ class TESRace;
 
 namespace RE
 {
-	class ActorProcessManager;
 	class PerkEntryVisitor;
 
 
@@ -210,7 +210,9 @@ namespace RE
 		bool			IsSneaking();
 		inline bool		IsTrespassing() const																															{ return (flags2 & kFlags2_Trespassing) != 0; }
 		inline void		DispelWornItemEnchantments()																													{ CALL_MEMBER_FN(this, DispelWornItemEnchantments)(); }
-		inline void		SendStealAlarm(TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk2)	{ CALL_MEMBER_FN(this, SendStealAlarm)(a_refItemOrContainer, a_stolenItem, a_numItems, a_value, a_owner, a_unk2); }
+		inline void		SendStealAlarm(TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk)		{ CALL_MEMBER_FN(this, SendStealAlarm)(a_refItemOrContainer, a_stolenItem, a_numItems, a_value, a_owner, a_unk); }
+		inline SInt32	UnkPickPocketFunc(InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk)																{ return CALL_MEMBER_FN(this, UnkPickPocketFunc)(a_entryData, a_numItems, a_unk); }
+		inline SInt32	GetDetectionLevel(Actor* a_target, UInt32 a_flag)																								{ return CALL_MEMBER_FN(this, GetDetectionLevel)(a_target, a_flag); }
 
 
 		// members
@@ -287,7 +289,9 @@ namespace RE
 	private:
 		MEMBER_FN_PREFIX(Actor);
 		DEFINE_MEMBER_FN(DispelWornItemEnchantments, void, ACTOR_DISPEL_WORN_ITEM_ENCHANTMENTS);
-		DEFINE_MEMBER_FN(SendStealAlarm, void, ACTOR_SEND_STEAL_ALARM, TESObjectREFR* refItemOrContainer, TESForm* stolenItem, UInt32 numItems, UInt32 value, TESForm* owner, bool unk2);
+		DEFINE_MEMBER_FN(SendStealAlarm, void, ACTOR_SEND_STEAL_ALARM, TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk);
+		DEFINE_MEMBER_FN(UnkPickPocketFunc, SInt32, ACTOR_UNK_PICK_POCKET_FUNC, InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk);
+		DEFINE_MEMBER_FN(GetDetectionLevel, SInt32, ACTOR_GET_DETECTION_LEVEL, Actor* a_target, UInt32 a_flag);
 	};
 	STATIC_ASSERT(offsetof(Actor, magicTarget) == 0x98);
 	STATIC_ASSERT(offsetof(Actor, actorValueOwner) == 0xB0);

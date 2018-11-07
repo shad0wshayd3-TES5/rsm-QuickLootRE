@@ -10,7 +10,7 @@
 
 #include "Delegates.h"
 #include "HasActivateChoiceVisitor.h"  // HasActivateChoiceVisitor
-#include "Hooks.h"  // PlayAnimation(), PlaySound(), SendItemsPickPocketedEvent()
+#include "Hooks.h"  // SendItemsPickPocketedEvent()
 #include "ItemData.h"  // ItemData
 #include "InventoryList.h"  // g_invList
 #include "Settings.h"  // Settings
@@ -38,6 +38,9 @@
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 class TESObjectREFR;
+
+
+#include "RE/ActorProcessManager.h"
 
 
 namespace QuickLootRE
@@ -149,7 +152,7 @@ namespace QuickLootRE
 			if (a_visible && !_isRegistered) {
 				mc->RegisterHandler(_singleton);
 				_isRegistered = true;
-			} else if (_isRegistered) {
+			} else if (!a_visible && _isRegistered) {
 				mc->RemoveHandler(_singleton);
 				_isRegistered = false;
 			}
@@ -613,7 +616,7 @@ namespace QuickLootRE
 				return;
 			}
 
-			Hooks::PlayAnimation(_containerRef, manager, toSeq, fromSeq, false);
+			_containerRef->PlayAnimation(manager, toSeq, fromSeq, false);
 		}
 	}
 
@@ -633,17 +636,6 @@ namespace QuickLootRE
 	{
 		if (_containerRef) {
 			PlayAnimation("Open", "Close");
-		}
-	}
-
-
-	void LootMenu::PlaySound(TESForm* a_item)
-	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
-		BGSPickupPutdownSounds* sounds = DYNAMIC_CAST(a_item, TESForm, BGSPickupPutdownSounds);
-		if (sounds && sounds->pickUp) {
-			Hooks::PlaySound(sounds->pickUp, false, &_containerRef->pos, player->GetNiNode());
 		}
 	}
 
