@@ -363,6 +363,15 @@
     <ClInclude Include="include\RE\ActorValueOwner.h">
       <Filter>include\RE\Skyrim\FormComponents</Filter>
     </ClInclude>
+    <ClInclude Include="include\RE\TESBoundAnimObject.h">
+      <Filter>include\RE\Skyrim\TESForms\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TESObjectCONT.h">
+      <Filter>include\RE\Skyrim\TESForms\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TESObjectACTI.h">
+      <Filter>include\RE\Skyrim\TESForms\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

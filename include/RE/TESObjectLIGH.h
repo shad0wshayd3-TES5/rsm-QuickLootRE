@@ -1,7 +1,8 @@
 #pragma once
 
 #include "skse64/GameFormComponents.h"  // TESFullName, TESModelTextureSwap, TESIcon, BGSMessageIcon, TESWeightForm, TESValueForm, BGSDestructibleObjectForm, BGSEquipType
-#include "skse64/GameObjects.h"  // TESBoundAnimObject
+
+#include "RE/TESBoundAnimObject.h"  // TESBoundAnimObject
 
 
 namespace RE

@@ -1,6 +1,7 @@
 #include "Hooks.h"
 
 #include "skse64/GameReferences.h"  // g_thePlayer
+#include "skse64/GameTypes.h"  // BSString
 #include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/SafeWrite.h"  // SafeWrite64
 #include "xbyak/xbyak.h"
@@ -15,6 +16,8 @@
 #include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
 #include "RE/PlayerInputHandler.h"  // PlayerInputHandler
 #include "RE/ReadyWeaponHandler.h"  // ReadyWeaponHandler
+#include "RE/TESBoundAnimObject.h"  // TESObjectACTI
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 
 class PlayerCharacter;
@@ -146,11 +149,7 @@ namespace Hooks
 			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
 			BSFixedString str = *a_event->GetControlID();
-			if (str == strHolder->activate || str == strHolder->accept) {
-				bool dummy = true;
-			}
-
-			if (LootMenu::IsVisible() && a_event && (*a_event->GetControlID() == strHolder->activate) && (a_event->eventType == InputEvent::kEventType_Button)) {
+			if (LootMenu::IsVisible() && (str == strHolder->activate || str == strHolder->accept) && (a_event->eventType == InputEvent::kEventType_Button)) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsDown()) {
 					LootMenu::GetSingleton()->TakeItem();
@@ -171,6 +170,45 @@ namespace Hooks
 
 
 	ActivateHandlerEx::_CanProcess ActivateHandlerEx::orig_CanProcess;
+
+
+#if 0
+	template <uintptr_t offset>
+	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
+	{
+	public:
+		typedef bool(TESBoundAnimObjectEx::*_GetCrosshairText)(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
+		static _GetCrosshairText orig_GetCrosshairText;
+
+
+		virtual bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
+		{
+			using QuickLootRE::LootMenu;
+			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+			bool isSneaking = player->IsSneaking();
+			if (LootMenu::CanOpen(a_ref, isSneaking)) {
+				return false;
+			} else {
+				return (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
+			}
+		}
+
+
+		static void installHook()
+		{
+			RelocPtr<_GetCrosshairText> vtbl_GetCrosshairText(offset);
+			orig_GetCrosshairText = *vtbl_GetCrosshairText;
+			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&hook_GetCrosshairText));
+		}
+	};
+
+
+	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
+	typedef TESBoundAnimObjectEx<TES_OBJECT_ACTI_VTBL_META + 0x268> TESObjectACTIEx;
+	typedef TESBoundAnimObjectEx<TES_OBJECT_CONT_VTBL_META + 0x268> TESObjectCONTEx;
+	typedef TESBoundAnimObjectEx<TES_NPC_VTBL_META + 0x268> TESNPCEx;
+#endif
 
 
 	void installHooks()

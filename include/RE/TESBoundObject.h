@@ -1,6 +1,11 @@
 #pragma once
 
 #include "skse64/GameObjects.h"  // TESObject
+
+class BGSVoiceType;
+class BSString;
+
+
 namespace RE
 {
 	class TESObjectREFR;
@@ -17,17 +22,20 @@ namespace RE
 		};
 
 
-		virtual void	Unk_47(UInt32 arg);
-		virtual UInt32	Unk_48(void);
-		virtual UInt32	Unk_49(UInt32 arg);
-		virtual bool	Unk_4A(void);
-		virtual bool	Unk_4B(void* arg0, BSString* dst);
-		virtual bool	Unk_4C(void* arg0, UInt8 arg1, UInt32 arg2, float arg3);
-		virtual void	Unk_4D(UInt32 arg);
-		virtual void	OnRemovedFrom(TESObjectREFR* ref);
-		virtual void	Unk_4F(void);
-		virtual void	Unk_50(void);
-		virtual void	Unk_51(void);
+		// parents (TESObject)
+		virtual void			Unk_47(void);
+
+		// add
+		virtual void			Unk_48(void);
+		virtual BGSVoiceType*	GetVoiceType() const;
+		virtual void			Unk_4A(void);
+		virtual void			Unk_4B(void);
+		virtual bool			GetCrosshairText(TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
+		virtual void			Unk_4D(void);
+		virtual void			OnRemovedFrom(TESObjectREFR* a_ref);
+		virtual void			Unk_4F(void);
+		virtual void			Unk_50(void);
+		virtual void			Unk_51(void);
 
 
 		Bound	bounds;		// 20

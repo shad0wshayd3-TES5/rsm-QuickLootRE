@@ -1,7 +1,9 @@
 #pragma once
 
 #include "skse64/GameFormComponents.h"  // TESFullName, TESModelTextureSwap, TESIcon, TESValueForm, TESWeightForm, TESDescription, BGSDestructibleObjectForm, BGSMessageIcon, BGSPickupPutdownSounds, BGSKeywordForm
-#include "skse64/GameObjects.h"  // TESObjectBOOK, TESBoundObject
+#include "skse64/GameObjects.h"  // TESObjectBOOK
+
+#include "RE/TESBoundObject.h"  // TESBoundObject
 
 class SpellItem;
 class TESObjectSTAT;
