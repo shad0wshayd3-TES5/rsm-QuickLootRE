@@ -22,7 +22,8 @@ class PlayerCharacter;
 
 namespace Hooks
 {
-	RelocAddr<_SendItemsPickPocketedEvent*>	SendItemsPickPocketedEvent(SEND_ITEMS_PICKPOCKETED_EVENT);
+	RelocAddr<_SendItemsPickPocketedEvent*>	SendItemsPickPocketedEvent(SEND_ITEMS_PICK_POCKETED_EVENT);
+	RelocAddr<_GetPickPocketChance*> GetPickPocketChance(GET_PICK_POCKET_CHANCE);
 
 
 	template <uintptr_t offset>

@@ -8,13 +8,16 @@
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include "ExtendDataListVisitor.h"  // ExtendDataListVisitor
+#include "Hooks.h"  // GetPickPocketChance()
 #include "Keywords.h"  // keywords
+#include "Settings.h"  // Settings
 
-#include "RE/BGSBipedObjectForm.h"  // RE::BGSBipedObjectForm
-#include "RE/InventoryEntryData.h"  // RE::InventoryEntryData
-#include "RE/PlayerCharacter.h"  // RE::PlayerCharacter
-#include "RE/TESObjectBOOK.h"  // RE::TESObjectBOOK
-#include "RE/TESObjectREFR.h"  // RE::TESObjectREFR
+#include "RE/ActorValueOwner.h"  // ActorValueOwner
+#include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
+#include "RE/InventoryEntryData.h"  // InventoryEntryData
+#include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESObjectBOOK.h"  // TESObjectBOOK
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 
 namespace QuickLootRE
@@ -29,17 +32,11 @@ namespace QuickLootRE
 		_isStolen(false),
 		_isRead(false),
 		_isEnchanted(false),
+		_pickPocketChance(0),
 		_priority(kPriority_Key)
 	{
-		_name = _entryData->GenerateName();
 		_count = _entryData->countDelta;
-		_value = _entryData->GetValue();
-		_weight = getWeight();
-		_type = getType();
-		_isStolen = getStolen();
-		_isRead = getRead();
-		_isEnchanted = getEnchanted();
-		_priority = getPriority();
+		constructCommon();
 	}
 
 
@@ -53,16 +50,10 @@ namespace QuickLootRE
 		_isStolen(false),
 		_isRead(false),
 		_isEnchanted(false),
+		_pickPocketChance(0.0),
 		_priority(kPriority_Key)
 	{
-		_name = _entryData->GenerateName();
-		_value = _entryData->GetValue();
-		_weight = getWeight();
-		_type = getType();
-		_isStolen = getStolen();
-		_isRead = getRead();
-		_isEnchanted = getEnchanted();
-		_priority = getPriority();
+		constructCommon();
 	}
 
 
@@ -72,16 +63,7 @@ namespace QuickLootRE
 
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		typedef int(*FnCompare)(const ItemData& a_lhs, const ItemData& a_rhs);
-		static FnCompare compares[] = {
-			&CompareByStolen,
-			&CompareByType,
-			&CompareByName,
-			&CompareByValue,
-			&CompareByCount
-		};
-
-		for (FnCompare compare : compares) {
+		for (ItemData::FnCompare compare : ItemData::_compares) {
 			int cmp = compare(a_lhs, a_rhs);
 			if (cmp) {
 				return cmp < 0;
@@ -146,6 +128,12 @@ namespace QuickLootRE
 	}
 
 
+	UInt32 ItemData::pickPocketChance() const
+	{
+		return _pickPocketChance;
+	}
+
+
 	TESForm* ItemData::form() const
 	{
 		return _entryData->type;
@@ -158,9 +146,42 @@ namespace QuickLootRE
 	}
 
 
+	void ItemData::setCompareOrder()
+	{
+		_compares.clear();
+		for (auto& compare : Settings::sortOrder) {
+			if (compare == "name") {
+				_compares.push_back(&compareByName);
+			} else if (compare == "count") {
+				_compares.push_back(&compareByCount);
+			} else if (compare == "value") {
+				_compares.push_back(&compareByValue);
+			} else if (compare == "type") {
+				_compares.push_back(&compareByType);
+			} else if (compare == "stolen") {
+				_compares.push_back(&compareByStolen);
+			}
+		}
+	}
+
+
 	void ItemData::setContainer(RE::TESObjectREFR* a_container)
 	{
 		_container = a_container;
+	}
+
+
+	void ItemData::constructCommon()
+	{
+		_name = _entryData->GenerateName();
+		_value = _entryData->GetValue();
+		_weight = getWeight();
+		_type = getType();
+		_isStolen = getStolen();
+		_isRead = getRead();
+		_isEnchanted = getEnchanted();
+		_pickPocketChance = getPickPocketChance();
+		_priority = getPriority();
 	}
 
 
@@ -383,6 +404,8 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypePotion(AlchemyItem* a_potion)
 	{
+		typedef RE::ActorValueOwner::ActorValue ActorValue;
+
 		ItemData::Type type = ItemData::kType_DefaultPotion;
 
 		if (a_potion->IsFood()) {
@@ -393,17 +416,17 @@ namespace QuickLootRE
 			MagicItem::EffectItem* effectItem = CALL_MEMBER_FN(a_potion, GetCostliestEffectItem)(5, false);
 			if (effectItem && effectItem->mgef) {
 				switch (effectItem->mgef->properties.primaryValue) {
-				case kActorValue_Health:
+				case ActorValue::kActorValue_Health:
 					return kType_PotionHealth;
-				case kActorValue_Magicka:
+				case ActorValue::kActorValue_Magicka:
 					return kType_PotionMagic;
-				case kActorValue_Stamina:
+				case ActorValue::kActorValue_Stamina:
 					return kType_PotionStam;
-				case kActorValue_FireResist:
+				case ActorValue::kActorValue_FireResist:
 					return kType_PotionFire;
-				case kActorValue_ElectricResist:
+				case ActorValue::kActorValue_ElectricResist:
 					return kType_PotionShock;
-				case kActorValue_FrostResist:
+				case ActorValue::kActorValue_FrostResist:
 					return kType_PotionFrost;
 				}
 			}
@@ -472,6 +495,32 @@ namespace QuickLootRE
 	}
 
 
+	UInt32 ItemData::getPickPocketChance()
+	{
+		using Hooks::GetPickPocketChance;
+		typedef RE::ActorValueOwner::ActorValue ActorValue;
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+		if (player->IsSneaking() && _container->baseForm->formType == kFormType_NPC && !_container->IsDead(true)) {
+			RE::Actor* targetActor = static_cast<RE::Actor*>(_container);
+
+			float totalWeight = _entryData->GetWeight() * _count;
+			UInt32 totalValue = targetActor->CalcEntryValue(_entryData, _count, true);
+			bool isDetected = targetActor->GetDetectionLevel(player, 3) > 0;
+			float playerSkill = player->actorValueOwner.GetPlayerActorValueCurrent(ActorValue::kActorValue_Pickpocket);
+			float targetSkill = targetActor->actorValueOwner.GetActorValueCurrent(ActorValue::kActorValue_Pickpocket);
+
+			UInt32 chance = GetPickPocketChance(playerSkill, targetSkill, totalValue, totalWeight, player, targetActor, isDetected, _entryData->type);
+			if (chance > 100) {
+				chance = 100;
+			}
+			return chance;
+		} else {
+			return 0;
+		}
+	}
+
+
 	bool ItemData::getRead()
 	{
 		if (_entryData->type->formType == kFormType_Book) {
@@ -532,7 +581,7 @@ namespace QuickLootRE
 	}
 
 
-	int CompareByStolen(const ItemData& a_lhs, const ItemData& a_rhs)
+	int compareByStolen(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		SInt32 valueLHS = a_lhs._isStolen ? 1 : 0;
 		SInt32 valueRHS = a_rhs._isStolen ? 1 : 0;
@@ -541,19 +590,19 @@ namespace QuickLootRE
 	}
 
 
-	static int CompareByType(const ItemData& a_lhs, const ItemData& a_rhs)
+	static int compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		return a_lhs._priority - a_rhs._priority;
 	}
 
 
-	static int CompareByName(const ItemData& a_lhs, const ItemData& a_rhs)
+	static int compareByName(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		return strcmp(a_lhs._name, a_rhs._name);
 	}
 
 
-	static int CompareByValue(const ItemData& a_lhs, const ItemData& a_rhs)
+	static int compareByValue(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		SInt32 valueLHS = a_lhs._value;
 		SInt32 valueRHS = a_rhs._value;
@@ -561,15 +610,15 @@ namespace QuickLootRE
 	}
 
 
-	static int CompareByCount(const ItemData& a_lhs, const ItemData& a_rhs)
+	static int compareByCount(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		SInt32 valueLHS = a_lhs._count;
 		SInt32 valueRHS = a_rhs._count;
 		return valueLHS - valueRHS;
 	}
 
-
-	RE::TESObjectREFR* ItemData::_container = 0;
+	std::vector<ItemData::FnCompare>	ItemData::_compares;
+	RE::TESObjectREFR*					ItemData::_container = 0;
 
 	const char* ItemData::_strIcons[] = {
 		"none",					// 00

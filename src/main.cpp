@@ -11,6 +11,7 @@
 #include "Delegates.h"  // g_task
 #include "Events.h"  // g_crosshairRefEventHandler, g_containerChangedEventHandler
 #include "Hooks.h"  // installHooks()
+#include "ItemData.h"  // SetCompareOrder()
 #include "Keywords.h"  // initializeKeywords()
 #include "LootMenu.h"  // LootMenuCreator
 #include "Settings.h"  // Settings
@@ -43,6 +44,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		_MESSAGE("[MESSAGE] LootMenu registered");
 
 		QuickLootRE::Settings::loadSettings();
+		QuickLootRE::ItemData::setCompareOrder();
 		_MESSAGE("[MESSAGE] Settings loaded");
 
 		break;

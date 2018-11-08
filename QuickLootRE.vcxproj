@@ -169,6 +169,7 @@
     <ClInclude Include="include\Exceptions.h" />
     <ClInclude Include="include\ExtendDataListVisitor.h" />
     <ClInclude Include="include\RE\ActivateHandler.h" />
+    <ClInclude Include="include\RE\ActorValueOwner.h" />
     <ClInclude Include="include\RE\GFxFileConstants.h" />
     <ClInclude Include="include\RE\GFxLoader.h" />
     <ClInclude Include="include\RE\GFxMovie.h" />

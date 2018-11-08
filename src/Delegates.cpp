@@ -23,7 +23,7 @@ namespace QuickLootRE
 			GFxValue args[2];
 
 			args[0].SetNumber(LootMenu::GetPlatform());
-			args[0].SetBool(false);
+			args[1].SetBool(false);
 
 			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetPlatform", 0, args, 2);
 		}
@@ -126,7 +126,7 @@ namespace QuickLootRE
 					isStolen[i].SetBool(g_invList[i].isStolen());
 					isEnchanted[i].SetBool(g_invList[i].isEnchanted());
 					isRead[i].SetBool(g_invList[i].isRead());
-					itemChance[i].SetNumber(0);
+					itemChance[i].SetNumber(g_invList[i].pickPocketChance());
 					iconLabel[i].SetString(g_invList[i].icon());
 
 					item[i].SetMember("text", &text[i]);

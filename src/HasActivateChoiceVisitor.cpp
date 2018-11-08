@@ -28,6 +28,7 @@ namespace QuickLootRE
 		if (perkEntry->CanProcess(2, &_actor)) {
 			RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(perkEntry);
 			if (entryPoint->functionData) {
+				_DMESSAGE("[DEBUG] 0x%p", entryPoint);
 				RE::BGSEntryPointFunctionDataActivateChoice* activateChoice = static_cast<RE::BGSEntryPointFunctionDataActivateChoice*>(entryPoint->functionData);
 				if (entryPoint->perk && activateChoice) {
 					if ((activateChoice->flags & RE::BGSEntryPointFunctionDataActivateChoice::kFlag_RunImmediately) == 0) {

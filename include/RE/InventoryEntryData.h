@@ -29,6 +29,7 @@ namespace RE
 
 		inline bool							IsOwnedBy(TESForm* actor, TESForm* itemOwner, bool unk1)										{ return CALL_MEMBER_FN(this, IsOwnedBy)(actor, itemOwner, unk1); }
 		inline TESForm*						GetOwner()																						{ return CALL_MEMBER_FN(this, GetOwner)(); }
+		inline float						GetWeight()																						{ return CALL_MEMBER_FN(this, GetWeight)(); }
 
 
 		// members
@@ -40,5 +41,6 @@ namespace RE
 		MEMBER_FN_PREFIX(InventoryEntryData);
 		DEFINE_MEMBER_FN(IsOwnedBy, bool, INVENTORY_ENTRY_DATA_IS_OWNED_BY, TESForm* actor, TESForm* itemOwner, bool unk1);
 		DEFINE_MEMBER_FN(GetOwner, TESForm*, INVENTORY_ENTRY_DATA_GET_OWNER);
+		DEFINE_MEMBER_FN(GetWeight, float, INVENTORY_ENTRY_DATA_GET_WEIGHT);	// { return TESWeightForm::weight; } - Only for certain formtypes
 	};
 }

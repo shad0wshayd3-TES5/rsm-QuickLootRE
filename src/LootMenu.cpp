@@ -410,7 +410,6 @@ namespace QuickLootRE
 			if (CanOpen(_containerRef, !player->IsSneaking())) {
 				Open();
 			}
-			return true;
 		} else if (controlID == strHolder->togglePOV) {
 			TakeAllItems();
 			Register(kScaleform_OpenContainer);
@@ -642,6 +641,7 @@ namespace QuickLootRE
 
 	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_enableTheft)
 	{
+		using Hooks::SendItemsPickPocketedEvent;
 		typedef RE::PlayerCharacter::EventType	EventType;
 		typedef RE::TESObjectREFR::RemoveType	RemoveType;
 
@@ -674,7 +674,7 @@ namespace QuickLootRE
 					if (!pickSuccess) {
 						return;
 					} else {
-						Hooks::SendItemsPickPocketedEvent(a_item.count());
+						SendItemsPickPocketedEvent(a_item.count());
 					}
 				}
 			} else {
