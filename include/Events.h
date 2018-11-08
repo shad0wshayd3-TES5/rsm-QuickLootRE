@@ -4,6 +4,7 @@
 #include "skse64/GameFormComponents.h"  // TESContainer::Entry
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
 
+#include <utility>  // pair
 #include <map>  // map
 #include <vector>  // vector
 
@@ -59,7 +60,8 @@ namespace QuickLootRE
 
 
 	typedef SInt32 Count;
-	static std::map<TESForm*, Count> defaultMap;
+	typedef UInt32 FormID;
+	static std::map<FormID, std::pair<TESForm*, Count>> defaultMap;
 
 	extern CrosshairRefEventHandler g_crosshairRefEventHandler;
 	extern MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;

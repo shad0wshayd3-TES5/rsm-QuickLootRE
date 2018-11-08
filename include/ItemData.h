@@ -25,27 +25,27 @@ namespace QuickLootRE
 
 		enum FormID : UInt32
 		{
-			kFormID_LockPick = 0x0000000A,
-			kFormID_Gold = 0x0000000F,
-			kFormID_Leather01 = 0x000DB5D2,
-			kFormID_LeatherStrips = 0x000800E4,
+			kFormID_LockPick				= 0x0000000A,
+			kFormID_Gold					= 0x0000000F,
+			kFormID_Leather01				= 0x000DB5D2,
+			kFormID_LeatherStrips			= 0x000800E4,
 
-			kFormID_DragonClawIron = 0x0008CDFA,
-			kFormID_DragonClawGoldenE3 = 0x000999E7,
-			kFormID_DragonClawGoldenMS13 = 0x00039647,
-			kFormID_DragonClawCoral = 0x000B634C,
-			kFormID_DragonClawIvory = 0x000AB7BB,
-			kFormID_DragonClawRuby = 0x0004B56C,
-			kFormID_DragonClawSapphire = 0x000663D7,
-			kFormID_DragonClawEmerald = 0x000ED417,
-			kFormID_DragonClawGlass = 0x0007C260,
-			kFormID_DragonClawEbony = 0x0005AF48,
-			kFormID_DragonClawDiamond = 0x000AB375,
+			kFormID_DragonClawIron			= 0x0008CDFA,
+			kFormID_DragonClawGoldenE3		= 0x000999E7,
+			kFormID_DragonClawGoldenMS13	= 0x00039647,
+			kFormID_DragonClawCoral			= 0x000B634C,
+			kFormID_DragonClawIvory			= 0x000AB7BB,
+			kFormID_DragonClawRuby			= 0x0004B56C,
+			kFormID_DragonClawSapphire		= 0x000663D7,
+			kFormID_DragonClawEmerald		= 0x000ED417,
+			kFormID_DragonClawGlass			= 0x0007C260,
+			kFormID_DragonClawEbony			= 0x0005AF48,
+			kFormID_DragonClawDiamond		= 0x000AB375,
 
-			kFormID_ITMPotionUse = 0x000B6435,
+			kFormID_ITMPotionUse			= 0x000B6435,
 
-			kFormID_DA01SoulGemAzurasStar = 0x00063B27,
-			kFormID_DA01SoulGemBlackStar = 0x00063B29,
+			kFormID_DA01SoulGemAzurasStar	= 0x00063B27,
+			kFormID_DA01SoulGemBlackStar	= 0x00063B29,
 		};
 
 

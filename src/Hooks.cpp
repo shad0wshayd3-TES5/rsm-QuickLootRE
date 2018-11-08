@@ -149,7 +149,7 @@ namespace Hooks
 			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
 			BSFixedString str = *a_event->GetControlID();
-			if (LootMenu::IsVisible() && (str == strHolder->activate || str == strHolder->accept) && (a_event->eventType == InputEvent::kEventType_Button)) {
+			if (LootMenu::IsVisible() && str == strHolder->activate && (a_event->eventType == InputEvent::kEventType_Button)) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsDown()) {
 					LootMenu::GetSingleton()->TakeItem();

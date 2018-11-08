@@ -1,9 +1,15 @@
 #include "Utility.h"
 
+#include "skse64/GameObjects.h"  // TESNPC
+
 #include <cctype>  // toupper
 #include <ios>  // hex
 #include <sstream>  // stringstream
 #include <string>  // string, strlen
+
+#include "RE/Actor.h"  // Actor
+#include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 
 namespace QuickLootRE
@@ -32,5 +38,18 @@ namespace QuickLootRE
 		}
 
 		return hexStr;
+	}
+
+
+	bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
+	{
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+		if (a_refr && a_refr->baseForm->formType == kFormType_NPC) {
+			RE::Actor* npc = static_cast<RE::Actor*>(a_refr);
+			return (a_isSneaking && !npc->IsDead(true) && !npc->IsGhost() && !npc->IsChild());
+		} else {
+			return false;
+		}
 	}
 }

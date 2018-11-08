@@ -2,6 +2,7 @@
 
 #include <exception>  // exception
 
+#include "Events.h"  // getInventoryList()
 #include "Exceptions.h"  // bad_gfx_value_interface
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
@@ -140,7 +141,7 @@ namespace QuickLootRE
 					args[0].PushBack(&item[i]);
 				}
 
-				loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
+				bool result = loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
 
 				GFxValueDeallocTaskDelegate* dlgt = (GFxValueDeallocTaskDelegate*)Heap_Allocate(sizeof(GFxValueDeallocTaskDelegate));
 				new (dlgt)GFxValueDeallocTaskDelegate;
@@ -268,6 +269,32 @@ namespace QuickLootRE
 		if (this) {
 			Heap_Free(this);
 		}
+	}
+
+
+	void DelayedUpdater::Run()
+	{
+		if (LootMenu::IsVisible()) {
+			RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+			TESContainer* container = ref->GetContainer();
+			g_invList.clear();
+			defaultMap.clear();
+			ItemData::setContainer(ref);
+			getInventoryList(&ref->extraData, container);
+			g_invList.sort();
+			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+		}
+	}
+
+
+	void DelayedUpdater::Dispose()
+	{}
+
+
+	void DelayedUpdater::Register()
+	{
+		static DelayedUpdater dlgt;
+		g_task->AddTask(&dlgt);
 	}
 
 

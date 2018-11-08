@@ -14,6 +14,7 @@
 #include "ItemData.h"  // ItemData
 #include "InventoryList.h"  // g_invList
 #include "Settings.h"  // Settings
+#include "Utility.h"  // IsValidPickPocketTarget()
 
 #include "RE/ActorProcessManager.h"  // ActorProcessManager
 #include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
@@ -183,11 +184,11 @@ namespace QuickLootRE
 
 	bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	{
-		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static BSFixedString		strAnimationDriven = "bAnimationDriven";
-		static TESFaction*			CurrentFollowerFaction = static_cast<TESFaction*>(LookupFormByID(kFormID_CurrentFollowerFaction));
+		static RE::MenuManager*		mm						= RE::MenuManager::GetSingleton();
+		static RE::InputManager*	mapping					= RE::InputManager::GetSingleton();
+		static RE::PlayerCharacter*	player					= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static BSFixedString		strAnimationDriven		= "bAnimationDriven";
+		static TESFaction*			CurrentFollowerFaction	= static_cast<TESFaction*>(LookupFormByID(kFormID_CurrentFollowerFaction));
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
@@ -242,10 +243,12 @@ namespace QuickLootRE
 		case kFormType_NPC:
 			if (a_ref->IsDead(true)) {
 				containerRef = a_ref;
-			} else if (!Settings::disablePickPocketing && !a_ref->IsChild() && a_isSneaking) {
+			} else if (!Settings::disablePickPocketing && IsValidPickPocketTarget(a_ref, a_isSneaking)) {
 				RE::Actor* target = static_cast<RE::Actor*>(a_ref);
 				if (!target->IsPlayerTeammate() && !target->IsInFaction(CurrentFollowerFaction)) {
-					if (!target->IsInCombat()) {
+					if (Settings::disableInCombat && !target->IsInCombat()) {
+						containerRef = a_ref;
+					} else {
 						containerRef = a_ref;
 					}
 				}
@@ -515,14 +518,10 @@ namespace QuickLootRE
 			return;
 		}
 
-		if (_containerRef->baseForm->formType == kFormType_NPC) {
-			if (!_containerRef->IsDead(true) && player->IsSneaking()) {
-				return;
-			}
-		} else {
-			if (_containerRef->IsOffLimits()) {
-				return;
-			}
+		if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
+			return;
+		} else if (_containerRef->IsOffLimits()) {
+			return;
 		}
 
 		_inTakeAllMode = true;
@@ -533,7 +532,6 @@ namespace QuickLootRE
 		g_invList.clear();
 
 		_inTakeAllMode = false;
-		Register(kScaleform_OpenContainer);
 	}
 
 

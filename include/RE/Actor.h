@@ -22,6 +22,7 @@ class TESRace;
 
 namespace RE
 {
+	class BaseExtraList;
 	class PerkEntryVisitor;
 
 
@@ -192,8 +193,8 @@ namespace RE
 		inline bool		HasPerk(BGSPerk* a_perk)																														{ return CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), HasPerk)(a_perk); }
 		inline UInt16	GetLevel()																																		{ return CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), GetLevel)(); }
 		inline void		SetRace(TESRace* a_race, bool a_isPlayer)																										{ CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), SetRace)(a_race, a_isPlayer); }
-		inline void		UpdateWeaponAbility(TESForm* a_weapon, ::BaseExtraList* a_extraData, bool a_bLeftHand)															{ CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), UpdateWeaponAbility)(a_weapon, a_extraData, a_bLeftHand); }
-		inline void		UpdateArmorAbility(TESForm* a_armor, ::BaseExtraList* a_extraData)																				{ CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), UpdateArmorAbility)(a_armor, a_extraData); }
+		inline void		UpdateWeaponAbility(TESForm* a_weapon, BaseExtraList* a_extraData, bool a_bLeftHand)															{ CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), UpdateWeaponAbility)(a_weapon, reinterpret_cast<::BaseExtraList*>(a_extraData), a_bLeftHand); }
+		inline void		UpdateArmorAbility(TESForm* a_armor, BaseExtraList* a_extraData)																				{ CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), UpdateArmorAbility)(a_armor, reinterpret_cast<::BaseExtraList*>(a_extraData)); }
 		inline bool		IsHostileToActor(::Actor* a_actor)																												{ return CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), IsHostileToActor)(a_actor); }
 		inline void		ResetAI(UInt32 a_unk1, UInt32 a_unk2)																											{ CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), ResetAI)(a_unk1, a_unk2); }
 
@@ -213,6 +214,7 @@ namespace RE
 		inline void		SendStealAlarm(TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk)		{ CALL_MEMBER_FN(this, SendStealAlarm)(a_refItemOrContainer, a_stolenItem, a_numItems, a_value, a_owner, a_unk); }
 		inline SInt32	CalcEntryValue(InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk)																	{ return CALL_MEMBER_FN(this, CalcEntryValue)(a_entryData, a_numItems, a_unk); }
 		inline SInt32	GetDetectionLevel(Actor* a_target, UInt32 a_flag)																								{ return CALL_MEMBER_FN(this, GetDetectionLevel)(a_target, a_flag); }
+		inline bool		IsGhost()																																		{ return CALL_MEMBER_FN(this, IsGhost)(); }
 
 
 		// members
@@ -292,6 +294,7 @@ namespace RE
 		DEFINE_MEMBER_FN(SendStealAlarm, void, ACTOR_SEND_STEAL_ALARM, TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk);
 		DEFINE_MEMBER_FN(CalcEntryValue, SInt32, ACTOR_CALC_ENTRY_VALUE, InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk);
 		DEFINE_MEMBER_FN(GetDetectionLevel, SInt32, ACTOR_GET_DETECTION_LEVEL, Actor* a_target, UInt32 a_flag);
+		DEFINE_MEMBER_FN(IsGhost, bool, ACTOR_IS_GHOST);
 	};
 	STATIC_ASSERT(offsetof(Actor, magicTarget) == 0x98);
 	STATIC_ASSERT(offsetof(Actor, actorValueOwner) == 0xB0);

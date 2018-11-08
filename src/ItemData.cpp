@@ -11,6 +11,7 @@
 #include "Hooks.h"  // GetPickPocketChance()
 #include "Keywords.h"  // keywords
 #include "Settings.h"  // Settings
+#include "Utility.h"  // IsValidPickPocketTarget()
 
 #include "RE/ActorValueOwner.h"  // ActorValueOwner
 #include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
@@ -501,7 +502,7 @@ namespace QuickLootRE
 		typedef RE::ActorValueOwner::ActorValue ActorValue;
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
-		if (player->IsSneaking() && _container->baseForm->formType == kFormType_NPC && !_container->IsDead(true)) {
+		if (IsValidPickPocketTarget(_container, player->IsSneaking())) {
 			RE::Actor* targetActor = static_cast<RE::Actor*>(_container);
 
 			float totalWeight = _entryData->GetWeight() * _count;

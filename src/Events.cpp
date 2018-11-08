@@ -9,8 +9,10 @@
 #include "skse64/GameMenus.h"  // UIManager
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
 
+#include <utility>  // pair
 #include <map>  // map
 
+#include "Delegates.h"  // DelayedUpdater
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 
@@ -26,7 +28,7 @@ namespace QuickLootRE
 {
 	bool TESContainerVisitor::Accept(TESContainer::Entry* a_entry)
 	{
-		defaultMap[a_entry->form] = a_entry->count;
+		defaultMap.emplace(a_entry->form->formID, std::pair<TESForm*, Count>(a_entry->form, a_entry->count));
 		return true;
 	}
 
@@ -35,14 +37,13 @@ namespace QuickLootRE
 	{
 		RE::InventoryEntryData* entryData = reinterpret_cast<RE::InventoryEntryData*>(a_entryData);
 		if (entryData) {
-			auto it = defaultMap.find(entryData->type);
+			auto it = defaultMap.find(entryData->type->formID);
 			if (it != defaultMap.end()) {
-				SInt32 count = it->second + entryData->countDelta;
+				SInt32 count = it->second.second + entryData->countDelta;
 				if (count > 0) {
 					g_invList.add(entryData, count);
-				} else {
-					defaultMap.erase(entryData->type);
 				}
+				defaultMap.erase(entryData->type->formID);
 			} else if (entryData->countDelta > 0) {
 				g_invList.add(entryData);
 			}
@@ -123,12 +124,7 @@ namespace QuickLootRE
 			if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
 				TESContainer* container = ref->GetContainer();
 				if (container) {
-					g_invList.clear();
-					defaultMap.clear();
-					ItemData::setContainer(ref);
-					getInventoryList(&ref->extraData, container);
-					g_invList.sort();
-					LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+					DelayedUpdater::Register();  // These events are fired before the container is updated, so we need to wait a bit
 				}
 			}
 		}
@@ -151,7 +147,7 @@ namespace QuickLootRE
 
 		// Add remaining default items
 		for (auto& it : defaultMap) {
-			g_invList.add(it.first, it.second);
+			g_invList.add(it.second.first, it.second.second);
 		}
 	}
 
