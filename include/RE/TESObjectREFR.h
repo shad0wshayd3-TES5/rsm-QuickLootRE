@@ -200,7 +200,6 @@ namespace RE
 		inline bool				IsLocked()																																{ LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)(); return (state && state->isLocked); }
 		inline UInt32			GetNumItems(bool a_unk1, bool a_unk2)																									{ return CALL_MEMBER_FN(this, GetNumItems)(a_unk1, a_unk2); }
 		inline UInt32			ActivateRefChildren(TESObjectREFR* a_activator)																							{ return CALL_MEMBER_FN(this, ActivateRefChildren)(a_activator); }
-		inline UInt32			ActivateRefChildren(::TESObjectREFR* a_activator)																						{ return CALL_MEMBER_FN(this, ActivateRefChildren)(reinterpret_cast<TESObjectREFR*>(a_activator)); }
 		inline void				PlayAnimation(RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk)	{ CALL_MEMBER_FN(this, PlayAnimation)(a_manager, a_toSeq, a_fromSeq, a_unk); }
 
 

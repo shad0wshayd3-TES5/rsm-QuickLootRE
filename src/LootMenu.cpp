@@ -622,10 +622,12 @@ namespace QuickLootRE
 
 	void LootMenu::PlayAnimationOpen()
 	{
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
 		if (_containerRef) {
 			PlayAnimation("Close", "Open");
 			if (_containerRef->formType != kFormType_Character) {
-				_containerRef->ActivateRefChildren(*g_thePlayer);
+				_containerRef->ActivateRefChildren(player);
 			}
 		}
 	}
