@@ -9,7 +9,7 @@ namespace RE
 {
 	TESObjectREFR* PlayerCharacter::GetGrabbedRef()
 	{
-		TESObjectREFR* refPtr = 0;
+		TESObjectREFRPtr refPtr = 0;
 		UInt32 handle = playerGrabbedHandle;
 		if (handle != *g_invalidRefHandle) {
 			TESObjectREFR::LookupByHandle(handle, refPtr);

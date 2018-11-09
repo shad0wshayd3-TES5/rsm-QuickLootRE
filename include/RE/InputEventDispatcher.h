@@ -27,6 +27,7 @@ namespace RE
 		static inline InputEventDispatcher*	GetSingleton()		{ return reinterpret_cast<InputEventDispatcher*>(::InputEventDispatcher::GetSingleton()); }
 
 		inline bool							IsGamepadEnabled()	{ return gamepadHandler && gamepadHandler->gamepad && gamepadHandler->gamepad->IsEnabled(); }
+		inline BSGamepadDevice*				GetGamepad()		{ return gamepadHandler ? gamepadHandler->gamepad : 0; }
 
 
 		// members

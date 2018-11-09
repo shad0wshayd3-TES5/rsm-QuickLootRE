@@ -27,11 +27,24 @@ namespace RE
 	class NiNode;
 
 
-	class TESObjectREFR : public TESForm
+	MAKE_NI_POINTER(TESObjectREFR);
+
+
+	class TESObjectREFR :
+		public TESForm,
+		public BSHandleRefObject
 	{
+	private:
+		static inline bool LookupREFRByHandle(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut)
+		{
+			typedef bool _Lookup(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
+			static _Lookup* Lookup = reinterpret_cast<_Lookup*>(LookupREFRObjectByHandle.GetUIntPtr());
+
+			return Lookup(a_refHandle, a_refrOut);
+		}
+
 	public:
 		// parents
-		BSHandleRefObject						handleRefObject;	// 20
 		BSTEventSink <BSAnimationGraphEvent>	animGraphEventSink;	// 30
 		IAnimationGraphManagerHolder			animGraphHolder;	// 38
 
@@ -195,8 +208,7 @@ namespace RE
 		inline bool				IsDisabled()																															{ return (flags & kTESFormFlag_Disabled) != 0; }
 		inline bool				IsIgnoringFriendlyHits()																												{ return (flags & kTESFormFlag_IgnoreFriendlyHits) != 0; }
 		bool					SetDisplayName(const BSFixedString& name, bool force);
-		inline static bool		LookupByHandle(UInt32& a_refHandle, TESObjectREFR*& a_refrOut)																			{ ::TESObjectREFR* ref = reinterpret_cast<::TESObjectREFR*>(a_refrOut); return (*LookupREFRByHandle)(&a_refHandle, &ref); }
-		inline static bool		LookupByHandle(UInt32& a_refHandle, ::TESObjectREFR*& a_refrOut)																		{ return (*LookupREFRByHandle)(&a_refHandle, &a_refrOut); }
+		inline static bool		LookupByHandle(UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut)																		{ return LookupREFRByHandle(a_refHandle, a_refrOut); }
 		inline bool				IsLocked()																																{ LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)(); return (state && state->isLocked); }
 		inline UInt32			GetNumItems(bool a_unk1, bool a_unk2)																									{ return CALL_MEMBER_FN(this, GetNumItems)(a_unk1, a_unk2); }
 		inline UInt32			ActivateRefChildren(TESObjectREFR* a_activator)																							{ return CALL_MEMBER_FN(this, ActivateRefChildren)(a_activator); }

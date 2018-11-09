@@ -226,9 +226,9 @@ namespace QuickLootRE
 		switch (a_ref->baseForm->formType) {
 		case kFormType_Activator:
 		{
-			UInt32 refHandle = a_ref->extraData.GetAshPileRefHandle(refHandle);
-			if (refHandle != *g_invalidRefHandle) {
-				RE::TESObjectREFR* refPtr = 0;
+			UInt32 refHandle = 0;
+			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
+				RE::TESObjectREFRPtr refPtr = 0;
 				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
 					containerRef = refPtr;
 				}
@@ -568,19 +568,28 @@ namespace QuickLootRE
 			return false;
 		}
 
-		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
-		if (keyboard && keyboard->IsEnabled()) {
-			if (keyRun != RE::InputManager::kInvalid && keyboard->IsPressed(keyRun)) {
-				return true;
+		try {
+			RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
+			if (keyboard && keyboard->IsEnabled()) {
+				if (keyRun != RE::InputManager::kInvalid && keyboard->IsPressed(keyRun)) {
+					return true;
+				}
 			}
+		} catch (std::exception& e) {
+			_ERROR("[ERROR] %s", e.what());
 		}
 
-		RE::BSGamepadDevice* gamepadHandle = inputDispatcher->gamepadHandler ? inputDispatcher->gamepadHandler->gamepad : 0;
-		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
-		if (gamepad && gamepad->IsEnabled()) {
-			if (keySprint != RE::InputManager::kInvalid && gamepad->IsPressed(keySprint)) {
-				return true;
+		RE::BSGamepadDevice* gamepadHandle = 0;
+		try {
+			gamepadHandle = inputDispatcher->GetGamepad();
+			RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
+			if (gamepad && gamepad->IsEnabled()) {
+				if (keySprint != RE::InputManager::kInvalid && gamepad->IsPressed(keySprint)) {
+					return true;
+				}
 			}
+		} catch (std::exception& e) {
+			_ERROR("[ERROR] %s", e.what());
 		}
 
 		return false;

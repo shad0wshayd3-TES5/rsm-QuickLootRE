@@ -76,12 +76,12 @@ namespace QuickLootRE
 
 		// If player is looking at a container
 		if (LootMenu::CanOpen(ref, player->IsSneaking())) {
-			LootMenu::SetContainerRef(ref);
-			TESContainer* container = ref->GetContainer();
+			RE::TESObjectREFR* containerRef = LootMenu::GetContainerRef();
+			TESContainer* container = containerRef->GetContainer();
 			g_invList.clear();
 			defaultMap.clear();
-			ItemData::setContainer(ref);
-			getInventoryList(&ref->extraData, container);
+			ItemData::setContainer(containerRef);
+			getInventoryList(&containerRef->extraData, container);
 			g_invList.sort();
 			LootMenu::Close();
 			LootMenu::Open();
