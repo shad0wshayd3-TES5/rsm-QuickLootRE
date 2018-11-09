@@ -9,12 +9,13 @@
 
 #include "ExtendDataListVisitor.h"  // ExtendDataListVisitor
 #include "Hooks.h"  // GetPickPocketChance()
-#include "Keywords.h"  // keywords
+#include "Forms.h"  // keywords, FormID
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget()
 
 #include "RE/ActorValueOwner.h"  // ActorValueOwner
 #include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
+#include "RE/EffectSetting.h"  // EffectSetting::Properties::ActorValue
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESObjectBOOK.h"  // TESObjectBOOK
@@ -345,25 +346,25 @@ namespace QuickLootRE
 			return kType_MiscWood;
 		} else {
 			switch (a_misc->formID) {
-			case kFormID_LockPick:
+			case kMISCFormID_LockPick:
 				return kType_MiscLockPick;
-			case kFormID_Gold:
+			case kMISCFormID_Gold:
 				return kType_MiscGold;
-			case kFormID_Leather01:
+			case kMISCFormID_Leather01:
 				return kType_MiscLeather;
-			case kFormID_LeatherStrips:
+			case kMISCFormID_LeatherStrips:
 				return kType_MiscStrips;
-			case kFormID_DragonClawIron:
-			case kFormID_DragonClawGoldenE3:
-			case kFormID_DragonClawGoldenMS13:
-			case kFormID_DragonClawCoral:
-			case kFormID_DragonClawIvory:
-			case kFormID_DragonClawRuby:
-			case kFormID_DragonClawSapphire:
-			case kFormID_DragonClawEmerald:
-			case kFormID_DragonClawGlass:
-			case kFormID_DragonClawEbony:
-			case kFormID_DragonClawDiamond:
+			case kMISCFormID_DragonClawIron:
+			case kMISCFormID_DragonClawGoldenE3:
+			case kMISCFormID_DragonClawGoldenMS13:
+			case kMISCFormID_DragonClawCoral:
+			case kMISCFormID_DragonClawIvory:
+			case kMISCFormID_DragonClawRuby:
+			case kMISCFormID_DragonClawSapphire:
+			case kMISCFormID_DragonClawEmerald:
+			case kMISCFormID_DragonClawGlass:
+			case kMISCFormID_DragonClawEbony:
+			case kMISCFormID_DragonClawDiamond:
 				return kType_MiscDragonClaw;
 			default:
 				return kType_DefaultMisc;
@@ -405,12 +406,12 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypePotion(AlchemyItem* a_potion)
 	{
-		typedef RE::ActorValueOwner::ActorValue ActorValue;
+		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
 
 		ItemData::Type type = ItemData::kType_DefaultPotion;
 
 		if (a_potion->IsFood()) {
-			return (a_potion->itemData.useSound && a_potion->itemData.useSound->formID == kFormID_ITMPotionUse) ? kType_FoodWine : kType_DefaultFood;
+			return (a_potion->itemData.useSound && a_potion->itemData.useSound->formID == kSNDRFormID_ITMPotionUse) ? kType_FoodWine : kType_DefaultFood;
 		} else if (a_potion->IsPoison()) {
 			return kType_PotionPoison;
 		} else {
@@ -438,7 +439,7 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypeSoulGem(TESSoulGem* a_gem)
 	{
-		if (a_gem->formID == kFormID_DA01SoulGemBlackStar || a_gem->formID == kFormID_DA01SoulGemAzurasStar) {
+		if (a_gem->formID == kSLGMFormID_DA01SoulGemBlackStar || a_gem->formID == kSLGMFormID_DA01SoulGemAzurasStar) {
 			return kType_SoulGemAzura;
 		} else {
 			UInt32 xSoulSize = _entryData->GetSoulLevel();
@@ -499,7 +500,7 @@ namespace QuickLootRE
 	UInt32 ItemData::getPickPocketChance()
 	{
 		using Hooks::GetPickPocketChance;
-		typedef RE::ActorValueOwner::ActorValue ActorValue;
+		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (IsValidPickPocketTarget(_container, player->IsSneaking())) {

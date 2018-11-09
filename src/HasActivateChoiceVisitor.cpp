@@ -2,6 +2,8 @@
 
 #include "skse64/GameForms.h"  // BGSPerk
 
+#include "Forms.h"  // PERKFormID
+
 #include "RE/BGSEntryPointFunctionDataActivateChoice.h"  // RE::BGSEntryPointFunctionDataActivateChoice
 #include "RE/BGSEntryPointPerkEntry.h"  // RE::BGSEntryPointPerkEntry
 #include "RE/BGSPerkEntry.h"  // RE::BGSPerkEntry
@@ -33,8 +35,8 @@ namespace QuickLootRE
 				if (entryPoint->perk && activateChoice) {
 					if ((activateChoice->flags & RE::BGSEntryPointFunctionDataActivateChoice::kFlag_RunImmediately) == 0) {
 						switch (entryPoint->perk->formID) {
-						case kPerkFormID_VampireFeed:
-						case kPerkFormID_Cannibalism:
+						case kPERKFormID_VampireFeed:
+						case kPERKFormID_Cannibalism:
 							break;
 						default:
 							_result = true;

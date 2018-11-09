@@ -1,14 +1,16 @@
 #pragma once
 
 #include "skse64/GameEvents.h"  // BSTEventSink
-#include "skse64/GameFormComponents.h"  // MagicTarget, ActorValueOwner
 #include "skse64/GameReferences.h"  // IPostAnimationChannelUpdateFunctor, SpellArray, Actor
 
 #include "Offsets.h"
 
 #include "RE/ActorProcessManager.h"  // ActorProcessManager
 #include "RE/ActorState.h"  // ActorState
+#include "RE/ActorValueOwner.h"  // ActorValueOwner
 #include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
+#include "RE/MagicTarget.h"  // MagicTarget
+#include "RE/TESNPC.h"
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 class BaseExtraList;
@@ -16,7 +18,6 @@ class BGSPerk;
 class SpellItem;
 class TESFaction;
 class TESForm;
-class TESNPC;
 class TESRace;
 
 
@@ -215,6 +216,7 @@ namespace RE
 		inline SInt32	CalcEntryValue(InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk)																	{ return CALL_MEMBER_FN(this, CalcEntryValue)(a_entryData, a_numItems, a_unk); }
 		inline SInt32	GetDetectionLevel(Actor* a_target, UInt32 a_flag)																								{ return CALL_MEMBER_FN(this, GetDetectionLevel)(a_target, a_flag); }
 		inline bool		IsGhost()																																		{ return CALL_MEMBER_FN(this, IsGhost)(); }
+		inline bool		IsSummoned()																																	{ return GetActorBase() ? GetActorBase()->actorData.IsSummonable() : false; }
 
 
 		// members

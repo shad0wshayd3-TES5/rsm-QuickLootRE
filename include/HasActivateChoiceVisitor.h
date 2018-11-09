@@ -14,14 +14,6 @@ namespace QuickLootRE
 {
 	class HasActivateChoiceVisitor : public RE::PerkEntryVisitor
 	{
-	private:
-		enum PerkFormID : UInt32
-		{
-			kPerkFormID_VampireFeed = 0x000CF02C,
-			kPerkFormID_Cannibalism = 0x000EE5C3
-		};
-
-
 	public:
 		HasActivateChoiceVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target);
 

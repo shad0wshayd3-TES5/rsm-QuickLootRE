@@ -10,9 +10,9 @@
 
 #include "Delegates.h"  // g_task
 #include "Events.h"  // g_crosshairRefEventHandler, g_containerChangedEventHandler
+#include "Forms.h"  // initalizeForms()
 #include "Hooks.h"  // installHooks()
 #include "ItemData.h"  // SetCompareOrder()
-#include "Keywords.h"  // initializeKeywords()
 #include "LootMenu.h"  // LootMenuCreator
 #include "Settings.h"  // Settings
 
@@ -50,10 +50,10 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		break;
 	}
 	case SKSEMessagingInterface::kMessage_DataLoaded:
-		if (!QuickLootRE::initalizeKeywords()) {
-			_FATALERROR("[FATAL ERROR] Failed to initialize keywords!\n");
+		if (!QuickLootRE::initalizeForms()) {
+			_FATALERROR("[FATAL ERROR] Failed to initialize forms!\n");
 		} else {
-			_MESSAGE("[MESSAGE] Keywords initialized\n");
+			_MESSAGE("[MESSAGE] Forms initialized\n");
 		}
 		break;
 	}

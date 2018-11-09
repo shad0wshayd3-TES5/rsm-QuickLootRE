@@ -9,6 +9,7 @@
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
 #include "Delegates.h"
+#include "Forms.h"  // FACTFormID
 #include "HasActivateChoiceVisitor.h"  // HasActivateChoiceVisitor
 #include "Hooks.h"  // SendItemsPickPocketedEvent()
 #include "ItemData.h"  // ItemData
@@ -188,7 +189,6 @@ namespace QuickLootRE
 		static RE::InputManager*	mapping					= RE::InputManager::GetSingleton();
 		static RE::PlayerCharacter*	player					= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 		static BSFixedString		strAnimationDriven		= "bAnimationDriven";
-		static TESFaction*			CurrentFollowerFaction	= static_cast<TESFaction*>(LookupFormByID(kFormID_CurrentFollowerFaction));
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
@@ -241,10 +241,10 @@ namespace QuickLootRE
 			}
 			break;
 		case kFormType_NPC:
-			if (a_ref->IsDead(true)) {
+			RE::Actor* target = static_cast<RE::Actor*>(a_ref);
+			if (a_ref->IsDead(true) && !target->IsSummoned()) {
 				containerRef = a_ref;
 			} else if (!Settings::disablePickPocketing && IsValidPickPocketTarget(a_ref, a_isSneaking)) {
-				RE::Actor* target = static_cast<RE::Actor*>(a_ref);
 				if (!target->IsPlayerTeammate() && !target->IsInFaction(CurrentFollowerFaction)) {
 					if (Settings::disableInCombat && !target->IsInCombat()) {
 						containerRef = a_ref;

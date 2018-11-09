@@ -47,12 +47,6 @@ namespace QuickLootRE
 			kPlatform_Other = 2
 		};
 
-
-		enum FormID : UInt32
-		{
-			kFormID_CurrentFollowerFaction = 0x0005C84E
-		};
-
 	public:
 		enum Scaleform : UInt32
 		{

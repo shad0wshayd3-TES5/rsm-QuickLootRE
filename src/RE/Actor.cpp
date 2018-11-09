@@ -1,7 +1,8 @@
 #include "RE/Actor.h"
 
 #include "skse64/GameForms.h"  // TESRace
-#include "skse64/GameObjects.h"  // TESNPC
+
+#include "RE/TESNPC.h"  // TESNPC
 
 
 namespace RE
