@@ -19,7 +19,6 @@ namespace RE
 	class ExtraLock : public BSExtraData
 	{
 	public:
-		explicit ExtraLock(LockState *a_state) : state(a_state) {}
 		virtual ~ExtraLock();
 
 

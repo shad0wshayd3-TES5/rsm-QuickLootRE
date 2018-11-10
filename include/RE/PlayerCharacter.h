@@ -7,7 +7,11 @@
 
 #include "Offsets.h"
 
-#include "RE/Character.h"  // RE::Character
+#include "RE/BGSActorCellEvent.h"  // BGSActorCellEvent
+#include "RE/BGSActorDeathEvent.h"  // BGSActorDeathEvent
+#include "RE/Character.h"  // Character
+#include "RE/PositionPlayerEvent.h"  // PositionPlayerEvent
+#include "RE/UserEventEnabledEvent.h"  // UserEventEnabledEvent
 
 class BGSLocation;
 class BGSPerk;
@@ -28,19 +32,17 @@ namespace RE
 	class TESObjectREFR;
 
 
-	class PlayerCharacter : public Character
+	class PlayerCharacter :
+		public Character,
+		public BSTEventSink<MenuOpenCloseEvent>,
+		public BSTEventSink<MenuModeChangeEvent>,
+		public BSTEventSink<UserEventEnabledEvent>,
+		public BSTEventSink<TESTrackedStatsEvent>,
+		public BSTEventSource<BGSActorCellEvent>,
+		public BSTEventSource<BGSActorDeathEvent>,
+		public BSTEventSource<PositionPlayerEvent>
 	{
 	public:
-		// parents
-		BSTEventSink<MenuOpenCloseEvent>	menuOpenCloseEvent;			// 2B0
-		BSTEventSink<MenuModeChangeEvent>	menuModeChangeEvent;		// 2B8
-		BSTEventSink<void*>					userEventEnabledEvent;		// 2C0
-		BSTEventSink<void*>					trackedStatsEvent;			// 2C8
-		BSTEventSource<void>				actorCellEventSource;		// 2D0
-		BSTEventSource<void*>				actorDeathEventSource;		// 328
-		BSTEventSource<void*>				positionPlayerEventSource;	// 380
-
-
 		enum EventType : UInt32
 		{
 			kEventType_Thief = 3,
@@ -67,18 +69,18 @@ namespace RE
 
 		virtual ~PlayerCharacter();
 
-		inline TintMask*				GetOverlayTintMask(TintMask* original)																		{ return reinterpret_cast<::PlayerCharacter*>(this)->GetOverlayTintMask(original); }
-		inline tArray<TintMask*>*		GetTintList()																								{ return reinterpret_cast<::PlayerCharacter*>(this)->GetTintList(); }
-		inline UInt32					GetNumTints(UInt32 tintType)																				{ return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetNumTints)(tintType); }
-		inline TintMask*				GetTintMask(UInt32 tintType, UInt32 index)																	{ return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetTintMask)(tintType, index); }
-		inline float					GetDamage(InventoryEntryData* pForm)																		{ return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetDamage)(reinterpret_cast<::InventoryEntryData*>(pForm)); }
-		inline float					GetArmorValue(InventoryEntryData* pForm)																	{ return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetArmorValue)(reinterpret_cast<::InventoryEntryData*>(pForm)); }
+		TintMask*			GetOverlayTintMask(TintMask* original);
+		tArray<TintMask*>*	GetTintList();
+		UInt32				GetNumTints(UInt32 tintType);
+		TintMask*			GetTintMask(UInt32 tintType, UInt32 index);
+		float				GetDamage(InventoryEntryData* pForm);
+		float				GetArmorValue(InventoryEntryData* pForm);
 
-		inline Actor*					GetActorInFavorState()																						{ return CALL_MEMBER_FN(this, GetActorInFavorState)(); }
-		TESObjectREFR*					GetGrabbedRef();
-		inline void						PlayPickupEvent(TESForm* item, TESForm* containerOwner, TESObjectREFR* containerRef, EventType eventType)	{ CALL_MEMBER_FN(this, PlayPickupEvent)(item, containerOwner, containerRef, eventType); }
-		inline void						StartActivation()																							{ CALL_MEMBER_FN(this, StartActivation)(); }
-		inline bool						TryToPickPocket(Actor* target, InventoryEntryData* pEntry, UInt32 numItems, bool unk4)						{ return CALL_MEMBER_FN(this, TryToPickPocket)(target, pEntry, numItems, unk4); }
+		Actor*				GetActorInFavorState();
+		TESObjectREFR*		GetGrabbedRef();
+		void				PlayPickupEvent(TESForm* item, TESForm* containerOwner, TESObjectREFR* containerRef, EventType eventType);
+		void				StartActivation();
+		bool				TryToPickPocket(Actor* target, InventoryEntryData* pEntry, UInt32 numItems, bool unk4);
 
 
 		// members
@@ -220,7 +222,7 @@ namespace RE
 		UInt32							unk7D8;					// 7D8
 		Data7DC							unk7DC[15];				// 7DC
 		UInt32							unk890;					// 890 - init'd to 15
-		UInt32							unk894;					// 894
+		UInt32							unk894;					// 894 - handle?
 		UInt32							unk898;					// 898
 		UInt32							unk89C;					// 89C
 		UInt64							unk8A0[5];				// 8A0

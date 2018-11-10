@@ -15,12 +15,12 @@ namespace RE
 	class PlayerInputHandler
 	{
 		virtual	bool	CanProcess(InputEvent* a_event) = 0;
-		virtual	void	ProcessThumbstick(ThumbstickEvent* a_event, PlayerControls::Data024* a_arg2);
-		virtual	void	ProcessMouseMove(MouseMoveEvent* a_event, PlayerControls::Data024* a_arg2);
-		virtual	void	ProcessButton(ButtonEvent* a_event, PlayerControls::Data024* a_arg2);
+		virtual	void	ProcessThumbstick(ThumbstickEvent* a_event, PlayerControls::Data028* a_arg2);
+		virtual	void	ProcessMouseMove(MouseMoveEvent* a_event, PlayerControls::Data028* a_arg2);
+		virtual	void	ProcessButton(ButtonEvent* a_event, PlayerControls::Data028* a_arg2);
 
-		inline bool		IsEnabled() const				{ return enabled != 0; }
-		inline void		Enable(bool a_enable = true)	{ enabled = (a_enable) ? 1 : 0; }
+		bool			IsEnabled() const;
+		void			Enable(bool a_enable = true);
 
 		// members
 		UInt32			enabled;	// 08

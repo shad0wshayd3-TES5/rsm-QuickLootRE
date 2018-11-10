@@ -1,32 +1,33 @@
 #pragma once
 
 #include "skse64/GameEvents.h"  // BSTEventSink, MenuModeChangeEvent
-#include "skse64/GameInput.h"  // MenuControls
 #include "skse64/GameTypes.h"  // tArray
 #include "skse64/PapyrusEvents.h"  // MenuModeChangeEvent
 
 #include "Offsets.h"
+
+#include "RE/BSTSingleton.h"  // BSTSingletonSDM
 
 class InputEvent;
 
 
 namespace RE
 {
-	class MenuControls
+	class MenuEventHandler;
+
+
+	class MenuControls :
+		public BSTEventSink<InputEvent*>,
+		public BSTSingletonSDM<MenuControls>,
+		public BSTEventSink<MenuModeChangeEvent>
 	{
 	public:
-		// Parents
-		BSTEventSink<InputEvent*>			inputEventSink;				// 00
-		BSTEventSink<MenuModeChangeEvent>	menuModeChangeEventSink;	// 08
-		void*								unk08;						// 10 - singleton
-
-
 		virtual ~MenuControls();
 
-		inline static MenuControls*	GetSingleton()								{ return reinterpret_cast<MenuControls*>(::MenuControls::GetSingleton()); }
+		static MenuControls*	GetSingleton();
 
-		inline void					RegisterHandler(MenuEventHandler* handler)	{ CALL_MEMBER_FN(this, RegisterHandler_Impl)(handler); }
-		inline void					RemoveHandler(MenuEventHandler* handler)	{ CALL_MEMBER_FN(this, RemoveHandler_Impl)(handler); }
+		void					RegisterHandler(MenuEventHandler* handler);
+		void					RemoveHandler(MenuEventHandler* handler);
 
 
 		// members
@@ -49,4 +50,5 @@ namespace RE
 		DEFINE_MEMBER_FN(RegisterHandler_Impl, void, MENU_CONTROLS_REGISTER_HANDLER_IMPL, MenuEventHandler* handler);
 		DEFINE_MEMBER_FN(RemoveHandler_Impl, void, MENU_CONTROLS_REMOVE_HANDLER_IMPL, MenuEventHandler* handler);
 	};
+	STATIC_ASSERT(offsetof(MenuControls, remapMode) == 0x082);
 }

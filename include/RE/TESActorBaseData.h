@@ -61,21 +61,21 @@ namespace RE
 		virtual bool			Unk_07(void);
 		virtual BGSVoiceType*	GetVoiceType();
 
-		inline bool				IsFemale()					{ return (flags & kFlag_Female) != 0; }
-		inline bool				IsEssential()				{ return (flags & kFlag_Essential) != 0; }
-		inline bool				Respawns()					{ return (flags & kFlag_Respawn) != 0; }
-		inline bool				UsesAutoCalc()				{ return (flags & kFlag_AutoCalc) != 0; }
-		inline bool				IsUnique()					{ return (flags & kFlag_Unique) != 0; }
-		inline bool				AffectsStealth()			{ return (flags & kFlag_DontAffectStealth) == 0; }
-		inline bool				HasPCLevelMult()			{ return (flags & kFlag_PCLevelMult) != 0; }
-		inline bool				Protects()					{ return (flags & kFlag_Protect) != 0; }
-		inline bool				IsSummonable()				{ return (flags & kFlag_Summonable) != 0; }
-		inline bool				Bleeds()					{ return (flags & kFlag_DoesntBleed) == 0; }
-		inline bool				HasBleedoutOverride()		{ return (flags & kFlag_BleedoutOverride) != 0; }
-		inline bool				UsesOppositeGenderAnims()	{ return (flags & kFlag_OppositeGenderanims) != 0; }
-		inline bool				IsSimpleActor()				{ return (flags & kFlag_SimpleActor) != 0; }
-		inline bool				IsGhost()					{ return (flags & kFlag_Ghost) != 0; }
-		inline bool				IsInvulnerable()			{ return (flags & kFlag_Invulnerable) != 0; }
+		bool					IsFemale();
+		bool					IsEssential();
+		bool					Respawns();
+		bool					UsesAutoCalc();
+		bool					IsUnique();
+		bool					AffectsStealth();
+		bool					HasPCLevelMult();
+		bool					Protects();
+		bool					IsSummonable();
+		bool					Bleeds();
+		bool					HasBleedoutOverride();
+		bool					UsesOppositeGenderAnims();
+		bool					IsSimpleActor();
+		bool					IsGhost();
+		bool					IsInvulnerable();
 
 
 		Flag				flags;		// 08 - init'd to 0

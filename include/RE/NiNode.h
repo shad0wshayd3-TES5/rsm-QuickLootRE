@@ -1,7 +1,6 @@
 #pragma once
 
 #include "skse64/NiNodes.h"  // NiNode
-#include "skse64/NiObjects.h"  // NiAVObject
 
 #include "RE/NiAVObject.h"  // RE::NiAVObject
 
@@ -23,8 +22,10 @@ namespace RE
 		virtual void			Unk_3A(void);
 		virtual void			UpdateUpwardPass(void);
 
-		NiTArray<NiAVObject*>	m_children;	// A8
+		static NiNode*			Create(UInt32 arrBufLen = 0);
 
-		inline static NiNode*	Create(UInt32 arrBufLen = 0)	{ return reinterpret_cast<NiNode*>(::NiNode::Create(arrBufLen)); }
+
+		// members
+		NiTArray<NiAVObject*>	m_children;	// A8
 	};
 }

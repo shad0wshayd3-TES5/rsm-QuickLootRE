@@ -4,14 +4,53 @@
 #include "skse64/GameFormComponents.h"  // TESContainer, TESFullName
 #include "skse64/GameForms.h"  // TESFaction
 #include "skse64/GameObjects.h"  // TESNPC, TESObjectCONT, TESActorBase
+#include "skse64/GameReferences.h"  // TESObjectREFR
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/GameTypes.h"  // BSFixedString
 
 #include <exception>  // exception
 
+#include "RE/ExtraLock.h"
+
 
 namespace RE
 {
+	float TESObjectREFR::GetBaseScale()
+	{
+		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetBaseScale)();
+	}
+
+
+	bool TESObjectREFR::IsOffLimits()
+	{
+		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), IsOffLimits)();
+	}
+
+
+	float TESObjectREFR::GetWeight()
+	{
+		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWeight)();
+	}
+
+
+	const char* TESObjectREFR::GetReferenceName()
+	{
+		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetReferenceName)();
+	}
+
+
+	TESWorldSpace* TESObjectREFR::GetWorldspace()
+	{
+		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWorldspace)();
+	}
+
+
+	UInt32 TESObjectREFR::CreateRefHandle()
+	{
+		return reinterpret_cast<::TESObjectREFR*>(this)->CreateRefHandle();
+	}
+
+
 	TESNPC* TESObjectREFR::GetActorOwner()
 	{
 		ExtraOwnership* exOwnership = static_cast<ExtraOwnership*>(extraData.GetByType(kExtraData_Ownership));
@@ -23,7 +62,13 @@ namespace RE
 	}
 
 
-	TESContainer * TESObjectREFR::GetContainer()
+	TESForm* TESObjectREFR::GetBaseObject()
+	{
+		return baseForm;
+	}
+
+
+	TESContainer* TESObjectREFR::GetContainer()
 	{
 		TESContainer* container = 0;
 		if (baseForm) {
@@ -75,6 +120,60 @@ namespace RE
 	}
 
 
+	TESForm* TESObjectREFR::GetOwner()
+	{
+		return CALL_MEMBER_FN(this, GetOwner_Impl)();
+	}
+
+
+	TESObjectCELL* TESObjectREFR::GetParentCell()
+	{
+		return parentCell;
+	}
+
+
+	float TESObjectREFR::GetPositionX()
+	{
+		return pos.x;
+	}
+
+
+	float TESObjectREFR::GetPositionY()
+	{
+		return pos.y;
+	}
+
+
+	float TESObjectREFR::GetPositionZ()
+	{
+		return pos.z;
+	}
+
+
+	bool TESObjectREFR::Is3DLoaded()
+	{
+		return GetNiNode() != 0;
+	}
+
+
+	bool TESObjectREFR::IsDeleted()
+	{
+		return (flags & kTESFormFlag_Deleted) != 0;
+	}
+
+
+	bool TESObjectREFR::IsDisabled()
+	{
+		return (flags & kTESFormFlag_Disabled) != 0;
+	}
+
+
+	bool TESObjectREFR::IsIgnoringFriendlyHits()
+	{
+		return (flags & kTESFormFlag_IgnoreFriendlyHits) != 0;
+	}
+
+
 	bool TESObjectREFR::SetDisplayName(const BSFixedString& name, bool force)
 	{
 		bool renamed = false;
@@ -96,5 +195,48 @@ namespace RE
 		}
 
 		return renamed;
+	}
+
+
+	bool TESObjectREFR::LookupByHandle(UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut)
+	{
+		typedef bool _Lookup(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
+		static _Lookup* Lookup = reinterpret_cast<_Lookup*>(::LookupREFRObjectByHandle.GetUIntPtr());
+
+		return Lookup(a_refHandle, a_refrOut);
+	}
+
+
+	bool TESObjectREFR::LookupByHandle(UInt32& a_refHandle, TESObjectREFR*& a_refrOut)
+	{
+		typedef bool _Lookup(const UInt32& a_refHandle, TESObjectREFR*& a_refrOut);
+		static _Lookup* Lookup = reinterpret_cast<_Lookup*>(::LookupREFRByHandle.GetUIntPtr());
+
+		return Lookup(a_refHandle, a_refrOut);
+	}
+
+
+	bool TESObjectREFR::IsLocked()
+	{
+		LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)();
+		return (state && state->isLocked);
+	}
+
+
+	UInt32 TESObjectREFR::GetNumItems(bool a_unk1, bool a_unk2)
+	{
+		return CALL_MEMBER_FN(this, GetNumItems)(a_unk1, a_unk2);
+	}
+
+
+	UInt32 TESObjectREFR::ActivateRefChildren(TESObjectREFR* a_activator)
+	{
+		return CALL_MEMBER_FN(this, ActivateRefChildren)(a_activator);
+	}
+
+
+	void TESObjectREFR::PlayAnimation(RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk)
+	{
+		CALL_MEMBER_FN(this, PlayAnimation)(a_manager, a_toSeq, a_fromSeq, a_unk);
 	}
 }

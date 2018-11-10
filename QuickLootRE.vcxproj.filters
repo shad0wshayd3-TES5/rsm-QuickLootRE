@@ -91,6 +91,39 @@
     <Filter Include="src\RE\Skyrim\Magic">
       <UniqueIdentifier>{0f744115-aeec-45b4-886a-05c36f067ae5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\RE\SKSE">
+      <UniqueIdentifier>{3d9a3353-0c7b-43b5-a7a7-b90abb0487ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\SKSE\API">
+      <UniqueIdentifier>{7c08d68c-dcef-4ddf-9ccf-f415fd38f005}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\Events">
+      <UniqueIdentifier>{9979b69c-714e-47ef-948a-19a9293bdb01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\ExtraData">
+      <UniqueIdentifier>{9c1e4a5f-2023-47a5-95d3-f3245b226161}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\FormComponents">
+      <UniqueIdentifier>{34e6db25-f8f5-41e8-9618-0e56420cbca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\Menus">
+      <UniqueIdentifier>{8639fa70-bb65-41f8-9703-7197f8b3da10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\Misc">
+      <UniqueIdentifier>{e4c29fee-7193-4742-a331-6ec4390487ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\NetImmerse">
+      <UniqueIdentifier>{18a7224a-297f-431e-a39c-16a3621488e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\Scaleform">
+      <UniqueIdentifier>{ac67e670-77c4-4c0f-85a1-bcb92dd1126b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\TESForms\Character">
+      <UniqueIdentifier>{85837295-49fe-48c5-b835-4b196640d002}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\RE\Skyrim\TESForms\Objects">
+      <UniqueIdentifier>{a45b72b2-4bd0-44e0-b255-a4941cbc080a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -146,6 +179,99 @@
     </ClCompile>
     <ClCompile Include="src\Forms.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\BSInputDevice.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\InputEventDispatcher.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\EventDispatcherList.cpp">
+      <Filter>src\RE\SKSE\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\MenuControls.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\MenuEventHandler.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\PlayerControls.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\PlayerInputHandler.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\ButtonEvent.cpp">
+      <Filter>src\RE\Skyrim\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\ExtraContainerChanges.cpp">
+      <Filter>src\RE\Skyrim\ExtraData</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\ActorValueOwner.cpp">
+      <Filter>src\RE\Skyrim\FormComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\BaseExtraList.cpp">
+      <Filter>src\RE\Skyrim\FormComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\BGSBipedObjectForm.cpp">
+      <Filter>src\RE\Skyrim\FormComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\TESActorBaseData.cpp">
+      <Filter>src\RE\Skyrim\FormComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\ActiveEffect.cpp">
+      <Filter>src\RE\Skyrim\Magic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\EffectSetting.cpp">
+      <Filter>src\RE\Skyrim\Magic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\MagicItem.cpp">
+      <Filter>src\RE\Skyrim\Magic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\IMenu.cpp">
+      <Filter>src\RE\Skyrim\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\MenuManager.cpp">
+      <Filter>src\RE\Skyrim\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\InventoryEntryData.cpp">
+      <Filter>src\RE\Skyrim\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\NiAVObject.cpp">
+      <Filter>src\RE\Skyrim\NetImmerse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\NiControllerManager.cpp">
+      <Filter>src\RE\Skyrim\NetImmerse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\NiControllerSequence.cpp">
+      <Filter>src\RE\Skyrim\NetImmerse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\NiNode.cpp">
+      <Filter>src\RE\Skyrim\NetImmerse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\NiObjectNET.cpp">
+      <Filter>src\RE\Skyrim\NetImmerse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\GFxLoader.cpp">
+      <Filter>src\RE\Skyrim\Scaleform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\GFxState.cpp">
+      <Filter>src\RE\Skyrim\Scaleform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\TESNPC.cpp">
+      <Filter>src\RE\Skyrim\TESForms\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\TESObjectBOOK.cpp">
+      <Filter>src\RE\Skyrim\TESForms\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\TESObjectLIGH.cpp">
+      <Filter>src\RE\Skyrim\TESForms\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\ActorProcessManager.cpp">
+      <Filter>src\RE\Skyrim\TESForms\World\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\BSWin32KeyboardDevice.cpp">
+      <Filter>src\RE\Skyrim\BSDevices</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -401,6 +527,27 @@
     </ClInclude>
     <ClInclude Include="include\RE\TESNPC.h">
       <Filter>include\RE\Skyrim\TESForms\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\UserEventEnabledEvent.h">
+      <Filter>include\RE\Skyrim\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BGSActorCellEvent.h">
+      <Filter>include\RE\Skyrim\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BGSActorDeathEvent.h">
+      <Filter>include\RE\Skyrim\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\PositionPlayerEvent.h">
+      <Filter>include\RE\Skyrim\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BSTransformDeltaEvent.h">
+      <Filter>include\RE\Skyrim\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\bhkCharacterMoveFinishEvent.h">
+      <Filter>include\RE\Skyrim\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BSTSingleton.h">
+      <Filter>include\RE\Skyrim\BSCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

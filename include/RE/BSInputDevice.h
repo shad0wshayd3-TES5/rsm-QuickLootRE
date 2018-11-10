@@ -2,8 +2,8 @@
 
 #include "skse64/GameTypes.h"  // BSFixedString
 
-#include "RE/BSIInputDevice.h"  // RE::BSIInputDevice
-#include "RE/BSTHashMap.h"  // RE::BSTHashMap
+#include "RE/BSIInputDevice.h"  // BSIInputDevice
+#include "RE/BSTHashMap.h"  // BSTHashMap
 
 
 namespace RE
@@ -38,10 +38,10 @@ namespace RE
 		virtual bool	IsEnabled(void) const;
 		virtual void	Unk_08(void* unk1);
 
-		inline bool		IsKeyboard() const				{ return type == kInputDevice_Keyboard; }
-		inline bool		IsMouse() const					{ return type == kInputDevice_Mouse; }
-		inline bool		IsGamepad() const				{ return type == kInputDevice_Gamepad; }
-		inline bool		IsPressed(UInt32 keyCode) const	{ Data *data = 0; return (codeMap.GetAt(keyCode, data) && data->timer > 0.0f); }
+		bool			IsKeyboard() const;
+		bool			IsMouse() const;
+		bool			IsGamepad() const;
+		bool			IsPressed(UInt32 keyCode) const;
 
 
 		// members
@@ -50,7 +50,6 @@ namespace RE
 		BSTHashMap<UInt32, Data*>	codeMap;	// 10
 	};
 	STATIC_ASSERT(offsetof(BSInputDevice, type) == 0x08);
-	STATIC_ASSERT(offsetof(BSInputDevice, pad0C) == 0x0C);
 	STATIC_ASSERT(offsetof(BSInputDevice, codeMap) == 0x10);
 	STATIC_ASSERT(sizeof(BSInputDevice::codeMap) == 0x30);
 }

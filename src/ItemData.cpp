@@ -509,8 +509,8 @@ namespace QuickLootRE
 			float totalWeight = _entryData->GetWeight() * _count;
 			UInt32 totalValue = targetActor->CalcEntryValue(_entryData, _count, true);
 			bool isDetected = targetActor->GetDetectionLevel(player, 3) > 0;
-			float playerSkill = player->actorValueOwner.GetPlayerActorValueCurrent(ActorValue::kActorValue_Pickpocket);
-			float targetSkill = targetActor->actorValueOwner.GetActorValueCurrent(ActorValue::kActorValue_Pickpocket);
+			float playerSkill = player->GetPlayerActorValueCurrent(ActorValue::kActorValue_Pickpocket);
+			float targetSkill = targetActor->GetActorValueCurrent(ActorValue::kActorValue_Pickpocket);
 
 			UInt32 chance = GetPickPocketChance(playerSkill, targetSkill, totalValue, totalWeight, player, targetActor, isDetected, _entryData->type);
 			if (chance > 100) {

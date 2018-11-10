@@ -1,26 +1,23 @@
 #pragma once
 
-#include "common/ITypes.h"  // UInt8, UInt32, SInt32
 #include "skse64/GameEvents.h"  // BSTEventSource
 #include "skse64/GameInput.h"  // InputManager
 #include "skse64/GameTypes.h"  // BSFixedString, tArray
 
-#include "RE/BSInputDevice.h"  // RE::BSInputDevice
+#include "RE/BSInputDevice.h"  // BSInputDevice
+#include "RE/BSTSingleton.h"  // BSTSingletonSDM
 
 
 namespace RE
 {
-	class InputManager
+	class InputManager :
+		public BSTEventSource<InputEvent*>,
+		public BSTSingletonSDM<InputManager>
 	{
 	private:
 		typedef RE::BSInputDevice::InputDevice InputDevice;
 
 	public:
-		// parents
-		void*						unkPtr000;	// 000 - singleton
-		BSTEventSource<void*>		unk008;		// 008 - UserEventEnabledEvent
-
-
 		enum Context : UInt32
 		{
 			kContext_Gameplay = 0,
@@ -81,27 +78,28 @@ namespace RE
 		};
 
 
-		inline static InputManager*	GetSingleton()						{ return reinterpret_cast<InputManager*>(::InputManager::GetSingleton()); }
-		inline UInt8				AllowTextInput(bool allow)			{ return reinterpret_cast<::InputManager*>(this)->AllowTextInput(allow); }
+		static InputManager*	GetSingleton();
+		UInt8					AllowTextInput(bool allow);
 
-		UInt32						GetMappedKey(const BSFixedString& name, InputDevice deviceType, Context contextIdx = kContext_Gameplay) const;
-		const BSFixedString&		GetUserEventName(UInt32 buttonID, InputDevice deviceType, Context contextIdx = kContext_Gameplay) const;
-		inline bool					IsLookingControlsEnabled() const	{ return (controlState & kControlState_Looking) == kControlState_Looking; }
-		inline bool					IsFlyingControlsEnabled() const		{ return (controlState & kControlState_Flying) == kControlState_Flying; }
-		inline bool					IsSneakingControlsEnabled() const	{ return (controlState & kControlState_Sneaking) == kControlState_Sneaking; }
-		inline bool					IsMenuControlsEnabled() const		{ return (controlState & kControlState_Menu) == kControlState_Menu; }
-		inline bool					IsMovementControlsEnabled() const	{ return (controlState & kControlState_Movement) == kControlState_Movement; }
+		UInt32					GetMappedKey(const BSFixedString& name, InputDevice deviceType, Context contextIdx = kContext_Gameplay) const;
+		const BSFixedString&	GetUserEventName(UInt32 buttonID, InputDevice deviceType, Context contextIdx = kContext_Gameplay) const;
+		bool					IsLookingControlsEnabled() const;
+		bool					IsFlyingControlsEnabled() const;
+		bool					IsSneakingControlsEnabled() const;
+		bool					IsMenuControlsEnabled() const;
+		bool					IsMovementControlsEnabled() const;
 
 
 		// members
-		InputContext*				context[kContext_Count];	// 060
-		tArray<void*>				unk0E8;						// 0E8
-		tArray<void*>				unk100;						// 100
-		SInt32						controlState;				// 118 - init'd to -1
-		UInt32						unk11C;						// 11C - init'd to 0x80000000
-		UInt8						allowTextInput;				// 120 - init'd to 0
-		UInt8						unk121;						// 121 - init'd to 0
-		UInt8						unk122;						// 122 - init'd to 0
-		UInt8						pad[5];						// 123
+		InputContext*	context[kContext_Count];	// 060
+		tArray<void*>	unk0E8;						// 0E8
+		tArray<void*>	unk100;						// 100
+		SInt32			controlState;				// 118 - init'd to -1
+		UInt32			unk11C;						// 11C - init'd to 0x80000000
+		UInt8			allowTextInput;				// 120 - init'd to 0
+		UInt8			unk121;						// 121 - init'd to 0
+		UInt8			unk122;						// 122 - init'd to 0
+		UInt8			pad[5];						// 123
 	};
+	STATIC_ASSERT(sizeof(InputManager) == 0x128);
 }

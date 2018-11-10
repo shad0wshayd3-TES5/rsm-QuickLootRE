@@ -7,20 +7,18 @@
 
 namespace RE
 {
-	class TESObjectLIGH : public TESBoundAnimObject
+	class TESObjectLIGH :
+		public TESBoundAnimObject,			// 000
+		public TESFullName,					// 030
+		public TESModelTextureSwap,			// 040
+		public TESIcon,						// 078
+		public BGSMessageIcon,				// 088
+		public TESWeightForm,				// 0A0
+		public TESValueForm,				// 0B0
+		public BGSDestructibleObjectForm,	// 0C0
+		public BGSEquipType					// 0D0
 	{
 	public:
-		// Parents
-		TESFullName					fullName;		// 030
-		TESModelTextureSwap			texSwap;		// 040
-		TESIcon						icon;			// 078
-		BGSMessageIcon				messageIcon;	// 088
-		TESWeightForm				weight;			// 0A0
-		TESValueForm				value;			// 0B0
-		BGSDestructibleObjectForm	destructible;	// 0C0
-		BGSEquipType				equipType;		// 0D0
-
-
 		enum { kTypeID = kFormType_Light };
 
 
@@ -78,7 +76,7 @@ namespace RE
 
 		virtual ~TESObjectLIGH();
 
-		inline bool CanBeCarried() const { return (unkE0.flags & kFlag_CanBeCarried) != 0; }
+		bool CanBeCarried() const;
 
 
 		DataE0	unkE0;		// 0E0 - DATA

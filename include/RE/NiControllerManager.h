@@ -14,7 +14,7 @@ namespace RE
 	class NiControllerManager : public NiTimeController
 	{
 	public:
-		inline NiControllerSequence* GetSequenceByName(const BSFixedString& name)	{ return CALL_MEMBER_FN(this, GetSequenceByName_Impl)(name); }
+		NiControllerSequence* GetSequenceByName(const BSFixedString& name);
 
 		// members
 		NiTArray<NiControllerSequence*>	m_sequences;	// 50

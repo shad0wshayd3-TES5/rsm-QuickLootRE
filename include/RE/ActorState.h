@@ -40,18 +40,19 @@ namespace RE
 
 		virtual ~ActorState();
 
-		UInt32			GetSitState() const;
-		UInt32			GetSleepState() const;
-		inline UInt32	GetFlyingState() const	{ return (flags04 >> 0x12) & 0x07; }
-		inline bool		IsBleedingOut() const	{ UInt32 state = (flags04 >> 0x15) & 0x0F; return (state == 7 || state == 8); }
-		inline bool		IsWeaponDrawn() const	{ return (flags08 >> 5 & 7) >= 3; }
-		inline bool		IsSneaking() const		{ return (flags04 & kState_Sneaking) != 0; }
-		inline bool		IsSwimming() const		{ return (flags04 & kState_Swimming) != 0; }
-		inline bool		IsSprinting() const		{ return (flags04 & kState_Sprinting) != 0; }
-		inline bool		IsFlying() const		{ UInt32 flyingState = GetFlyingState(); return (flyingState != 0) && (flyingState != 5); }
-		inline bool		IsUnconscious() const	{ return (flags04 & 0x01E00000) == 0x00600000; }
+		UInt32	GetSitState() const;
+		UInt32	GetSleepState() const;
+		UInt32	GetFlyingState() const;
+		bool	IsBleedingOut() const;
+		bool	IsWeaponDrawn() const;
+		bool	IsSneaking() const;
+		bool	IsSwimming() const;
+		bool	IsSprinting() const;
+		bool	IsFlying() const;
+		bool	IsUnconscious() const;
 
 
+		// members
 		UInt32	flags04;	// 08
 		UInt32	flags08;	// 0C
 	};

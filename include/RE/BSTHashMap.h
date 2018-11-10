@@ -55,3 +55,8 @@ class BSTHashMap : public BSTHashMapBase< BSTHashMapTraits<Key, Value, Table<Key
 // verified
 
 using TestHashMap = BSTHashMap <uint32_t, uint32_t>;
+
+STATIC_ASSERT(offsetof(TestHashMap, m_size) == 0x0C);
+STATIC_ASSERT(offsetof(TestHashMap, m_entries) == 0x28);
+
+STATIC_ASSERT(sizeof(TestHashMap) == 0x30);

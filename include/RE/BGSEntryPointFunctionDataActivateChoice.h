@@ -2,7 +2,7 @@
 
 #include "skse64/GameTypes.h"  // BSFixedString
 
-#include "RE/BGSEntryPointFunctionData.h"  // RE::BGSEntryPointFunctionData
+#include "RE/BGSEntryPointFunctionData.h"  // BGSEntryPointFunctionData
 
 class BGSPerk;
 class SpellItem;

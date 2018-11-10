@@ -170,10 +170,10 @@ namespace RE
 		STATIC_ASSERT(offsetof(Data10, lightLevel) == 0x3A8);
 
 
-		void					SetEquipFlag(Flag flag)					{ CALL_MEMBER_FN(reinterpret_cast<::ActorProcessManager*>(this), SetEquipFlag)(flag); }
-		void					UpdateEquipment(Actor* actor)			{ CALL_MEMBER_FN(reinterpret_cast<::ActorProcessManager*>(this), UpdateEquipment)(reinterpret_cast<::Actor*>(actor)); }
-		void					SetDataFlag(float flag)					{ CALL_MEMBER_FN(reinterpret_cast<::ActorProcessManager*>(this), SetDataFlag)(flag); }
-		void					UpdateEquipment_Hooked(Actor* actor)	{ reinterpret_cast<::ActorProcessManager*>(this)->UpdateEquipment_Hooked(reinterpret_cast<::Actor*>(actor)); }
+		void	SetEquipFlag(Flag flag);
+		void	UpdateEquipment(Actor* actor);
+		void	SetDataFlag(float flag);
+		void	UpdateEquipment_Hooked(Actor* actor);
 
 
 		// members

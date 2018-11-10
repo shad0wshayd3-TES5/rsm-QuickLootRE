@@ -4,6 +4,7 @@
 #include "skse64/GameSettings.h"  // g_gameSettingCollection
 #include "skse64/GameInput.h"  // InputEvent, InputStringHolder
 #include "skse64/GameMenus.h"  // IMenu
+#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/GameTypes.h"  // BSFixedString
 #include "skse64/NiRTTI.h"  // ni_cast
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
@@ -210,7 +211,7 @@ namespace QuickLootRE
 
 
 		bool bAnimationDriven;
-		if (player->animGraphHolder.GetAnimationVariableBool(strAnimationDriven, bAnimationDriven) && bAnimationDriven) {
+		if (player->GetAnimationVariableBool(strAnimationDriven, bAnimationDriven) && bAnimationDriven) {
 			return false;
 		}
 
@@ -228,7 +229,7 @@ namespace QuickLootRE
 		{
 			UInt32 refHandle = 0;
 			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
-				RE::TESObjectREFRPtr refPtr = 0;
+				RE::TESObjectREFRPtr refPtr;
 				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
 					containerRef = refPtr;
 				}

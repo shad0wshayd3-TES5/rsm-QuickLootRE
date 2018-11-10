@@ -103,11 +103,11 @@ namespace Hooks
 	class ReadyWeaponHandlerEx : public RE::ReadyWeaponHandler
 	{
 	public:
-		typedef void(ReadyWeaponHandlerEx::*_ProcessButton)(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data);
+		typedef void(ReadyWeaponHandlerEx::*_ProcessButton)(ButtonEvent* a_event, RE::PlayerControls::Data028* a_data);
 		static _ProcessButton orig_ProcessButton;
 
 
-		void hook_ProcessButton(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data)
+		void hook_ProcessButton(ButtonEvent* a_event, RE::PlayerControls::Data028* a_data)
 		{
 			using QuickLootRE::LootMenu;
 

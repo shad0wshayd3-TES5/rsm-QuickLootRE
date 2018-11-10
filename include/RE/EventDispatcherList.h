@@ -8,7 +8,7 @@ namespace RE
 	class EventDispatcherList
 	{
 	public:
-		inline static EventDispatcherList* GetEventDispatcherList() { return reinterpret_cast<EventDispatcherList*>(::GetEventDispatcherList()); }
+		static EventDispatcherList* GetEventDispatcherList();
 
 
 		EventDispatcher<void>								unk0000;					//	00

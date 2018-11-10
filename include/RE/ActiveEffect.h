@@ -1,6 +1,6 @@
 #pragma once
 
-#include "skse64/GameForms.h"// kFormType
+#include "skse64/GameForms.h"  // kFormType
 
 #include "RE/MagicItem.h"  // MagicItem::EffectItem
 
@@ -30,7 +30,7 @@ namespace RE
 
 		virtual ~ActiveEffect();
 
-		inline EffectSetting*	GetBaseObject() const	{ return effect->mgef; }
+		EffectSetting*	GetBaseObject() const;
 
 
 		ActiveEffectReferenceEffectController	controller;			// 08

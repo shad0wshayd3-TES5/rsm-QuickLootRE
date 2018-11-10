@@ -1,14 +1,11 @@
 #pragma once
 
 #include "skse64/GameForms.h"  // TESForm
-#include "skse64/GameReferences.h"  // TESObjectREFR
-#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/NiTypes.h"  // NiPoint3
 
 #include "Offsets.h"
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
-#include "RE/ExtraLock.h"  // LockState
 #include "RE/IAnimationGraphManagerHolder.h"  // IAnimationGraphManagerHolder
 
 class ActorWeightModel;
@@ -25,6 +22,7 @@ namespace RE
 	class NiControllerManager;
 	class NiControllerSequence;
 	class NiNode;
+	struct LockState;
 
 
 	MAKE_NI_POINTER(TESObjectREFR);
@@ -32,23 +30,11 @@ namespace RE
 
 	class TESObjectREFR :
 		public TESForm,
-		public BSHandleRefObject
+		public BSHandleRefObject,
+		public BSTEventSink<BSAnimationGraphEvent>,
+		public IAnimationGraphManagerHolder
 	{
-	private:
-		static inline bool LookupREFRByHandle(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut)
-		{
-			typedef bool _Lookup(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
-			static _Lookup* Lookup = reinterpret_cast<_Lookup*>(LookupREFRObjectByHandle.GetUIntPtr());
-
-			return Lookup(a_refHandle, a_refrOut);
-		}
-
 	public:
-		// parents
-		BSTEventSink <BSAnimationGraphEvent>	animGraphEventSink;	// 30
-		IAnimationGraphManagerHolder			animGraphHolder;	// 38
-
-
 		enum { kTypeID = kFormType_Reference };
 
 
@@ -186,40 +172,40 @@ namespace RE
 		virtual void					Unk_9B(void);
 
 
-		inline float			GetBaseScale()																															{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetBaseScale)(); }
-		inline bool				IsOffLimits()																															{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), IsOffLimits)(); }
-		inline float			GetWeight()																																{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWeight)(); }
-		inline const char*		GetReferenceName()																														{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetReferenceName)(); }
-		inline TESWorldSpace*	GetWorldspace()																															{ return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWorldspace)(); }
-		inline UInt32			CreateRefHandle()																														{ return reinterpret_cast<::TESObjectREFR*>(this)->CreateRefHandle(); }
+		float							GetBaseScale();
+		bool							IsOffLimits();
+		float							GetWeight();
+		const char*						GetReferenceName();
+		TESWorldSpace*					GetWorldspace();
+		UInt32							CreateRefHandle();
 
-		TESNPC*					GetActorOwner();
-		inline TESForm*			GetBaseObject()																															{ return baseForm; }
-		TESContainer*			GetContainer();
-		const char*				GetFullName();
-		TESFaction*				GetFactionOwner();
-		inline TESForm*			GetOwner()																																{ return CALL_MEMBER_FN(this, GetOwner_Impl)(); }
-		inline TESObjectCELL*	GetParentCell()																															{ return parentCell; }
-		inline float			GetPositionX()																															{ return pos.x; }
-		inline float			GetPositionY()																															{ return pos.y; }
-		inline float			GetPositionZ()																															{ return pos.z; }
-		inline bool				Is3DLoaded()																															{ return GetNiNode() != 0; }
-		inline bool				IsDeleted()																																{ return (flags & kTESFormFlag_Deleted) != 0; }
-		inline bool				IsDisabled()																															{ return (flags & kTESFormFlag_Disabled) != 0; }
-		inline bool				IsIgnoringFriendlyHits()																												{ return (flags & kTESFormFlag_IgnoreFriendlyHits) != 0; }
-		bool					SetDisplayName(const BSFixedString& name, bool force);
-		inline static bool		LookupByHandle(UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut)																		{ return LookupREFRByHandle(a_refHandle, a_refrOut); }
-		inline bool				IsLocked()																																{ LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)(); return (state && state->isLocked); }
-		inline UInt32			GetNumItems(bool a_unk1, bool a_unk2)																									{ return CALL_MEMBER_FN(this, GetNumItems)(a_unk1, a_unk2); }
-		inline UInt32			ActivateRefChildren(TESObjectREFR* a_activator)																							{ return CALL_MEMBER_FN(this, ActivateRefChildren)(a_activator); }
-		inline void				PlayAnimation(RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk)	{ CALL_MEMBER_FN(this, PlayAnimation)(a_manager, a_toSeq, a_fromSeq, a_unk); }
+		TESNPC*							GetActorOwner();
+		TESForm*						GetBaseObject();
+		TESContainer*					GetContainer();
+		const char*						GetFullName();
+		TESFaction*						GetFactionOwner();
+		TESForm*						GetOwner();
+		TESObjectCELL*					GetParentCell();
+		float							GetPositionX();
+		float							GetPositionY();
+		float							GetPositionZ();
+		bool							Is3DLoaded();
+		bool							IsDeleted();
+		bool							IsDisabled();
+		bool							IsIgnoringFriendlyHits();
+		bool							SetDisplayName(const BSFixedString& name, bool force);
+		static bool						LookupByHandle(UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
+		static bool						LookupByHandle(UInt32& a_refHandle, TESObjectREFR*& a_refrOut);
+		bool							IsLocked();
+		UInt32							GetNumItems(bool a_unk1, bool a_unk2);
+		UInt32							ActivateRefChildren(TESObjectREFR* a_activator);
+		void							PlayAnimation(NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);
 
 
 		// members
 		TESForm*		baseForm;		// 40
 		NiPoint3		rot;			// 48
 		NiPoint3		pos;			// 54
-
 		TESObjectCELL*	parentCell;		// 60
 		LoadedState*	loadedState;	// 68
 		BaseExtraList	extraData;		// 70
@@ -235,6 +221,10 @@ namespace RE
 		DEFINE_MEMBER_FN(GetLockState_Impl, LockState*, TES_OBJECT_REFR_GET_LOCK_STATE_IMPL);
 		DEFINE_MEMBER_FN(GetNumItems, UInt32, TES_OBJECT_REFR_GET_NUM_ITEMS, bool a_unk1, bool a_unk2);
 		DEFINE_MEMBER_FN(ActivateRefChildren, UInt32, TES_OBJECT_REFR_ACTIVATE_CHILDREN, TESObjectREFR* a_activator);
-		DEFINE_MEMBER_FN(PlayAnimation, void, TES_OBJECT_REFR_PLAY_ANIMATION, RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk);
+		DEFINE_MEMBER_FN(PlayAnimation, void, TES_OBJECT_REFR_PLAY_ANIMATION, NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);
 	};
+	STATIC_ASSERT(sizeof(TESObjectREFR) == 0x98);
+	STATIC_ASSERT(offsetof(TESObjectREFR, extraData) == 0x70);
+	STATIC_ASSERT(offsetof(TESObjectREFR, loadedState) == 0x68);
+	STATIC_ASSERT(offsetof(TESObjectREFR::LoadedState, node) == 0x68);
 };

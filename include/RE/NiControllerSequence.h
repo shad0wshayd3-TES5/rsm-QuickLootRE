@@ -11,7 +11,7 @@ namespace RE
 	public:
 		virtual bool				Unk_21(UInt32 arg1, UInt32 arg2);
 
-		inline const BSFixedString&	GetName() const { return m_name; }
+		const BSFixedString&		GetName() const;
 
 		// members
 		BSFixedString	m_name;	// 10

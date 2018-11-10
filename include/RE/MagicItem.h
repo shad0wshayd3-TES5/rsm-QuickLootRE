@@ -1,7 +1,6 @@
 #pragma once
 
 #include "skse64/GameFormComponents.h"  // TESFullName,  BGSKeywordForm
-#include "skse64/GameObjects.h"  // MagicItem
 #include "skse64/GameTypes.h"  // tArray
 
 #include "RE/TESBoundObject.h"  // TESBoundObject
@@ -13,14 +12,12 @@ namespace RE
 	class EffectSetting;
 
 
-	class MagicItem : public TESBoundObject
+	class MagicItem :
+		public TESBoundObject,
+		public TESFullName,
+		public BGSKeywordForm
 	{
 	public:
-		// parents
-		TESFullName		fullName;	// 30
-		BGSKeywordForm	keyword;	// 40
-
-
 		struct EffectItem
 		{
 			float			magnitude;	// 00
@@ -77,8 +74,8 @@ namespace RE
 		virtual UInt32		GetDataSize() const;
 		virtual void		Unk_6E(void);
 
-		inline EffectItem*	GetCostliestEffectItem(int a_arg1, bool a_arg2)	{ return reinterpret_cast<EffectItem*>(CALL_MEMBER_FN(reinterpret_cast<::MagicItem*>(this), GetCostliestEffectItem)(a_arg1, a_arg2)); }
-		inline float		GetEffectiveMagickaCost(Character* a_caster)	{ return CALL_MEMBER_FN(reinterpret_cast<::MagicItem*>(this), GetEffectiveMagickaCost)(reinterpret_cast<::Character*>(a_caster)); }
+		EffectItem*			GetCostliestEffectItem(int a_arg1, bool a_arg2);
+		float				GetEffectiveMagickaCost(Character* a_caster);
 
 
 		// members

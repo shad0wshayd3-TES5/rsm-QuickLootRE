@@ -5,7 +5,7 @@
 
 namespace RE
 {
-	class BGSBipedObjectForm : public ::BaseFormComponent
+	class BGSBipedObjectForm : public BaseFormComponent
 	{
 	public:
 		// applicable to DefaultRace
@@ -61,18 +61,16 @@ namespace RE
 		};
 
 
-		inline UInt32	GetSlotMask() const				{ return bipedObjectData.parts; }
-		inline void		SetSlotMask(UInt32 mask)		{ bipedObjectData.parts = mask; }
-		inline bool		HasPartOf(UInt32 flag) const	{ return (bipedObjectData.parts & flag) != 0; }
-
-		inline UInt32	GetWeightClass() const			{ return bipedObjectData.weightClass; }
-		inline bool		IsLightArmor() const			{ return bipedObjectData.weightClass == kWeight_Light; }
-		inline bool		IsHeavyArmor() const			{ return bipedObjectData.weightClass == kWeight_Heavy; }
-
-		inline UInt32	AddSlotToMask(UInt32 slot)		{ bipedObjectData.parts |= slot; return bipedObjectData.parts; }
-		inline UInt32	RemoveSlotFromMask(UInt32 slot)	{ bipedObjectData.parts &= ~slot; return bipedObjectData.parts; }
+		UInt32	GetSlotMask() const;
+		void	SetSlotMask(UInt32 mask);
+		bool	HasPartOf(UInt32 flag) const;
+		UInt32	GetWeightClass() const;
+		bool	IsLightArmor() const;
+		bool	IsHeavyArmor() const;
+		UInt32	AddSlotToMask(UInt32 slot);
+		UInt32	RemoveSlotFromMask(UInt32 slot);
 
 
-		Data			bipedObjectData;	// 8
+		Data	bipedObjectData;	// 8
 	};
 }

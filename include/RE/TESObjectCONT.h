@@ -7,21 +7,20 @@
 
 namespace RE
 {
-	class TESObjectCONT : public TESBoundAnimObject
+	class TESObjectCONT :
+		public TESBoundAnimObject,			// 00
+		public TESContainer,				// 30
+		public TESFullName,					// 48
+		public TESModelTextureSwap,			// 58
+		public TESWeightForm,				// 90
+		public BGSDestructibleObjectForm,	// A0
+		public BGSOpenCloseForm				// B0
 	{
 	public:
 		enum { kTypeID = kFormType_Container };
 
 		virtual bool GetCrosshairText(TESObjectREFR* a_ref, BSString* a_dst, bool a_unk) override;
 
-
-		// parents
-		TESContainer				container;		// 30
-		TESFullName					fullName;		// 48
-		TESModelTextureSwap			texSwap;		// 58
-		TESWeightForm				weight;			// 90
-		BGSDestructibleObjectForm	destructible;	// A0
-		BGSOpenCloseForm			openClose;		// B0
 
 		// members
 		UInt8	unkB8;		// B8

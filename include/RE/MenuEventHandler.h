@@ -18,14 +18,14 @@ namespace RE
 	class MenuEventHandler : public BSIntrusiveRefCounted
 	{
 	public:
-		MenuEventHandler() : unk08(0), unk09(0) {}
+		MenuEventHandler();
 		virtual ~MenuEventHandler() {}
 
-		virtual bool		CanProcess(InputEvent* a_event)				= 0;
-		inline virtual bool	ProcessKinect(KinectEvent* a_event)			{ return false; }
-		inline virtual bool	ProcessThumbstick(ThumbstickEvent* a_event)	{ return false; }
-		inline virtual bool	ProcessMouseMove(MouseMoveEvent* a_event)	{ return false; }
-		inline virtual bool	ProcessButton(RE::ButtonEvent* a_event)		{ return false; }
+		virtual bool	CanProcess(InputEvent* a_event) = 0;
+		virtual bool	ProcessKinect(KinectEvent* a_event);
+		virtual bool	ProcessThumbstick(ThumbstickEvent* a_event);
+		virtual bool	ProcessMouseMove(MouseMoveEvent* a_event);
+		virtual bool	ProcessButton(RE::ButtonEvent* a_event);
 
 
 		UInt8	unk08;		// 08

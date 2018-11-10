@@ -1005,3 +1005,5 @@ struct BSTDefaultScatterTable : public BSTScatterTable<Key, Value, BSTScatterTab
 {};
 
 using Test = BSTDefaultScatterTable<uint32_t, uint32_t>;
+
+STATIC_ASSERT(sizeof(Test) == 0x28);

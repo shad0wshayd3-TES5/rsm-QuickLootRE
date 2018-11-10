@@ -3,31 +3,29 @@
 #include "skse64/GameEvents.h"  // BSTEventSource
 #include "skse64/GameInput.h"  // InputEventDispatcher
 
-#include "RE/BSGamepadDevice.h"  // RE::BSGamepadDevice
-#include "RE/BSPCGamepadDeviceHandler.h"  // RE::BSPCGamepadDeviceHandler
+#include "RE/BSTSingleton.h"  // BSTSingletonSDM
 
 class InputEvent;
 
 
 namespace RE
 {
+	class BSGamepadDevice;
 	class BSKeyboardDevice;
 	class BSMouseDevice;
+	class BSPCGamepadDeviceHandler;
 	class BSVirtualKeyboardDevice;
 
 
-	class InputEventDispatcher
+	class InputEventDispatcher :
+		public BSTEventSource<InputEvent*>,
+		public BSTSingletonSDM<InputEventDispatcher>
 	{
 	public:
-		// parents
-		void*								unk00;			// 00 - singleton
-		BSTEventSource<InputEvent*>			unk08;			// 08
+		static InputEventDispatcher*		GetSingleton();
 
-
-		static inline InputEventDispatcher*	GetSingleton()		{ return reinterpret_cast<InputEventDispatcher*>(::InputEventDispatcher::GetSingleton()); }
-
-		inline bool							IsGamepadEnabled()	{ return gamepadHandler && gamepadHandler->gamepad && gamepadHandler->gamepad->IsEnabled(); }
-		inline BSGamepadDevice*				GetGamepad()		{ return gamepadHandler ? gamepadHandler->gamepad : 0; }
+		bool								IsGamepadEnabled();
+		BSGamepadDevice*					GetGamepad();
 
 
 		// members

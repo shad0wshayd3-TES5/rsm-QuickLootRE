@@ -26,8 +26,7 @@ namespace RE
 		virtual void	SetActorValueCurrent(ActorValue a_akValue, float value);
 		virtual bool	Unk_08(void);
 
-		inline float	GetPlayerActorValueCurrent(ActorValue a_akValue)	{ return CALL_MEMBER_FN(this, GetPlayerActorValueCurrent)(a_akValue); }
-
+		float			GetPlayerActorValueCurrent(ActorValue a_akValue);
 
 	private:
 		MEMBER_FN_PREFIX(ActorValueOwner);

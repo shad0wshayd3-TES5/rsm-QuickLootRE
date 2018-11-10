@@ -11,28 +11,25 @@ class TESCombatStyle;
 
 namespace RE
 {
-	class TESActorBase : public TESBoundAnimObject
+	class TESActorBase :
+		public TESBoundAnimObject,			// 000
+		public TESActorBaseData,			// 030
+		public TESContainer,				// 088
+		public TESSpellList,				// 0A0
+		public TESAIForm,					// 0B0
+		public TESFullName,					// 0D8
+		public ActorValueOwner,				// 0E8
+		public BGSDestructibleObjectForm,	// 0F0
+		public BGSSkinForm,					// 100
+		public BGSKeywordForm,				// 110
+		public BGSAttackDataForm,			// 128
+		public BGSPerkRankArray				// 138
 	{
 	public:
-		// parents
-		TESActorBaseData			actorData;			// 030
-		TESContainer				container;			// 088
-		TESSpellList				spellList;			// 0A0
-		TESAIForm					aiForm;				// 0B0
-		TESFullName					fullName;			// 0D8
-		ActorValueOwner				actorValueOwner;	// 0E8
-		BGSDestructibleObjectForm	destructible;		// 0F0
-		BGSSkinForm					skinForm;			// 100
-		BGSKeywordForm				keyword;			// 110
-		BGSAttackDataForm			attackData;			// 128
-		BGSPerkRankArray			perkRanks;			// 138
-
-
 		virtual bool				Unk_52(void);
 		virtual TESCombatStyle*		GetCombatStyle();
 		virtual void				SetCombatStyle(TESCombatStyle* a_arg);
 		virtual TESActorBase*		Unk_55(void);
 	};
-	STATIC_ASSERT(offsetof(TESActorBase, keyword) == 0x110);
 	STATIC_ASSERT(sizeof(TESActorBase) == 0x150);
 }

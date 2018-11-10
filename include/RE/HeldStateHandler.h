@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RE/PlayerInputHandler.h"  // RE::PlayerInputHandler
+#include "RE/PlayerInputHandler.h"  // PlayerInputHandler
 
 
 namespace RE

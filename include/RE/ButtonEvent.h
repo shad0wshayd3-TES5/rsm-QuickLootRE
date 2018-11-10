@@ -14,10 +14,9 @@ namespace RE
 		virtual bool			IsIDEvent();
 		virtual BSFixedString*	GetControlID();
 
-
-		inline bool IsPressed() const	{ return pressure > 0; }
-		inline bool IsDown() const		{ return (pressure > 0) && (timer == 0.0f); }
-		inline bool IsUp() const		{ return (pressure == 0) && (timer > 0.0f); }
+		bool					IsPressed() const;
+		bool					IsDown() const;
+		bool					IsUp() const;
 
 
 		// members

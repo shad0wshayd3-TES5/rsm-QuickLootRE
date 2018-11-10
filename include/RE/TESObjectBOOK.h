@@ -11,25 +11,21 @@ class TESObjectSTAT;
 
 namespace RE
 {
-	class TESObjectBOOK : public TESBoundObject
+	class TESObjectBOOK :
+		public TESBoundObject,				// 00
+		public TESFullName,					// 30
+		public TESModelTextureSwap,			// 40
+		public TESIcon,						// 78
+		public TESValueForm,				// 88
+		public TESWeightForm,				// 98
+		public TESDescription,				// A8
+		public BGSDestructibleObjectForm,	// B8
+		public BGSMessageIcon,				// C8
+		public BGSPickupPutdownSounds,		// E0
+		public BGSKeywordForm				// F8
 	{
 	public:
 		enum { kTypeID = kFormType_Book };
-
-		// parents
-		TESFullName					fullName;		// 30
-		TESModelTextureSwap			texSwap;		// 40
-		TESIcon						icon;			// 78
-		TESValueForm				value;			// 88
-		TESWeightForm				weight;			// 98
-		TESDescription				description;	// A8
-		BGSDestructibleObjectForm	destructible;	// B8
-		BGSMessageIcon				messageIcon;	// C8
-		BGSPickupPutdownSounds		pickupSounds;	// E0
-		BGSKeywordForm				keyword;		// F8
-
-
-		inline bool IsRead() const	{ return (data.flags & Data::kType_Read) != 0; }
 
 
 		struct Data
@@ -55,8 +51,11 @@ namespace RE
 			} teaches;			// 8
 
 			// make some sense of the flags field so we know what's in the union
-			UInt32	GetSanitizedType(void)	{ return reinterpret_cast<::TESObjectBOOK*>(this)->data.GetSanitizedType(); }
+			UInt32	GetSanitizedType();
 		};
+
+
+		bool IsRead() const;
 
 
 		// members

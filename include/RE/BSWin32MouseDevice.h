@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RE/BSMouseDevice.h"  // RE::BSMouseDevice
+#include "RE/BSMouseDevice.h"  // BSMouseDevice
 
 
 namespace RE
@@ -25,6 +25,6 @@ namespace RE
 
 		// members
 		UInt64	unk30;			// 30
-		void*	inputDevice;	// 38 - IDirectInputDevice8 *
+		void*	inputDevice;	// 38 - IDirectInputDevice8*
 	};
 }

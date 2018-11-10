@@ -60,9 +60,9 @@ namespace RE
 		StateType SType;	// 08
 
 	public:
-		GFxState(StateType st = State_None) : SType(st) {}
+		GFxState(StateType st = State_None);
 		virtual ~GFxState() {}
 
-		inline StateType GetStateType() const { return SType; }
+		StateType GetStateType() const;
 	};
 }

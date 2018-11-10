@@ -18,15 +18,13 @@ class TESObjectARMO;
 
 namespace RE
 {
-	class TESNPC : public TESActorBase
+	class TESNPC :
+		public TESActorBase,
+		public TESRaceForm,
+		public BGSOverridePackCollection,
+		public BSTEventSink<MenuOpenCloseEvent>
 	{
 	public:
-		// parents
-		TESRaceForm					race;				// 150
-		BGSOverridePackCollection	overridePacks;		// 160
-		void*						menuOpenCloseEvent;	// 188 - MenuOpenCloseEvent
-
-
 		enum { kTypeID = kFormType_NPC };
 
 
@@ -69,20 +67,20 @@ namespace RE
 		};
 
 
-		inline char			GetSex()																					{ return CALL_MEMBER_FN(reinterpret_cast<::TESNPC*>(this), GetSex)(); }
-		inline bool			HasOverlays()																				{ return CALL_MEMBER_FN(reinterpret_cast<::TESNPC*>(this), HasOverlays)(); }
-		inline void			ChangeHeadPart(BGSHeadPart* a_target)														{ CALL_MEMBER_FN(reinterpret_cast<::TESNPC*>(this), ChangeHeadPart)(a_target); }
-		inline void			ApplyMorph(MorphAction* a_morphAction)														{ CALL_MEMBER_FN(reinterpret_cast<::TESNPC*>(this), ApplyMorph)(reinterpret_cast<::TESNPC::MorphAction*>(a_morphAction)); }
-		inline void			UpdateNeck(BSFaceGenNiNode* a_faceNode)														{ CALL_MEMBER_FN(reinterpret_cast<::TESNPC*>(this), UpdateNeck)(a_faceNode); }
-		inline void			SetSkinFromTint(NiColorA* a_result, TintMask* a_tintMask, UInt32 a_compute, UInt32 a_unk1)	{ CALL_MEMBER_FN(reinterpret_cast<::TESNPC*>(this), SetSkinFromTint)(a_result, a_tintMask, a_compute, a_unk1); }
-		inline void			SetFaceTexture(BGSTextureSet* a_textureSet)													{ reinterpret_cast<::TESNPC*>(this)->SetFaceTexture(a_textureSet); }
-		inline void			SetHairColor(BGSColorForm* a_hairColor)														{ reinterpret_cast<::TESNPC*>(this)->SetHairColor(a_hairColor); }
-		inline BGSHeadPart*	GetHeadPartByType(UInt32 a_type)															{ return reinterpret_cast<::TESNPC*>(this)->GetCurrentHeadPartByType(a_type); }
-		inline BGSHeadPart*	GetHeadPartOverlayByType(UInt32 a_type)														{ return reinterpret_cast<::TESNPC*>(this)->GetHeadPartOverlayByType(a_type); }
-		inline BGSHeadPart*	GetCurrentHeadPartByType(UInt32 a_type)														{ return reinterpret_cast<::TESNPC*>(this)->GetCurrentHeadPartByType(a_type); }
-		inline TESNPC*		GetRootTemplate()																			{ return reinterpret_cast<TESNPC*>(reinterpret_cast<::TESNPC*>(this)->GetRootTemplate()); }
+		char			GetSex();
+		bool			HasOverlays();
+		void			ChangeHeadPart(BGSHeadPart* a_target);
+		void			ApplyMorph(MorphAction* a_morphAction);
+		void			UpdateNeck(BSFaceGenNiNode* a_faceNode);
+		void			SetSkinFromTint(NiColorA* a_result, TintMask* a_tintMask, UInt32 a_compute, UInt32 a_unk1);
+		void			SetFaceTexture(BGSTextureSet* a_textureSet);
+		void			SetHairColor(BGSColorForm* a_hairColor);
+		BGSHeadPart*	GetHeadPartByType(UInt32 a_type);
+		BGSHeadPart*	GetHeadPartOverlayByType(UInt32 a_type);
+		BGSHeadPart*	GetCurrentHeadPartByType(UInt32 a_type);
+		TESNPC*			GetRootTemplate();
 
-		inline TESRace*		GetRace()																					{ return race.race; }
+		TESRace*		GetRace();
 
 
 		// members

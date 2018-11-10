@@ -18,18 +18,18 @@ namespace RE
 	public:
 		InventoryEntryData(TESForm * item, UInt32 count) : type(item), countDelta(count), extendDataList(0) {}
 
-		inline static InventoryEntryData*	Create(TESForm* item, UInt32 count)																{ return reinterpret_cast<InventoryEntryData*>(::InventoryEntryData::Create(item, count)); }
-		inline void							Delete(void)																					{ reinterpret_cast<::InventoryEntryData*>(this)->Delete(); }
-		inline void							GetExtraWornBaseLists(BaseExtraList** pWornBaseListOut, BaseExtraList** pWornLeftBaseListOut)	{ return reinterpret_cast<::InventoryEntryData*>(this)->GetExtraWornBaseLists(reinterpret_cast<::BaseExtraList**>(pWornBaseListOut), reinterpret_cast<::BaseExtraList**>(pWornLeftBaseListOut)); }
-		inline void							GetEquipItemData(::InventoryEntryData::EquipData& stateOut, SInt32 itemId, SInt32 baseCount)	{ reinterpret_cast<::InventoryEntryData*>(this)->GetEquipItemData(stateOut, itemId, baseCount); }
-		inline const char*					GenerateName()																					{ return CALL_MEMBER_FN(reinterpret_cast<::InventoryEntryData*>(this), GenerateName)(); }
-		inline SInt32						GetValue()																						{ return CALL_MEMBER_FN(reinterpret_cast<::InventoryEntryData*>(this), GetValue)(); }
-		inline bool							IsOwnedBy(TESForm* actor, bool unk1)															{ return CALL_MEMBER_FN(reinterpret_cast<::InventoryEntryData*>(this), IsOwnedBy)(actor, unk1); }
-		inline UInt32						GetSoulLevel()																					{ return CALL_MEMBER_FN(reinterpret_cast<::InventoryEntryData*>(this), GetSoulLevel)(); }
+		static InventoryEntryData*	Create(TESForm* item, UInt32 count);
+		void						Delete(void);
+		void						GetExtraWornBaseLists(BaseExtraList** pWornBaseListOut, BaseExtraList** pWornLeftBaseListOut);
+		void						GetEquipItemData(::InventoryEntryData::EquipData& stateOut, SInt32 itemId, SInt32 baseCount);
+		const char*					GenerateName();
+		SInt32						GetValue();
+		bool						IsOwnedBy(TESForm* actor, bool unk1);
+		UInt32						GetSoulLevel();
 
-		inline bool							IsOwnedBy(TESForm* actor, TESForm* itemOwner, bool unk1)										{ return CALL_MEMBER_FN(this, IsOwnedBy)(actor, itemOwner, unk1); }
-		inline TESForm*						GetOwner()																						{ return CALL_MEMBER_FN(this, GetOwner)(); }
-		inline float						GetWeight()																						{ return CALL_MEMBER_FN(this, GetWeight)(); }
+		bool						IsOwnedBy(TESForm* actor, TESForm* itemOwner, bool unk1);
+		TESForm*					GetOwner();
+		float						GetWeight();
 
 
 		// members

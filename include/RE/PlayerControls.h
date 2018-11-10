@@ -1,30 +1,26 @@
 #pragma once
 
-#include "skse64/GameEvents.h"  // BSTEventSink
+#include "skse64/GameEvents.h"  // BSTEventSink, MenuOpenCloseEvent, MenuModeChangeEvent, TESFurnitureEvent
 #include "skse64/GameInput.h"  // PlayerControls
 #include "skse64/GameTypes.h"  // tArray
 
+#include "RE/BSTSingleton.h"  // BSTSingletonSDM
+
 class InputEvent;
-struct MenuOpenCloseEvent;
-struct MenuModeChangeEvent;
-struct TESFurnitureEvent;
 class PlayerInputHandler;
 
 
 namespace RE
 {
-	class PlayerControls
+	class PlayerControls :
+		public BSTEventSink<InputEvent*>,
+		public BSTEventSink<MenuOpenCloseEvent>,
+		public BSTEventSink<MenuModeChangeEvent>,
+		public BSTSingletonSDM<PlayerControls>,
+		public BSTEventSink<TESFurnitureEvent>
 	{
 	public:
-		// Parents
-		BSTEventSink<InputEvent*>			inputEvent;				// 000
-		BSTEventSink<MenuOpenCloseEvent*>	menuOpenCloseEvent;		// 008
-		BSTEventSink<MenuModeChangeEvent*>	menuModeChangeEvent;	// 010
-		BSTEventSink<TESFurnitureEvent*>	furnitureEvent;			// 018
-		UInt32								unk020;					// 020 - singleton?
-
-
-		struct Data024
+		struct Data028
 		{
 			float		movementX;	// 00 - Strafe Left=-1, Strafe Right=1
 			float		movementY;	// 04 - Forward=1, Back=-1
@@ -51,13 +47,13 @@ namespace RE
 
 		virtual UInt32			Unk_01();
 
-		inline static PlayerControls*	GetSingleton()	{ return reinterpret_cast<PlayerControls*>(::PlayerControls::GetSingleton()); }
-		inline PlayerControls*			ctor_Hook()		{ return reinterpret_cast<PlayerControls*>(reinterpret_cast<::PlayerControls*>(this)->ctor_Hook()); }
-		inline PlayerControls*			ctor()			{ return reinterpret_cast<PlayerControls*>(CALL_MEMBER_FN(reinterpret_cast<::PlayerControls*>(this), ctor)()); }
+		static PlayerControls*	GetSingleton();
+		PlayerControls*			ctor_Hook();
+		PlayerControls*			ctor();
 
 
 		// members
-		Data024						data024;			// 024
+		Data028						data028;			// 024
 		tArray<PlayerInputHandler*>	handlers;			// 058
 		tArray<void*>				unk070;				// 070
 		tArray<void*>				unk088;				// 088
@@ -69,7 +65,6 @@ namespace RE
 		float						unk100[20];			// 100
 		tArray<void*>				unk150;				// 150
 		UInt64						unk168;				// 168
-
 		PlayerInputHandler*			movementHandler;	// 170
 		PlayerInputHandler*			lookHandler;		// 178
 		PlayerInputHandler*			sprintHandler;		// 180
@@ -84,4 +79,5 @@ namespace RE
 		PlayerInputHandler*			sneakHandler;		// 1C8
 		PlayerInputHandler*			togglePOVHandler;	// 1D0
 	};
+	STATIC_ASSERT(offsetof(PlayerControls, data028) == 0x028);
 }

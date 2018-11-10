@@ -14,7 +14,13 @@ namespace RE
 	class TESObjectREFR;
 
 
-	class TESObjectACTI : public TESBoundAnimObject
+	class TESObjectACTI :
+		public TESBoundAnimObject,
+		public TESFullName,
+		public TESModelTextureSwap,
+		public BGSDestructibleObjectForm,
+		public BGSOpenCloseForm,
+		public BGSKeywordForm
 	{
 	public:
 		enum { kTypeID = kFormType_Activator };
@@ -22,13 +28,6 @@ namespace RE
 
 		virtual bool	GetCrosshairText(TESObjectREFR* a_ref, BSString* a_dst, bool a_unk) override;
 
-
-		// parents
-		TESFullName					fullName;		// 20-30
-		TESModelTextureSwap			texSwap;		// 28-40
-		BGSDestructibleObjectForm	destructible;	// 44-78
-		BGSOpenCloseForm			openClose;		// 4C-88
-		BGSKeywordForm				keyword;		// 50-90
 
 		// members
 		BGSSoundDescriptorForm*	loopingSound;		// A8

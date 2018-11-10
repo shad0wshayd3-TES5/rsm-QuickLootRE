@@ -21,16 +21,14 @@ namespace RE
 	class TESObjectLIGH;
 
 
-	class EffectSetting : public TESForm
+	class EffectSetting :
+		public TESForm,
+		public TESFullName,
+		public BGSMenuDisplayObject,
+		public BGSKeywordForm
 	{
 	public:
 		enum { kTypeID = kFormType_EffectSetting };
-
-
-		// parents
-		TESFullName				fullName;			// 20
-		BGSMenuDisplayObject	menuDisplayObject;	// 30
-		BGSKeywordForm			keywordForm;		// 40
 
 
 		struct Properties
@@ -370,10 +368,9 @@ namespace RE
 		};
 
 
-		inline UInt32	GetSchool()									{ return properties.school; }
-		inline UInt32	GetLevel()									{ return properties.level; }
-
-		inline bool		HasArchetype(Properties::Archetype a_type)	{ return properties.archetype == a_type; }
+		UInt32	GetSchool();
+		UInt32	GetLevel();
+		bool	HasArchetype(Properties::Archetype a_type);
 
 
 		void*					unk058;			// 58

@@ -65,35 +65,35 @@ namespace RE
 		};
 
 
-		IMenu()	: view(0), menuDepth(3), flags(kFlag_None), context(InputManager::kContext_Invalid), unk18(0)	{}
-		virtual ~IMenu()																						{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), dtor)(); }
+		IMenu();
+		virtual ~IMenu();
 
-		virtual void			Accept(CallbackProcessor* processor) override									{}
-		virtual void			OnOpen()																		{}
-		virtual void			Unk_03(void)																	{}
-		virtual UInt32			ProcessMessage(UIMessage* message)												{ return CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), ProcessMessage_internal)(message); }
-		virtual void			NextFrame(UInt32 arg0, UInt32 arg1)												{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), NextFrame_internal)(arg0, arg1); }
-		virtual void			Render()																		{ if (view) { view->Display(); } }
-		virtual void			Unk_07(void)																	{}
-		virtual void			InitMovie()																		{ CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), InitMovie_internal)(reinterpret_cast<::GFxMovieView*>(view)); }
+		virtual void	Accept(CallbackProcessor* processor) override;
+		virtual void	OnOpen();
+		virtual void	Unk_03(void);
+		virtual UInt32	ProcessMessage(UIMessage* message);
+		virtual void	NextFrame(UInt32 arg0, UInt32 arg1);
+		virtual void	Render();
+		virtual void	Unk_07(void);
+		virtual void	InitMovie();
 
-		inline bool				PausesGame()																	{ return (flags & kFlag_PauseGame)				!= 0; }
-		inline bool				DeletesOnClose()																{ return (flags & kFlag_DoNotDeleteOnClose)		== 0; }
-		inline bool				ShowsCursor()																	{ return (flags & kFlag_ShowCursor)				!= 0; }
-		inline bool				HasFlag0008()																	{ return (flags & kFlag_Unk0008)				!= 0; }
-		inline bool				IsModal()																		{ return (flags & kFlag_Modal)					!= 0; }
-		inline bool				StopsDrawingWorld()																{ return (flags & kFlag_StopDrawingWorld)		!= 0; }
-		inline bool				IsOpen()																		{ return (flags & kFlag_Open)					!= 0; }
-		inline bool				PreventsGameLoad()																{ return (flags & kFlag_PreventGameLoad)		!= 0; }
-		inline bool				HasFlag0100()																	{ return (flags & kFlag_Unk0100)				!= 0; }
-		inline bool				HidesOtherMenus()																{ return (flags & kFlag_HideOther)				!= 0; }
-		inline bool				HasFlag0400()																	{ return (flags & kFlag_Unk0400)				!= 0; }
-		inline bool				PreventsGameSave()																{ return (flags & kFlag_DoNotPreventGameSave)	== 0; }
-		inline bool				HasFlag1000()																	{ return (flags & kFlag_Unk1000)				!= 0; }
-		inline bool				IsItemMenu()																	{ return (flags & kFlag_ItemMenu)				!= 0; }
-		inline bool				StopsCrosshairUpdates()															{ return (flags & kFlag_StopCrosshairUpdate)	!= 0; }
-		inline bool				HasFlag8000()																	{ return (flags & kFlag_Unk8000)				!= 0; }
-		inline bool				HasFlag10000()																	{ return (flags & kFlag_Unk10000)				!= 0; }
+		bool			PausesGame();
+		bool			DeletesOnClose();
+		bool			ShowsCursor();
+		bool			HasFlag0008();
+		bool			IsModal();
+		bool			StopsDrawingWorld();
+		bool			IsOpen();
+		bool			PreventsGameLoad();
+		bool			HasFlag0100();
+		bool			HidesOtherMenus();
+		bool			HasFlag0400();
+		bool			PreventsGameSave();
+		bool			HasFlag1000();
+		bool			IsItemMenu();
+		bool			StopsCrosshairUpdates();
+		bool			HasFlag8000();
+		bool			HasFlag10000();
 
 
 		GFxMovieView*			view;		// 10 - init'd to 0, view->Release() called in dtor

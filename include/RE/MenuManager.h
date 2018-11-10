@@ -4,6 +4,8 @@
 #include "skse64/GameMenus.h"  // MenuTableItem, MenuManager
 #include "skse64/GameTypes.h"  // BSFixedString
 
+#include "RE/BSTSingleton.h"  // BSTSingletonSDM
+
 
 namespace RE
 {
@@ -11,16 +13,13 @@ namespace RE
 	class IMenu;
 
 
-	class MenuManager
+	class MenuManager :
+		public BSTSingletonSDM<MenuManager>,			// 000
+		public EventDispatcher<MenuOpenCloseEvent>,		// 008
+		public EventDispatcher<MenuModeChangeEvent>,	// 060
+		public EventDispatcher<void*>					// 0B8
 	{
 	public:
-		// parents
-		void*									unk000;							// 000 - singleton
-		EventDispatcher<MenuOpenCloseEvent>		menuOpenCloseEventDispatcher;	// 008
-		EventDispatcher<MenuModeChangeEvent>	menuModeChangeEventDispatcher;	// 060
-		EventDispatcher<void*>					unk0B8;							// 0B8 - New in 1.6.87.0 - Kinect related?
-
-
 		typedef tHashSet<MenuTableItem, BSFixedString> MenuTable;
 		typedef IMenu* (*CreatorFunc)(void);
 
@@ -47,18 +46,19 @@ namespace RE
 			UInt8	unk3A;		// 3A (= 0)
 			UInt8	pad3B[5];	// 3B
 		};
+		STATIC_ASSERT(sizeof(Unknown3) == 0x40);
 
 
-		inline static MenuManager*					GetSingleton(void)								{ return reinterpret_cast<MenuManager*>(::MenuManager::GetSingleton()); }
-		inline EventDispatcher<MenuOpenCloseEvent>*	MenuOpenCloseEventDispatcher()					{ return reinterpret_cast<::MenuManager*>(this)->MenuOpenCloseEventDispatcher(); }
-		inline bool									IsMenuOpen(BSFixedString* menuName)				{ return reinterpret_cast<::MenuManager*>(this)->IsMenuOpen(menuName); }
-		inline IMenu*								GetMenu(BSFixedString* menuName)				{ return reinterpret_cast<IMenu*>(reinterpret_cast<::MenuManager*>(this)->GetMenu(menuName)); }
-		inline GFxMovieView*						GetMovieView(BSFixedString* menuName)			{ return reinterpret_cast<GFxMovieView*>(reinterpret_cast<::MenuManager*>(this)->GetMovieView(menuName)); }
-		inline void									ShowMenus(bool show)							{ reinterpret_cast<::MenuManager*>(this)->ShowMenus(show); }
-		inline bool									IsShowingMenus()								{ return reinterpret_cast<::MenuManager*>(this)->IsShowingMenus(); }
-		inline void									Register(const char* name, CreatorFunc creator)	{ reinterpret_cast<::MenuManager*>(this)->Register(name, reinterpret_cast<::MenuManager::CreatorFunc>(creator)); }
+		static MenuManager*						GetSingleton(void);
+		EventDispatcher<MenuOpenCloseEvent>*	MenuOpenCloseEventDispatcher();
+		bool									IsMenuOpen(BSFixedString* menuName);
+		IMenu*									GetMenu(BSFixedString* menuName);
+		GFxMovieView*							GetMovieView(BSFixedString* menuName);
+		void									ShowMenus(bool show);
+		bool									IsShowingMenus();
+		void									Register(const char* name, CreatorFunc creator);
 
-		inline bool									GameIsPaused()									{ return numPauseGame == 0; }
+		bool									GameIsPaused();
 
 
 		// members
@@ -79,4 +79,5 @@ namespace RE
 		bool									unk1C1;							// 1C1 (= 0)
 		char									pad1C2[6];						// 1C2
 	};
+	STATIC_ASSERT(sizeof(MenuManager) == 0x1C8);
 }
