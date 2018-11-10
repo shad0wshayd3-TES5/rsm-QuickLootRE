@@ -122,7 +122,7 @@ namespace RE
 
 	TESForm* TESObjectREFR::GetOwner()
 	{
-		return CALL_MEMBER_FN(this, GetOwner_Impl)();
+		return _GetOwner_Impl(this);
 	}
 
 
@@ -218,25 +218,32 @@ namespace RE
 
 	bool TESObjectREFR::IsLocked()
 	{
-		LockState* state = CALL_MEMBER_FN(this, GetLockState_Impl)();
+		LockState* state = _GetLockState_Impl(this);
 		return (state && state->isLocked);
 	}
 
 
 	UInt32 TESObjectREFR::GetNumItems(bool a_unk1, bool a_unk2)
 	{
-		return CALL_MEMBER_FN(this, GetNumItems)(a_unk1, a_unk2);
+		return _GetNumItems(this, a_unk1, a_unk2);
 	}
 
 
 	UInt32 TESObjectREFR::ActivateRefChildren(TESObjectREFR* a_activator)
 	{
-		return CALL_MEMBER_FN(this, ActivateRefChildren)(a_activator);
+		return _ActivateRefChildren(this, a_activator);
 	}
 
 
 	void TESObjectREFR::PlayAnimation(RE::NiControllerManager* a_manager, RE::NiControllerSequence* a_toSeq, RE::NiControllerSequence* a_fromSeq, bool a_unk)
 	{
-		CALL_MEMBER_FN(this, PlayAnimation)(a_manager, a_toSeq, a_fromSeq, a_unk);
+		_PlayAnimation(this, a_manager, a_toSeq, a_fromSeq, a_unk);
 	}
+
+
+	RelocAddr<TESObjectREFR::_GetOwner_Impl_t*> TESObjectREFR::_GetOwner_Impl(TES_OBJECT_REFR_GET_OWNER_IMPL);
+	RelocAddr<TESObjectREFR::_GetLockState_Impl_t*> TESObjectREFR::_GetLockState_Impl(TES_OBJECT_REFR_GET_LOCK_STATE_IMPL);
+	RelocAddr<TESObjectREFR::_GetNumItems_t*> TESObjectREFR::_GetNumItems(TES_OBJECT_REFR_GET_NUM_ITEMS);
+	RelocAddr<TESObjectREFR::_ActivateRefChildren_t*> TESObjectREFR::_ActivateRefChildren(TES_OBJECT_REFR_ACTIVATE_CHILDREN);
+	RelocAddr<TESObjectREFR::_PlayAnimation_t*> TESObjectREFR::_PlayAnimation(TES_OBJECT_REFR_PLAY_ANIMATION);
 }

@@ -571,7 +571,7 @@ namespace QuickLootRE
 
 	UInt32 ItemData::getPickPocketChance()
 	{
-		using Hooks::GetPickPocketChance;
+		using Hooks::_GetPickPocketChance;
 		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
@@ -584,7 +584,7 @@ namespace QuickLootRE
 			float playerSkill = player->GetPlayerActorValueCurrent(ActorValue::kActorValue_Pickpocket);
 			float targetSkill = targetActor->GetActorValueCurrent(ActorValue::kActorValue_Pickpocket);
 
-			UInt32 chance = GetPickPocketChance(playerSkill, targetSkill, totalValue, totalWeight, player, targetActor, isDetected, _entryData->type);
+			UInt32 chance = _GetPickPocketChance(playerSkill, targetSkill, totalValue, totalWeight, player, targetActor, isDetected, _entryData->type);
 			if (chance > 100) {
 				chance = 100;
 			}

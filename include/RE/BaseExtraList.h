@@ -18,16 +18,16 @@ namespace RE
 		BaseExtraList();
 		~BaseExtraList();
 
-		bool			HasType(UInt32 type);
-		void			MarkType(UInt32 type, bool bCleared);
-		bool			Remove(UInt8 type, BSExtraData* toRemove);
-		bool			Add(UInt8 type, BSExtraData* toAdd);
-		bool			CheckContainerExtraData(bool isEquipped);
-		const char*		GetDisplayName(TESForm* type);
-		BSExtraData*	GetByType(UInt32 type);
+		bool			HasType(UInt32 a_type);
+		void			MarkType(UInt32 a_type, bool a_bCleared);
+		bool			Remove(UInt8 a_type, BSExtraData* a_toRemove);
+		bool			Add(UInt8 a_type, BSExtraData* a_toAdd);
+		bool			CheckContainerExtraData(bool a_isEquipped);
+		const char*		GetDisplayName(TESForm* a_type);
+		BSExtraData*	GetByType(UInt32 a_type);
 
-		void			SetInventoryChanges(ExtraContainerChanges::Data* changes);
-		UInt32			GetAshPileRefHandle(UInt32& refHandle);
+		void			SetInventoryChanges(ExtraContainerChanges::Data* a_changes);
+		UInt32			GetAshPileRefHandle(UInt32& a_refHandle);
 
 
 		BSExtraData*						m_data;		// 00
@@ -35,9 +35,11 @@ namespace RE
 		BSReadWriteLock						m_lock;		// 10
 
 	private:
-		MEMBER_FN_PREFIX(BaseExtraList);
-		DEFINE_MEMBER_FN(SetInventoryChanges_Impl, void, BASE_EXTRA_LIST_SET_INVENTORY_CHANGES_IMPL, ExtraContainerChanges::Data* changes);
-		DEFINE_MEMBER_FN(GetAshPileRefHandle_Impl, UInt32, BASE_EXTRA_LIST_GET_ASH_PILE_REF_HANDLE_IMPL, UInt32& refHandle);
+		typedef void _SetInventoryChanges_Impl_t(BaseExtraList* a_this, ExtraContainerChanges::Data* a_changes);
+		static RelocAddr<_SetInventoryChanges_Impl_t*> _SetInventoryChanges_Impl;
+
+		typedef UInt32 _GetAshPileRefHandle_Impl_t(BaseExtraList* a_this, UInt32& refHandle);
+		static RelocAddr<_GetAshPileRefHandle_Impl_t*> _GetAshPileRefHandle_Impl;
 	};
 	STATIC_ASSERT(sizeof(BaseExtraList) == 0x18);
 }

@@ -648,7 +648,7 @@ namespace QuickLootRE
 
 	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_enableTheft)
 	{
-		using Hooks::SendItemsPickPocketedEvent;
+		using Hooks::_SendItemsPickPocketedEvent;
 		typedef RE::PlayerCharacter::EventType	EventType;
 		typedef RE::TESObjectREFR::RemoveType	RemoveType;
 
@@ -681,7 +681,7 @@ namespace QuickLootRE
 					if (!pickSuccess) {
 						return;
 					} else {
-						SendItemsPickPocketedEvent(a_item.count());
+						_SendItemsPickPocketedEvent(a_item.count());
 					}
 				}
 			} else {

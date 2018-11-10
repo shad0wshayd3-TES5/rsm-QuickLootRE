@@ -216,12 +216,20 @@ namespace RE
 		UInt32			pad94;			// 94
 
 	private:
-		MEMBER_FN_PREFIX(TESObjectREFR);
-		DEFINE_MEMBER_FN(GetOwner_Impl, TESForm*, TES_OBJECT_REFR_GET_OWNER_IMPL);
-		DEFINE_MEMBER_FN(GetLockState_Impl, LockState*, TES_OBJECT_REFR_GET_LOCK_STATE_IMPL);
-		DEFINE_MEMBER_FN(GetNumItems, UInt32, TES_OBJECT_REFR_GET_NUM_ITEMS, bool a_unk1, bool a_unk2);
-		DEFINE_MEMBER_FN(ActivateRefChildren, UInt32, TES_OBJECT_REFR_ACTIVATE_CHILDREN, TESObjectREFR* a_activator);
-		DEFINE_MEMBER_FN(PlayAnimation, void, TES_OBJECT_REFR_PLAY_ANIMATION, NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);
+		typedef TESForm* _GetOwner_Impl_t(TESObjectREFR* a_this);
+		static RelocAddr<_GetOwner_Impl_t*> _GetOwner_Impl;
+
+		typedef LockState* _GetLockState_Impl_t(TESObjectREFR* a_this);
+		static RelocAddr<_GetLockState_Impl_t*> _GetLockState_Impl;
+
+		typedef UInt32 _GetNumItems_t(TESObjectREFR* a_this, bool a_unk1, bool a_unk2);
+		static RelocAddr<_GetNumItems_t*> _GetNumItems;
+
+		typedef UInt32 _ActivateRefChildren_t(TESObjectREFR* a_this, TESObjectREFR* a_activator);
+		static RelocAddr<_ActivateRefChildren_t*> _ActivateRefChildren;
+
+		typedef void _PlayAnimation_t(TESObjectREFR* a_this, NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);
+		static RelocAddr<_PlayAnimation_t*> _PlayAnimation;
 	};
 	STATIC_ASSERT(sizeof(TESObjectREFR) == 0x98);
 	STATIC_ASSERT(offsetof(TESObjectREFR, extraData) == 0x70);

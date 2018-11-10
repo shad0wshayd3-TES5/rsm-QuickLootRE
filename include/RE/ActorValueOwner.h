@@ -29,8 +29,8 @@ namespace RE
 		float			GetPlayerActorValueCurrent(ActorValue a_akValue);
 
 	private:
-		MEMBER_FN_PREFIX(ActorValueOwner);
-		DEFINE_MEMBER_FN(GetPlayerActorValueCurrent, float, ACTOR_VALUE_OWNER_GET_PLAYER_ACTOR_VALUE_CURRENT, ActorValue a_akValue);
+		typedef float _GetPlayerActorValueCurrent_t(ActorValueOwner* a_this, ActorValue a_akValue);
+		static RelocAddr<_GetPlayerActorValueCurrent_t*> _GetPlayerActorValueCurrent;
 	};
 	STATIC_ASSERT(sizeof(ActorValueOwner) == 0x8);
 }

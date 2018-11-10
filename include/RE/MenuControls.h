@@ -26,8 +26,8 @@ namespace RE
 
 		static MenuControls*	GetSingleton();
 
-		void					RegisterHandler(MenuEventHandler* handler);
-		void					RemoveHandler(MenuEventHandler* handler);
+		void					RegisterHandler(MenuEventHandler* a_handler);
+		void					RemoveHandler(MenuEventHandler* a_handler);
 
 
 		// members
@@ -46,9 +46,11 @@ namespace RE
 		UInt8						pad83;			// 83
 
 	private:
-		MEMBER_FN_PREFIX(MenuControls);
-		DEFINE_MEMBER_FN(RegisterHandler_Impl, void, MENU_CONTROLS_REGISTER_HANDLER_IMPL, MenuEventHandler* handler);
-		DEFINE_MEMBER_FN(RemoveHandler_Impl, void, MENU_CONTROLS_REMOVE_HANDLER_IMPL, MenuEventHandler* handler);
+		typedef void _RegisterHandler_Impl_t(MenuControls* a_this, MenuEventHandler* a_handler);
+		static RelocAddr<_RegisterHandler_Impl_t*> _RegisterHandler_Impl;
+
+		typedef void _RemoveHandler_Impl_t(MenuControls* a_this, MenuEventHandler* a_handler);
+		static RelocAddr<_RemoveHandler_Impl_t*> _RemoveHandler_Impl;
 	};
 	STATIC_ASSERT(offsetof(MenuControls, handlers) == 0x18);
 	STATIC_ASSERT(offsetof(MenuControls, remapMode) == 0x82);

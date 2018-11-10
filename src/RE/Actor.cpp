@@ -172,31 +172,31 @@ namespace RE
 
 	void Actor::DispelWornItemEnchantments()
 	{
-		CALL_MEMBER_FN(this, DispelWornItemEnchantments)();
+		_DispelWornItemEnchantments(this);
 	}
 
 
 	void Actor::SendStealAlarm(TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk)
 	{
-		CALL_MEMBER_FN(this, SendStealAlarm)(a_refItemOrContainer, a_stolenItem, a_numItems, a_value, a_owner, a_unk);
+		_SendStealAlarm(this, a_refItemOrContainer, a_stolenItem, a_numItems, a_value, a_owner, a_unk);
 	}
 
 
 	SInt32 Actor::CalcEntryValue(InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk)
 	{
-		return CALL_MEMBER_FN(this, CalcEntryValue)(a_entryData, a_numItems, a_unk);
+		return _CalcEntryValue(this, a_entryData, a_numItems, a_unk);
 	}
 
 
 	SInt32 Actor::GetDetectionLevel(Actor* a_target, UInt32 a_flag)
 	{
-		return CALL_MEMBER_FN(this, GetDetectionLevel)(a_target, a_flag);
+		return _GetDetectionLevel(this, a_target, a_flag);
 	}
 
 
 	bool Actor::IsGhost()
 	{
-		return CALL_MEMBER_FN(this, IsGhost)();
+		return _IsGhost(this);
 	}
 
 
@@ -205,4 +205,11 @@ namespace RE
 		TESNPC* npc = GetActorBase();
 		return npc ? npc->IsSummonable() : false;
 	}
+
+
+	RelocAddr<Actor::_DispelWornItemEnchantments_t*> Actor::_DispelWornItemEnchantments(ACTOR_DISPEL_WORN_ITEM_ENCHANTMENTS);
+	RelocAddr<Actor::_SendStealAlarm_t*> Actor::_SendStealAlarm(ACTOR_SEND_STEAL_ALARM);
+	RelocAddr<Actor::_CalcEntryValue_t*> Actor::_CalcEntryValue(ACTOR_CALC_ENTRY_VALUE);
+	RelocAddr<Actor::_GetDetectionLevel_t*> Actor::_GetDetectionLevel(ACTOR_GET_DETECTION_LEVEL);
+	RelocAddr<Actor::_IsGhost_t*> Actor::_IsGhost(ACTOR_IS_GHOST);
 }

@@ -25,16 +25,16 @@ class PlayerCharacter;
 
 namespace Hooks
 {
-	RelocAddr<_SendItemsPickPocketedEvent*>	SendItemsPickPocketedEvent(SEND_ITEMS_PICK_POCKETED_EVENT);
-	RelocAddr<_GetPickPocketChance*> GetPickPocketChance(GET_PICK_POCKET_CHANCE);
+	RelocAddr<_SendItemsPickPocketedEvent_t*> _SendItemsPickPocketedEvent(SEND_ITEMS_PICK_POCKETED_EVENT);
+	RelocAddr<_GetPickPocketChance_t*> _GetPickPocketChance(GET_PICK_POCKET_CHANCE);
 
 
 	template <uintptr_t offset>
 	class CameraStateHandler : public RE::PlayerInputHandler
 	{
 	public:
-		typedef bool(CameraStateHandler::*_CanProcess)(InputEvent* a_event);
-		static _CanProcess orig_CanProcess;
+		typedef bool(CameraStateHandler::*_CanProcess_t)(InputEvent* a_event);
+		static _CanProcess_t orig_CanProcess;
 
 
 		bool hook_CanProcess(InputEvent* a_event)
@@ -52,14 +52,14 @@ namespace Hooks
 
 		static void installHook()
 		{
-			RelocPtr<_CanProcess> vtbl_CanProcess(offset);
+			RelocPtr<_CanProcess_t> vtbl_CanProcess(offset);
 			orig_CanProcess = *vtbl_CanProcess;
 			SafeWrite64(vtbl_CanProcess.GetUIntPtr(), GetFnAddr(&hook_CanProcess));
 		}
 	};
 
 
-	template <uintptr_t offset> typename CameraStateHandler<offset>::_CanProcess CameraStateHandler<offset>::orig_CanProcess;
+	template <uintptr_t offset> typename CameraStateHandler<offset>::_CanProcess_t CameraStateHandler<offset>::orig_CanProcess;
 	typedef CameraStateHandler<FIRST_PERSON_STATE_VTBL_META + 0x60> FirstPersonStateHandler;
 	typedef CameraStateHandler<THIRD_PERSON_STATE_VTBL_META + 0x98> ThirdPersonStateHandler;
 
@@ -67,8 +67,8 @@ namespace Hooks
 	class FavoritesHandler : public RE::MenuEventHandler
 	{
 	public:
-		typedef bool(FavoritesHandler::*_CanProcess)(InputEvent* a_event);
-		static _CanProcess orig_CanProcess;
+		typedef bool(FavoritesHandler::*_CanProcess_t)(InputEvent* a_event);
+		static _CanProcess_t orig_CanProcess;
 
 
 		bool hook_CanProcess(InputEvent* a_event)
@@ -90,21 +90,21 @@ namespace Hooks
 
 		static void installHook()
 		{
-			RelocPtr<_CanProcess> vtbl_CanProcess(FAVORITES_HANDLER_VTBL_META + 0x10);
+			RelocPtr<_CanProcess_t> vtbl_CanProcess(FAVORITES_HANDLER_VTBL_META + 0x10);
 			orig_CanProcess = *vtbl_CanProcess;
 			SafeWrite64(vtbl_CanProcess.GetUIntPtr(), GetFnAddr(&hook_CanProcess));
 		}
 	};
 
 
-	FavoritesHandler::_CanProcess FavoritesHandler::orig_CanProcess;
+	FavoritesHandler::_CanProcess_t FavoritesHandler::orig_CanProcess;
 
 
 	class ReadyWeaponHandlerEx : public RE::ReadyWeaponHandler
 	{
 	public:
-		typedef void(ReadyWeaponHandlerEx::*_ProcessButton)(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data);
-		static _ProcessButton orig_ProcessButton;
+		typedef void(ReadyWeaponHandlerEx::*_ProcessButton_t)(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data);
+		static _ProcessButton_t orig_ProcessButton;
 
 
 		void hook_ProcessButton(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data)
@@ -126,21 +126,21 @@ namespace Hooks
 
 		static void installHook()
 		{
-			RelocPtr<_ProcessButton> vtbl_ProcessButton(READY_WEAPON_HANDLER_VTBL_META + 0x28);
+			RelocPtr<_ProcessButton_t> vtbl_ProcessButton(READY_WEAPON_HANDLER_VTBL_META + 0x28);
 			orig_ProcessButton = *vtbl_ProcessButton;
 			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&hook_ProcessButton));
 		}
 	};
 
 
-	ReadyWeaponHandlerEx::_ProcessButton ReadyWeaponHandlerEx::orig_ProcessButton;
+	ReadyWeaponHandlerEx::_ProcessButton_t ReadyWeaponHandlerEx::orig_ProcessButton;
 
 
 	class ActivateHandlerEx : public RE::ActivateHandler
 	{
 	public:
-		typedef bool(ActivateHandlerEx::*_CanProcess)(InputEvent* a_event);
-		static _CanProcess orig_CanProcess;
+		typedef bool(ActivateHandlerEx::*_CanProcess_t)(InputEvent* a_event);
+		static _CanProcess_t orig_CanProcess;
 
 
 		bool hook_CanProcess(InputEvent* a_event)
@@ -162,14 +162,14 @@ namespace Hooks
 
 		static void installHook()
 		{
-			RelocPtr<_CanProcess> vtbl_CanProcess(ACTIVATE_HANDLER_VTBL_META + 0x10);
+			RelocPtr<_CanProcess_t> vtbl_CanProcess(ACTIVATE_HANDLER_VTBL_META + 0x10);
 			orig_CanProcess = *vtbl_CanProcess;
 			SafeWrite64(vtbl_CanProcess.GetUIntPtr(), GetFnAddr(&hook_CanProcess));
 		}
 	};
 
 
-	ActivateHandlerEx::_CanProcess ActivateHandlerEx::orig_CanProcess;
+	ActivateHandlerEx::_CanProcess_t ActivateHandlerEx::orig_CanProcess;
 
 
 #if 0
@@ -177,8 +177,8 @@ namespace Hooks
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
 	public:
-		typedef bool(TESBoundAnimObjectEx::*_GetCrosshairText)(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
-		static _GetCrosshairText orig_GetCrosshairText;
+		typedef bool(TESBoundAnimObjectEx::*_GetCrosshairText_t)(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
+		static _GetCrosshairText_t orig_GetCrosshairText;
 
 
 		virtual bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
@@ -197,14 +197,14 @@ namespace Hooks
 
 		static void installHook()
 		{
-			RelocPtr<_GetCrosshairText> vtbl_GetCrosshairText(offset);
+			RelocPtr<_GetCrosshairText_t> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
 			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&hook_GetCrosshairText));
 		}
 	};
 
 
-	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
+	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
 	typedef TESBoundAnimObjectEx<TES_OBJECT_ACTI_VTBL_META + 0x268> TESObjectACTIEx;
 	typedef TESBoundAnimObjectEx<TES_OBJECT_CONT_VTBL_META + 0x268> TESObjectCONTEx;
 	typedef TESBoundAnimObjectEx<TES_NPC_VTBL_META + 0x268> TESNPCEx;

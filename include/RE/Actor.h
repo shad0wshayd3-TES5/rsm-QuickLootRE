@@ -291,12 +291,20 @@ namespace RE
 		UInt64					unk2A8;			// 2A8
 
 	private:
-		MEMBER_FN_PREFIX(Actor);
-		DEFINE_MEMBER_FN(DispelWornItemEnchantments, void, ACTOR_DISPEL_WORN_ITEM_ENCHANTMENTS);
-		DEFINE_MEMBER_FN(SendStealAlarm, void, ACTOR_SEND_STEAL_ALARM, TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk);
-		DEFINE_MEMBER_FN(CalcEntryValue, SInt32, ACTOR_CALC_ENTRY_VALUE, InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk);
-		DEFINE_MEMBER_FN(GetDetectionLevel, SInt32, ACTOR_GET_DETECTION_LEVEL, Actor* a_target, UInt32 a_flag);
-		DEFINE_MEMBER_FN(IsGhost, bool, ACTOR_IS_GHOST);
+		typedef void _DispelWornItemEnchantments_t(Actor* a_this);
+		static RelocAddr<_DispelWornItemEnchantments_t*> _DispelWornItemEnchantments;
+
+		typedef void _SendStealAlarm_t(Actor* a_this, TESObjectREFR* a_refItemOrContainer, TESForm* a_stolenItem, UInt32 a_numItems, UInt32 a_value, TESForm* a_owner, bool a_unk);
+		static RelocAddr<_SendStealAlarm_t*> _SendStealAlarm;
+
+		typedef SInt32 _CalcEntryValue_t(Actor* a_this, InventoryEntryData* a_entryData, UInt32 a_numItems, bool a_unk);
+		static RelocAddr<_CalcEntryValue_t*> _CalcEntryValue;
+
+		typedef SInt32 _GetDetectionLevel_t(Actor* a_this, Actor* a_target, UInt32 a_flag);
+		static RelocAddr<_GetDetectionLevel_t*> _GetDetectionLevel;
+
+		typedef bool _IsGhost_t(Actor* a_this);
+		static RelocAddr<_IsGhost_t*> _IsGhost;
 	};
 	STATIC_ASSERT(offsetof(Actor, addedSpells) == 0x188);
 	STATIC_ASSERT(sizeof(Actor) == 0x2B0);

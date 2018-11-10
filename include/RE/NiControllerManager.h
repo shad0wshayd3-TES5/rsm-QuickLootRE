@@ -14,13 +14,13 @@ namespace RE
 	class NiControllerManager : public NiTimeController
 	{
 	public:
-		NiControllerSequence* GetSequenceByName(const BSFixedString& name);
+		NiControllerSequence* GetSequenceByName(const BSFixedString& a_name);
 
 		// members
 		NiTArray<NiControllerSequence*>	m_sequences;	// 50
 
 	private:
-		MEMBER_FN_PREFIX(NiControllerManager);
-		DEFINE_MEMBER_FN(GetSequenceByName_Impl, NiControllerSequence*, NI_CONTROLLER_MANAGER_GET_SEQUENCE_BY_NAME_IMPL, const BSFixedString& name);
+		typedef NiControllerSequence* _GetSequenceByName_Impl_t(NiControllerManager* a_this, const BSFixedString& a_name);
+		static RelocAddr<_GetSequenceByName_Impl_t*> _GetSequenceByName_Impl;
 	};
 }

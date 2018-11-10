@@ -16,18 +16,18 @@ namespace RE
 	class InventoryEntryData
 	{
 	public:
-		InventoryEntryData(TESForm * item, UInt32 count) : type(item), countDelta(count), extendDataList(0) {}
+		InventoryEntryData(TESForm* a_item, UInt32 a_count) : type(a_item), countDelta(a_count), extendDataList(0) {}
 
-		static InventoryEntryData*	Create(TESForm* item, UInt32 count);
+		static InventoryEntryData*	Create(TESForm* a_item, UInt32 a_count);
 		void						Delete(void);
-		void						GetExtraWornBaseLists(BaseExtraList** pWornBaseListOut, BaseExtraList** pWornLeftBaseListOut);
-		void						GetEquipItemData(::InventoryEntryData::EquipData& stateOut, SInt32 itemId, SInt32 baseCount);
+		void						GetExtraWornBaseLists(BaseExtraList** a_pWornBaseListOut, BaseExtraList** a_pWornLeftBaseListOut);
+		void						GetEquipItemData(::InventoryEntryData::EquipData& a_stateOut, SInt32 a_itemId, SInt32 a_baseCount);
 		const char*					GenerateName();
 		SInt32						GetValue();
-		bool						IsOwnedBy(TESForm* actor, bool unk1);
+		bool						IsOwnedBy(TESForm* a_actor, bool a_unk1);
 		UInt32						GetSoulLevel();
 
-		bool						IsOwnedBy(TESForm* actor, TESForm* itemOwner, bool unk1);
+		bool						IsOwnedBy(TESForm* a_actor, TESForm* a_itemOwner, bool a_unk1);
 		TESForm*					GetOwner();
 		float						GetWeight();
 
@@ -38,9 +38,13 @@ namespace RE
 		SInt32			countDelta;		// 10
 
 	private:
-		MEMBER_FN_PREFIX(InventoryEntryData);
-		DEFINE_MEMBER_FN(IsOwnedBy, bool, INVENTORY_ENTRY_DATA_IS_OWNED_BY, TESForm* actor, TESForm* itemOwner, bool unk1);
-		DEFINE_MEMBER_FN(GetOwner, TESForm*, INVENTORY_ENTRY_DATA_GET_OWNER);
-		DEFINE_MEMBER_FN(GetWeight, float, INVENTORY_ENTRY_DATA_GET_WEIGHT);	// { return TESWeightForm::weight; } - Only for certain formtypes
+		typedef bool _IsOwnedBy_t(InventoryEntryData* a_this, TESForm* actor, TESForm* itemOwner, bool unk1);
+		static RelocAddr<_IsOwnedBy_t*> _IsOwnedBy;
+
+		typedef TESForm* _GetOwner_t(InventoryEntryData* a_this);
+		static RelocAddr<_GetOwner_t*> _GetOwner;
+
+		typedef float _GetWeight_t(InventoryEntryData* a_this);  // { return TESWeightForm::weight; } - Only for certain formtypes
+		static RelocAddr<_GetWeight_t*> _GetWeight;
 	};
 }

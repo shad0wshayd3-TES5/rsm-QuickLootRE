@@ -69,18 +69,18 @@ namespace RE
 
 		virtual ~PlayerCharacter();
 
-		TintMask*			GetOverlayTintMask(TintMask* original);
+		TintMask*			GetOverlayTintMask(TintMask* a_original);
 		tArray<TintMask*>*	GetTintList();
-		UInt32				GetNumTints(UInt32 tintType);
-		TintMask*			GetTintMask(UInt32 tintType, UInt32 index);
-		float				GetDamage(InventoryEntryData* pForm);
-		float				GetArmorValue(InventoryEntryData* pForm);
+		UInt32				GetNumTints(UInt32 a_tintType);
+		TintMask*			GetTintMask(UInt32 a_tintType, UInt32 a_index);
+		float				GetDamage(InventoryEntryData* a_pForm);
+		float				GetArmorValue(InventoryEntryData* a_pForm);
 
 		Actor*				GetActorInFavorState();
 		TESObjectREFR*		GetGrabbedRef();
-		void				PlayPickupEvent(TESForm* item, TESForm* containerOwner, TESObjectREFR* containerRef, EventType eventType);
+		void				PlayPickupEvent(TESForm* a_item, TESForm* a_containerOwner, TESObjectREFR* a_containerRef, EventType a_eventType);
 		void				StartActivation();
-		bool				TryToPickPocket(Actor* target, InventoryEntryData* pEntry, UInt32 numItems, bool unk4);
+		bool				TryToPickPocket(Actor* a_target, InventoryEntryData* a_pEntry, UInt32 a_numItems, bool a_unk4);
 
 
 		// members
@@ -332,13 +332,18 @@ namespace RE
 		UInt16							padBDE;					// BDE
 
 	private:
-		MEMBER_FN_PREFIX(PlayerCharacter);
-		DEFINE_MEMBER_FN(GetActorInFavorState, Actor*, PLAYER_CHARACTER_GET_ACTOR_IN_FAVOR_STATE);
-		DEFINE_MEMBER_FN(PlayPickupEvent, void, PLAYER_CHARACTER_PLAY_PICKUP_EVENT, TESForm* item, TESForm* containerOwner, TESObjectREFR* containerRef, EventType eventType);
-		DEFINE_MEMBER_FN(StartActivation, void, PLAYER_CHARACTER_START_ACTIVATION);
-		DEFINE_MEMBER_FN(TryToPickPocket, bool, PLAYER_CHARACTER_TRY_TO_PICK_POCKET, Actor* target, InventoryEntryData* pEntry, UInt32 numItems, bool unk4);
-	};
+		typedef Actor* _GetActorInFavorState_t(PlayerCharacter* a_this);
+		static RelocAddr<_GetActorInFavorState_t*> _GetActorInFavorState;
 
+		typedef void _PlayPickupEvent_t(PlayerCharacter* a_this, TESForm* a_item, TESForm* a_containerOwner, TESObjectREFR* a_containerRef, EventType a_eventType);
+		static RelocAddr<_PlayPickupEvent_t*> _PlayPickupEvent;
+
+		typedef void _StartActivation_t(PlayerCharacter* a_this);
+		static RelocAddr<_StartActivation_t*> _StartActivation;
+
+		typedef bool _TryToPickPocket_t(PlayerCharacter* a_this, Actor* a_target, InventoryEntryData* a_pEntry, UInt32 a_numItems, bool a_unk4);
+		static RelocAddr<_TryToPickPocket_t*> _TryToPickPocket;
+	};
 	STATIC_ASSERT(offsetof(PlayerCharacter, playerGrabbedHandle) == 0x8C8);
 	STATIC_ASSERT(sizeof(PlayerCharacter) == 0xBE0);
 }

@@ -53,18 +53,23 @@ namespace RE
 
 	bool InventoryEntryData::IsOwnedBy(TESForm* actor, TESForm* itemOwner, bool unk1)
 	{
-		return CALL_MEMBER_FN(this, IsOwnedBy)(actor, itemOwner, unk1);
+		return _IsOwnedBy(this, actor, itemOwner, unk1);
 	}
 
 
 	TESForm* InventoryEntryData::GetOwner()
 	{
-		return CALL_MEMBER_FN(this, GetOwner)();
+		return _GetOwner(this);
 	}
 
 
 	float InventoryEntryData::GetWeight()
 	{
-		return CALL_MEMBER_FN(this, GetWeight)();
+		return _GetWeight(this);
 	}
+
+
+	RelocAddr<InventoryEntryData::_IsOwnedBy_t*> InventoryEntryData::_IsOwnedBy(INVENTORY_ENTRY_DATA_IS_OWNED_BY);
+	RelocAddr<InventoryEntryData::_GetOwner_t*> InventoryEntryData::_GetOwner(INVENTORY_ENTRY_DATA_GET_OWNER);
+	RelocAddr<InventoryEntryData::_GetWeight_t*> InventoryEntryData::_GetWeight(INVENTORY_ENTRY_DATA_GET_WEIGHT);
 }
