@@ -207,11 +207,16 @@ namespace QuickLootRE
 		UInt32							getPickPocketChance();
 		Priority						getPriority();
 
-		friend int						compareByStolen	(const ItemData& a_lhs, const ItemData& a_rhs);
-		friend int						compareByType	(const ItemData& a_lhs, const ItemData& a_rhs);
-		friend int						compareByName	(const ItemData& a_lhs, const ItemData& a_rhs);
-		friend int						compareByValue	(const ItemData& a_lhs, const ItemData& a_rhs);
-		friend int						compareByCount	(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByStolen(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
 
 		RE::InventoryEntryData*			_entryData;
 		const char*						_name;
@@ -229,64 +234,4 @@ namespace QuickLootRE
 		static RE::TESObjectREFR*		_container;
 		static const char*				_strIcons[];
 	};
-
-
-	inline ItemData& ItemData::operator=(ItemData a_rhs)
-	{
-		swap(*this, a_rhs);
-		return *this;
-	}
-
-
-	inline bool operator==(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		return (a_lhs._entryData == a_rhs._entryData &&
-				a_lhs._name == a_rhs._name &&
-				a_lhs._count == a_rhs._count &&
-				a_lhs._value == a_rhs._value &&
-				a_lhs._weight == a_rhs._weight &&
-				a_lhs._type == a_rhs._type &&
-				a_lhs._isStolen == a_rhs._isStolen &&
-				a_lhs._isEnchanted == a_rhs._isEnchanted &&
-				a_lhs._pickPocketChance == a_rhs._pickPocketChance &&
-				a_lhs._priority == a_rhs._priority);
-	}
-
-
-	inline bool operator!=(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		return !operator==(a_lhs, a_rhs);
-	}
-
-
-	inline bool operator>(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		return operator<(a_rhs, a_lhs);
-	}
-
-
-	inline bool operator<=(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		return !operator>(a_lhs, a_rhs);
-	}
-
-
-	inline bool operator>=(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		return !operator<(a_lhs, a_rhs);
-	}
-
-	inline void swap(ItemData& a_lhs, ItemData& a_rhs)
-	{
-		std::swap(a_lhs._entryData, a_rhs._entryData);
-		std::swap(a_lhs._name, a_rhs._name);
-		std::swap(a_lhs._count, a_rhs._count);
-		std::swap(a_lhs._value, a_rhs._value);
-		std::swap(a_lhs._weight, a_rhs._weight);
-		std::swap(a_lhs._type, a_rhs._type);
-		std::swap(a_lhs._isStolen, a_rhs._isStolen);
-		std::swap(a_lhs._isEnchanted, a_rhs._isEnchanted);
-		std::swap(a_lhs._pickPocketChance, a_rhs._pickPocketChance);
-		std::swap(a_lhs._priority, a_rhs._priority);
-	}
 }

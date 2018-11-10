@@ -51,12 +51,12 @@ namespace RE
 
 	TESObjectREFR* PlayerCharacter::GetGrabbedRef()
 	{
-		TESObjectREFRPtr refPtr;
+		::TESObjectREFR* refPtr = 0;
 		UInt32 handle = playerGrabbedHandle;
 		if (handle != *g_invalidRefHandle) {
-			TESObjectREFR::LookupByHandle(handle, refPtr);
+			(*LookupREFRByHandle)(&handle, &refPtr);
 		}
-		return refPtr;
+		return reinterpret_cast<TESObjectREFR*>(refPtr);
 	}
 
 

@@ -229,9 +229,9 @@ namespace QuickLootRE
 		{
 			UInt32 refHandle = 0;
 			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
-				RE::TESObjectREFRPtr refPtr;
-				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
-					containerRef = refPtr;
+				TESObjectREFR* refPtr = 0;
+				if ((*LookupREFRByHandle)(&refHandle, &refPtr)) {
+					containerRef = reinterpret_cast<RE::TESObjectREFR*>(refPtr);
 				}
 			}
 			break;

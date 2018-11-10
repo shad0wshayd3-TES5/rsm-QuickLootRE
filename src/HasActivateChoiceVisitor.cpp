@@ -50,4 +50,10 @@ namespace QuickLootRE
 		}
 		return 1;
 	}
+
+
+	bool HasActivateChoiceVisitor::GetResult() const
+	{
+		return _result;
+	}
 }

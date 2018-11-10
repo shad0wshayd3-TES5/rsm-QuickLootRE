@@ -7,6 +7,8 @@
 #include "skse64/GameObjects.h"  // TESObjectARMO, TESObjectBOOK, TESObjectMISC, TESObjectWEAP, TESAmmo, AlchemyItem, TESSoulGem
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
+#include <cmath>  // floor, ceil
+
 #include "ExtendDataListVisitor.h"  // ExtendDataListVisitor
 #include "Hooks.h"  // GetPickPocketChance()
 #include "Forms.h"  // keywords, FormID
@@ -63,6 +65,34 @@ namespace QuickLootRE
 	{}
 
 
+	ItemData& ItemData::operator=(ItemData a_rhs)
+	{
+		swap(*this, a_rhs);
+		return *this;
+	}
+
+
+	bool operator==(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return (a_lhs._entryData == a_rhs._entryData &&
+				a_lhs._name == a_rhs._name &&
+				a_lhs._count == a_rhs._count &&
+				a_lhs._value == a_rhs._value &&
+				a_lhs._weight == a_rhs._weight &&
+				a_lhs._type == a_rhs._type &&
+				a_lhs._isStolen == a_rhs._isStolen &&
+				a_lhs._isEnchanted == a_rhs._isEnchanted &&
+				a_lhs._pickPocketChance == a_rhs._pickPocketChance &&
+				a_lhs._priority == a_rhs._priority);
+	}
+
+
+	bool operator!=(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return !operator==(a_lhs, a_rhs);
+	}
+
+
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		for (ItemData::FnCompare compare : ItemData::_compares) {
@@ -73,6 +103,38 @@ namespace QuickLootRE
 		}
 
 		return a_lhs._entryData < a_rhs._entryData;
+	}
+
+
+	bool operator>(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return operator<(a_rhs, a_lhs);
+	}
+
+
+	bool operator<=(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return !operator>(a_lhs, a_rhs);
+	}
+
+
+	bool operator>=(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return !operator<(a_lhs, a_rhs);
+	}
+
+	void swap(ItemData& a_lhs, ItemData& a_rhs)
+	{
+		std::swap(a_lhs._entryData, a_rhs._entryData);
+		std::swap(a_lhs._name, a_rhs._name);
+		std::swap(a_lhs._count, a_rhs._count);
+		std::swap(a_lhs._value, a_rhs._value);
+		std::swap(a_lhs._weight, a_rhs._weight);
+		std::swap(a_lhs._type, a_rhs._type);
+		std::swap(a_lhs._isStolen, a_rhs._isStolen);
+		std::swap(a_lhs._isEnchanted, a_rhs._isEnchanted);
+		std::swap(a_lhs._pickPocketChance, a_rhs._pickPocketChance);
+		std::swap(a_lhs._priority, a_rhs._priority);
 	}
 
 
@@ -158,10 +220,20 @@ namespace QuickLootRE
 				_compares.push_back(&compareByCount);
 			} else if (compare == "value") {
 				_compares.push_back(&compareByValue);
+			} else if (compare == "weight") {
+				_compares.push_back(&compareByWeight);
 			} else if (compare == "type") {
 				_compares.push_back(&compareByType);
 			} else if (compare == "stolen") {
 				_compares.push_back(&compareByStolen);
+			} else if (compare == "read") {
+				_compares.push_back(&compareByRead);
+			} else if (compare == "enchanted") {
+				_compares.push_back(&compareByEnchanted);
+			} else if (compare == "pickPocketChance") {
+				_compares.push_back(&compareByPickPocketChance);
+			} else if (compare == "valuePerWeight") {
+				_compares.push_back(&compareByValuePerWeight);
 			}
 		}
 	}
@@ -583,41 +655,94 @@ namespace QuickLootRE
 	}
 
 
-	int compareByStolen(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		SInt32 valueLHS = a_lhs._isStolen ? 1 : 0;
-		SInt32 valueRHS = a_rhs._isStolen ? 1 : 0;
-
-		return valueLHS - valueRHS;
-	}
-
-
-	static int compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
-	{
-		return a_lhs._priority - a_rhs._priority;
-	}
-
-
-	static int compareByName(const ItemData& a_lhs, const ItemData& a_rhs)
+	int compareByName(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		return strcmp(a_lhs._name, a_rhs._name);
 	}
 
 
-	static int compareByValue(const ItemData& a_lhs, const ItemData& a_rhs)
+	int compareByCount(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		SInt32 valueLHS = a_lhs._value;
-		SInt32 valueRHS = a_rhs._value;
+		return a_lhs._count - a_rhs._count;
+	}
+
+
+	int compareByValue(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return a_lhs._value - a_rhs._value;
+	}
+
+
+	int compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		float result = a_lhs._weight - a_rhs._weight;
+		if (result < -0.001) {
+			return (int)std::floor(result);
+		} else if (result > 0.001) {
+			return (int)std::ceil(result);
+		} else {
+			return 0;
+		}
+	}
+
+
+	int compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return a_lhs._priority - a_rhs._priority;
+	}
+
+
+	int compareByStolen(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		SInt32 valueLHS = a_lhs._isStolen ? 1 : 0;
+		SInt32 valueRHS = a_rhs._isStolen ? 1 : 0;
 		return valueLHS - valueRHS;
 	}
 
 
-	static int compareByCount(const ItemData& a_lhs, const ItemData& a_rhs)
+	int compareByRead(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		SInt32 valueLHS = a_lhs._count;
-		SInt32 valueRHS = a_rhs._count;
+		SInt32 valueLHS = a_lhs._isRead ? 1 : 0;
+		SInt32 valueRHS = a_rhs._isRead ? 1 : 0;
 		return valueLHS - valueRHS;
 	}
+
+
+	int compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		SInt32 valueLHS = a_lhs._isEnchanted ? 1 : 0;
+		SInt32 valueRHS = a_rhs._isEnchanted ? 1 : 0;
+		return valueLHS - valueRHS;
+	}
+
+
+	int compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		float result = a_lhs._pickPocketChance - a_rhs._pickPocketChance;
+		if (result < -0.001) {
+			return (int)std::floor(result);
+		} else if (result > 0.001) {
+			return (int)std::ceil(result);
+		} else {
+			return 0;
+		}
+	}
+
+
+	int compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		float leftVpW = a_lhs._value / a_lhs._weight;
+		float rightVpW = a_rhs._value / a_rhs._weight;
+		float result = leftVpW - rightVpW;
+		if (result < -0.001) {
+			return (int)std::floor(result);
+		} else if (result > 0.001) {
+			return (int)std::ceil(result);
+		} else {
+			return 0;
+		}
+	}
+
 
 	std::vector<ItemData::FnCompare>	ItemData::_compares;
 	RE::TESObjectREFR*					ItemData::_container = 0;

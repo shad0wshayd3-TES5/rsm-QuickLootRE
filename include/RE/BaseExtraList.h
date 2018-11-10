@@ -32,7 +32,7 @@ namespace RE
 
 		BSExtraData*						m_data;		// 00
 		::BaseExtraList::PresenceBitfield*	m_presence;	// 08
-		BSReadWriteLock						m_lock;
+		BSReadWriteLock						m_lock;		// 10
 
 	private:
 		MEMBER_FN_PREFIX(BaseExtraList);

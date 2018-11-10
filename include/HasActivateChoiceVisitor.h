@@ -18,7 +18,7 @@ namespace QuickLootRE
 		HasActivateChoiceVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target);
 
 		virtual UInt32	Visit(RE::BGSPerkEntry* perkEntry) override;
-		inline bool		GetResult() const { return _result; }
+		bool			GetResult() const;
 
 	protected:
 		RE::Actor*			_actor;
