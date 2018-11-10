@@ -196,7 +196,7 @@ namespace RE
 		bool							SetDisplayName(const BSFixedString& name, bool force);
 		static bool						LookupByHandle(UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
 		static bool						LookupByHandle(UInt32& a_refHandle, TESObjectREFR*& a_refrOut);
-		__declspec(noinline) bool							IsLocked();
+		bool							IsLocked();
 		UInt32							GetNumItems(bool a_unk1, bool a_unk2);
 		UInt32							ActivateRefChildren(TESObjectREFR* a_activator);
 		void							PlayAnimation(NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);

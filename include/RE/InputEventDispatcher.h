@@ -18,8 +18,8 @@ namespace RE
 
 
 	class InputEventDispatcher :
-		public BSTEventSource<InputEvent*>,
-		public BSTSingletonSDM<InputEventDispatcher>
+		public BSTSingletonSDM<InputEventDispatcher>,
+		public BSTEventSource<InputEvent*>
 	{
 	public:
 		static InputEventDispatcher*		GetSingleton();

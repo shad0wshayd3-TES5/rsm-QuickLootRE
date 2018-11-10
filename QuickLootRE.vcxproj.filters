@@ -549,6 +549,9 @@
     <ClInclude Include="include\RE\BSTSingleton.h">
       <Filter>include\RE\Skyrim\BSCore</Filter>
     </ClInclude>
+    <ClInclude Include="include\RE\MovementHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

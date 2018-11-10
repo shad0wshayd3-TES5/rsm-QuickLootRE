@@ -18,8 +18,8 @@ namespace RE
 
 	class MenuControls :
 		public BSTEventSink<InputEvent*>,
-		public BSTSingletonSDM<MenuControls>,
-		public BSTEventSink<MenuModeChangeEvent>
+		public BSTEventSink<MenuModeChangeEvent>,
+		public BSTSingletonSDM<MenuControls>
 	{
 	public:
 		virtual ~MenuControls();
@@ -50,5 +50,6 @@ namespace RE
 		DEFINE_MEMBER_FN(RegisterHandler_Impl, void, MENU_CONTROLS_REGISTER_HANDLER_IMPL, MenuEventHandler* handler);
 		DEFINE_MEMBER_FN(RemoveHandler_Impl, void, MENU_CONTROLS_REMOVE_HANDLER_IMPL, MenuEventHandler* handler);
 	};
-	STATIC_ASSERT(offsetof(MenuControls, remapMode) == 0x082);
+	STATIC_ASSERT(offsetof(MenuControls, handlers) == 0x18);
+	STATIC_ASSERT(offsetof(MenuControls, remapMode) == 0x82);
 }

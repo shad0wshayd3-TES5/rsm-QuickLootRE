@@ -11,8 +11,8 @@
 namespace RE
 {
 	class InputManager :
-		public BSTEventSource<InputEvent*>,
-		public BSTSingletonSDM<InputManager>
+		public BSTSingletonSDM<InputManager>,
+		public BSTEventSource<InputEvent*>
 	{
 	private:
 		typedef RE::BSInputDevice::InputDevice InputDevice;

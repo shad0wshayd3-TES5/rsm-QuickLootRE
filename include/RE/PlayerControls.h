@@ -16,11 +16,10 @@ namespace RE
 		public BSTEventSink<InputEvent*>,
 		public BSTEventSink<MenuOpenCloseEvent>,
 		public BSTEventSink<MenuModeChangeEvent>,
-		public BSTSingletonSDM<PlayerControls>,
 		public BSTEventSink<TESFurnitureEvent>
 	{
 	public:
-		struct Data028
+		struct Data024
 		{
 			float		movementX;	// 00 - Strafe Left=-1, Strafe Right=1
 			float		movementY;	// 04 - Forward=1, Back=-1
@@ -53,7 +52,8 @@ namespace RE
 
 
 		// members
-		Data028						data028;			// 024
+		UInt32						pad020;				// 020
+		Data024						data024;			// 024
 		tArray<PlayerInputHandler*>	handlers;			// 058
 		tArray<void*>				unk070;				// 070
 		tArray<void*>				unk088;				// 088
@@ -79,5 +79,5 @@ namespace RE
 		PlayerInputHandler*			sneakHandler;		// 1C8
 		PlayerInputHandler*			togglePOVHandler;	// 1D0
 	};
-	STATIC_ASSERT(offsetof(PlayerControls, data028) == 0x028);
+	STATIC_ASSERT(offsetof(PlayerControls, data024) == 0x024);
 }

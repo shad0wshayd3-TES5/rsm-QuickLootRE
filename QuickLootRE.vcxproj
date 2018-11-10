@@ -263,6 +263,7 @@
     <ClInclude Include="include\RE\MenuControls.h" />
     <ClInclude Include="include\RE\MenuEventHandler.h" />
     <ClInclude Include="include\RE\MenuManager.h" />
+    <ClInclude Include="include\RE\MovementHandler.h" />
     <ClInclude Include="include\RE\NiAVObject.h" />
     <ClInclude Include="include\RE\NiControllerManager.h" />
     <ClInclude Include="include\RE\NiControllerSequence.h" />
