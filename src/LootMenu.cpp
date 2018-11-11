@@ -150,7 +150,7 @@ namespace QuickLootRE
 
 		static RE::MenuControls* mc = RE::MenuControls::GetSingleton();
 
-		if (IsOpen()) {
+		if (_singleton && _singleton->view) {
 			_singleton->view->SetVisible(a_visible);
 			if (a_visible && !_isRegistered) {
 				mc->RegisterHandler(_singleton);
@@ -186,20 +186,21 @@ namespace QuickLootRE
 
 	bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	{
-		static RE::MenuManager*		mm						= RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping					= RE::InputManager::GetSingleton();
-		static RE::PlayerCharacter*	player					= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static BSFixedString		strAnimationDriven		= "bAnimationDriven";
+		static RE::MenuManager*		mm					= RE::MenuManager::GetSingleton();
+		static RE::InputManager*	mapping				= RE::InputManager::GetSingleton();
+		static UIStringHolder*		strHolder			= UIStringHolder::GetSingleton();
+		static RE::PlayerCharacter*	player				= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static BSFixedString		strAnimationDriven	= "bAnimationDriven";
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
 		}
 
-		if (mm && mm->numPauseGame && mm->numStopCrosshairUpdate > 0) {
+		if (mm->GameIsPaused() || mm->numStopCrosshairUpdate > 0 || mm->GetMenu(&strHolder->dialogueMenu)) {
 			return false;
 		}
 
-		if (!mapping || !mapping->IsMovementControlsEnabled()) {
+		if (!mapping->IsMovementControlsEnabled()) {
 			return false;
 		}
 
@@ -243,12 +244,10 @@ namespace QuickLootRE
 			if (a_ref->IsDead(true) && !target->IsSummoned()) {
 				containerRef = a_ref;
 			} else if (!Settings::disablePickPocketing && IsValidPickPocketTarget(a_ref, a_isSneaking)) {
-				if (!target->IsPlayerTeammate() && !target->IsInFaction(CurrentFollowerFaction)) {
-					if (Settings::disableInCombat && !target->IsInCombat()) {
-						containerRef = a_ref;
-					} else {
-						containerRef = a_ref;
-					}
+				if (Settings::disableInCombat && !target->IsInCombat()) {
+					containerRef = a_ref;
+				} else {
+					containerRef = a_ref;
 				}
 			}
 			break;
@@ -338,6 +337,10 @@ namespace QuickLootRE
 
 	UInt32 LootMenu::ProcessMessage(UIMessage* a_message)
 	{
+		static RE::MenuManager*		mm		= RE::MenuManager::GetSingleton();
+		static RE::InputManager*	mapping	= RE::InputManager::GetSingleton();
+		static RE::PlayerCharacter*	player	= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
 		if (!Settings::isApplied) {
 			Register(kScaleform_Setup);
 		}
@@ -398,8 +401,8 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static InputStringHolder*	strHolder		= InputStringHolder::GetSingleton();
-		static RE::PlayerCharacter*	player			= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static InputStringHolder*	strHolder = InputStringHolder::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!a_event->IsDown()) {
 			return true;
@@ -556,11 +559,11 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice		BSWin32GamepadDevice;
 		typedef RE::BSInputDevice::InputDevice	InputDevice;
 
-		static RE::InputEventDispatcher*	inputDispatcher	= RE::InputEventDispatcher::GetSingleton();
-		static RE::InputManager*			inputManager	= RE::InputManager::GetSingleton();
-		static InputStringHolder*			strHolder		= InputStringHolder::GetSingleton();
-		static UInt32						keyRun			= inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Keyboard);
-		static UInt32						keySprint		= inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Gamepad);
+		static RE::InputEventDispatcher*	inputDispatcher = RE::InputEventDispatcher::GetSingleton();
+		static RE::InputManager*			inputManager = RE::InputManager::GetSingleton();
+		static InputStringHolder*			strHolder = InputStringHolder::GetSingleton();
+		static UInt32						keyRun = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Keyboard);
+		static UInt32						keySprint = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Gamepad);
 
 		if (Settings::disableSingleLoot) {
 			return false;

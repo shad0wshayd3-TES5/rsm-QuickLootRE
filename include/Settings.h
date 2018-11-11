@@ -11,13 +11,20 @@ namespace QuickLootRE
 {
 	class ISetting
 	{
+	private:
+		typedef nlohmann::json json;
+
 	public:
 		ISetting(std::string a_key) : _key(a_key) {}
 		virtual ~ISetting() {}
 
-		virtual	void				Assign(void* a_val)			= 0;
-		virtual void				Dump()						= 0;
-		inline const std::string&	key()				const	{ return _key; };
+		virtual void				Assign(bool a_val)					{}
+		virtual void				Assign(int a_val)					{}
+		virtual void				Assign(float a_val)					{}
+		virtual void				Assign(const char* a_val)			{}
+		virtual void				Assign(json& a_val)					{}
+		virtual void				Dump()								= 0;
+		inline const std::string&	key()						const	{ return _key; };
 
 	protected:
 		std::string	_key;
@@ -33,7 +40,9 @@ namespace QuickLootRE
 		bSetting(std::string a_key, bool a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
 		virtual ~bSetting() {}
 
-		virtual void	Assign(void* a_val)			override	{ _value = *((bool*)a_val); }
+		virtual void	Assign(bool a_val)			override	{ _value = a_val; }
+		virtual void	Assign(int a_val)			override	{ _value = a_val ? true : false; }
+		virtual void	Assign(float a_val)			override	{ _value = (int)a_val ? true : false; }
 		virtual void	Dump()						override	{ _DMESSAGE("%s: %s", _key.c_str(), boolToString(_value).c_str()); }
 		inline			operator bool()		const				{ return _value; }
 
@@ -48,7 +57,8 @@ namespace QuickLootRE
 		iSetting(std::string a_key, SInt32 a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
 		virtual ~iSetting() {}
 
-		virtual void	Assign(void* a_val)			override	{ _value = *((SInt32*)a_val); }
+		virtual void	Assign(int a_val)			override	{ _value = a_val; }
+		virtual void	Assign(float a_val)			override	{ _value = (int)a_val; }
 		virtual void	Dump()						override	{ _DMESSAGE("%s: %i", _key.c_str(), _value); }
 		inline			operator SInt32()	const				{ return _value; }
 
@@ -63,7 +73,8 @@ namespace QuickLootRE
 		fSetting(std::string a_key, float a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
 		virtual ~fSetting() {}
 
-		virtual void	Assign(void* a_val)			override	{ _value = *((float*)a_val); }
+		virtual void	Assign(int a_val)			override	{ _value = (float)a_val; }
+		virtual void	Assign(float a_val)			override	{ _value = a_val; }
 		virtual void	Dump()						override	{ _DMESSAGE("%s: %f", _key.c_str(), _value); }
 		inline			operator float()	const				{ return _value; }
 
@@ -74,16 +85,17 @@ namespace QuickLootRE
 
 	class aSetting : public ISetting
 	{
+	private:
+		typedef nlohmann::json json;
+
 	public:
 		aSetting(std::string a_key, std::initializer_list<std::string> a_list = {}) : ISetting(a_key), _values(a_list) { settings.push_back(this); }
 		virtual ~aSetting() {}
 
-		virtual void Assign(void* a_val) override
+		virtual void Assign(json& a_val) override
 		{
 			_values.clear();
-			using nlohmann::json;
-			json jArr = *((json*)a_val);
-			for (auto& val : jArr) {
+			for (auto& val : a_val) {
 				_values.emplace_back(val.get<std::string>());
 			}
 		}

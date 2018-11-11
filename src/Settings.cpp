@@ -30,26 +30,26 @@ namespace QuickLootRE
 				case json::value_t::array:
 				{
 					json jArr = it.value();
-					setting->Assign(&jArr);
+					setting->Assign(jArr);
 					break;
 				}
 				case json::value_t::boolean:
 				{
 					bool b = it.value();
-					setting->Assign(&b);
+					setting->Assign(b);
 					break;
 				}
 				case json::value_t::number_integer:
 				case json::value_t::number_unsigned:
 				{
 					int num = it.value();
-					setting->Assign(&num);
+					setting->Assign(num);
 					break;
 				}
 				case json::value_t::number_float:
 				{
 					float num = it.value();
-					setting->Assign(&num);
+					setting->Assign(num);
 					break;
 				}
 				default:

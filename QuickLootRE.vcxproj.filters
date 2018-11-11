@@ -273,6 +273,9 @@
     <ClCompile Include="src\RE\BSWin32KeyboardDevice.cpp">
       <Filter>src\RE\Skyrim\BSDevices</Filter>
     </ClCompile>
+    <ClCompile Include="src\RE\TESFaction.cpp">
+      <Filter>src\RE\Skyrim\TESForms\Character</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -551,6 +554,12 @@
     </ClInclude>
     <ClInclude Include="include\RE\MovementHandler.h">
       <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TESFaction.h">
+      <Filter>include\RE\Skyrim\TESForms\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\ExtraFactionChanges.h">
+      <Filter>include\RE\Skyrim\ExtraData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

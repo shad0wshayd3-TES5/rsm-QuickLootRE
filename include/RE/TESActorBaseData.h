@@ -7,6 +7,9 @@ class BGSVoiceType;
 
 namespace RE
 {
+	class TESFaction;
+
+
 	class TESActorBaseData : public BaseFormComponent
 	{
 	public:

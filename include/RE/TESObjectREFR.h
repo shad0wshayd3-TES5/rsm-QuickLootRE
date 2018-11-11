@@ -12,8 +12,6 @@ class ActorWeightModel;
 class BaseExtraList;
 class BSFaceGenAnimationData;
 class BSFaceGenNiNode;
-class TESFaction;
-class TESNPC;
 class TESObjectCELL;
 
 
@@ -22,6 +20,8 @@ namespace RE
 	class NiControllerManager;
 	class NiControllerSequence;
 	class NiNode;
+	class TESFaction;
+	class TESNPC;
 	struct LockState;
 
 

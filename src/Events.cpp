@@ -95,22 +95,26 @@ namespace QuickLootRE
 		static UIStringHolder*	strHolder	= UIStringHolder::GetSingleton();
 		static RE::MenuManager*	mm			= RE::MenuManager::GetSingleton();
 
-		if (a_event && LootMenu::IsOpen()) {
-			LootMenu* loot = LootMenu::GetSingleton();
-			if (a_event->opening) {
-				RE::IMenu* menu = mm->GetMenu(&a_event->menuName);
-				if (menu) {
-					if (menu->StopsCrosshairUpdates() && a_event->menuName != strHolder->tweenMenu) {
-						LootMenu::Close();
-					} else if (menu->PausesGame()) {
-						LootMenu::SetVisible(false);
-					}
+		LootMenu* loot = LootMenu::GetSingleton();
+		if (!a_event || !loot || !LootMenu::IsOpen()) {
+			return kEvent_Continue;
+		}
+
+		BSFixedString menuName = a_event->menuName;
+		if (a_event->opening) {
+			RE::IMenu* menu = mm->GetMenu(&a_event->menuName);
+			if (menu) {
+				if (menuName == strHolder->dialogueMenu) {
+					LootMenu::Close();
+				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) ||
+					menu->PausesGame()) {
+					LootMenu::SetVisible(false);
 				}
-			} else {
-				if (mm->GameIsPaused() && !LootMenu::IsVisible()) {
-					LootMenu::SetVisible(true);
-					LootMenu::Register(LootMenu::kScaleform_OpenContainer);
-				}
+			}
+		} else {
+			if (!LootMenu::IsVisible() && (!mm->GameIsPaused() || menuName == strHolder->dialogueMenu)) {
+				LootMenu::SetVisible(true);
+				LootMenu::Register(LootMenu::kScaleform_OpenContainer);
 			}
 		}
 		return kEvent_Continue;

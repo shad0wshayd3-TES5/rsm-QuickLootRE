@@ -4,6 +4,8 @@
 
 #include <vector>  // vector
 
+#include "RE/TESFaction.h"  // TESFaction
+
 
 namespace QuickLootRE
 {
@@ -12,7 +14,8 @@ namespace QuickLootRE
 		std::vector<TESForm*> vec;
 
 		// Factions
-		vec.push_back(CurrentFollowerFaction	= static_cast<TESFaction*>(LookupFormByID(kFACTFormID_CurrentFollowerFaction)));
+		vec.push_back(CreatureFaction			= static_cast<RE::TESFaction*>(LookupFormByID(kFACTFormID_CreatureFaction)));
+		vec.push_back(CurrentFollowerFaction	= static_cast<RE::TESFaction*>(LookupFormByID(kFACTFormID_CurrentFollowerFaction)));
 
 		// Keywords
 		vec.push_back(VendorItemClothing		= static_cast<BGSKeyword*>(LookupFormByID(kKYWDFormID_VendorItemClothing)));
@@ -31,8 +34,8 @@ namespace QuickLootRE
 
 		vec.push_back(WeapTypeWarhammer			= static_cast<BGSKeyword*>(LookupFormByID(kKYWDFormID_WeapTypeWarhammer)));
 
-		for (auto& keyword : vec) {
-			if (!keyword) {
+		for (auto& form : vec) {
+			if (!form) {
 				return false;
 			}
 		}
@@ -41,22 +44,23 @@ namespace QuickLootRE
 
 
 	// Factions
-	TESFaction*	CurrentFollowerFaction = 0;
+	RE::TESFaction*	CreatureFaction = 0;
+	RE::TESFaction*	CurrentFollowerFaction = 0;
 
 	// Keywords
-	BGSKeyword* VendorItemClothing = 0;
-	BGSKeyword* VendorItemJewelry = 0;
+	BGSKeyword*		VendorItemClothing = 0;
+	BGSKeyword*		VendorItemJewelry = 0;
 
-	BGSKeyword* VendorItemRecipe = 0;
-	BGSKeyword* VendorItemSpellTome = 0;
+	BGSKeyword*		VendorItemRecipe = 0;
+	BGSKeyword*		VendorItemSpellTome = 0;
 
-	BGSKeyword* VendorItemAnimalHide = 0;
-	BGSKeyword* VendorItemDaedricArtifact = 0;
-	BGSKeyword* VendorItemGem = 0;
-	BGSKeyword* VendorItemAnimalPart = 0;
-	BGSKeyword* VendorItemOreIngot = 0;
-	BGSKeyword* VendorItemClutter = 0;
-	BGSKeyword* VendorItemFireword = 0;
+	BGSKeyword*		VendorItemAnimalHide = 0;
+	BGSKeyword*		VendorItemDaedricArtifact = 0;
+	BGSKeyword*		VendorItemGem = 0;
+	BGSKeyword*		VendorItemAnimalPart = 0;
+	BGSKeyword*		VendorItemOreIngot = 0;
+	BGSKeyword*		VendorItemClutter = 0;
+	BGSKeyword*		VendorItemFireword = 0;
 
-	BGSKeyword* WeapTypeWarhammer = 0;
+	BGSKeyword*		WeapTypeWarhammer = 0;
 }

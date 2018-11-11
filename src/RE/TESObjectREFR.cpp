@@ -2,15 +2,17 @@
 
 #include "skse64/GameExtraData.h"  // ExtraOwnership, ExtraTextDisplayData
 #include "skse64/GameFormComponents.h"  // TESContainer, TESFullName
-#include "skse64/GameForms.h"  // TESFaction
-#include "skse64/GameObjects.h"  // TESNPC, TESObjectCONT, TESActorBase
+#include "skse64/GameObjects.h"  // TESObjectCONT
 #include "skse64/GameReferences.h"  // TESObjectREFR
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/GameTypes.h"  // BSFixedString
 
 #include <exception>  // exception
 
-#include "RE/ExtraLock.h"
+#include "RE/ExtraLock.h"  // ExtraLock
+#include "RE/TESActorBase.h"  // TESActorBase
+#include "RE/TESFaction.h"  // TESFaction
+#include "RE/TESNPC.h"  // TESNPC
 
 
 namespace RE
@@ -82,7 +84,7 @@ namespace RE
 			case kFormType_NPC:
 			{
 				TESActorBase* actorBase = static_cast<TESActorBase*>(baseForm);
-				container = actorBase ? &actorBase->container : 0;
+				container = actorBase;
 				break;
 			}
 			}

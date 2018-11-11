@@ -1,18 +1,16 @@
 #include "RE/Actor.h"
 
 #include "skse64/GameForms.h"  // TESRace
+#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
+#include "RE/ExtraFactionChanges.h"  // ExtraFactionChanges
+#include "RE/TESActorBaseData.h"  // TESActorBaseData
+#include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESNPC.h"  // TESNPC
 
 
 namespace RE
 {
-	bool Actor::VisitFactions(::Actor::FactionVisitor& a_visitor)
-	{
-		return reinterpret_cast<::Actor*>(this)->VisitFactions(a_visitor);
-	}
-
-
 	TESForm* Actor::GetEquippedObject(bool a_abLeftHand)
 	{
 		return reinterpret_cast<::Actor*>(this)->GetEquippedObject(a_abLeftHand);
@@ -79,6 +77,45 @@ namespace RE
 	}
 
 
+	bool Actor::VisitFactions(FactionVisitor& visitor)
+	{
+		TESNPC* npc = GetActorBase();
+		if (npc) {
+			for (UInt32 i = 0; i < npc->factions.count; i++) {
+				TESActorBaseData::FactionInfo info;
+				npc->factions.GetNthItem(i, info);
+				if (visitor.Accept(info.faction, info.rank)) {
+					return true;
+				}
+			}
+
+			ExtraFactionChanges* pFactionChanges = static_cast<ExtraFactionChanges*>(extraData.GetByType(kExtraData_FactionChanges));
+			if (pFactionChanges) {
+				for (UInt32 i = 0; i < pFactionChanges->factions.count; i++) {
+					ExtraFactionChanges::FactionInfo info;
+					pFactionChanges->factions.GetNthItem(i, info);
+					if (visitor.Accept(info.faction, info.rank)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	bool Actor::IsInFaction(TESFaction* a_faction)
+	{
+		if (!a_faction) {
+			return false;
+		} else {
+			FactionVisitorUtil visitor(a_faction);
+			return VisitFactions(visitor);
+		}
+	}
+
+
 	TESNPC* Actor::GetActorBase()
 	{
 		return static_cast<TESNPC*>(baseForm);
@@ -106,25 +143,25 @@ namespace RE
 
 	bool Actor::IsCommandedActor() const
 	{
-		return (flags2 & kFlags2_CommandedActor) != 0;
+		return (flags2 & kFlags2_IsCommandedActor) != 0;
 	}
 
 
 	bool Actor::IsEssential() const
 	{
-		return (flags2 & kFlags2_Essential) != 0;
+		return (flags2 & kFlags2_IsEssential) != 0;
 	}
 
 
 	bool Actor::IsGuard() const
 	{
-		return (flags1 & kFlags1_Guard) != 0;
+		return (flags1 & kFlags1_IsGuard) != 0;
 	}
 
 
 	bool Actor::IsInKillMove() const
 	{
-		return (flags2 & kFlags2_KillMove) != 0;
+		return (flags2 & kFlags2_IsInKillMove) != 0;
 	}
 
 
@@ -142,7 +179,7 @@ namespace RE
 
 	bool Actor::IsPlayerTeammate() const
 	{
-		return (flags1 & kFlags1_PlayerTeammate) != 0;
+		return (flags1 & kFlags1_IsPlayerTeammate) != 0;
 	}
 
 
@@ -166,7 +203,7 @@ namespace RE
 
 	bool Actor::IsTrespassing() const
 	{
-		return (flags2 & kFlags2_Trespassing) != 0;
+		return (flags2 & kFlags2_IsTrespassing) != 0;
 	}
 
 
@@ -212,4 +249,19 @@ namespace RE
 	RelocAddr<Actor::_CalcEntryValue_t*> Actor::_CalcEntryValue(ACTOR_CALC_ENTRY_VALUE);
 	RelocAddr<Actor::_GetDetectionLevel_t*> Actor::_GetDetectionLevel(ACTOR_GET_DETECTION_LEVEL);
 	RelocAddr<Actor::_IsGhost_t*> Actor::_IsGhost(ACTOR_IS_GHOST);
+
+
+	Actor::FactionVisitorUtil::FactionVisitorUtil(TESFaction* a_faction) :
+		_faction(a_faction)
+	{}
+
+
+	Actor::FactionVisitorUtil::~FactionVisitorUtil()
+	{}
+
+
+	bool Actor::FactionVisitorUtil::Accept(TESFaction* a_faction, SInt8 a_rank)
+	{
+		return (a_faction && a_faction->formID == _faction->formID);
+	}
 }

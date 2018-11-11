@@ -9,6 +9,7 @@
 
 #include "RE/Actor.h"  // Actor
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 
 
@@ -47,7 +48,13 @@ namespace QuickLootRE
 
 		if (a_refr && a_refr->baseForm->formType == kFormType_NPC) {
 			RE::Actor* actor = static_cast<RE::Actor*>(a_refr);
-			return (a_isSneaking && !actor->IsDead(true) && !actor->IsGhost() && !actor->IsChild());
+			return (a_isSneaking &&
+					!actor->IsDead(true) &&
+					!actor->IsGhost() &&
+					!actor->IsChild() &&
+					!actor->IsPlayerTeammate() &&
+					!actor->IsInFaction(CurrentFollowerFaction) &&
+					!actor->IsInFaction(CreatureFaction));
 		} else {
 			return false;
 		}

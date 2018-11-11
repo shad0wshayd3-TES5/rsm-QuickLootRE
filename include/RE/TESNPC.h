@@ -12,12 +12,14 @@ class BGSTextureSet;
 class BSFaceGenNiNode;
 class TESClass;
 class TESCombatStyle;
-class TESFaction;
 class TESObjectARMO;
 
 
 namespace RE
 {
+	class TESFaction;
+
+
 	class TESNPC :
 		public TESActorBase,
 		public TESRaceForm,

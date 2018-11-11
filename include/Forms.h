@@ -1,6 +1,11 @@
 #pragma once
 
-#include "skse64/GameForms.h"  // BGSKeyword
+class BGSKeyword;
+
+namespace RE
+{
+	class TESFaction;
+}
 
 
 namespace QuickLootRE
@@ -28,7 +33,8 @@ namespace QuickLootRE
 
 	enum FACTFormID : UInt32
 	{
-		kFACTFormID_CurrentFollowerFaction = 0x0005C84E
+		kFACTFormID_CreatureFaction			= 0x00000013,
+		kFACTFormID_CurrentFollowerFaction	= 0x0005C84E
 	};
 
 
@@ -76,22 +82,23 @@ namespace QuickLootRE
 
 
 	// Factions
-	extern TESFaction*	CurrentFollowerFaction;
+	extern RE::TESFaction*	CreatureFaction;
+	extern RE::TESFaction*	CurrentFollowerFaction;
 
 	// Keywords
-	extern BGSKeyword*	VendorItemClothing;
-	extern BGSKeyword*	VendorItemJewelry;
+	extern BGSKeyword*		VendorItemClothing;
+	extern BGSKeyword*		VendorItemJewelry;
 
-	extern BGSKeyword*	VendorItemRecipe;
-	extern BGSKeyword*	VendorItemSpellTome;
+	extern BGSKeyword*		VendorItemRecipe;
+	extern BGSKeyword*		VendorItemSpellTome;
 
-	extern BGSKeyword*	VendorItemAnimalHide;
-	extern BGSKeyword*	VendorItemDaedricArtifact;
-	extern BGSKeyword*	VendorItemGem;
-	extern BGSKeyword*	VendorItemAnimalPart;
-	extern BGSKeyword*	VendorItemOreIngot;
-	extern BGSKeyword*	VendorItemClutter;
-	extern BGSKeyword*	VendorItemFireword;
+	extern BGSKeyword*		VendorItemAnimalHide;
+	extern BGSKeyword*		VendorItemDaedricArtifact;
+	extern BGSKeyword*		VendorItemGem;
+	extern BGSKeyword*		VendorItemAnimalPart;
+	extern BGSKeyword*		VendorItemOreIngot;
+	extern BGSKeyword*		VendorItemClutter;
+	extern BGSKeyword*		VendorItemFireword;
 
-	extern BGSKeyword*	WeapTypeWarhammer;
+	extern BGSKeyword*		WeapTypeWarhammer;
 }

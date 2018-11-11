@@ -188,6 +188,7 @@
     <ClCompile Include="src\RE\PlayerControls.cpp" />
     <ClCompile Include="src\RE\PlayerInputHandler.cpp" />
     <ClCompile Include="src\RE\TESActorBaseData.cpp" />
+    <ClCompile Include="src\RE\TESFaction.cpp" />
     <ClCompile Include="src\RE\TESNPC.cpp" />
     <ClCompile Include="src\RE\TESObjectBOOK.cpp" />
     <ClCompile Include="src\RE\TESObjectLIGH.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="include\RE\BSTransformDeltaEvent.h" />
     <ClInclude Include="include\RE\BSTSingleton.h" />
     <ClInclude Include="include\RE\EffectSetting.h" />
+    <ClInclude Include="include\RE\ExtraFactionChanges.h" />
     <ClInclude Include="include\RE\GFxFileConstants.h" />
     <ClInclude Include="include\RE\GFxLoader.h" />
     <ClInclude Include="include\RE\GFxMovie.h" />
@@ -279,6 +281,7 @@
     <ClInclude Include="include\RE\TESActorBaseData.h" />
     <ClInclude Include="include\RE\TESBoundAnimObject.h" />
     <ClInclude Include="include\RE\TESBoundObject.h" />
+    <ClInclude Include="include\RE\TESFaction.h" />
     <ClInclude Include="include\RE\TESNPC.h" />
     <ClInclude Include="include\RE\TESObjectACTI.h" />
     <ClInclude Include="include\RE\TESObjectBOOK.h" />
