@@ -97,6 +97,9 @@ namespace QuickLootRE
 
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
+		if (!a_lhs._isEquipped && a_rhs._isEquipped) {
+			return true;
+		}
 		for (ItemData::FnCompare compare : ItemData::_compares) {
 			int cmp = compare(a_lhs, a_rhs);
 			if (cmp) {
