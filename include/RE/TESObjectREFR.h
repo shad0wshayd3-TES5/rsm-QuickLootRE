@@ -49,17 +49,13 @@ namespace RE
 		};
 
 
-		enum Flag : UInt32
-		{
-			kFlag_Harvested = 1 << 13,
-		};
-
-
 		enum TESFormFlag : UInt32
 		{
-			kTESFormFlag_Deleted = 1 << 5,
-			kTESFormFlag_Disabled = 1 << 11,
-			kTESFormFlag_IgnoreFriendlyHits = 1 << 20
+			kTESFormFlag_MarkedForDeletion	= 1 << 5,
+			kTESFormFlag_Disabled			= 1 << 11,
+			kTESFormFlag_Harvested			= 1 << 13,
+			kTESFormFlag_IgnoreFriendlyHits	= 1 << 20,
+			kTESFormFlag_Destroyed			= 1 << 23
 		};
 
 
@@ -74,8 +70,8 @@ namespace RE
 		virtual void					Unk_39(void);
 		virtual void					Unk_3A(void);
 		virtual void					Unk_3B(void);
-		virtual void					Unk_3C(void);
-		virtual void					Unk_3D(void);
+		virtual BGSLocation*			GetEditorLocation();
+		virtual bool					GetEditorCoordinates(NiPoint3* a_outPos, NiPoint3* a_outRot, void** a_outWorldOrCell, TESObjectCELL* a_veryRarelyUsedFallback);
 		virtual void					Unk_3E(void);
 		virtual void					Unk_3F(void);
 		virtual void					Unk_40(void);
@@ -86,7 +82,7 @@ namespace RE
 		virtual void					Unk_45(void);
 		virtual void					Unk_46(void);
 		virtual void					Unk_47(void);
-		virtual void					Unk_48(void);
+		virtual bool					HasKeyword(BGSKeyword* a_keyword);
 		virtual void					Unk_49(void);
 		virtual void					Unk_4A(void);
 		virtual void					Unk_4B(void);
@@ -100,14 +96,14 @@ namespace RE
 		virtual void					Unk_53(void);
 		virtual void					Unk_54(void);
 		virtual void					Unk_55(void);
-		virtual void					RemoveItem(UInt32* a_droppedItemHandle, TESForm* a_akItem, UInt32 a_aiCount, RemoveType a_mode, ::BaseExtraList* a_extraList, TESObjectREFR* a_moveToRef, UInt32 a_unk7, UInt32 a_unk8);
+		virtual UInt32*					RemoveItem(UInt32* a_droppedItemHandle, TESForm* a_akItem, UInt32 a_aiCount, RemoveType a_mode, ::BaseExtraList* a_extraList, TESObjectREFR* a_moveToRef, UInt32 a_unk7, UInt32 a_unk8);
 		virtual void					Unk_57(void);
 		virtual void					Unk_58(void);
 		virtual void					Unk_59(void);
 		virtual void					Unk_5A(void);
-		virtual void					GetMarkerPosition(::NiPoint3* a_pos);
+		virtual void					GetMarkerPosition(NiPoint3* a_pos);
 		virtual void					Unk_5C(void);
-		virtual void					Unk_5D(void);
+		virtual MagicTarget*			GetSelfAsMagicTarget();
 		virtual bool					IsChild() const;
 		virtual void					Unk_5F(void);
 		virtual void					Unk_60(void);
@@ -129,8 +125,8 @@ namespace RE
 		virtual NiNode*					GetNiNode(void);  // Root of the skeleton (Get3D)
 		virtual void					Unk_71(void);
 		virtual void					Unk_72(void);
-		virtual void					Unk_73(void);
-		virtual void					Unk_74(void);
+		virtual NiPoint3*				GetMinBounds(NiPoint3* a_out);
+		virtual NiPoint3*				GetMaxBounds(NiPoint3* a_out);
 		virtual void					Unk_75(void);
 		virtual void					Unk_76(void);
 		virtual void					Unk_77(void);
@@ -151,7 +147,7 @@ namespace RE
 		virtual void					Unk_86(void);
 		virtual void					Unk_87(void);
 		virtual void					Unk_88(void);
-		virtual void					Unk_89(void);
+		virtual void					Disable();
 		virtual void					ResetInventory(bool a_unk);
 		virtual void					Unk_8B(void);
 		virtual void					Unk_8C(void);
@@ -165,7 +161,7 @@ namespace RE
 		virtual void					Unk_94(void);
 		virtual void					Unk_95(void);
 		virtual void					Unk_96(void);
-		virtual void					Unk_97(void);
+		virtual TESObjectCELL*			GetParentOrPersistentCell();
 		virtual void					Unk_98(void);
 		virtual bool					IsDead(bool a_isActor);
 		virtual void					Unk_9A(void);
@@ -190,7 +186,7 @@ namespace RE
 		float							GetPositionY();
 		float							GetPositionZ();
 		bool							Is3DLoaded();
-		bool							IsDeleted();
+		bool							IsMarkedForDeletion();
 		bool							IsDisabled();
 		bool							IsIgnoringFriendlyHits();
 		bool							SetDisplayName(const BSFixedString& name, bool force);

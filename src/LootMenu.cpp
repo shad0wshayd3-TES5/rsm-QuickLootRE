@@ -93,6 +93,26 @@ namespace QuickLootRE
 	}
 
 
+	void LootMenu::ModSelectedIndex(SInt32 a_indexOffset)
+	{
+		if (IsOpen()) {
+			_selectedIndex += a_indexOffset;
+			if (_selectedIndex < 0) {
+				_selectedIndex = 0;
+			} else if (_selectedIndex > _displaySize - 1) {
+				_selectedIndex = _displaySize - 1;
+			}
+			Register(kScaleform_SetSelectedIndex);
+		}
+	}
+
+
+	void LootMenu::SetDisplaySize(SInt32 a_size)
+	{
+		_displaySize = a_size;
+	}
+
+
 	RE::TESObjectREFR* LootMenu::GetContainerRef()
 	{
 		return _containerRef;
@@ -421,10 +441,8 @@ namespace QuickLootRE
 
 		switch (a_event->deviceType) {
 		case kDeviceType_Gamepad:
-			if (_platform != kPlatform_Other) {
-				_platform = kPlatform_Other;
-				Register(kScaleform_SetPlatform);
-			}
+			_platform = kPlatform_Other;
+			Register(kScaleform_SetPlatform);
 			switch (a_event->keyMask) {
 			case Gamepad::kGamepad_Up:
 				ModSelectedIndex(-1);
@@ -435,10 +453,8 @@ namespace QuickLootRE
 			}
 			break;
 		case kDeviceType_Mouse:
-			if (_platform != kPlatform_PC) {
-				_platform = kPlatform_PC;
-				Register(kScaleform_SetPlatform);
-			}
+			_platform = kPlatform_PC;
+			Register(kScaleform_SetPlatform);
 			switch (a_event->keyMask) {
 			case Mouse::kMouse_WheelUp:
 				ModSelectedIndex(-1);
@@ -449,18 +465,14 @@ namespace QuickLootRE
 			}
 			break;
 		case kDeviceType_Keyboard:
-		{
-			if (_platform != kPlatform_PC) {
-				_platform = kPlatform_PC;
-				Register(kScaleform_SetPlatform);
-			}
+			_platform = kPlatform_PC;
+			Register(kScaleform_SetPlatform);
 			if (controlID == strHolder->zoomIn) {
 				ModSelectedIndex(-1);
 			} else if (controlID == strHolder->zoomOut) {
 				ModSelectedIndex(1);
 			}
 			break;
-		}
 		}
 		return true;
 	}
@@ -496,15 +508,10 @@ namespace QuickLootRE
 			return;
 		}
 
-		// Evaluate # of items to remove and update inv list accordingly
 		ItemData item = g_invList[_selectedIndex];
 		SInt32 numItems = item.count();
 		if (numItems > 1 && SingleLootEnabled()) {
 			numItems = 1;
-			g_invList[_selectedIndex].reduceCount();
-		} else {
-			g_invList.erase(g_invList.begin() + _selectedIndex);
-			ModSelectedIndex(0);
 		}
 
 		TakeItem(item, numItems, true);
@@ -536,21 +543,6 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::ModSelectedIndex(SInt32 a_indexOffset)
-	{
-		if (IsOpen()) {
-			_selectedIndex += a_indexOffset;
-			SInt32 maxItemIdx = g_invList.size() < Settings::itemLimit ? g_invList.size() - 1 : Settings::itemLimit - 1;
-			if (_selectedIndex < 0) {
-				_selectedIndex = 0;
-			} else if (_selectedIndex > maxItemIdx) {
-				_selectedIndex = maxItemIdx;
-			}
-			Register(kScaleform_SetSelectedIndex);
-		}
-	}
-
-
 	bool LootMenu::SingleLootEnabled()
 	{
 		typedef RE::BSKeyboardDevice			BSKeyboardDevice;
@@ -559,11 +551,12 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice		BSWin32GamepadDevice;
 		typedef RE::BSInputDevice::InputDevice	InputDevice;
 
-		static RE::InputEventDispatcher*	inputDispatcher = RE::InputEventDispatcher::GetSingleton();
-		static RE::InputManager*			inputManager = RE::InputManager::GetSingleton();
-		static InputStringHolder*			strHolder = InputStringHolder::GetSingleton();
-		static UInt32						keyRun = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Keyboard);
-		static UInt32						keySprint = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Gamepad);
+		static RE::InputEventDispatcher*	inputDispatcher	= RE::InputEventDispatcher::GetSingleton();
+		static RE::InputManager*			inputManager	= RE::InputManager::GetSingleton();
+		static InputStringHolder*			strHolder		= InputStringHolder::GetSingleton();
+
+		UInt32 keyboardSprint = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Keyboard);
+		UInt32 gamepadSprint = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Gamepad);
 
 		if (Settings::disableSingleLoot) {
 			return false;
@@ -572,7 +565,7 @@ namespace QuickLootRE
 		try {
 			RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
 			if (keyboard && keyboard->IsEnabled()) {
-				if (keyRun != RE::InputManager::kInvalid && keyboard->IsPressed(keyRun)) {
+				if (keyboardSprint != RE::InputManager::kInvalid && keyboard->IsPressed(keyboardSprint)) {
 					return true;
 				}
 			}
@@ -585,7 +578,7 @@ namespace QuickLootRE
 			gamepadHandle = inputDispatcher->GetGamepad();
 			RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 			if (gamepad && gamepad->IsEnabled()) {
-				if (keySprint != RE::InputManager::kInvalid && gamepad->IsPressed(keySprint)) {
+				if (gamepadSprint != RE::InputManager::kInvalid && gamepad->IsPressed(gamepadSprint)) {
 					return true;
 				}
 			}
@@ -726,6 +719,7 @@ namespace QuickLootRE
 
 	LootMenu*			LootMenu::_singleton = 0;
 	SInt32				LootMenu::_selectedIndex = 0;
+	SInt32				LootMenu::_displaySize = 0;
 	RE::TESObjectREFR*	LootMenu::_containerRef = 0;
 	bool				LootMenu::_isOpen = false;
 	bool				LootMenu::_inTakeAllMode = false;

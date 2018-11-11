@@ -2,12 +2,14 @@
 
 #include "skse64/GameEvents.h"  // EventResult, EventDispatcher, MenuOpenCloseEvent, TESContainerChangedEvent
 #include "skse64/GameFormComponents.h"  // TESContainer::Entry
+#include "skse64/GameInput.h"  // InputEvent
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
 
 #include <utility>  // pair
 #include <map>  // map
 #include <vector>  // vector
 
+class InputEventDispatcher;
 class InventoryEntryData;
 class TESContainer;
 class TESForm;
@@ -21,24 +23,17 @@ namespace RE
 
 namespace QuickLootRE
 {
-	class TESContainerVisitor
-	{
-	public:
-		virtual bool Accept(TESContainer::Entry* a_entry);
-	};
-
-
-	class EntryDataListVisitor
-	{
-	public:
-		virtual bool Accept(InventoryEntryData* a_entryData);
-	};
-
-
 	class CrosshairRefEventHandler : public BSTEventSink<SKSECrosshairRefEvent>
 	{
 	public:
 		virtual	EventResult ReceiveEvent(SKSECrosshairRefEvent* a_event, EventDispatcher<SKSECrosshairRefEvent>* a_dispatcher) override;
+	};
+
+
+	class InputEventHandler : public BSTEventSink<InputEvent>
+	{
+	public:
+		virtual EventResult ReceiveEvent(InputEvent** a_event, InputEventDispatcher* a_dispatcher) override;
 	};
 
 
@@ -56,14 +51,8 @@ namespace QuickLootRE
 	};
 
 
-	void getInventoryList(RE::BaseExtraList* a_xList, TESContainer* a_container);
-
-
-	typedef SInt32 Count;
-	typedef UInt32 FormID;
-	static std::map<FormID, std::pair<TESForm*, Count>> defaultMap;
-
 	extern CrosshairRefEventHandler g_crosshairRefEventHandler;
+	extern InputEventHandler g_inputEventHandler;
 	extern MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
 	extern TESContainerChangedEventHandler g_containerChangedEventHandler;
 }

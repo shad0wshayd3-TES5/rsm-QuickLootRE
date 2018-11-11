@@ -1,5 +1,8 @@
 #pragma once
 
+#include "skse64/GameForms.h"  // LookupFormByID
+
+class BGSPerk;
 class BGSKeyword;
 
 namespace RE
@@ -10,27 +13,6 @@ namespace RE
 
 namespace QuickLootRE
 {
-	enum MISCFormID : UInt32
-	{
-		kMISCFormID_LockPick				= 0x0000000A,
-		kMISCFormID_Gold					= 0x0000000F,
-		kMISCFormID_Leather01				= 0x000DB5D2,
-		kMISCFormID_LeatherStrips			= 0x000800E4,
-
-		kMISCFormID_DragonClawIron			= 0x0008CDFA,
-		kMISCFormID_DragonClawGoldenE3		= 0x000999E7,
-		kMISCFormID_DragonClawGoldenMS13	= 0x00039647,
-		kMISCFormID_DragonClawCoral			= 0x000B634C,
-		kMISCFormID_DragonClawIvory			= 0x000AB7BB,
-		kMISCFormID_DragonClawRuby			= 0x0004B56C,
-		kMISCFormID_DragonClawSapphire		= 0x000663D7,
-		kMISCFormID_DragonClawEmerald		= 0x000ED417,
-		kMISCFormID_DragonClawGlass			= 0x0007C260,
-		kMISCFormID_DragonClawEbony			= 0x0005AF48,
-		kMISCFormID_DragonClawDiamond		= 0x000AB375,
-	};
-
-
 	enum FACTFormID : UInt32
 	{
 		kFACTFormID_CreatureFaction			= 0x00000013,
@@ -58,10 +40,34 @@ namespace QuickLootRE
 	};
 
 
+	enum MISCFormID : UInt32
+	{
+		kMISCFormID_LockPick				= 0x0000000A,
+		kMISCFormID_Gold					= 0x0000000F,
+		kMISCFormID_Leather01				= 0x000DB5D2,
+		kMISCFormID_LeatherStrips			= 0x000800E4,
+
+		kMISCFormID_DragonClawIron			= 0x0008CDFA,
+		kMISCFormID_DragonClawGoldenE3		= 0x000999E7,
+		kMISCFormID_DragonClawGoldenMS13	= 0x00039647,
+		kMISCFormID_DragonClawCoral			= 0x000B634C,
+		kMISCFormID_DragonClawIvory			= 0x000AB7BB,
+		kMISCFormID_DragonClawRuby			= 0x0004B56C,
+		kMISCFormID_DragonClawSapphire		= 0x000663D7,
+		kMISCFormID_DragonClawEmerald		= 0x000ED417,
+		kMISCFormID_DragonClawGlass			= 0x0007C260,
+		kMISCFormID_DragonClawEbony			= 0x0005AF48,
+		kMISCFormID_DragonClawDiamond		= 0x000AB375,
+	};
+
+
 	enum PERKFormID : UInt32
 	{
-		kPERKFormID_VampireFeed = 0x000CF02C,
-		kPERKFormID_Cannibalism = 0x000EE5C3
+		kPERKFormID_VampireFeed		= 0x000CF02C,
+		kPERKFormID_Cannibalism		= 0x000EE5C3,
+
+		kPERKFormID_Misdirection	= 0x00058201,
+		kPERKFormID_PerfectTouch	= 0x00058205
 	};
 
 
@@ -78,27 +84,44 @@ namespace QuickLootRE
 	};
 
 
-	bool initalizeForms();
+	template <typename T>
+	class Form
+	{
+	public:
+		Form(UInt32 a_formID) : _formID(a_formID) {}
+
+		operator T*()
+		{
+			return static_cast<T*>(LookupFormByID(_formID));
+		}
+
+	private:
+		UInt32 _formID;
+	};
 
 
 	// Factions
-	extern RE::TESFaction*	CreatureFaction;
-	extern RE::TESFaction*	CurrentFollowerFaction;
+	extern Form<RE::TESFaction>	CreatureFaction;
+	extern Form<RE::TESFaction>	CurrentFollowerFaction;
 
 	// Keywords
-	extern BGSKeyword*		VendorItemClothing;
-	extern BGSKeyword*		VendorItemJewelry;
+	extern Form<BGSKeyword>		VendorItemClothing;
+	extern Form<BGSKeyword>		VendorItemJewelry;
 
-	extern BGSKeyword*		VendorItemRecipe;
-	extern BGSKeyword*		VendorItemSpellTome;
+	extern Form<BGSKeyword>		VendorItemRecipe;
+	extern Form<BGSKeyword>		VendorItemSpellTome;
 
-	extern BGSKeyword*		VendorItemAnimalHide;
-	extern BGSKeyword*		VendorItemDaedricArtifact;
-	extern BGSKeyword*		VendorItemGem;
-	extern BGSKeyword*		VendorItemAnimalPart;
-	extern BGSKeyword*		VendorItemOreIngot;
-	extern BGSKeyword*		VendorItemClutter;
-	extern BGSKeyword*		VendorItemFireword;
+	extern Form<BGSKeyword>		VendorItemAnimalHide;
+	extern Form<BGSKeyword>		VendorItemDaedricArtifact;
+	extern Form<BGSKeyword>		VendorItemGem;
+	extern Form<BGSKeyword>		VendorItemAnimalPart;
+	extern Form<BGSKeyword>		VendorItemOreIngot;
+	extern Form<BGSKeyword>		VendorItemClutter;
+	extern Form<BGSKeyword>		VendorItemFireword;
 
-	extern BGSKeyword*		WeapTypeWarhammer;
+	extern Form<BGSKeyword>		WeapTypeWarhammer;
+
+	// Perks
+	extern Form<BGSPerk>		Misdirection;
+	extern Form<BGSPerk>		PerfectTouch;
 }

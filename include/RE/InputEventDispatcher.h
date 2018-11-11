@@ -17,9 +17,7 @@ namespace RE
 	class BSVirtualKeyboardDevice;
 
 
-	class InputEventDispatcher :
-		public BSTSingletonSDM<InputEventDispatcher>,
-		public BSTEventSource<InputEvent*>
+	class InputEventDispatcher : public EventDispatcher<InputEvent, InputEvent*>
 	{
 	public:
 		static InputEventDispatcher*		GetSingleton();
@@ -29,6 +27,8 @@ namespace RE
 
 
 		// members
+		UInt32								unk58;			// 58
+		UInt32								pad5C;			// 5C
 		BSKeyboardDevice*					keyboard;		// 60 - BSWin32KeyboardDevice
 		BSMouseDevice*						mouse;			// 68 - BSWin32MouseDevice
 		BSPCGamepadDeviceHandler*			gamepadHandler;	// 70

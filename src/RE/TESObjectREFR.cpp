@@ -158,9 +158,9 @@ namespace RE
 	}
 
 
-	bool TESObjectREFR::IsDeleted()
+	bool TESObjectREFR::IsMarkedForDeletion()
 	{
-		return (flags & kTESFormFlag_Deleted) != 0;
+		return (flags & kTESFormFlag_MarkedForDeletion) != 0;
 	}
 
 

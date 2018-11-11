@@ -33,6 +33,9 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		crosshairRefDispatcher->AddEventSink(&QuickLootRE::g_crosshairRefEventHandler);
 		_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
 
+		InputEventDispatcher::GetSingleton()->AddEventSink(&QuickLootRE::g_inputEventHandler);
+		_MESSAGE("[MESSAGE] Input event handler sinked");
+
 		RE::MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher()->AddEventSink(&QuickLootRE::g_menuOpenCloseEventHandler);
 		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 
@@ -49,13 +52,6 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 
 		break;
 	}
-	case SKSEMessagingInterface::kMessage_DataLoaded:
-		if (!QuickLootRE::initalizeForms()) {
-			_FATALERROR("[FATAL ERROR] Failed to initialize forms!\n");
-		} else {
-			_MESSAGE("[MESSAGE] Forms initialized\n");
-		}
-		break;
 	}
 }
 

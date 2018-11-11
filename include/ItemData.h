@@ -184,8 +184,9 @@ namespace QuickLootRE
 		bool							isEnchanted()		const;
 		UInt32							pickPocketChance()	const;
 		TESForm*						form()				const;
+		bool							isEquipped()		const;
 
-		void							reduceCount();
+		void							modCount(SInt32 a_mod);
 
 		static void						setCompareOrder();
 		static void						setContainer(RE::TESObjectREFR* a_container);
@@ -206,6 +207,7 @@ namespace QuickLootRE
 		bool							getEnchanted();
 		UInt32							getPickPocketChance();
 		Priority						getPriority();
+		bool							getEquipped();
 
 		static friend int				compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
@@ -229,6 +231,7 @@ namespace QuickLootRE
 		bool							_isEnchanted;
 		UInt32							_pickPocketChance;
 		Priority						_priority;
+		bool							_isEquipped;
 
 		static std::vector<FnCompare>	_compares;
 		static RE::TESObjectREFR*		_container;

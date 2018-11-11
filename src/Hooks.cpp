@@ -12,6 +12,7 @@
 #include "RE/ActivateHandler.h"  // ActivateHandler
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
+#include "RE/MenuManager.h"  // MenuManager
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
 #include "RE/PlayerInputHandler.h"  // PlayerInputHandler
@@ -103,19 +104,23 @@ namespace Hooks
 	class ReadyWeaponHandlerEx : public RE::ReadyWeaponHandler
 	{
 	public:
-		typedef void(ReadyWeaponHandlerEx::*_ProcessButton_t)(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data);
+		typedef void(ReadyWeaponHandlerEx::*_ProcessButton_t)(RE::ButtonEvent* a_event, RE::PlayerControls::Data024* a_data);
 		static _ProcessButton_t orig_ProcessButton;
 
 
-		void hook_ProcessButton(ButtonEvent* a_event, RE::PlayerControls::Data024* a_data)
+		void hook_ProcessButton(RE::ButtonEvent* a_event, RE::PlayerControls::Data024* a_data)
 		{
 			using QuickLootRE::LootMenu;
 
 			static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 			static UIManager*			uiManager	= UIManager::GetSingleton();
+			static UIStringHolder*		strHolder	= UIStringHolder::GetSingleton();
+			static RE::MenuManager*		mm			= RE::MenuManager::GetSingleton();
 
-			if (LootMenu::IsVisible()) {
-				player->StartActivation();
+			if (a_event && LootMenu::IsVisible()) {
+				if (a_event->IsUp()) {
+					player->StartActivation();
+				}
 			} else {
 				(this->*orig_ProcessButton)(a_event, a_data);
 			}
@@ -144,12 +149,18 @@ namespace Hooks
 		bool hook_CanProcess(InputEvent* a_event)
 		{
 			using QuickLootRE::LootMenu;
-			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
+
+			static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+			static InputStringHolder*	strHolder	= InputStringHolder::GetSingleton();
+
+			if (player->GetGrabbedRef()) {
+				LootMenu::Close();
+			}
 
 			BSFixedString str = *a_event->GetControlID();
 			if (LootMenu::IsVisible() && str == strHolder->activate && (a_event->eventType == InputEvent::kEventType_Button)) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsDown()) {
+				if (button->IsUp()) {
 					LootMenu::GetSingleton()->TakeItem();
 					return false;
 				}

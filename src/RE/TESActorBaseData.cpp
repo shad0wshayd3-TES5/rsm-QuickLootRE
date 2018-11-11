@@ -9,6 +9,12 @@ namespace RE
 	}
 
 
+	bool TESActorBaseData::IsPreset()
+	{
+		return (flags & kFlag_IsPreset) != 0;
+	}
+
+
 	bool TESActorBaseData::IsEssential()
 	{
 		return (flags & kFlag_Essential) != 0;
@@ -33,9 +39,9 @@ namespace RE
 	}
 
 
-	bool TESActorBaseData::AffectsStealth()
+	bool TESActorBaseData::AffectsStealthMeter()
 	{
-		return (flags & kFlag_DontAffectStealth) == 0;
+		return (flags & kFlag_DontAffectStealthMeter) == 0;
 	}
 
 
@@ -45,9 +51,15 @@ namespace RE
 	}
 
 
-	bool TESActorBaseData::Protects()
+	bool TESActorBaseData::UsesTemplate()
 	{
-		return (flags & kFlag_Protect) != 0;
+		return (flags & kFlag_UsesTemplate) != 0;
+	}
+
+
+	bool TESActorBaseData::Protected()
+	{
+		return (flags & kFlag_Protected) != 0;
 	}
 
 

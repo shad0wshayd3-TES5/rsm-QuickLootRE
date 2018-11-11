@@ -101,5 +101,6 @@ namespace RE
 		UInt8			unk122;						// 122 - init'd to 0
 		UInt8			pad[5];						// 123
 	};
+	STATIC_ASSERT(offsetof(InputManager, context) == 0x060);
 	STATIC_ASSERT(sizeof(InputManager) == 0x128);
 }

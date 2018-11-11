@@ -3,7 +3,8 @@
 #include "skse64/GameEvents.h"  // EventResult, EventDispatcher
 #include "skse64/GameExtraData.h"  // ExtraContainerChanges
 #include "skse64/GameFormComponents.h"  // TESContainer
-#include "skse64/GameMenus.h"  // UIStringHolder
+#include "skse64/GameInput.h"  // InputEvent
+#include "skse64/GameMenus.h"  // UIStringHolder, UIManager
 #include "skse64/GameReferences.h"  // TESObjectREFR
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/GameMenus.h"  // UIManager
@@ -17,6 +18,8 @@
 #include "LootMenu.h"  // LootMenu
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
+#include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
+#include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/IMenu.h"  // IMenu
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/MenuManager.h"  // MenuManager
@@ -26,36 +29,10 @@
 
 namespace QuickLootRE
 {
-	bool TESContainerVisitor::Accept(TESContainer::Entry* a_entry)
-	{
-		defaultMap.emplace(a_entry->form->formID, std::pair<TESForm*, Count>(a_entry->form, a_entry->count));
-		return true;
-	}
-
-
-	bool EntryDataListVisitor::Accept(InventoryEntryData* a_entryData)
-	{
-		RE::InventoryEntryData* entryData = reinterpret_cast<RE::InventoryEntryData*>(a_entryData);
-		if (entryData) {
-			auto it = defaultMap.find(entryData->type->formID);
-			if (it != defaultMap.end()) {
-				SInt32 count = it->second.second + entryData->countDelta;
-				if (count > 0) {
-					g_invList.add(entryData, count);
-				}
-				defaultMap.erase(entryData->type->formID);
-			} else if (entryData->countDelta > 0) {
-				g_invList.add(entryData);
-			}
-		}
-		return true;
-	}
-
-
 	EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, EventDispatcher<SKSECrosshairRefEvent>* a_dispatcher)
 	{
-		static UIManager*			uiManager	= UIManager::GetSingleton();
-		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static UIManager*			uiManager = UIManager::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 
 		// If player is not looking at anything
@@ -77,14 +54,35 @@ namespace QuickLootRE
 		// If player is looking at a container
 		if (LootMenu::CanOpen(ref, player->IsSneaking())) {
 			RE::TESObjectREFR* containerRef = LootMenu::GetContainerRef();
-			TESContainer* container = containerRef->GetContainer();
-			g_invList.clear();
-			defaultMap.clear();
-			ItemData::setContainer(containerRef);
-			getInventoryList(&containerRef->extraData, container);
-			g_invList.sort();
+			g_invList.parseInventory(&containerRef->extraData, containerRef);
 			LootMenu::Close();
 			LootMenu::Open();
+		}
+
+		return kEvent_Continue;
+	}
+
+
+	EventResult InputEventHandler::ReceiveEvent(InputEvent** a_event, InputEventDispatcher* a_dispatcher)
+	{
+		typedef RE::BSWin32KeyboardDevice::Keyboard Keyboard;
+
+		static UIStringHolder*		uiStrHolder		= UIStringHolder::GetSingleton();
+		static RE::MenuManager*		mm				= RE::MenuManager::GetSingleton();
+		static UIManager*			uiManager		= UIManager::GetSingleton();
+		static InputStringHolder*	inputStrHolder	= InputStringHolder::GetSingleton();
+
+		if (!a_event || !*a_event) {
+			return kEvent_Continue;
+		}
+
+		if (LootMenu::IsOpen() && mm->GetMovieView(&uiStrHolder->containerMenu)) {
+			if ((*a_event)->eventType == InputEvent::kEventType_Button && (*a_event)->deviceType == kDeviceType_Keyboard) {
+				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
+				if (*button->GetControlID() == inputStrHolder->nextFocus) {  // tab
+					CALL_MEMBER_FN(uiManager, AddMessage)(&uiStrHolder->containerMenu, UIMessage::kMessage_Close, 0);
+				}
+			}
 		}
 		return kEvent_Continue;
 	}
@@ -92,8 +90,8 @@ namespace QuickLootRE
 
 	EventResult MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* a_event, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
 	{
-		static UIStringHolder*	strHolder	= UIStringHolder::GetSingleton();
-		static RE::MenuManager*	mm			= RE::MenuManager::GetSingleton();
+		static UIStringHolder*	strHolder = UIStringHolder::GetSingleton();
+		static RE::MenuManager*	mm = RE::MenuManager::GetSingleton();
 
 		LootMenu* loot = LootMenu::GetSingleton();
 		if (!a_event || !loot || !LootMenu::IsOpen()) {
@@ -117,46 +115,33 @@ namespace QuickLootRE
 				LootMenu::Register(LootMenu::kScaleform_OpenContainer);
 			}
 		}
+
 		return kEvent_Continue;
 	}
 
 
 	EventResult TESContainerChangedEventHandler::ReceiveEvent(TESContainerChangedEvent* a_event, EventDispatcher<TESContainerChangedEvent>* a_dispatcher)
 	{
-		if (a_event && LootMenu::IsVisible() && !LootMenu::InTakeAllMode()) {
-			RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
-			if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
-				TESContainer* container = ref->GetContainer();
-				if (container) {
-					DelayedUpdater::Register();  // These events are fired before the container is updated, so we need to wait a bit
-				}
-			}
+		if (!a_event || !LootMenu::IsVisible() || LootMenu::InTakeAllMode()) {
+			return kEvent_Continue;
 		}
+
+		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+		if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
+			SInt32 count = a_event->count;
+			if (a_event->fromFormId == ref->formID) {
+				count *= -1;
+			}
+			g_invList.adjustCount(a_event->itemFormId, count);
+			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+		}
+
 		return kEvent_Continue;
 	}
 
 
-	void getInventoryList(RE::BaseExtraList* a_xList, TESContainer* a_container)
-	{
-		// Default container
-		TESContainerVisitor containerOp;
-		a_container->Visit(containerOp);
-
-		// Extra container changes
-		ExtraContainerChanges* xContainerChanges = static_cast<ExtraContainerChanges*>(a_xList->GetByType(kExtraData_ContainerChanges));
-		EntryDataListVisitor entryDataListOp;
-		if (xContainerChanges && xContainerChanges->data && xContainerChanges->data->objList) {
-			xContainerChanges->data->objList->Visit(entryDataListOp);
-		}
-
-		// Add remaining default items
-		for (auto& it : defaultMap) {
-			g_invList.add(it.second.first, it.second.second);
-		}
-	}
-
-
 	CrosshairRefEventHandler g_crosshairRefEventHandler;
+	InputEventHandler g_inputEventHandler;
 	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
 	TESContainerChangedEventHandler g_containerChangedEventHandler;
 }

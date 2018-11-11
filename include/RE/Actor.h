@@ -190,7 +190,7 @@ namespace RE
 		virtual void	Unk_F6(void);
 		virtual void	AdvanceSkill(UInt32 a_skillId, float a_points, UInt32 a_unk1, UInt32 a_unk2);
 		virtual void	Unk_F8(void);
-		virtual bool	IsInFactionVirt(TESFaction* faction);  // Doesn't work like it should, idk why
+		virtual bool	IsInFaction(TESFaction* faction);
 		virtual void	VisitPerks(void);
 		virtual void	AddPerk(BGSPerk* a_perk, UInt32 a_unk1);
 		virtual void	RemovePerk(BGSPerk* a_perk);
@@ -253,7 +253,6 @@ namespace RE
 		void			ResetAI(UInt32 a_unk1, UInt32 a_unk2);
 
 		bool			VisitFactions(FactionVisitor& a_visitor);
-		bool			IsInFaction(TESFaction* a_faction);
 		TESNPC*			GetActorBase();
 		TESRace*		GetRace();
 		bool			IsBeingRidden();
@@ -358,19 +357,6 @@ namespace RE
 
 		typedef bool _IsGhost_t(Actor* a_this);
 		static RelocAddr<_IsGhost_t*> _IsGhost;
-
-
-		class FactionVisitorUtil : public FactionVisitor
-		{
-		public:
-			FactionVisitorUtil(TESFaction* a_faction);
-			virtual ~FactionVisitorUtil();
-
-			virtual bool Accept(TESFaction* a_faction, SInt8 a_rank) override;
-
-		private:
-			TESFaction* _faction;
-		};
 	};
 	STATIC_ASSERT(offsetof(Actor, addedSpells) == 0x188);
 	STATIC_ASSERT(sizeof(Actor) == 0x2B0);

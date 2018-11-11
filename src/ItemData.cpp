@@ -37,7 +37,8 @@ namespace QuickLootRE
 		_isRead(false),
 		_isEnchanted(false),
 		_pickPocketChance(0),
-		_priority(kPriority_Key)
+		_priority(kPriority_Key),
+		_isEquipped(false)
 	{
 		_count = _entryData->countDelta;
 		constructCommon();
@@ -55,7 +56,8 @@ namespace QuickLootRE
 		_isRead(false),
 		_isEnchanted(false),
 		_pickPocketChance(0.0),
-		_priority(kPriority_Key)
+		_priority(kPriority_Key),
+		_isEquipped(false)
 	{
 		constructCommon();
 	}
@@ -132,9 +134,11 @@ namespace QuickLootRE
 		std::swap(a_lhs._weight, a_rhs._weight);
 		std::swap(a_lhs._type, a_rhs._type);
 		std::swap(a_lhs._isStolen, a_rhs._isStolen);
+		std::swap(a_lhs._isRead, a_rhs._isRead);
 		std::swap(a_lhs._isEnchanted, a_rhs._isEnchanted);
 		std::swap(a_lhs._pickPocketChance, a_rhs._pickPocketChance);
 		std::swap(a_lhs._priority, a_rhs._priority);
+		std::swap(a_lhs._isEquipped, a_rhs._isEquipped);
 	}
 
 
@@ -204,9 +208,15 @@ namespace QuickLootRE
 	}
 
 
-	void ItemData::reduceCount()
+	bool ItemData::isEquipped() const
 	{
-		--_count;
+		return _isEquipped;
+	}
+
+
+	void ItemData::modCount(SInt32 a_mod)
+	{
+		_count += a_mod;
 	}
 
 
@@ -256,6 +266,7 @@ namespace QuickLootRE
 		_isEnchanted = getEnchanted();
 		_pickPocketChance = getPickPocketChance();
 		_priority = getPriority();
+		_isEquipped = getEquipped();
 	}
 
 
@@ -652,6 +663,20 @@ namespace QuickLootRE
 		default:
 			return kPriority_Other;
 		}
+	}
+
+
+	bool ItemData::getEquipped()
+	{
+		BaseExtraList* xList = 0;
+		for (SInt32 i = 0; i < _entryData->extendDataList->Count(); ++i) {
+			xList = _entryData->extendDataList->GetNthItem(i);
+			if (xList->HasType(kExtraData_Worn) ||
+				xList->HasType(kExtraData_WornLeft)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 

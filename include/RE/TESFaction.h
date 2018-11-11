@@ -1,6 +1,7 @@
 #pragma once
 
 #include "skse64/GameForms.h"  // TESForm
+#include "skse64/GameTypes.h"  // tList
 
 class BGSListForm;
 class BGSOutfit;
@@ -24,7 +25,7 @@ namespace RE
 		{
 			kFactionFlag_HiddenFromNPC		= 1 << 0,
 			kFactionFlag_SpecialCombat		= 1 << 1,
-			kFactionFlag_Unk00000004		= 1 << 2,
+			kFactionFlag_PlayerExpelled		= 1 << 2,
 			kFactionFlag_Unk00000008		= 1 << 3,
 			kFactionFlag_Unk00000010		= 1 << 4,
 			kFactionFlag_Unk00000020		= 1 << 5,
@@ -80,10 +81,11 @@ namespace RE
 		};
 
 
-		struct DataE0
+		struct Rank
 		{
-			UInt64	unk0;	// 0
-			UInt64	unk8;	// 8
+			UInt32		titleMasc;	// 0
+			UInt32		titleFem;	// 4
+			TESTexture	unk8;		// 8
 		};
 
 
@@ -102,16 +104,16 @@ namespace RE
 		bool	IgnoresWerewolf();
 
 
-		void*		unk50;			// 50
-		FactionFlag	factionFlags;	// 58 - DATA
-		UInt32		pad5C;			// 5C
-		CrimeValues	crimeValues;	// 60 - CRVA
-		VendorData	vendorData;		// A8 - VENV
-		DataE0		unkE0;			// E0
-		UInt32		unkF0;			// F0
-		UInt32		unkF4;			// F4
-		float		unkF8;			// F8
-		UInt32		unkFC;			// FC
+		void*			unk50;			// 50
+		FactionFlag		factionFlags;	// 58 - DATA
+		UInt32			pad5C;			// 5C
+		CrimeValues		crimeValues;	// 60 - CRVA
+		VendorData		vendorData;		// A8 - VENV
+		tList<Rank*>	ranks;			// E0
+		UInt32			unkF0;			// F0
+		UInt32			unkF4;			// F4
+		float			unkF8;			// F8
+		float			unkFC;			// FC
 	};
 	STATIC_ASSERT(sizeof(TESFaction) == 0x100);
 	STATIC_ASSERT(offsetof(TESFaction, vendorData) == 0xA8);

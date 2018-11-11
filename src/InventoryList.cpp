@@ -5,12 +5,16 @@
 #include "skse64/GameForms.h"  // TESForm
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
+#include <utility>  // pair
 #include <exception>  // exception
-#include <string>  // string
+#include <map>  // map
+#include <vector>  // vector
 
-#include "Utility.h"  // numToHexString
+#include "LootMenu.h"
 
+#include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/InventoryEntryData.h"  // RE::InventoryEntryData
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 #include "RE/TESObjectLIGH.h"  // RE::TESObjectLIGH
 
 
@@ -23,6 +27,80 @@ namespace QuickLootRE
 	InventoryList::~InventoryList()
 	{
 		clear();
+	}
+
+
+	void InventoryList::parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr)
+	{
+		clear();
+		ItemData::setContainer(a_refr);
+
+		// Default container
+		TESContainerVisitor containerOp(_defaultMap);
+		a_refr->GetContainer()->Visit(containerOp);
+
+		// Extra container changes
+		ExtraContainerChanges* xContainerChanges = static_cast<ExtraContainerChanges*>(a_xList->GetByType(kExtraData_ContainerChanges));
+		EntryDataListVisitor entryDataListOp(_defaultMap);
+		if (xContainerChanges && xContainerChanges->data && xContainerChanges->data->objList) {
+			xContainerChanges->data->objList->Visit(entryDataListOp);
+		}
+
+		// Add remaining default items
+		for (auto& it : _defaultMap) {
+			g_invList.add(it.second.first, it.second.second);
+		}
+
+		sort();
+	}
+
+
+	void InventoryList::adjustCount(UInt32 a_formID, SInt32 a_count)
+	{
+		auto it = linearSearch(a_formID);
+		if (it < _itemList.end()) {
+			it->modCount(a_count);
+			if (it->count() <= 0) {
+				_itemList.erase(it);
+			}
+		}
+		LootMenu::ModSelectedIndex(0);
+	}
+
+
+	ItemData& InventoryList::operator[](UInt32 a_pos)
+	{
+		return _itemList[a_pos];
+	}
+
+
+	std::vector<ItemData>::iterator InventoryList::begin() noexcept
+	{
+		return _itemList.begin();
+	}
+
+
+	std::vector<ItemData>::iterator InventoryList::end() noexcept
+	{
+		return _itemList.end();
+	}
+
+
+	bool InventoryList::empty()
+	{
+		return _itemList.empty();
+	}
+
+
+	UInt32 InventoryList::size()
+	{
+		return _itemList.size();
+	}
+
+
+	std::vector<ItemData>::iterator InventoryList::erase(std::vector<ItemData>::iterator a_pos)
+	{
+		return _itemList.erase(a_pos);
 	}
 
 
@@ -59,6 +137,7 @@ namespace QuickLootRE
 	void InventoryList::clear()
 	{
 		ItemData::setContainer(0);
+		_defaultMap.clear();
 		_itemList.clear();
 		for (auto& entryData : _heapList) {
 			entryData->Delete();
@@ -94,8 +173,7 @@ namespace QuickLootRE
 				return false;
 			}
 		} catch (std::exception& e) {
-			std::string msg = "[ERROR] Form (0x" + numToHexString(a_item->formID) + ") does not have TESFullName (" + std::to_string(a_item->formType) + ")";
-			_ERROR(msg.c_str());
+			_ERROR("[ERROR] Form (0x%X) does not have TESFullName (%i)\n", a_item->formID, a_item->formType);
 			_ERROR(e.what());
 			return false;
 		}
@@ -144,6 +222,59 @@ namespace QuickLootRE
 			swap(_itemList[mid], _itemList[a_hi]);
 		}
 		return _itemList[a_hi];
+	}
+
+
+	std::vector<ItemData>::iterator InventoryList::linearSearch(UInt32 a_formID)
+	{
+		auto it = _itemList.begin();
+		while (it < _itemList.end()) {
+			if (it->form()->formID == a_formID) {
+				break;
+			}
+			++it;
+		}
+		return it;
+	}
+
+
+	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap) :
+		_defaultMap(a_defaultMap)
+	{}
+
+
+	bool InventoryList::TESContainerVisitor::Accept(TESContainer::Entry* a_entry)
+	{
+		_defaultMap.emplace(a_entry->form->formID, std::pair<TESForm*, Count>(a_entry->form, a_entry->count));
+		return true;
+	}
+
+
+	InventoryList::EntryDataListVisitor::EntryDataListVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap) :
+		_defaultMap(a_defaultMap)
+	{}
+
+
+	bool InventoryList::EntryDataListVisitor::Accept(InventoryEntryData* a_entryData)
+	{
+		RE::InventoryEntryData* entryData = reinterpret_cast<RE::InventoryEntryData*>(a_entryData);
+
+		if (!entryData) {
+			return true;
+		}
+
+		auto it = _defaultMap.find(entryData->type->formID);
+		if (it != _defaultMap.end()) {
+			SInt32 count = it->second.second + entryData->countDelta;
+			if (count > 0) {
+				g_invList.add(entryData, count);
+			}
+			_defaultMap.erase(entryData->type->formID);
+		} else if (entryData->countDelta > 0) {
+			g_invList.add(entryData);
+		}
+
+		return true;
 	}
 
 

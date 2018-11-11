@@ -4,6 +4,7 @@
 
 #include "Events.h"  // getInventoryList()
 #include "Exceptions.h"  // bad_gfx_value_interface
+#include "Forms.h"
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
@@ -88,6 +89,8 @@ namespace QuickLootRE
 
 	void OpenContainerUIDelegate::Run()
 	{
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
 		if (LootMenu::IsOpen()) {
 			try {
 				LootMenu* loot = LootMenu::GetSingleton();
@@ -99,6 +102,9 @@ namespace QuickLootRE
 				if (!args[0].objectInterface) {
 					throw bad_gfx_value_interface();
 				}
+
+				bool hasMisdirection = player->HasPerk(Misdirection);
+				bool hasPerfectTouch = player->HasPerk(PerfectTouch);
 
 				SInt32 size = (g_invList.size() < Settings::itemLimit) ? g_invList.size() : Settings::itemLimit;
 
@@ -119,7 +125,20 @@ namespace QuickLootRE
 				GFxValue* iconLabel = (GFxValue*)ScaleformHeap_Allocate(sizeof(GFxValue) * size);
 				new (iconLabel)GFxValue[size];
 
+				SInt32 displaySize = 0;
 				for (SInt32 i = 0; i < size; ++i) {
+					if (g_invList[i].isEquipped()) {
+						if (g_invList[i].form()->formType == kFormType_Weapon) {
+							if (!hasMisdirection) {
+								continue;
+							}
+						} else {
+							if (!hasPerfectTouch) {
+								continue;
+							}
+						}
+					}
+
 					loot->view->CreateObject(&item[i]);
 
 					text[i].SetString(g_invList[i].name());
@@ -139,7 +158,9 @@ namespace QuickLootRE
 					item[i].SetMember("iconLabel", &iconLabel[i]);
 
 					args[0].PushBack(&item[i]);
+					++displaySize;
 				}
+				LootMenu::SetDisplaySize(displaySize);
 
 				bool result = loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
 
@@ -269,32 +290,6 @@ namespace QuickLootRE
 		if (this) {
 			Heap_Free(this);
 		}
-	}
-
-
-	void DelayedUpdater::Run()
-	{
-		if (LootMenu::IsVisible()) {
-			RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
-			TESContainer* container = ref->GetContainer();
-			g_invList.clear();
-			defaultMap.clear();
-			ItemData::setContainer(ref);
-			getInventoryList(&ref->extraData, container);
-			g_invList.sort();
-			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
-		}
-	}
-
-
-	void DelayedUpdater::Dispose()
-	{}
-
-
-	void DelayedUpdater::Register()
-	{
-		static DelayedUpdater dlgt;
-		g_task->AddTask(&dlgt);
 	}
 
 

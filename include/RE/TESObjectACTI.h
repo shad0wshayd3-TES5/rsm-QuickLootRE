@@ -26,7 +26,7 @@ namespace RE
 		enum { kTypeID = kFormType_Activator };
 
 
-		virtual bool	GetCrosshairText(TESObjectREFR* a_ref, BSString* a_dst, bool a_unk) override;
+		virtual bool GetCrosshairText(TESObjectREFR* a_ref, BSString* a_dst, bool a_unk) override;
 
 
 		// members

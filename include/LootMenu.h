@@ -65,6 +65,8 @@ namespace QuickLootRE
 	public:
 		static LootMenu*			GetSingleton();
 		static SInt32				GetSelectedIndex();
+		static void					ModSelectedIndex(SInt32 a_indexOffset);
+		static void					SetDisplaySize(SInt32 a_size);
 		static RE::TESObjectREFR*	GetContainerRef();
 		static bool					IsOpen();
 		static bool					IsVisible();
@@ -93,7 +95,6 @@ namespace QuickLootRE
 		void						OnMenuClose();
 		void						TakeItem();
 		void						TakeAllItems();
-		void						ModSelectedIndex(SInt32 a_indexOffset);
 
 	private:
 		bool						SingleLootEnabled();
@@ -105,6 +106,7 @@ namespace QuickLootRE
 
 		static LootMenu*			_singleton;
 		static SInt32				_selectedIndex;
+		static SInt32				_displaySize;
 		static RE::TESObjectREFR*	_containerRef;
 		static bool					_isOpen;
 		static bool					_inTakeAllMode;

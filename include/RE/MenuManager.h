@@ -79,5 +79,6 @@ namespace RE
 		bool									unk1C1;							// 1C1 (= 0)
 		char									pad1C2[6];						// 1C2
 	};
+	STATIC_ASSERT(offsetof(MenuManager, menuStack) == 0x110);
 	STATIC_ASSERT(sizeof(MenuManager) == 0x1C8);
 }

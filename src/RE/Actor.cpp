@@ -105,17 +105,6 @@ namespace RE
 	}
 
 
-	bool Actor::IsInFaction(TESFaction* a_faction)
-	{
-		if (!a_faction) {
-			return false;
-		} else {
-			FactionVisitorUtil visitor(a_faction);
-			return VisitFactions(visitor);
-		}
-	}
-
-
 	TESNPC* Actor::GetActorBase()
 	{
 		return static_cast<TESNPC*>(baseForm);
@@ -249,19 +238,4 @@ namespace RE
 	RelocAddr<Actor::_CalcEntryValue_t*> Actor::_CalcEntryValue(ACTOR_CALC_ENTRY_VALUE);
 	RelocAddr<Actor::_GetDetectionLevel_t*> Actor::_GetDetectionLevel(ACTOR_GET_DETECTION_LEVEL);
 	RelocAddr<Actor::_IsGhost_t*> Actor::_IsGhost(ACTOR_IS_GHOST);
-
-
-	Actor::FactionVisitorUtil::FactionVisitorUtil(TESFaction* a_faction) :
-		_faction(a_faction)
-	{}
-
-
-	Actor::FactionVisitorUtil::~FactionVisitorUtil()
-	{}
-
-
-	bool Actor::FactionVisitorUtil::Accept(TESFaction* a_faction, SInt8 a_rank)
-	{
-		return (a_faction && a_faction->formID == _faction->formID);
-	}
 }

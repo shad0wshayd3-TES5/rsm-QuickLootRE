@@ -1,14 +1,19 @@
 #pragma once
 
+#include <utility>  // pair
+#include <map>  // map
 #include <vector>  // vector
 
 #include "ItemData.h"  // ItemData
 
+class TESContainer;
 class TESForm;
 
 namespace RE
 {
+	class BaseExtraList;
 	class InventoryEntryData;
+	class TESObjectREFR;
 }
 
 
@@ -20,32 +25,64 @@ namespace QuickLootRE
 		InventoryList();
 		~InventoryList();
 
-		void									add(RE::InventoryEntryData* a_entryData);
-		void									add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
-		void									add(TESForm* a_form, SInt32 a_count);
+		void											parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr);
+		void											adjustCount(UInt32 a_formID, SInt32 a_count);
 
-		void									sort();
+		ItemData&										operator[](UInt32 a_pos);
 
-		ItemData&								operator[](UInt32 a_pos)						{ return _itemList[a_pos]; }
+		std::vector<ItemData>::iterator					begin() noexcept;
+		std::vector<ItemData>::iterator					end() noexcept;
 
-		std::vector<ItemData>::iterator			begin() noexcept								{ return _itemList.begin(); }
-		std::vector<ItemData>::iterator			end() noexcept									{ return _itemList.end(); }
+		void											clear();
 
-		bool									empty()											{ return _itemList.empty(); }
-		UInt32									size()											{ return _itemList.size(); }
+		bool											empty();
+		UInt32											size();
 
-		void									clear();
-		std::vector<ItemData>::iterator			erase(std::vector<ItemData>::iterator a_pos)	{ return _itemList.erase(a_pos); }
+		std::vector<ItemData>::iterator					erase(std::vector<ItemData>::iterator a_pos);
 
 	private:
-		bool									isValidItem(TESForm* a_item);
+		void											add(RE::InventoryEntryData* a_entryData);
+		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
+		void											add(TESForm* a_form, SInt32 a_count);
 
-		void									quicksort(SInt32 a_lo, SInt32 a_hi);
-		UInt64									partition(SInt32 a_lo, SInt32 a_hi);
-		ItemData&								pivot(SInt32 a_lo, SInt32 a_hi);
+		void											sort();
 
-		std::vector<ItemData>					_itemList;
-		std::vector<RE::InventoryEntryData*>	_heapList;
+		bool											isValidItem(TESForm* a_item);
+
+		void											quicksort(SInt32 a_lo, SInt32 a_hi);
+		UInt64											partition(SInt32 a_lo, SInt32 a_hi);
+		ItemData&										pivot(SInt32 a_lo, SInt32 a_hi);
+		std::vector<ItemData>::iterator					linearSearch(UInt32 a_formID);
+
+		typedef SInt32 Count;
+		typedef UInt32 FormID;
+		std::map<FormID, std::pair<TESForm*, Count>>	_defaultMap;
+		std::vector<ItemData>							_itemList;
+		std::vector<RE::InventoryEntryData*>			_heapList;
+
+
+		class TESContainerVisitor
+		{
+		public:
+			explicit TESContainerVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap);
+
+			virtual bool Accept(TESContainer::Entry* a_entry);
+
+		private:
+			std::map<FormID, std::pair<TESForm*, Count>>& _defaultMap;
+		};
+
+
+		class EntryDataListVisitor
+		{
+		public:
+			explicit EntryDataListVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap);
+
+			virtual bool Accept(InventoryEntryData* a_entryData);
+
+		private:
+			std::map<FormID, std::pair<TESForm*, Count>>& _defaultMap;
+		};
 	};
 
 
