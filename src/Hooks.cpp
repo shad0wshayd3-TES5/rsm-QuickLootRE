@@ -114,9 +114,7 @@ namespace Hooks
 			static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 			static UIManager*			uiManager	= UIManager::GetSingleton();
 
-			if (LootMenu::IsOpen()) {
-				LootMenu::Close();
-				LootMenu::ClearContainerRef(false);
+			if (LootMenu::IsVisible()) {
 				player->StartActivation();
 			} else {
 				(this->*orig_ProcessButton)(a_event, a_data);
