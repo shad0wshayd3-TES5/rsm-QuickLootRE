@@ -48,23 +48,10 @@ namespace QuickLootRE
 
 		// Add remaining default items
 		for (auto& it : _defaultMap) {
-			g_invList.add(it.second.first, it.second.second);
+			add(it.second.first, it.second.second);
 		}
 
 		sort();
-	}
-
-
-	void InventoryList::adjustCount(UInt32 a_formID, SInt32 a_count)
-	{
-		auto it = linearSearch(a_formID);
-		if (it < _itemList.end()) {
-			it->modCount(a_count);
-			if (it->count() <= 0) {
-				_itemList.erase(it);
-			}
-		}
-		LootMenu::ModSelectedIndex(0);
 	}
 
 
@@ -222,19 +209,6 @@ namespace QuickLootRE
 			swap(_itemList[mid], _itemList[a_hi]);
 		}
 		return _itemList[a_hi];
-	}
-
-
-	std::vector<ItemData>::iterator InventoryList::linearSearch(UInt32 a_formID)
-	{
-		auto it = _itemList.begin();
-		while (it < _itemList.end()) {
-			if (it->form()->formID == a_formID) {
-				break;
-			}
-			++it;
-		}
-		return it;
 	}
 
 

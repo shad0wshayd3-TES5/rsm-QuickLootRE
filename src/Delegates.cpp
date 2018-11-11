@@ -161,6 +161,7 @@ namespace QuickLootRE
 					++displaySize;
 				}
 				LootMenu::SetDisplaySize(displaySize);
+				LootMenu::ModSelectedIndex(0);
 
 				bool result = loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
 

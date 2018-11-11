@@ -118,7 +118,7 @@ namespace Hooks
 			static RE::MenuManager*		mm			= RE::MenuManager::GetSingleton();
 
 			if (a_event && LootMenu::IsVisible()) {
-				if (a_event->IsUp()) {
+				if (a_event->IsDown()) {  // This MUST be on down
 					player->StartActivation();
 				}
 			} else {

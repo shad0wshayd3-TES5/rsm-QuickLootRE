@@ -128,11 +128,6 @@ namespace QuickLootRE
 
 		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
 		if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
-			SInt32 count = a_event->count;
-			if (a_event->fromFormId == ref->formID) {
-				count *= -1;
-			}
-			g_invList.adjustCount(a_event->itemFormId, count);
 			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
 		}
 

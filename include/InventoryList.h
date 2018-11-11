@@ -26,7 +26,6 @@ namespace QuickLootRE
 		~InventoryList();
 
 		void											parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr);
-		void											adjustCount(UInt32 a_formID, SInt32 a_count);
 
 		ItemData&										operator[](UInt32 a_pos);
 
@@ -52,7 +51,6 @@ namespace QuickLootRE
 		void											quicksort(SInt32 a_lo, SInt32 a_hi);
 		UInt64											partition(SInt32 a_lo, SInt32 a_hi);
 		ItemData&										pivot(SInt32 a_lo, SInt32 a_hi);
-		std::vector<ItemData>::iterator					linearSearch(UInt32 a_formID);
 
 		typedef SInt32 Count;
 		typedef UInt32 FormID;

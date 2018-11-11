@@ -36,9 +36,9 @@ namespace QuickLootRE
 		_isStolen(false),
 		_isRead(false),
 		_isEnchanted(false),
+		_isEquipped(false),
 		_pickPocketChance(0),
-		_priority(kPriority_Key),
-		_isEquipped(false)
+		_priority(kPriority_Key)
 	{
 		_count = _entryData->countDelta;
 		constructCommon();
@@ -55,9 +55,9 @@ namespace QuickLootRE
 		_isStolen(false),
 		_isRead(false),
 		_isEnchanted(false),
+		_isEquipped(false),
 		_pickPocketChance(0.0),
-		_priority(kPriority_Key),
-		_isEquipped(false)
+		_priority(kPriority_Key)
 	{
 		constructCommon();
 	}
@@ -264,9 +264,9 @@ namespace QuickLootRE
 		_isStolen = getStolen();
 		_isRead = getRead();
 		_isEnchanted = getEnchanted();
+		_isEquipped = getEquipped();
 		_pickPocketChance = getPickPocketChance();
 		_priority = getPriority();
-		_isEquipped = getEquipped();
 	}
 
 
@@ -580,6 +580,29 @@ namespace QuickLootRE
 	}
 
 
+	bool ItemData::getEquipped()
+	{
+		if (_container->baseForm->formType != kFormType_NPC) {
+			return false;
+		}
+
+		RE::Actor* actor = static_cast<RE::Actor*>(_container);
+		if (actor->IsDead(true)) {
+			return false;
+		}
+
+		BaseExtraList* xList = 0;
+		for (SInt32 i = 0; i < _entryData->extendDataList->Count(); ++i) {
+			xList = _entryData->extendDataList->GetNthItem(i);
+			if (xList->HasType(kExtraData_Worn) ||
+				xList->HasType(kExtraData_WornLeft)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 	UInt32 ItemData::getPickPocketChance()
 	{
 		using Hooks::_GetPickPocketChance;
@@ -663,20 +686,6 @@ namespace QuickLootRE
 		default:
 			return kPriority_Other;
 		}
-	}
-
-
-	bool ItemData::getEquipped()
-	{
-		BaseExtraList* xList = 0;
-		for (SInt32 i = 0; i < _entryData->extendDataList->Count(); ++i) {
-			xList = _entryData->extendDataList->GetNthItem(i);
-			if (xList->HasType(kExtraData_Worn) ||
-				xList->HasType(kExtraData_WornLeft)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 

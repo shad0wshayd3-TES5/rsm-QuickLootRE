@@ -319,7 +319,7 @@ namespace QuickLootRE
 		}
 		case kScaleform_OpenContainer:
 		{
-			if (Settings::disableIfEmpty && g_invList.empty()) {
+			if (Settings::disableIfEmpty && _displaySize <= 0) {
 				Register(kScaleform_CloseContainer);
 			} else {
 				OpenContainerUIDelegate* dlgt = (OpenContainerUIDelegate*)Heap_Allocate(sizeof(OpenContainerUIDelegate));
@@ -504,17 +504,22 @@ namespace QuickLootRE
 
 	void LootMenu::TakeItem()
 	{
-		if (!IsOpen() || !_containerRef || g_invList.empty()) {
+		if (!IsOpen() || !_containerRef || _displaySize <= 0) {
 			return;
 		}
 
-		ItemData item = g_invList[_selectedIndex];
-		SInt32 numItems = item.count();
+		ItemData itemCopy(g_invList[_selectedIndex]);
+		ItemData itemRef = g_invList[_selectedIndex];
+		SInt32 numItems = itemRef.count();
 		if (numItems > 1 && SingleLootEnabled()) {
 			numItems = 1;
 		}
+		itemRef.modCount(-1 * numItems);
+		if (itemRef.count() <= 0) {
+			g_invList.erase(_selectedIndex + g_invList.begin());
+		}
 
-		TakeItem(item, numItems, true);
+		TakeItem(itemCopy, numItems, true);
 	}
 
 
@@ -522,7 +527,7 @@ namespace QuickLootRE
 	{
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
-		if (!IsOpen() || !_containerRef || g_invList.empty()) {
+		if (!IsOpen() || !_containerRef || _displaySize <= 0) {
 			return;
 		}
 
@@ -648,8 +653,8 @@ namespace QuickLootRE
 		typedef RE::PlayerCharacter::EventType	EventType;
 		typedef RE::TESObjectREFR::RemoveType	RemoveType;
 
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static UInt32				droppedHandle = 0;
+		static RE::PlayerCharacter*	player			= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static UInt32				droppedHandle	= 0;
 
 		// Locate item's extra list (if any)
 		BaseExtraList* xList = 0;
