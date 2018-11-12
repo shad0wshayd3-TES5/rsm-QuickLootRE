@@ -182,7 +182,7 @@ namespace QuickLootRE
 		bool							isStolen()			const;
 		bool							isRead()			const;
 		bool							isEnchanted()		const;
-		bool							isEquipped()		const;
+		bool							canPickPocket()		const;
 		UInt32							pickPocketChance()	const;
 		TESForm*						form()				const;
 
@@ -205,7 +205,7 @@ namespace QuickLootRE
 		bool							getStolen();
 		bool							getRead();
 		bool							getEnchanted();
-		bool							getEquipped();
+		bool							getCanPickPocket();
 		UInt32							getPickPocketChance();
 		Priority						getPriority();
 
@@ -229,7 +229,7 @@ namespace QuickLootRE
 		bool							_isStolen;
 		bool							_isRead;
 		bool							_isEnchanted;
-		bool							_isEquipped;
+		bool							_canPickPocket;
 		UInt32							_pickPocketChance;
 		Priority						_priority;
 

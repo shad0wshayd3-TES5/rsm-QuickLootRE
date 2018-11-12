@@ -103,9 +103,6 @@ namespace QuickLootRE
 					throw bad_gfx_value_interface();
 				}
 
-				bool hasMisdirection = player->HasPerk(Misdirection);
-				bool hasPerfectTouch = player->HasPerk(PerfectTouch);
-
 				SInt32 size = (g_invList.size() < Settings::itemLimit) ? g_invList.size() : Settings::itemLimit;
 
 				GFxValue* item = (GFxValue*)ScaleformHeap_Allocate(sizeof(GFxValue) * size);
@@ -127,16 +124,8 @@ namespace QuickLootRE
 
 				SInt32 displaySize = 0;
 				for (SInt32 i = 0; i < size; ++i) {
-					if (g_invList[i].isEquipped()) {
-						if (g_invList[i].form()->formType == kFormType_Weapon) {
-							if (!hasMisdirection) {
-								continue;
-							}
-						} else {
-							if (!hasPerfectTouch) {
-								continue;
-							}
-						}
+					if (!g_invList[i].canPickPocket()) {
+						continue;
 					}
 
 					loot->view->CreateObject(&item[i]);

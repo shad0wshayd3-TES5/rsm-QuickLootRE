@@ -46,13 +46,7 @@ namespace QuickLootRE
 		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
 		void											add(TESForm* a_form, SInt32 a_count);
 
-		void											sort();
-
 		bool											isValidItem(TESForm* a_item);
-
-		void											quicksort(SInt32 a_lo, SInt32 a_hi);
-		UInt64											partition(SInt32 a_lo, SInt32 a_hi);
-		ItemData&										pivot(SInt32 a_lo, SInt32 a_hi);
 
 		typedef SInt32 Count;
 		typedef UInt32 FormID;

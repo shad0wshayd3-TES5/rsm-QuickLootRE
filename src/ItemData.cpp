@@ -36,7 +36,7 @@ namespace QuickLootRE
 		_isStolen(false),
 		_isRead(false),
 		_isEnchanted(false),
-		_isEquipped(false),
+		_canPickPocket(true),
 		_pickPocketChance(0),
 		_priority(kPriority_Key)
 	{
@@ -55,7 +55,7 @@ namespace QuickLootRE
 		_isStolen(false),
 		_isRead(false),
 		_isEnchanted(false),
-		_isEquipped(false),
+		_canPickPocket(true),
 		_pickPocketChance(0.0),
 		_priority(kPriority_Key)
 	{
@@ -97,8 +97,8 @@ namespace QuickLootRE
 
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		if (a_lhs._isEquipped != a_rhs._isEquipped) {
-			return a_rhs._isEquipped;
+		if (a_lhs._canPickPocket != a_rhs._canPickPocket) {
+			return a_lhs._canPickPocket;  // ensures items that can't be pickpocketed sort to the end
 		}
 
 		for (ItemData::FnCompare compare : ItemData::_compares) {
@@ -142,7 +142,7 @@ namespace QuickLootRE
 		std::swap(a_lhs._isEnchanted,		a_rhs._isEnchanted);
 		std::swap(a_lhs._pickPocketChance,	a_rhs._pickPocketChance);
 		std::swap(a_lhs._priority,			a_rhs._priority);
-		std::swap(a_lhs._isEquipped,		a_rhs._isEquipped);
+		std::swap(a_lhs._canPickPocket,		a_rhs._canPickPocket);
 	}
 
 
@@ -212,9 +212,9 @@ namespace QuickLootRE
 	}
 
 
-	bool ItemData::isEquipped() const
+	bool ItemData::canPickPocket() const
 	{
-		return _isEquipped;
+		return _canPickPocket;
 	}
 
 
@@ -268,7 +268,7 @@ namespace QuickLootRE
 		_isStolen = getStolen();
 		_isRead = getRead();
 		_isEnchanted = getEnchanted();
-		_isEquipped = getEquipped();
+		_canPickPocket = getCanPickPocket();
 		_pickPocketChance = getPickPocketChance();
 		_priority = getPriority();
 	}
@@ -584,15 +584,17 @@ namespace QuickLootRE
 	}
 
 
-	bool ItemData::getEquipped()
+	bool ItemData::getCanPickPocket()
 	{
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
 		if (_container->baseForm->formType != kFormType_NPC) {
-			return false;
+			return true;
 		}
 
 		RE::Actor* actor = static_cast<RE::Actor*>(_container);
 		if (actor->IsDead(true)) {
-			return false;
+			return true;
 		}
 
 		BaseExtraList* xList = 0;
@@ -600,10 +602,18 @@ namespace QuickLootRE
 			xList = _entryData->extendDataList->GetNthItem(i);
 			if (xList->HasType(kExtraData_Worn) ||
 				xList->HasType(kExtraData_WornLeft)) {
-				return true;
+				if (_entryData->type->formType == kFormType_Weapon) {
+					if (!player->HasPerk(Misdirection)) {
+						return false;
+					}
+				} else {
+					if (!player->HasPerk(PerfectTouch)) {
+						return false;
+					}
+				}
 			}
 		}
-		return false;
+		return true;
 	}
 
 
