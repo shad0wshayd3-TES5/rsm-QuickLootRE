@@ -713,8 +713,8 @@ namespace QuickLootRE
 
 			player->PlaySounds(a_item.form(), true, false);
 
-			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 			g_invList.commit();
+			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}
 	}
 

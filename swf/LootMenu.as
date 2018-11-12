@@ -90,6 +90,7 @@ class LootMenu extends MovieClip
 			itemList.entryList.push(entry)
 		}
 		itemList.InvalidateData();
+		_visible = true;
 	}
 	
 	public function setContainer(refID:Number, title:String, sTake:String, sSearch:String, sTakeAll:String, selectedIndex:Number): Void
@@ -102,8 +103,6 @@ class LootMenu extends MovieClip
 		buttonTake.setButton(_activateKey, sTake);
 		buttonTakeAll.setButton(_povKey, sTakeAll);
 		buttonSearch.setButton(_weaponKey, sSearch);
-
-		_visible = true;
 	}
 	
 	public function closeContainer(): Void
