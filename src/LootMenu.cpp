@@ -417,8 +417,8 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static InputStringHolder*	strHolder = InputStringHolder::GetSingleton();
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static InputStringHolder*	strHolder	= InputStringHolder::GetSingleton();
+		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!a_event->IsDown()) {
 			return true;

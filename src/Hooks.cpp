@@ -162,10 +162,12 @@ namespace Hooks
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsUp()) {
 					LootMenu::GetSingleton()->TakeItemStack();
+					return false;
+				} else if (button->IsDown()) {  // inventory menu activation will queue up without this
+					return false;
 				}
-				return false;
 			}
-			return (this->*orig_CanProcess)(a_event);;
+			return (this->*orig_CanProcess)(a_event);
 		}
 
 
