@@ -319,13 +319,9 @@ namespace QuickLootRE
 		}
 		case kScaleform_OpenContainer:
 		{
-			if (Settings::disableIfEmpty && _displaySize <= 0) {
-				Register(kScaleform_CloseContainer);
-			} else {
-				OpenContainerUIDelegate* dlgt = (OpenContainerUIDelegate*)Heap_Allocate(sizeof(OpenContainerUIDelegate));
-				new (dlgt)OpenContainerUIDelegate;
-				g_task->AddUITask(dlgt);
-			}
+			OpenContainerUIDelegate* dlgt = (OpenContainerUIDelegate*)Heap_Allocate(sizeof(OpenContainerUIDelegate));
+			new (dlgt)OpenContainerUIDelegate;
+			g_task->AddUITask(dlgt);
 			break;
 		}
 		case kScaleform_SetContainer:

@@ -163,7 +163,11 @@ namespace QuickLootRE
 				LootMenu::SetDisplaySize(displaySize);
 				LootMenu::ModSelectedIndex(0);
 
-				bool result = loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
+				if (displaySize > 0) {
+					bool result = loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
+				} else {
+					LootMenu::Close();
+				}
 
 				GFxValueDeallocTaskDelegate* dlgt = (GFxValueDeallocTaskDelegate*)Heap_Allocate(sizeof(GFxValueDeallocTaskDelegate));
 				new (dlgt)GFxValueDeallocTaskDelegate;
