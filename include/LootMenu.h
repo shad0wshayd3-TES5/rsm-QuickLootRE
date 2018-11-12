@@ -93,7 +93,7 @@ namespace QuickLootRE
 
 		void						OnMenuOpen();
 		void						OnMenuClose();
-		void						TakeItem();
+		void						TakeItemStack();
 		void						TakeAllItems();
 
 	private:

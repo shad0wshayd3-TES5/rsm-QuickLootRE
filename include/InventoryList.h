@@ -26,17 +26,19 @@ namespace QuickLootRE
 		~InventoryList();
 
 		void											parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr);
+		void											stage(std::vector<ItemData>::iterator a_pos, SInt32 a_count);
+		void											discard();
+		void											commit();
 
 		ItemData&										operator[](UInt32 a_pos);
 
 		std::vector<ItemData>::iterator					begin() noexcept;
 		std::vector<ItemData>::iterator					end() noexcept;
 
-		void											clear();
-
 		bool											empty();
 		UInt32											size();
 
+		void											clear();
 		std::vector<ItemData>::iterator					erase(std::vector<ItemData>::iterator a_pos);
 
 	private:
@@ -57,6 +59,8 @@ namespace QuickLootRE
 		std::map<FormID, std::pair<TESForm*, Count>>	_defaultMap;
 		std::vector<ItemData>							_itemList;
 		std::vector<RE::InventoryEntryData*>			_heapList;
+		std::vector<ItemData>::iterator					_toDelete;
+		SInt32											_deleteCount;
 
 
 		class TESContainerVisitor

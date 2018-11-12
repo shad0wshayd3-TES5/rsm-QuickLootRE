@@ -20,7 +20,9 @@
 
 namespace QuickLootRE
 {
-	InventoryList::InventoryList()
+	InventoryList::InventoryList() :
+		_toDelete(end()),
+		_deleteCount(0)
 	{}
 
 
@@ -55,6 +57,31 @@ namespace QuickLootRE
 	}
 
 
+	void InventoryList::stage(std::vector<ItemData>::iterator a_pos, SInt32 a_count)
+	{
+		_toDelete = a_pos;
+		_deleteCount = a_count;
+	}
+
+
+	void InventoryList::discard()
+	{
+		_toDelete = end();
+		_deleteCount = 0;
+	}
+
+
+	void InventoryList::commit()
+	{
+		if (_toDelete != end()) {
+			_toDelete->modCount(-1 * _deleteCount);
+			if (_toDelete->count() <= 0) {
+				erase(_toDelete);
+			}
+		}
+	}
+
+
 	ItemData& InventoryList::operator[](UInt32 a_pos)
 	{
 		return _itemList[a_pos];
@@ -82,6 +109,20 @@ namespace QuickLootRE
 	UInt32 InventoryList::size()
 	{
 		return _itemList.size();
+	}
+
+
+	void InventoryList::clear()
+	{
+		ItemData::setContainer(0);
+		_defaultMap.clear();
+		_itemList.clear();
+		for (auto& entryData : _heapList) {
+			entryData->Delete();
+		}
+		_heapList.clear();
+		_toDelete = end();
+		_deleteCount = 0;
 	}
 
 
@@ -118,18 +159,6 @@ namespace QuickLootRE
 	void InventoryList::sort()
 	{
 		quicksort(0, _itemList.size() - 1);
-	}
-
-
-	void InventoryList::clear()
-	{
-		ItemData::setContainer(0);
-		_defaultMap.clear();
-		_itemList.clear();
-		for (auto& entryData : _heapList) {
-			entryData->Delete();
-		}
-		_heapList.clear();
 	}
 
 

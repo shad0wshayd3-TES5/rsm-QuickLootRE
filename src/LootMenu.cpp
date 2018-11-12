@@ -502,22 +502,21 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::TakeItem()
+	void LootMenu::TakeItemStack()
 	{
 		if (!IsOpen() || !_containerRef || _displaySize <= 0) {
 			return;
 		}
 
+		g_invList.discard();
 		ItemData itemCopy(g_invList[_selectedIndex]);
-		ItemData itemRef = g_invList[_selectedIndex];
-		SInt32 numItems = itemRef.count();
+
+		SInt32 numItems = itemCopy.count();
 		if (numItems > 1 && SingleLootEnabled()) {
 			numItems = 1;
 		}
-		itemRef.modCount(-1 * numItems);
-		if (itemRef.count() <= 0) {
-			g_invList.erase(_selectedIndex + g_invList.begin());
-		}
+
+		g_invList.stage(_selectedIndex + g_invList.begin(), numItems);
 
 		TakeItem(itemCopy, numItems, true);
 	}
@@ -539,6 +538,7 @@ namespace QuickLootRE
 
 		_inTakeAllMode = true;
 
+		g_invList.discard();
 		for (auto& item : g_invList) {
 			TakeItem(item, item.count(), false);
 		}
@@ -718,6 +718,7 @@ namespace QuickLootRE
 			player->PlaySounds(a_item.form(), true, false);
 
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
+			g_invList.commit();
 		}
 	}
 

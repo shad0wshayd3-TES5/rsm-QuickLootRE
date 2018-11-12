@@ -161,9 +161,9 @@ namespace Hooks
 			if (LootMenu::IsVisible() && str == strHolder->activate && (a_event->eventType == InputEvent::kEventType_Button)) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsUp()) {
-					LootMenu::GetSingleton()->TakeItem();
-					return false;
+					LootMenu::GetSingleton()->TakeItemStack();
 				}
+				return false;
 			}
 			return (this->*orig_CanProcess)(a_event);;
 		}

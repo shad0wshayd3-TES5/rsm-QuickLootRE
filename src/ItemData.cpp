@@ -97,9 +97,10 @@ namespace QuickLootRE
 
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		if (!a_lhs._isEquipped && a_rhs._isEquipped) {
-			return true;
+		if (a_lhs._isEquipped != a_rhs._isEquipped) {
+			return a_rhs._isEquipped;
 		}
+
 		for (ItemData::FnCompare compare : ItemData::_compares) {
 			int cmp = compare(a_lhs, a_rhs);
 			if (cmp) {
@@ -130,18 +131,18 @@ namespace QuickLootRE
 
 	void swap(ItemData& a_lhs, ItemData& a_rhs)
 	{
-		std::swap(a_lhs._entryData, a_rhs._entryData);
-		std::swap(a_lhs._name, a_rhs._name);
-		std::swap(a_lhs._count, a_rhs._count);
-		std::swap(a_lhs._value, a_rhs._value);
-		std::swap(a_lhs._weight, a_rhs._weight);
-		std::swap(a_lhs._type, a_rhs._type);
-		std::swap(a_lhs._isStolen, a_rhs._isStolen);
-		std::swap(a_lhs._isRead, a_rhs._isRead);
-		std::swap(a_lhs._isEnchanted, a_rhs._isEnchanted);
-		std::swap(a_lhs._pickPocketChance, a_rhs._pickPocketChance);
-		std::swap(a_lhs._priority, a_rhs._priority);
-		std::swap(a_lhs._isEquipped, a_rhs._isEquipped);
+		std::swap(a_lhs._entryData,			a_rhs._entryData);
+		std::swap(a_lhs._name,				a_rhs._name);
+		std::swap(a_lhs._count,				a_rhs._count);
+		std::swap(a_lhs._value,				a_rhs._value);
+		std::swap(a_lhs._weight,			a_rhs._weight);
+		std::swap(a_lhs._type,				a_rhs._type);
+		std::swap(a_lhs._isStolen,			a_rhs._isStolen);
+		std::swap(a_lhs._isRead,			a_rhs._isRead);
+		std::swap(a_lhs._isEnchanted,		a_rhs._isEnchanted);
+		std::swap(a_lhs._pickPocketChance,	a_rhs._pickPocketChance);
+		std::swap(a_lhs._priority,			a_rhs._priority);
+		std::swap(a_lhs._isEquipped,		a_rhs._isEquipped);
 	}
 
 
