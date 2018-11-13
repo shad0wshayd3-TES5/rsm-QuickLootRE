@@ -43,9 +43,6 @@
 class TESObjectREFR;
 
 
-#include "RE/ActorProcessManager.h"
-
-
 namespace QuickLootRE
 {
 	RE::IMenu* LootMenuCreator::Create()
@@ -504,7 +501,6 @@ namespace QuickLootRE
 			return;
 		}
 
-		g_invList.discard();
 		ItemData itemCopy(g_invList[_selectedIndex]);
 
 		SInt32 numItems = itemCopy.count();
@@ -512,9 +508,7 @@ namespace QuickLootRE
 			numItems = 1;
 		}
 
-		g_invList.stage(_selectedIndex + g_invList.begin(), numItems);
-
-		TakeItem(itemCopy, numItems, true);
+		TakeItem(itemCopy, numItems);
 	}
 
 
@@ -528,15 +522,12 @@ namespace QuickLootRE
 
 		if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
 			return;
-		} else if (_containerRef->IsOffLimits()) {
-			return;
 		}
 
 		_inTakeAllMode = true;
 
-		g_invList.discard();
 		for (auto& item : g_invList) {
-			TakeItem(item, item.count(), false);
+			TakeItem(item, item.count());
 		}
 		g_invList.clear();
 
@@ -643,7 +634,7 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_enableTheft)
+	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems)
 	{
 		using Hooks::_SendItemsPickPocketedEvent;
 		typedef RE::PlayerCharacter::EventType	EventType;
@@ -670,7 +661,7 @@ namespace QuickLootRE
 				if (_containerRef->IsDead(false)) {
 					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_DeadBody);
 				// Pickpocket
-				} else if (a_enableTheft) {
+				} else {
 					RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
 					bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
 					player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
@@ -686,7 +677,7 @@ namespace QuickLootRE
 				player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_Container);
 
 				// Stealing
-				if (_containerRef->IsOffLimits() && a_enableTheft) {
+				if (_containerRef->IsOffLimits()) {
 					lootMode = RemoveType::kRemoveType_Steal;
 				}
 			}
@@ -706,14 +697,13 @@ namespace QuickLootRE
 				}
 			} else {
 				// Stealing
-				if (_containerRef->IsOffLimits() && a_enableTheft) {
+				if (_containerRef->IsOffLimits()) {
 					player->SendStealAlarm(_containerRef, a_item.entryData()->type, a_numItems, a_item.value(), _containerRef->GetOwner(), true);
 				}
 			}
 
 			player->PlaySounds(a_item.form(), true, false);
 
-			g_invList.commit();
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}
 	}

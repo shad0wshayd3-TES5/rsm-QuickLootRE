@@ -101,7 +101,7 @@ namespace QuickLootRE
 		void						PlayAnimation(const char* fromName, const char* toName);
 		void						PlayAnimationOpen();
 		void						PlayAnimationClose();
-		void						TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_enableTheft);
+		void						TakeItem(ItemData& a_item, UInt32 a_numItems);
 
 
 		static LootMenu*			_singleton;

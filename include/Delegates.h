@@ -73,5 +73,15 @@ namespace QuickLootRE
 	};
 
 
+	class DelayedUpdater : public TaskDelegate
+	{
+	public:
+		virtual void Run() override;
+		virtual void Dispose() override;
+
+		static void Register();
+	};
+
+
 	extern SKSETaskInterface* g_task;
 }

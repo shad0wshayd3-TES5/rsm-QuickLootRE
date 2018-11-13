@@ -26,9 +26,6 @@ namespace QuickLootRE
 		~InventoryList();
 
 		void											parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr);
-		void											stage(std::vector<ItemData>::iterator a_pos, SInt32 a_count);
-		void											discard();
-		void											commit();
 
 		ItemData&										operator[](UInt32 a_pos);
 

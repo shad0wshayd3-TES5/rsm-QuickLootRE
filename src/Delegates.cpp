@@ -287,5 +287,26 @@ namespace QuickLootRE
 	}
 
 
+	void DelayedUpdater::Run()
+	{
+		if (LootMenu::IsVisible()) {
+			RE::TESObjectREFR* containerRef = LootMenu::GetContainerRef();
+			g_invList.parseInventory(&containerRef->extraData, containerRef);
+			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+		}
+	}
+
+
+	void DelayedUpdater::Dispose()
+	{}
+
+
+	void DelayedUpdater::Register()
+	{
+		static DelayedUpdater dlgt;
+		g_task->AddTask(&dlgt);
+	}
+
+
 	SKSETaskInterface* g_task = 0;
 }

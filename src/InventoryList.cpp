@@ -58,31 +58,6 @@ namespace QuickLootRE
 	}
 
 
-	void InventoryList::stage(std::vector<ItemData>::iterator a_pos, SInt32 a_count)
-	{
-		_toDelete = a_pos;
-		_deleteCount = a_count;
-	}
-
-
-	void InventoryList::discard()
-	{
-		_toDelete = end();
-		_deleteCount = 0;
-	}
-
-
-	void InventoryList::commit()
-	{
-		if (_toDelete != end()) {
-			_toDelete->modCount(-1 * _deleteCount);
-			if (_toDelete->count() <= 0) {
-				erase(_toDelete);
-			}
-		}
-	}
-
-
 	ItemData& InventoryList::operator[](UInt32 a_pos)
 	{
 		return _itemList[a_pos];
