@@ -49,8 +49,9 @@ class ItemListEntry extends BasicListEntry
 		enabled = a_state.assignedEntry == null || isAssigned;
 		_alpha = enabled ? 100 : 25;
 		
-		if (selectIndicator != undefined)
+		if (selectIndicator != undefined) {
 			selectIndicator._visible = isSelected;
+		}
 		
 		// set text
 		textField.autoSize = "left";
@@ -66,8 +67,7 @@ class ItemListEntry extends BasicListEntry
 			var maxTextLength: Number = 32;
 			if (text.length > maxTextLength) {
 				textField.text = text.substr(0, maxTextLength - 3) + "...";
-			}
-			else {
+			} else {
 				textField.text = text;
 			}
 		}
@@ -75,30 +75,27 @@ class ItemListEntry extends BasicListEntry
 		var iconPosX = textField._x + textField._width + 6;
 		
 		stolenIcon._visible = (a_entryObject.isStolen != undefined && a_entryObject.isStolen);
-		if (stolenIcon._visible)
-		{
+		if (stolenIcon._visible) {
 			stolenIcon._x = iconPosX;
 			iconPosX += stolenIcon._width + 2;
 		}
 		
 		enchantIcon._visible = (a_entryObject.isEnchanted != undefined && a_entryObject.isEnchanted);
-		if (enchantIcon._visible)
-		{
+		if (enchantIcon._visible) {
 			enchantIcon._x = iconPosX;
 			iconPosX += enchantIcon._width + 2;
 		}
 
 		readIcon._visible = (a_entryObject.isRead != undefined && a_entryObject.isRead);
-		if (readIcon._visible)
-		{
+		if (readIcon._visible) {
 			readIcon._x = iconPosX;
 			iconPosX += readIcon._width + 2;
 		}
 		
 		pickPocketChance.autoSize = "right";
-		if(a_entryObject.itemChance == 0){
+		if (a_entryObject.itemChance == 0){
 			pickPocketChance.text = "";
-		}else{
+		} else {
 			var chance = a_entryObject.itemChance.toString();
 			chance += "%";
 			pickPocketChance.text = chance;

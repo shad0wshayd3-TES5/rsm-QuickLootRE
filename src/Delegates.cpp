@@ -8,6 +8,7 @@
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
+#include "Utility.h"  // IsValidPickPocketTarget()
 
 #include "RE/GFxMovieDef.h"  // GFxMovieDef
 #include "RE/GFxMovieView.h"  // GFxMovieView
@@ -204,23 +205,24 @@ namespace QuickLootRE
 		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 		static const char*			sTake		= (*g_gameSettingCollection)->Get("sTake")->data.s;
 		static const char*			sSteal		= (*g_gameSettingCollection)->Get("sSteal")->data.s;
-		static const char*			sSearch		= (*g_gameSettingCollection)->Get("sSearch")->data.s;
 		static const char*			sTakeAll	= (*g_gameSettingCollection)->Get("sTakeAll")->data.s;
 
 		GFxValue args[6];
 
 		const char* takeType;
 		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
-		if (ref->baseForm->formType == kFormType_NPC) {
-			takeType = !ref->IsDead(true) && player->IsSneaking() ? sSteal : sTake;
+		if (IsValidPickPocketTarget(ref, player->IsSneaking())) {
+			takeType = sSteal;
+		} else if (ref->IsOffLimits()) {
+			takeType = sSteal;
 		} else {
-			takeType = ref->IsOffLimits() ? sSteal : sTake;
+			takeType = sTake;
 		}
 
 		args[0].SetNumber(ref->formID);
 		args[1].SetString(ref->GetReferenceName());
 		args[2].SetString(takeType);
-		args[3].SetString(sSearch);
+		args[3].SetString(LootMenu::GetActiText());
 		args[4].SetString(sTakeAll);
 		args[5].SetNumber(LootMenu::GetSelectedIndex());
 

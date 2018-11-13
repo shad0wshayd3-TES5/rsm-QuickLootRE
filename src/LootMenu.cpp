@@ -9,6 +9,8 @@
 #include "skse64/NiRTTI.h"  // ni_cast
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
+#include <string>  // string
+
 #include "Delegates.h"
 #include "Forms.h"  // FACTFormID
 #include "HasActivateChoiceVisitor.h"  // HasActivateChoiceVisitor
@@ -144,6 +146,18 @@ namespace QuickLootRE
 	{
 		static BSFixedString name = "LootMenu";
 		return name;
+	}
+
+
+	const char* LootMenu::GetActiText()
+	{
+		return _actiText.c_str();
+	}
+
+
+	void LootMenu::SetActiText(const char* a_actiText)
+	{
+		_actiText = a_actiText;
 	}
 
 
@@ -717,4 +731,5 @@ namespace QuickLootRE
 	bool				LootMenu::_inTakeAllMode = false;
 	bool				LootMenu::_isRegistered = false;
 	LootMenu::Platform	LootMenu::_platform = kPlatform_PC;
+	std::string			LootMenu::_actiText = "";
 }

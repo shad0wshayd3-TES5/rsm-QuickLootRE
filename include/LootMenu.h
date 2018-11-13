@@ -4,6 +4,8 @@
 
 #include "skse64/GameTypes.h"  // BSFixedString
 
+#include <string>  // string
+
 #include "RE/IMenu.h"  // IMenu
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
@@ -73,6 +75,8 @@ namespace QuickLootRE
 		static bool					InTakeAllMode();
 		static Platform				GetPlatform();
 		static BSFixedString		GetName();
+		static const char*			GetActiText();
+		static void					SetActiText(const char* a_actiText);
 
 		static void					Open();
 		static void					Close();
@@ -112,5 +116,6 @@ namespace QuickLootRE
 		static bool					_inTakeAllMode;
 		static bool					_isRegistered;
 		static Platform				_platform;
+		static std::string			_actiText;
 	};
 }

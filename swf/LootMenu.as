@@ -45,10 +45,11 @@ class LootMenu extends MovieClip
 		_platform = a_platform;
 
 		var device: Number;
-		if (a_platform == 0)
+		if (a_platform == 0) {
 			device = 0;
-		else
+		} else {
 			device = 2;
+		}
 
 		_activateKey = skse.GetMappedKey("Activate", device, 0);
 		_povKey = skse.GetMappedKey("Toggle POV", device, 0);
@@ -58,25 +59,27 @@ class LootMenu extends MovieClip
 	// @API
 	public function Setup(a_positionX:Number, a_positionY:Number, a_scale:Number, a_opacity:Number) :Void
 	{
-		if (0 <= a_positionX)
+		if (0 <= a_positionX) {
 			_x = a_positionX;
+		}
 		
-		if (0 <= a_positionY)
+		if (0 <= a_positionY) {
 			_y = a_positionY;
+		}
 		
-		if (a_scale >= 0)
-		{
-			if (a_scale < 25)
+		if (a_scale >= 0) {
+			if (a_scale < 25) {
 				a_scale = 25;
-			else if (a_scale > 400)
+			} else if (a_scale > 400) {
 				a_scale = 400;
+			}
 			_xscale = _yscale = a_scale;
 		}
 		
-		if (a_opacity >= 0)
-		{
-			if (a_opacity > 100)
+		if (a_opacity >= 0) {
+			if (a_opacity > 100) {
 				a_opacity = 100;
+			}
 			background._alpha = a_opacity;
 		}
 	}

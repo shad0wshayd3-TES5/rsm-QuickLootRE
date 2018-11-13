@@ -6,6 +6,9 @@
 #include "skse64_common/SafeWrite.h"  // SafeWrite64
 #include "xbyak/xbyak.h"
 
+#include <string>  // string
+#include <sstream>  // stringstream
+
 #include "LootMenu.h"  // LootMenu
 #include "Offsets.h"
 
@@ -19,7 +22,6 @@
 #include "RE/ReadyWeaponHandler.h"  // ReadyWeaponHandler
 #include "RE/TESBoundAnimObject.h"  // TESObjectACTI
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
-
 
 class PlayerCharacter;
 
@@ -183,7 +185,6 @@ namespace Hooks
 	ActivateHandlerEx::_CanProcess_t ActivateHandlerEx::orig_CanProcess;
 
 
-#if 0
 	template <uintptr_t offset>
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
@@ -192,16 +193,31 @@ namespace Hooks
 		static _GetCrosshairText_t orig_GetCrosshairText;
 
 
-		virtual bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
+		bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
 		{
 			using QuickLootRE::LootMenu;
 			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
-			bool isSneaking = player->IsSneaking();
-			if (LootMenu::CanOpen(a_ref, isSneaking)) {
+			bool result = (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
+
+			if (LootMenu::CanOpen(a_ref, player->IsSneaking())) {
+				std::stringstream ss(a_dst->Get());
+				std::string dispText;
+				if (std::getline(ss, dispText, '\n')) {
+					if (dispText[0] == '<') {
+						int beg = dispText.find_first_of('>');
+						int end = dispText.find_last_of('<');
+						if (beg != std::string::npos && end != std::string::npos) {
+							std::string subStr = dispText.substr(beg + 1, end - beg - 1);
+							LootMenu::SetActiText(subStr.c_str());
+						}
+					} else {
+						LootMenu::SetActiText(dispText.c_str());
+					}
+				}
 				return false;
 			} else {
-				return (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
+				return result;
 			}
 		}
 
@@ -219,7 +235,6 @@ namespace Hooks
 	typedef TESBoundAnimObjectEx<TES_OBJECT_ACTI_VTBL_META + 0x268> TESObjectACTIEx;
 	typedef TESBoundAnimObjectEx<TES_OBJECT_CONT_VTBL_META + 0x268> TESObjectCONTEx;
 	typedef TESBoundAnimObjectEx<TES_NPC_VTBL_META + 0x268> TESNPCEx;
-#endif
 
 
 	void installHooks()
@@ -229,5 +244,9 @@ namespace Hooks
 		FavoritesHandler::installHook();
 		ReadyWeaponHandlerEx::installHook();
 		ActivateHandlerEx::installHook();
+
+		TESObjectACTIEx::installHook();
+		TESObjectCONTEx::installHook();
+		TESNPCEx::installHook();
 	}
 }

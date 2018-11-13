@@ -104,8 +104,7 @@ namespace QuickLootRE
 			if (menu) {
 				if (menuName == strHolder->dialogueMenu) {
 					LootMenu::Close();
-				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) ||
-					menu->PausesGame()) {
+				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) || menu->PausesGame()) {
 					LootMenu::SetVisible(false);
 				}
 			}
