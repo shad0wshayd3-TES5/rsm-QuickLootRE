@@ -8,6 +8,7 @@
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <cmath>  // floor, ceil
+#include <string>  // string
 
 #include "ExtendDataListVisitor.h"  // ExtendDataListVisitor
 #include "Hooks.h"  // GetPickPocketChance()
@@ -230,24 +231,34 @@ namespace QuickLootRE
 		for (auto& compare : Settings::sortOrder) {
 			if (compare == "name") {
 				_compares.push_back(&compareByName);
+				_DMESSAGE("[DEBUG] Added compare by name");
 			} else if (compare == "count") {
 				_compares.push_back(&compareByCount);
+				_DMESSAGE("[DEBUG] Added compare by count");
 			} else if (compare == "value") {
 				_compares.push_back(&compareByValue);
+				_DMESSAGE("[DEBUG] Added compare by value");
 			} else if (compare == "weight") {
 				_compares.push_back(&compareByWeight);
+				_DMESSAGE("[DEBUG] Added compare by weight");
 			} else if (compare == "type") {
 				_compares.push_back(&compareByType);
+				_DMESSAGE("[DEBUG] Added compare by type");
 			} else if (compare == "stolen") {
 				_compares.push_back(&compareByStolen);
+				_DMESSAGE("[DEBUG] Added compare by stolen");
 			} else if (compare == "read") {
 				_compares.push_back(&compareByRead);
+				_DMESSAGE("[DEBUG] Added compare by read");
 			} else if (compare == "enchanted") {
 				_compares.push_back(&compareByEnchanted);
+				_DMESSAGE("[DEBUG] Added compare by enchanted");
 			} else if (compare == "pickPocketChance") {
 				_compares.push_back(&compareByPickPocketChance);
+				_DMESSAGE("[DEBUG] Added compare by pickpocket chance");
 			} else if (compare == "valuePerWeight") {
 				_compares.push_back(&compareByValuePerWeight);
+				_DMESSAGE("[DEBUG] Added compare by value/weight");
 			}
 		}
 	}

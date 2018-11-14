@@ -12,6 +12,11 @@ class PlayerInputHandler;
 
 namespace RE
 {
+	class ActivateHandler;
+	class MovementHandler;
+	class ReadyWeaponHandler;
+
+
 	class PlayerControls :
 		public BSTEventSink<InputEvent*>,
 		public BSTEventSink<MenuOpenCloseEvent>,
@@ -65,13 +70,13 @@ namespace RE
 		float						unk100[20];			// 100
 		tArray<void*>				unk150;				// 150
 		UInt64						unk168;				// 168
-		PlayerInputHandler*			movementHandler;	// 170
+		MovementHandler*			movementHandler;	// 170
 		PlayerInputHandler*			lookHandler;		// 178
 		PlayerInputHandler*			sprintHandler;		// 180
-		PlayerInputHandler*			readyWeaponHandler; // 188
+		ReadyWeaponHandler*			readyWeaponHandler; // 188
 		PlayerInputHandler*			autoMoveHandler;	// 190
 		PlayerInputHandler*			toggleRunHandler;	// 198
-		PlayerInputHandler*			activateHandler;	// 1A0
+		ActivateHandler*			activateHandler;	// 1A0
 		PlayerInputHandler*			jumpHandler;		// 1A8
 		PlayerInputHandler*			shoutHandler;		// 1B0
 		PlayerInputHandler*			attackBlockHandler; // 1B8

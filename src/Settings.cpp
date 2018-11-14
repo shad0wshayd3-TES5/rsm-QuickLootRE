@@ -3,13 +3,14 @@
 #include <fstream>  // ifstream
 #include <exception>  // exception
 #include <vector>  // vector
+#include <string>  // string
 
 #include "json.hpp"  // json
 
 
 namespace QuickLootRE
 {
-	void Settings::loadSettings()
+	bool Settings::loadSettings()
 	{
 		using nlohmann::json;
 
@@ -31,6 +32,12 @@ namespace QuickLootRE
 				{
 					json jArr = it.value();
 					setting->Assign(jArr);
+					break;
+				}
+				case json::value_t::string:
+				{
+					std::string str = it.value();
+					setting->Assign(str);
 					break;
 				}
 				case json::value_t::boolean:
@@ -59,10 +66,12 @@ namespace QuickLootRE
 		} catch (std::exception& e) {
 			_ERROR("[ERROR] Failed to parse json file!");
 			_ERROR(e.what());
-			return;
+			istream.close();
+			return false;
 		}
 
 		istream.close();
+		return true;
 	}
 
 
@@ -88,6 +97,7 @@ namespace QuickLootRE
 	fSetting	Settings::positionX("positionX", -1.0);
 	fSetting	Settings::positionY("positionY", -1.0);
 	fSetting	Settings::opacity("opacity", -1.0);
+	sSetting	Settings::takeAllMethod("takeAllMethod", "togglePOV");
 	aSetting	Settings::sortOrder("sortOrder", { "stolen", "type", "name", "value", "count" });
 
 	bool		Settings::isApplied = false;

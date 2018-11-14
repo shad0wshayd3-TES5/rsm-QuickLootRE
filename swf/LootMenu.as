@@ -8,7 +8,8 @@ class LootMenu extends MovieClip
 	private var _platform: Number;
 	private var _activateKey: Number;
 	private var _weaponKey: Number;
-	private var _povKey: Number;
+	private var _takeAllKey: Number;
+	private var _takeAllString: String;
 	private var _refID: Number;
 	
 	// stage elements
@@ -30,7 +31,7 @@ class LootMenu extends MovieClip
 		_visible = false;
 		
 		_activateKey = skse.GetMappedKey("Activate", 0, 0);
-		_povKey = skse.GetMappedKey("Toggle POV", 0, 0);
+		_takeAllKey = skse.GetMappedKey("Toggle POV", 0, 0);
 		_weaponKey = skse.GetMappedKey("Ready Weapon", 0, 0);
 	}
 
@@ -38,9 +39,14 @@ class LootMenu extends MovieClip
 	public function InitExtensions(): Void
 	{
 	}
+	
+	public function SetTakeAllKey(a_key:String): Void
+	{
+		_takeAllString = a_key;
+	}
 
 	// @API
-	public function SetPlatform(a_platform: Number, a_bPS3Switch: Boolean): Void
+	public function SetPlatform(a_platform:Number, a_bPS3Switch:Boolean): Void
 	{
 		_platform = a_platform;
 
@@ -52,7 +58,7 @@ class LootMenu extends MovieClip
 		}
 
 		_activateKey = skse.GetMappedKey("Activate", device, 0);
-		_povKey = skse.GetMappedKey("Toggle POV", device, 0);
+		_takeAllKey = skse.GetMappedKey(_takeAllString, device, 0);
 		_weaponKey = skse.GetMappedKey("Ready Weapon", device, 0);
 	}
 	
@@ -104,14 +110,14 @@ class LootMenu extends MovieClip
 		titleText.htmlText = title;
 		
 		buttonTake.setButton(_activateKey, sTake);
-		buttonTakeAll.setButton(_povKey, sTakeAll);
+		buttonTakeAll.setButton(_takeAllKey, sTakeAll);
 		buttonSearch.setButton(_weaponKey, sSearch);
 	}
 
 	public function updateButtons(): Void
 	{
 		buttonTake.updateButton(_activateKey);
-		buttonTakeAll.updateButton(_povKey);
+		buttonTakeAll.updateButton(_takeAllKey);
 		buttonSearch.updateButton(_weaponKey);
 	}
 	

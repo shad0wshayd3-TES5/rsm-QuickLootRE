@@ -113,14 +113,7 @@ namespace RE
 
 	TESRace* Actor::GetRace()
 	{
-		TESRace* outRace = 0;
-
-		TESNPC* actorBase = GetActorBase();
-		if (actorBase) {
-			outRace = actorBase->race;
-		}
-
-		return outRace;
+		return GetActorBase() ? GetActorBase()->race : 0;
 	}
 
 

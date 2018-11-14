@@ -46,12 +46,15 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		RE::MenuManager::GetSingleton()->Register("LootMenu", QuickLootRE::LootMenuCreator::Create);
 		_MESSAGE("[MESSAGE] LootMenu registered");
 
-		QuickLootRE::Settings::loadSettings();
 		QuickLootRE::ItemData::setCompareOrder();
 		_MESSAGE("[MESSAGE] Settings loaded");
 
 		break;
 	}
+	case SKSEMessagingInterface::kMessage_DataLoaded:
+		Hooks::installHooks();
+		_MESSAGE("[MESSAGE] Hooks installed!");
+		break;
 	}
 }
 
@@ -106,7 +109,12 @@ extern "C" {
 			return false;
 		}
 
-		Hooks::installHooks();
+		if (QuickLootRE::Settings::loadSettings()) {
+			_MESSAGE("[MESSAGE] Settings successfully loaded!");
+		} else {
+			_FATALERROR("[FATAL ERROR] Settings failed to load!");
+			return false;
+		}
 
 		return true;
 	}

@@ -1,6 +1,7 @@
 #include "Delegates.h"
 
 #include <exception>  // exception
+#include <string>  // string
 
 #include "Events.h"  // getInventoryList()
 #include "Exceptions.h"  // bad_gfx_value_interface
@@ -20,7 +21,25 @@
 
 namespace QuickLootRE
 {
-	void SetPlatforUIDelegate::Run()
+	void SetTakeAllKeyUIDelegate::Run()
+	{
+		GFxValue args[1];
+
+		args[0].SetString(LootMenu::GetTakeAllStr());
+
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetTakeAllKey", 0, args, 1);
+	}
+
+
+	void SetTakeAllKeyUIDelegate::Dispose()
+	{
+		if (this) {
+			Heap_Free(this);
+		}
+	}
+
+
+	void SetPlatformUIDelegate::Run()
 	{
 		if (LootMenu::IsOpen()) {
 			GFxValue args[2];
@@ -33,7 +52,7 @@ namespace QuickLootRE
 	}
 
 
-	void SetPlatforUIDelegate::Dispose()
+	void SetPlatformUIDelegate::Dispose()
 	{
 		if (this) {
 			Heap_Free(this);

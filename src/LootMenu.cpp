@@ -162,6 +162,18 @@ namespace QuickLootRE
 	}
 
 
+	const char* LootMenu::GetTakeAllStr()
+	{
+		return _takeAllStr.c_str();
+	}
+
+
+	void LootMenu::SetTakeAllStr(const char* a_takeAllStr)
+	{
+		_takeAllStr = a_takeAllStr;
+	}
+
+
 	void LootMenu::Open()
 	{
 		static RE::UIManager* uiManager = RE::UIManager::GetSingleton();
@@ -304,55 +316,30 @@ namespace QuickLootRE
 	void LootMenu::Register(Scaleform a_reg)
 	{
 		switch (a_reg) {
+		case kScaleform_SetTakeAllKey:
+			AllocateAndDispatch<SetTakeAllKeyUIDelegate>();
+			break;
 		case kScaleform_SetPlatform:
-		{
-			SetPlatforUIDelegate* dlgt = (SetPlatforUIDelegate*)Heap_Allocate(sizeof(SetPlatforUIDelegate));
-			new (dlgt)SetPlatforUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<SetPlatformUIDelegate>();
 			break;
-		}
 		case kScaleform_Setup:
-		{
-			SetupUIDelegate* dlgt = (SetupUIDelegate*)Heap_Allocate(sizeof(SetupUIDelegate));
-			new (dlgt)SetupUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<SetupUIDelegate>();
 			break;
-		}
 		case kScaleform_OpenContainer:
-		{
-			OpenContainerUIDelegate* dlgt = (OpenContainerUIDelegate*)Heap_Allocate(sizeof(OpenContainerUIDelegate));
-			new (dlgt)OpenContainerUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<OpenContainerUIDelegate>();
 			break;
-		}
 		case kScaleform_SetContainer:
-		{
-			SetContainerUIDelegate* dlgt = (SetContainerUIDelegate*)Heap_Allocate(sizeof(SetContainerUIDelegate));
-			new (dlgt)SetContainerUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<SetContainerUIDelegate>();
 			break;
-		}
 		case kScaleform_UpdateButtons:
-		{
-			UpdateButtonsUIDelegate* dlgt = (UpdateButtonsUIDelegate*)Heap_Allocate(sizeof(UpdateButtonsUIDelegate));
-			new (dlgt)UpdateButtonsUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<UpdateButtonsUIDelegate>();
 			break;
-		}
 		case kScaleform_CloseContainer:
-		{
-			CloseContainerUIDelegate* dlgt = (CloseContainerUIDelegate*)Heap_Allocate(sizeof(CloseContainerUIDelegate));
-			new (dlgt)CloseContainerUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<CloseContainerUIDelegate>();
 			break;
-		}
 		case kScaleform_SetSelectedIndex:
-		{
-			SetSelectedIndexUIDelegate* dlgt = (SetSelectedIndexUIDelegate*)Heap_Allocate(sizeof(SetSelectedIndexUIDelegate));
-			new (dlgt)SetSelectedIndexUIDelegate;
-			g_task->AddUITask(dlgt);
+			AllocateAndDispatch<SetSelectedIndexUIDelegate>();
 			break;
-		}
 		default:
 			_ERROR("[ERROR] Invalid registration (%i)", a_reg);
 		}
@@ -402,8 +389,7 @@ namespace QuickLootRE
 
 			BSFixedString controlID = *a_event->GetControlID();
 
-			if (controlID == strHolder->sneak ||
-				controlID == strHolder->togglePOV) {
+			if (controlID == strHolder->sneak) {
 				return true;
 			}
 
@@ -438,9 +424,6 @@ namespace QuickLootRE
 			if (CanOpen(_containerRef, !player->IsSneaking())) {
 				Open();
 			}
-		} else if (controlID == strHolder->togglePOV) {
-			TakeAllItems();
-			Register(kScaleform_OpenContainer);
 		}
 
 		switch (a_event->deviceType) {
@@ -489,6 +472,9 @@ namespace QuickLootRE
 	{
 		_selectedIndex = 0;
 		_isMenuOpen = true;
+		Register(kScaleform_SetTakeAllKey);
+		Register(kScaleform_SetPlatform);
+		Register(kScaleform_UpdateButtons);
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_OpenContainer);
 		Register(kScaleform_SetSelectedIndex);
@@ -754,4 +740,5 @@ namespace QuickLootRE
 	bool				LootMenu::_isRegistered = false;
 	LootMenu::Platform	LootMenu::_platform = kPlatform_PC;
 	std::string			LootMenu::_actiText = "";
+	std::string			LootMenu::_takeAllStr = "";
 }

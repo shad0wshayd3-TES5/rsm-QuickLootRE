@@ -1,5 +1,6 @@
 #include "Hooks.h"
 
+#include "skse64/GameInput.h"  // InputStringHolder
 #include "skse64/GameReferences.h"  // g_thePlayer
 #include "skse64/GameTypes.h"  // BSString
 #include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
@@ -12,6 +13,7 @@
 #include "HaACTITextOverrideVisitor.h"  // HaACTITextOverrideVisitor
 #include "LootMenu.h"  // LootMenu
 #include "Offsets.h"
+#include "Settings.h"  // Settings
 
 #include "RE/ActivateHandler.h"  // ActivateHandler
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
@@ -34,24 +36,28 @@ namespace Hooks
 	RelocAddr<_GetPickPocketChance_t*> _GetPickPocketChance(GET_PICK_POCKET_CHANCE);
 
 
-	template <uintptr_t offset>
-	class CameraStateHandlerEx : public RE::PlayerInputHandler
+	template <uintptr_t offset, ControlID controlID>
+	class PlayerInputHandlerEx : public RE::PlayerInputHandler
 	{
 	public:
-		typedef bool(CameraStateHandlerEx::*_CanProcess_t)(InputEvent* a_event);
+		typedef bool(PlayerInputHandlerEx::*_CanProcess_t)(InputEvent* a_event);
 		static _CanProcess_t orig_CanProcess;
 
 
 		bool hook_CanProcess(InputEvent* a_event)
 		{
+			using QuickLootRE::LootMenu;
 			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
-			bool result = (this->*orig_CanProcess)(a_event);
-			if (a_event && result && QuickLootRE::LootMenu::IsVisible()) {
-				result = (*a_event->GetControlID() != strHolder->togglePOV);
+			if (a_event && a_event->eventType == InputEvent::kEventType_Button && QuickLootRE::LootMenu::IsVisible()) {
+				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
+				if (button->IsDown() && *button->GetControlID() == GetControlID(controlID)) {
+					LootMenu::GetSingleton()->TakeAllItems();
+					LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+					return false;
+				}
 			}
-
-			return result;
+			return (this->*orig_CanProcess)(a_event);
 		}
 
 
@@ -64,9 +70,13 @@ namespace Hooks
 	};
 
 
-	template <uintptr_t offset> typename CameraStateHandlerEx<offset>::_CanProcess_t CameraStateHandlerEx<offset>::orig_CanProcess;
-	typedef CameraStateHandlerEx<FIRST_PERSON_STATE_VTBL_META + 0x60> FirstPersonStateHandler;
-	typedef CameraStateHandlerEx<THIRD_PERSON_STATE_VTBL_META + 0x98> ThirdPersonStateHandler;
+	template <uintptr_t offset, ControlID controlID> typename PlayerInputHandlerEx<offset, controlID>::_CanProcess_t PlayerInputHandlerEx<offset, controlID>::orig_CanProcess;
+	typedef PlayerInputHandlerEx<FIRST_PERSON_STATE_VTBL_META + 0x60, kControlID_TogglePOV> FirstPersonStateHandlerEx;
+	typedef PlayerInputHandlerEx<THIRD_PERSON_STATE_VTBL_META + 0x98, kControlID_TogglePOV> ThirdPersonStateHandlerEx;
+	typedef PlayerInputHandlerEx<JUMP_HANDLER_VTBL_META + 0x10, kControlID_Jump> JumpHandlerEx;
+	typedef PlayerInputHandlerEx<SPRINT_HANDLER_VTBL_META + 0x10, kControlID_PreviousFocus> SprintHandlerEx;
+	typedef PlayerInputHandlerEx<SNEAK_HANDLER_VTBL_META + 0x10, kControlID_Sneak> SneakHandlerEx;
+	typedef PlayerInputHandlerEx<SHOUT_HANDLER_VTBL_META + 0x10, kControlID_NextFocus> ShoutHandlerEx;
 
 
 	class FavoritesHandlerEx : public RE::FavoritesHandler
@@ -250,10 +260,64 @@ namespace Hooks
 	typedef TESBoundAnimObjectEx<TES_NPC_VTBL_META + 0x268> TESNPCEx;
 
 
+	BSFixedString& GetControlID(ControlID a_controlID)
+	{
+		static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
+
+		switch (a_controlID) {
+		case kControlID_TogglePOV:
+			return strHolder->togglePOV;
+		case kControlID_Jump:
+			return strHolder->jump;
+		case kControlID_Sneak:
+			return strHolder->sneak;
+		case kControlID_NextFocus:
+			return strHolder->nextFocus;
+		case kControlID_PreviousFocus:
+			return strHolder->prevFocus;
+		default:
+			static BSFixedString emptyStr = "";
+			_ERROR("[ERROR] Invalid control ID (%i)", a_controlID);
+			return emptyStr;
+		}
+	}
+
+
 	void installHooks()
 	{
-		FirstPersonStateHandler::installHook();
-		ThirdPersonStateHandler::installHook();
+		using QuickLootRE::Settings;
+		using QuickLootRE::LootMenu;
+
+		InputStringHolder* strHolder = InputStringHolder::GetSingleton();
+
+		if (Settings::takeAllMethod == "jump") {
+			JumpHandlerEx::installHook();
+			LootMenu::SetTakeAllStr(strHolder->jump.c_str());
+			_DMESSAGE("[DEBUG] Installed jump hook");
+		} else if (Settings::takeAllMethod == "sprint") {
+			SprintHandlerEx::installHook();
+			LootMenu::SetTakeAllStr(strHolder->sprint.c_str());
+			_DMESSAGE("[DEBUG] Installed sprint hook");
+		} else if (Settings::takeAllMethod == "sneak") {
+			SneakHandlerEx::installHook();
+			LootMenu::SetTakeAllStr(strHolder->sneak.c_str());
+			_DMESSAGE("[DEBUG] Installed sneak hook");
+		} else if (Settings::takeAllMethod == "shout") {
+			ShoutHandlerEx::installHook();
+			LootMenu::SetTakeAllStr(strHolder->shout.c_str());
+			_DMESSAGE("[DEBUG] Installed shout hook");
+		} else {
+			FirstPersonStateHandlerEx::installHook();
+			ThirdPersonStateHandlerEx::installHook();
+			LootMenu::SetTakeAllStr(strHolder->togglePOV.c_str());
+			if (Settings::takeAllMethod == "togglePOV") {
+				_DMESSAGE("[DEBUG] Installed togglePov hook");
+			} else {
+				_ERROR("[ERROR] No matching take all hook found! (%s)", Settings::takeAllMethod.c_str());
+				_ERROR("[ERROR] Defaulting to togglePOV hook!\n");
+			}
+		}
+
 		FavoritesHandlerEx::installHook();
 		ReadyWeaponHandlerEx::installHook();
 		ActivateHandlerEx::installHook();

@@ -5,13 +5,22 @@
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
 #include <vector>  // vector
+#include <string>  // string
 
 class GFxValue;
 
 
 namespace QuickLootRE
 {
-	class SetPlatforUIDelegate : public UIDelegate_v1
+	class SetTakeAllKeyUIDelegate : public UIDelegate_v1
+	{
+	public:
+		virtual void Run() override;
+		virtual void Dispose() override;
+	};
+
+
+	class SetPlatformUIDelegate : public UIDelegate_v1
 	{
 	public:
 		virtual void Run() override;

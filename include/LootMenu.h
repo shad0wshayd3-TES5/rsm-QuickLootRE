@@ -52,6 +52,7 @@ namespace QuickLootRE
 	public:
 		enum Scaleform : UInt32
 		{
+			kScaleform_SetTakeAllKey,
 			kScaleform_SetPlatform,
 			kScaleform_Setup,
 			kScaleform_OpenContainer,
@@ -78,6 +79,8 @@ namespace QuickLootRE
 		static BSFixedString		GetName();
 		static const char*			GetActiText();
 		static void					SetActiText(const char* a_actiText);
+		static const char*			GetTakeAllStr();
+		static void					SetTakeAllStr(const char* a_takeAllStr);
 
 		static void					Open();
 		static void					Close();
@@ -121,5 +124,15 @@ namespace QuickLootRE
 		static bool					_isRegistered;
 		static Platform				_platform;
 		static std::string			_actiText;
+		static std::string			_takeAllStr;
 	};
+
+
+	template <typename T>
+	void AllocateAndDispatch()
+	{
+		T* dlgt = (T*)Heap_Allocate(sizeof(T));
+		new (dlgt)T;
+		g_task->AddUITask(dlgt);
+	}
 }

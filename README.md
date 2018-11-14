@@ -17,4 +17,5 @@ Setting | Description
 `positionX` | The X position of the loot menu GUI. A negative value will use the default of `384`.
 `positionY` | The Y position of the loot menu GUI. A negative value will use the default of `0`.
 `opacity` | The opacity of the loot menu GUI. A negative value will use the default of `100`.
+`takeAllMethod` | Determines the key used for the take all feature. Valid inputs are: `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, and `"shout"`.
 `sortOrder` | Defines the order items are sorted in the loot menu. Valid inputs are: `"name"`, `"count"`, `"value"`, `"weight"`, `"type"`, `"stolen"`, `"read"`, `"enchanted"`, `"pickPocketChance"`, and `"valuePerWeight"`. `sortOrder` is an array, so multiple inputs are acceptable.

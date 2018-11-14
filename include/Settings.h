@@ -22,6 +22,7 @@ namespace QuickLootRE
 		virtual void				Assign(int a_val)					{}
 		virtual void				Assign(float a_val)					{}
 		virtual void				Assign(const char* a_val)			{}
+		virtual void				Assign(std::string a_val)			{}
 		virtual void				Assign(json& a_val)					{}
 		virtual void				Dump()								= 0;
 		inline const std::string&	key()						const	{ return _key; };
@@ -83,6 +84,26 @@ namespace QuickLootRE
 	};
 
 
+	class sSetting : public ISetting
+	{
+	public:
+		sSetting(std::string a_key, std::string a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
+		virtual ~sSetting() {}
+
+		virtual void		Assign(std::string a_val)											override	{ _value = a_val; }
+		virtual void		Assign(const char* a_val)											override	{ _value = a_val; }
+		virtual void		Dump()																override	{ _DMESSAGE("%s: %s", _key.c_str(), _value.c_str()); }
+		inline const char*	c_str()														const				{ return _value.c_str(); }
+		inline				operator std::string()										const				{ return _value; }
+		inline				operator const char*()										const				{ return _value.c_str(); }
+		inline friend bool	operator==(const sSetting& a_lhs, const std::string& a_rhs)						{ return a_lhs._value == a_rhs; }
+		inline friend bool	operator==(const sSetting& a_lhs, const char* a_rhs)							{ return a_lhs._value.compare(a_rhs) == 0; }
+
+	protected:
+		std::string _value;
+	};
+
+
 	class aSetting : public ISetting
 	{
 	private:
@@ -117,7 +138,7 @@ namespace QuickLootRE
 	class Settings
 	{
 	public:
-		static void		loadSettings();
+		static bool		loadSettings();
 		static void		dump();
 
 
@@ -133,6 +154,7 @@ namespace QuickLootRE
 		static fSetting	positionX;
 		static fSetting	positionY;
 		static fSetting	opacity;
+		static sSetting	takeAllMethod;
 		static aSetting	sortOrder;
 
 		static bool		isApplied;
