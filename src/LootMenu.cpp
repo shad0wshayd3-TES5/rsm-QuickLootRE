@@ -13,15 +13,14 @@
 
 #include "Delegates.h"
 #include "Forms.h"  // FACTFormID
-#include "HasActivateChoiceVisitor.h"  // HasActivateChoiceVisitor
 #include "Hooks.h"  // SendItemsPickPocketedEvent()
 #include "ItemData.h"  // ItemData
 #include "InventoryList.h"  // g_invList
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget()
 
+#include "RE/Actor.h"  // Actor
 #include "RE/ActorProcessManager.h"  // ActorProcessManager
-#include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
@@ -40,7 +39,9 @@
 #include "RE/NiNode.h"  // NiNode
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESBoundObject.h"  // TESBoundObject
+#include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/UIManager.h"  // UIManager
 
 class TESObjectREFR;
 
@@ -120,7 +121,7 @@ namespace QuickLootRE
 
 	bool LootMenu::IsOpen()
 	{
-		return _isOpen;
+		return _isMenuOpen;
 	}
 
 
@@ -163,15 +164,15 @@ namespace QuickLootRE
 
 	void LootMenu::Open()
 	{
-		static UIManager* uiManager = UIManager::GetSingleton();
-		CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Open, 0);
+		static RE::UIManager* uiManager = RE::UIManager::GetSingleton();
+		uiManager->AddMessage(GetName(), UIMessage::kMessage_Open, 0);
 	}
 
 
 	void LootMenu::Close()
 	{
-		static UIManager* uiManager = UIManager::GetSingleton();
-		CALL_MEMBER_FN(uiManager, AddMessage)(&GetName(), UIMessage::kMessage_Close, 0);
+		static RE::UIManager* uiManager = RE::UIManager::GetSingleton();
+		uiManager->AddMessage(GetName(), UIMessage::kMessage_Close, 0);
 	}
 
 
@@ -208,7 +209,7 @@ namespace QuickLootRE
 
 	void LootMenu::ClearContainerRef(bool a_playAnimation)
 	{
-		if (a_playAnimation && IsOpen()) {
+		if (a_playAnimation && _isContainerOpen) {
 			_singleton->PlayAnimationClose();
 		}
 		_containerRef = 0;
@@ -272,12 +273,12 @@ namespace QuickLootRE
 			break;
 		case kFormType_NPC:
 			RE::Actor* target = static_cast<RE::Actor*>(a_ref);
-			if (a_ref->IsDead(true) && !target->IsSummoned()) {
+			if (Settings::disableForAnimals && (target->IsInFaction(PredatorFaction) || target->IsInFaction(PreyFaction))) {
+				return false;
+			} else if (a_ref->IsDead(true) && !target->IsSummoned()) {
 				containerRef = a_ref;
 			} else if (!Settings::disablePickPocketing && IsValidPickPocketTarget(a_ref, a_isSneaking)) {
-				if (Settings::disableInCombat && !target->IsInCombat()) {
-					containerRef = a_ref;
-				} else {
+				if (!target->IsInCombat()) {
 					containerRef = a_ref;
 				}
 			}
@@ -293,17 +294,6 @@ namespace QuickLootRE
 		if (Settings::disableIfEmpty && numItems <= 0) {
 			return false;
 		}
-
-#if 0
-		// Disabled until I can understand this better
-		if (player->CanProcessEntryPointPerkEntry(RE::BGSEntryPointPerkEntry::kEntryPoint_Activate)) {
-			HasActivateChoiceVisitor visitor(player, a_ref);
-			player->VisitEntryPointPerkEntries(RE::BGSEntryPointPerkEntry::kEntryPoint_Activate, visitor);
-			if (visitor.GetResult()) {
-				return false;
-			}
-		}
-#endif
 
 		_containerRef = containerRef;
 
@@ -339,6 +329,13 @@ namespace QuickLootRE
 		{
 			SetContainerUIDelegate* dlgt = (SetContainerUIDelegate*)Heap_Allocate(sizeof(SetContainerUIDelegate));
 			new (dlgt)SetContainerUIDelegate;
+			g_task->AddUITask(dlgt);
+			break;
+		}
+		case kScaleform_UpdateButtons:
+		{
+			UpdateButtonsUIDelegate* dlgt = (UpdateButtonsUIDelegate*)Heap_Allocate(sizeof(UpdateButtonsUIDelegate));
+			new (dlgt)UpdateButtonsUIDelegate;
 			g_task->AddUITask(dlgt);
 			break;
 		}
@@ -450,6 +447,7 @@ namespace QuickLootRE
 		case kDeviceType_Gamepad:
 			_platform = kPlatform_Other;
 			Register(kScaleform_SetPlatform);
+			Register(kScaleform_UpdateButtons);
 			switch (a_event->keyMask) {
 			case Gamepad::kGamepad_Up:
 				ModSelectedIndex(-1);
@@ -462,6 +460,7 @@ namespace QuickLootRE
 		case kDeviceType_Mouse:
 			_platform = kPlatform_PC;
 			Register(kScaleform_SetPlatform);
+			Register(kScaleform_UpdateButtons);
 			switch (a_event->keyMask) {
 			case Mouse::kMouse_WheelUp:
 				ModSelectedIndex(-1);
@@ -474,6 +473,7 @@ namespace QuickLootRE
 		case kDeviceType_Keyboard:
 			_platform = kPlatform_PC;
 			Register(kScaleform_SetPlatform);
+			Register(kScaleform_UpdateButtons);
 			if (controlID == strHolder->zoomIn) {
 				ModSelectedIndex(-1);
 			} else if (controlID == strHolder->zoomOut) {
@@ -488,10 +488,7 @@ namespace QuickLootRE
 	void LootMenu::OnMenuOpen()
 	{
 		_selectedIndex = 0;
-		if (!IsOpen()) {
-			PlayAnimationOpen();
-		}
-		_isOpen = true;
+		_isMenuOpen = true;
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_OpenContainer);
 		Register(kScaleform_SetSelectedIndex);
@@ -503,7 +500,7 @@ namespace QuickLootRE
 	{
 		if (IsOpen()) {
 			SetVisible(false);
-			_isOpen = false;
+			_isMenuOpen = false;
 			Register(kScaleform_CloseContainer);
 		}
 	}
@@ -596,7 +593,7 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::PlayAnimation(const char* fromName, const char* toName)
+	void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName)
 	{
 		if (Settings::playAnimations) {
 			typedef RE::NiControllerManager NiControllerManager;
@@ -616,8 +613,8 @@ namespace QuickLootRE
 				return;
 			}
 
-			RE::NiControllerSequence* fromSeq = manager->GetSequenceByName(fromName);
-			RE::NiControllerSequence* toSeq = manager->GetSequenceByName(toName);
+			RE::NiControllerSequence* fromSeq = manager->GetSequenceByName(a_fromName);
+			RE::NiControllerSequence* toSeq = manager->GetSequenceByName(a_toName);
 			if (!fromSeq || !toSeq) {
 				return;
 			}
@@ -631,28 +628,30 @@ namespace QuickLootRE
 	{
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
-		if (_containerRef) {
+		if (_containerRef && !_isContainerOpen) {
 			PlayAnimation("Close", "Open");
 			if (_containerRef->formType != kFormType_Character) {
-				_containerRef->ActivateRefChildren(player);
+				_containerRef->ActivateRefChildren(player);  // Triggers traps
 			}
+			_isContainerOpen = true;
 		}
 	}
 
 
 	void LootMenu::PlayAnimationClose()
 	{
-		if (_containerRef) {
+		if (_containerRef && _isContainerOpen) {
 			PlayAnimation("Open", "Close");
+			_isContainerOpen = false;
 		}
 	}
 
 
 	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems)
 	{
-		using Hooks::_SendItemsPickPocketedEvent;
-		typedef RE::PlayerCharacter::EventType	EventType;
-		typedef RE::TESObjectREFR::RemoveType	RemoveType;
+		typedef RE::PlayerCharacter::EventType				EventType;
+		typedef RE::TESObjectREFR::RemoveType				RemoveType;
+		typedef RE::EffectSetting::Properties::Archetype	Archetype;
 
 		static RE::PlayerCharacter*	player			= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 		static UInt32				droppedHandle	= 0;
@@ -676,14 +675,8 @@ namespace QuickLootRE
 					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_DeadBody);
 				// Pickpocket
 				} else {
-					RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
-					bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
-					player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
-					lootMode = RemoveType::kRemoveType_Steal;
-					if (!pickSuccess) {
+					if (!TryToPickPocket(a_item, lootMode)) {
 						return;
-					} else {
-						_SendItemsPickPocketedEvent(a_item.count());
 					}
 				}
 			} else {
@@ -703,12 +696,7 @@ namespace QuickLootRE
 			}
 
 			if (_containerRef->baseForm->formType == kFormType_Character) {
-				// Dispell worn item enchantments
-				RE::Actor* actor = static_cast<RE::Actor*>(_containerRef);
-				if (actor->processManager) {
-					actor->DispelWornItemEnchantments();
-					actor->processManager->UpdateEquipment_Hooked(actor);
-				}
+				DispellWornItemEnchantments();
 			} else {
 				// Stealing
 				if (_containerRef->IsOffLimits()) {
@@ -717,8 +705,41 @@ namespace QuickLootRE
 			}
 
 			player->PlaySounds(a_item.form(), true, false);
-
+			PlayAnimationOpen();
+			player->DispellEffectsWithArchetype(Archetype::kArchetype_Invisibility, false);
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
+		}
+	}
+
+
+	bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode)
+	{
+		using Hooks::_SendItemsPickPocketedEvent;
+
+		typedef RE::PlayerCharacter::EventType	EventType;
+		typedef RE::TESObjectREFR::RemoveType	RemoveType;
+
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+		RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
+		bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
+		player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
+		a_lootMode = RemoveType::kRemoveType_Steal;
+		if (!pickSuccess) {
+			return false;
+		} else {
+			_SendItemsPickPocketedEvent(a_item.count());
+			return true;
+		}
+	}
+
+
+	void LootMenu::DispellWornItemEnchantments()
+	{
+		RE::Actor* actor = static_cast<RE::Actor*>(_containerRef);
+		if (actor->processManager) {
+			actor->DispelWornItemEnchantments();
+			actor->processManager->UpdateEquipment_Hooked(actor);
 		}
 	}
 
@@ -727,7 +748,8 @@ namespace QuickLootRE
 	SInt32				LootMenu::_selectedIndex = 0;
 	SInt32				LootMenu::_displaySize = 0;
 	RE::TESObjectREFR*	LootMenu::_containerRef = 0;
-	bool				LootMenu::_isOpen = false;
+	bool				LootMenu::_isContainerOpen = false;
+	bool				LootMenu::_isMenuOpen = false;
 	bool				LootMenu::_inTakeAllMode = false;
 	bool				LootMenu::_isRegistered = false;
 	LootMenu::Platform	LootMenu::_platform = kPlatform_PC;

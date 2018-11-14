@@ -54,7 +54,9 @@ namespace QuickLootRE
 					!actor->IsChild() &&
 					!actor->IsPlayerTeammate() &&
 					!actor->IsInFaction(CurrentFollowerFaction) &&
-					!actor->IsInFaction(CreatureFaction));
+					!actor->IsInFaction(CreatureFaction) &&
+					!actor->IsInFaction(PredatorFaction) &&
+					!actor->IsInFaction(PreyFaction));
 		} else {
 			return false;
 		}

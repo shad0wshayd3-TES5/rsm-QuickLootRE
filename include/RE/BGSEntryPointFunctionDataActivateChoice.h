@@ -22,6 +22,8 @@ namespace RE
 
 		virtual ~BGSEntryPointFunctionDataActivateChoice();
 
+
+		// members
 		BSFixedString	label;
 		BGSPerk*		perk;
 		SpellItem*		appliedSpell;

@@ -146,7 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Delegates.cpp" />
-    <ClCompile Include="src\HasActivateChoiceVisitor.cpp" />
+    <ClCompile Include="src\HaACTITextOverrideVisitor.cpp" />
     <ClCompile Include="src\RE\ActiveEffect.cpp" />
     <ClCompile Include="src\RE\Actor.cpp" />
     <ClCompile Include="src\RE\ActorProcessManager.cpp" />
@@ -162,6 +162,7 @@
     <ClCompile Include="src\RE\ActorValueOwner.cpp" />
     <ClCompile Include="src\RE\BaseExtraList.cpp" />
     <ClCompile Include="src\RE\BGSBipedObjectForm.cpp" />
+    <ClCompile Include="src\RE\BGSEntryPointPerkEntry.cpp" />
     <ClCompile Include="src\RE\BSInputDevice.cpp" />
     <ClCompile Include="src\RE\BSWin32KeyboardDevice.cpp" />
     <ClCompile Include="src\RE\ButtonEvent.cpp" />
@@ -193,6 +194,7 @@
     <ClCompile Include="src\RE\TESObjectBOOK.cpp" />
     <ClCompile Include="src\RE\TESObjectLIGH.cpp" />
     <ClCompile Include="src\RE\TESObjectREFR.cpp" />
+    <ClCompile Include="src\RE\UIManager.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
@@ -206,11 +208,13 @@
     <ClInclude Include="include\RE\ActorValueOwner.h" />
     <ClInclude Include="include\RE\BGSActorCellEvent.h" />
     <ClInclude Include="include\RE\BGSActorDeathEvent.h" />
+    <ClInclude Include="include\RE\BGSEntryPointFunctionDataText.h" />
     <ClInclude Include="include\RE\bhkCharacterMoveFinishEvent.h" />
     <ClInclude Include="include\RE\BSTransformDeltaEvent.h" />
     <ClInclude Include="include\RE\BSTSingleton.h" />
     <ClInclude Include="include\RE\EffectSetting.h" />
     <ClInclude Include="include\RE\ExtraFactionChanges.h" />
+    <ClInclude Include="include\RE\FavoritesHandler.h" />
     <ClInclude Include="include\RE\GFxFileConstants.h" />
     <ClInclude Include="include\RE\GFxLoader.h" />
     <ClInclude Include="include\RE\GFxMovie.h" />
@@ -242,7 +246,7 @@
     <ClInclude Include="include\RE\Character.h" />
     <ClInclude Include="include\RE\CRC.h" />
     <ClInclude Include="include\RE\ExtraLock.h" />
-    <ClInclude Include="include\HasActivateChoiceVisitor.h" />
+    <ClInclude Include="include\HaACTITextOverrideVisitor.h" />
     <ClInclude Include="include\RE\GFxResource.h" />
     <ClInclude Include="include\RE\GFxState.h" />
     <ClInclude Include="include\RE\GFxStateBag.h" />
@@ -288,6 +292,7 @@
     <ClInclude Include="include\RE\TESObjectCONT.h" />
     <ClInclude Include="include\RE\TESObjectLIGH.h" />
     <ClInclude Include="include\RE\TESObjectREFR.h" />
+    <ClInclude Include="include\RE\UIManager.h" />
     <ClInclude Include="include\RE\UserEventEnabledEvent.h" />
     <ClInclude Include="include\Settings.h" />
     <ClInclude Include="include\Utility.h" />

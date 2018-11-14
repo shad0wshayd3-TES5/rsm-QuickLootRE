@@ -56,6 +56,7 @@ namespace QuickLootRE
 			kScaleform_Setup,
 			kScaleform_OpenContainer,
 			kScaleform_SetContainer,
+			kScaleform_UpdateButtons,
 			kScaleform_CloseContainer,
 			kScaleform_SetSelectedIndex
 		};
@@ -102,17 +103,20 @@ namespace QuickLootRE
 
 	private:
 		bool						SingleLootEnabled();
-		void						PlayAnimation(const char* fromName, const char* toName);
+		void						PlayAnimation(const char* a_fromName, const char* a_toName);
 		void						PlayAnimationOpen();
 		void						PlayAnimationClose();
 		void						TakeItem(ItemData& a_item, UInt32 a_numItems);
+		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
+		void						DispellWornItemEnchantments();
 
 
 		static LootMenu*			_singleton;
 		static SInt32				_selectedIndex;
 		static SInt32				_displaySize;
 		static RE::TESObjectREFR*	_containerRef;
-		static bool					_isOpen;
+		static bool					_isContainerOpen;
+		static bool					_isMenuOpen;
 		static bool					_inTakeAllMode;
 		static bool					_isRegistered;
 		static Platform				_platform;

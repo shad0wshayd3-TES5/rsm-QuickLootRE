@@ -127,6 +127,7 @@ namespace QuickLootRE
 		static bSetting	disableIfEmpty;
 		static bSetting	disableSingleLoot;
 		static bSetting	playAnimations;
+		static bSetting	disableForAnimals;
 		static iSetting	itemLimit;
 		static fSetting	scale;
 		static fSetting	positionX;

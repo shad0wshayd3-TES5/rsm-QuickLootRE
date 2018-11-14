@@ -10,6 +10,7 @@ Setting | Description
 `disablePickpocketing` | Disables the loot menu from displaying when pickpocketing.
 `disableIfEmpty` | Disables the loot menu from displaying when empty.
 `disableSingleLoot` | Disables single loot mode.
+`disableForAnimals` | Disables the loot menu from displaying when looting animals.
 `playAnimations` | Enables animations to play when opening/closing containers. This feature is experimental and best left off.
 `itemLimit` | The maximum number of items to display in the loot menu at a given time.
 `scale` | The scale of the loot menu GUI. A negative value will use the default of `25`.

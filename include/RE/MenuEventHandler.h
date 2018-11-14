@@ -21,11 +21,11 @@ namespace RE
 		MenuEventHandler();
 		virtual ~MenuEventHandler() {}
 
-		virtual bool	CanProcess(InputEvent* a_event) = 0;
-		virtual bool	ProcessKinect(KinectEvent* a_event);
-		virtual bool	ProcessThumbstick(ThumbstickEvent* a_event);
-		virtual bool	ProcessMouseMove(MouseMoveEvent* a_event);
-		virtual bool	ProcessButton(RE::ButtonEvent* a_event);
+		virtual bool	CanProcess(InputEvent* a_event) = 0;			// 1
+		virtual bool	ProcessKinect(KinectEvent* a_event);			// 2
+		virtual bool	ProcessThumbstick(ThumbstickEvent* a_event);	// 3
+		virtual bool	ProcessMouseMove(MouseMoveEvent* a_event);		// 4
+		virtual bool	ProcessButton(RE::ButtonEvent* a_event);		// 5
 
 
 		UInt8	unk08;		// 08

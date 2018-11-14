@@ -16,21 +16,28 @@ namespace RE
 	class MagicTarget
 	{
 	public:
+		class ActiveEffectVisitor
+		{
+			virtual bool Accept(ActiveEffect* a_effect) = 0;
+		};
+
+
 		virtual ~MagicTarget();
 
-		virtual UInt8					Unk_01(int);
-		virtual Character*				Unk_02(void);
-		virtual UInt8					Unk_03(void);
-		virtual bool					Unk_04(void);
-		virtual int						Unk_05(int);
-		virtual bool					Unk_06(void);
-		virtual tList<ActiveEffect>*	GetActiveEffects();
-		virtual int						Unk_08(int);
-		virtual void					Unk_09(int);
-		virtual double					Unk_0A(int, int, int);
-		virtual UInt8					Unk_0B(int, int, int);
+		virtual void					Unk_01(void);					// 1
+		virtual Actor*					GetMagicTargetActor() const;	// 2
+		virtual bool					IsActorMagicTarget() const;		// 3
+		virtual void					Unk_04(void);					// 4
+		virtual void					Unk_05(void);					// 5
+		virtual void					Unk_06(void);					// 6
+		virtual tList<ActiveEffect>*	GetActiveEffects();				// 7
+		virtual void					Unk_08(void);					// 8
+		virtual void					Unk_09(void);					// 9
+		virtual void					Unk_0A(void);					// A
+		virtual void					Unk_0B(void);					// B
 
 		bool							HasEffectWithArchetype(EffectSetting::Properties::Archetype a_type);
+		void							DispellEffectsWithArchetype(EffectSetting::Properties::Archetype a_type, bool a_force);
 
 
 		void*	unk04;	// 08

@@ -7,7 +7,6 @@
 #include "skse64/GameMenus.h"  // UIStringHolder, UIManager
 #include "skse64/GameReferences.h"  // TESObjectREFR
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
-#include "skse64/GameMenus.h"  // UIManager
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
 
 #include <utility>  // pair
@@ -25,6 +24,7 @@
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/UIManager.h"  // UIManager
 
 
 namespace QuickLootRE
@@ -69,18 +69,31 @@ namespace QuickLootRE
 
 		static UIStringHolder*		uiStrHolder		= UIStringHolder::GetSingleton();
 		static RE::MenuManager*		mm				= RE::MenuManager::GetSingleton();
-		static UIManager*			uiManager		= UIManager::GetSingleton();
+		static RE::UIManager*		uiManager		= RE::UIManager::GetSingleton();
 		static InputStringHolder*	inputStrHolder	= InputStringHolder::GetSingleton();
 
 		if (!a_event || !*a_event) {
 			return kEvent_Continue;
 		}
 
-		if (LootMenu::IsOpen() && mm->GetMovieView(&uiStrHolder->containerMenu)) {
+		if (LootMenu::IsOpen()) {
 			if ((*a_event)->eventType == InputEvent::kEventType_Button && (*a_event)->deviceType == kDeviceType_Keyboard) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
-				if (*button->GetControlID() == inputStrHolder->nextFocus) {  // tab
-					CALL_MEMBER_FN(uiManager, AddMessage)(&uiStrHolder->containerMenu, UIMessage::kMessage_Close, 0);
+				if (*button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
+					_DMESSAGE("[DEBUG] 0x%p", mm);
+					if (mm->GetMovieView(&uiStrHolder->inventoryMenu)) {
+						uiManager->AddMessage(uiStrHolder->inventoryMenu, UIMessage::kMessage_Close, 0);
+					} else if (mm->GetMovieView(&uiStrHolder->statsMenu) && !mm->GetMovieView(&uiStrHolder->levelUpMenu)) {
+						uiManager->AddMessage(uiStrHolder->statsMenu, UIMessage::kMessage_Close, 0);
+					} else if (mm->GetMovieView(&uiStrHolder->magicMenu)) {
+						uiManager->AddMessage(uiStrHolder->magicMenu, UIMessage::kMessage_Close, 0);
+					} else if (mm->GetMovieView(&uiStrHolder->mapMenu)) {
+						uiManager->AddMessage(uiStrHolder->mapMenu, UIMessage::kMessage_Close, 0);
+					} else if (mm->GetMovieView(&uiStrHolder->containerMenu)) {
+						uiManager->AddMessage(uiStrHolder->containerMenu, UIMessage::kMessage_Close, 0);
+					} else if (mm->GetMovieView(&uiStrHolder->journalMenu)) {
+						uiManager->AddMessage(uiStrHolder->journalMenu, UIMessage::kMessage_Close, 0);
+					}
 				}
 			}
 		}

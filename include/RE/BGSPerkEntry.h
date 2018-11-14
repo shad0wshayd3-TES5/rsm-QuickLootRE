@@ -9,13 +9,15 @@ namespace RE
 	class BGSPerkEntry
 	{
 	public:
-		virtual ~BGSPerkEntry();
+		virtual ~BGSPerkEntry();														// 0
 
-		virtual bool						CanProcess(UInt32 numArgs, void *args);	// 0
-		virtual UInt8						GetType(void) const;					// 1
-		virtual BGSEntryPointFunctionData*	GetFunctionData(void) const;			// 2
+		virtual bool						CanProcess(UInt32 a_numArgs, void* a_args);	// 1
+		virtual UInt8						GetType() const;							// 2 { return 0; }
+		virtual BGSEntryPointFunctionData*	GetFunctionData() const;					// 3 { return 0; }
+		// more
 
 
+		// members
 		UInt8	rank;		// 8
 		UInt8	priority;	// 9
 		UInt16	type;		// A

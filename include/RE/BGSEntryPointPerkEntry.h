@@ -15,7 +15,7 @@ namespace RE
 	class BGSEntryPointPerkEntry : public BGSPerkEntry
 	{
 	public:
-		enum EntryPointType : UInt32
+		enum EntryPointType : UInt8
 		{
 			kEntryPoint_Calculate_Weapon_Damage,
 			kEntryPoint_Calculate_My_Critical_Hit_Chance,
@@ -114,16 +114,24 @@ namespace RE
 		};
 
 
-		virtual ~BGSEntryPointPerkEntry();	// 03
+		virtual bool						CanProcess(UInt32 a_numArgs, void* a_args) override;	// 0
+		virtual UInt8						GetType() const override;								// 1 { return this->unk11; }
+		virtual BGSEntryPointFunctionData*	GetFunctionData() const override;						// 2 { return this->functionData; }
+
+		virtual ~BGSEntryPointPerkEntry();															// 3
+		// more
+
+		bool								HasType(EntryPointType a_type);
+
 
 		// members
-		UInt8						type;				// 10 - EntryPointType
-		UInt8						unk09;				// 11
+		EntryPointType				type;				// 10
+		UInt8						unk11;				// 11
 		UInt8						numArgs;			// 12
 		UInt8						pad13;				// 13
 		UInt32						pad14;				// 14
 		BGSEntryPointFunctionData*	functionData;		// 18
-		Condition*					conditions;			// 20 - numConditions = *(UInt32 *)(conditions - 1);
+		Condition*					conditions;			// 20 - numConditions = *(void*)(conditions - 1);
 		BGSPerk*					perk;				// 28
 	};
 }

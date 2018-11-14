@@ -46,6 +46,13 @@ namespace QuickLootRE
 	};
 
 
+	class UpdateButtonsUIDelegate : public UIDelegate_v1
+	{
+		virtual void Run() override;
+		virtual void Dispose() override;
+	};
+
+
 	class CloseContainerUIDelegate : public UIDelegate_v1
 	{
 	public:

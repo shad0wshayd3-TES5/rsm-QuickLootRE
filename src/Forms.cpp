@@ -13,6 +13,8 @@ namespace QuickLootRE
 {
 	// Factions
 	Form<RE::TESFaction>	CreatureFaction(kFACTFormID_CreatureFaction);
+	Form<RE::TESFaction>	PredatorFaction(kFACTFormID_PredatorFaction);
+	Form<RE::TESFaction>	PreyFaction(kFACTFormID_PreyFaction);
 	Form<RE::TESFaction>	CurrentFollowerFaction(kFACTFormID_CurrentFollowerFaction);
 
 	// Keywords

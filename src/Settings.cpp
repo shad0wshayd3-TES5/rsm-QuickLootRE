@@ -77,11 +77,12 @@ namespace QuickLootRE
 
 
 	bSetting	Settings::disableInCombat("disableInCombat", true);
-	bSetting	Settings::disableTheft("disableTheft", true);
-	bSetting	Settings::disablePickPocketing("disablePickpocketing", true);
+	bSetting	Settings::disableTheft("disableTheft", false);
+	bSetting	Settings::disablePickPocketing("disablePickpocketing", false);
 	bSetting	Settings::disableIfEmpty("disableIfEmpty", true);
 	bSetting	Settings::disableSingleLoot("disableSingleLoot", false);
 	bSetting	Settings::playAnimations("playAnimations", true);
+	bSetting	Settings::disableForAnimals("disableForAnimals", false);
 	iSetting	Settings::itemLimit("itemLimit", 100);
 	fSetting	Settings::scale("scale", -1.0);
 	fSetting	Settings::positionX("positionX", -1.0);

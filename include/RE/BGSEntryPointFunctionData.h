@@ -21,6 +21,6 @@ namespace RE
 
 		virtual ~BGSEntryPointFunctionData();	// 00
 
-		virtual UInt32 GetType(void) const = 0;	// 01
+		virtual UInt32 GetType() const;			// 01 - Pure
 	};
 }

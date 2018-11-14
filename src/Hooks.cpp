@@ -9,12 +9,14 @@
 #include <string>  // string
 #include <sstream>  // stringstream
 
+#include "HaACTITextOverrideVisitor.h"  // HaACTITextOverrideVisitor
 #include "LootMenu.h"  // LootMenu
 #include "Offsets.h"
 
 #include "RE/ActivateHandler.h"  // ActivateHandler
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
+#include "RE/FavoritesHandler.h"  // FavoritesHandler
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
@@ -33,10 +35,10 @@ namespace Hooks
 
 
 	template <uintptr_t offset>
-	class CameraStateHandler : public RE::PlayerInputHandler
+	class CameraStateHandlerEx : public RE::PlayerInputHandler
 	{
 	public:
-		typedef bool(CameraStateHandler::*_CanProcess_t)(InputEvent* a_event);
+		typedef bool(CameraStateHandlerEx::*_CanProcess_t)(InputEvent* a_event);
 		static _CanProcess_t orig_CanProcess;
 
 
@@ -62,15 +64,15 @@ namespace Hooks
 	};
 
 
-	template <uintptr_t offset> typename CameraStateHandler<offset>::_CanProcess_t CameraStateHandler<offset>::orig_CanProcess;
-	typedef CameraStateHandler<FIRST_PERSON_STATE_VTBL_META + 0x60> FirstPersonStateHandler;
-	typedef CameraStateHandler<THIRD_PERSON_STATE_VTBL_META + 0x98> ThirdPersonStateHandler;
+	template <uintptr_t offset> typename CameraStateHandlerEx<offset>::_CanProcess_t CameraStateHandlerEx<offset>::orig_CanProcess;
+	typedef CameraStateHandlerEx<FIRST_PERSON_STATE_VTBL_META + 0x60> FirstPersonStateHandler;
+	typedef CameraStateHandlerEx<THIRD_PERSON_STATE_VTBL_META + 0x98> ThirdPersonStateHandler;
 
 
-	class FavoritesHandler : public RE::MenuEventHandler
+	class FavoritesHandlerEx : public RE::FavoritesHandler
 	{
 	public:
-		typedef bool(FavoritesHandler::*_CanProcess_t)(InputEvent* a_event);
+		typedef bool(FavoritesHandlerEx::*_CanProcess_t)(InputEvent* a_event);
 		static _CanProcess_t orig_CanProcess;
 
 
@@ -100,7 +102,7 @@ namespace Hooks
 	};
 
 
-	FavoritesHandler::_CanProcess_t FavoritesHandler::orig_CanProcess;
+	FavoritesHandlerEx::_CanProcess_t FavoritesHandlerEx::orig_CanProcess;
 
 
 	class ReadyWeaponHandlerEx : public RE::ReadyWeaponHandler
@@ -195,7 +197,9 @@ namespace Hooks
 
 		bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
 		{
+			typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 			using QuickLootRE::LootMenu;
+			using QuickLootRE::HaACTITextOverrideVisitor;
 			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 			bool result = (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
@@ -215,7 +219,16 @@ namespace Hooks
 						LootMenu::SetActiText(dispText.c_str());
 					}
 				}
+
+#if 0
+				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kEntryPoint_Set_Activate_Label)) {
+					HaACTITextOverrideVisitor visitor(player, a_ref);
+					player->VisitEntryPointPerkEntries(EntryPointType::kEntryPoint_Set_Activate_Label, visitor);
+				}
+#endif
+
 				return false;
+
 			} else {
 				return result;
 			}
@@ -241,10 +254,9 @@ namespace Hooks
 	{
 		FirstPersonStateHandler::installHook();
 		ThirdPersonStateHandler::installHook();
-		FavoritesHandler::installHook();
+		FavoritesHandlerEx::installHook();
 		ReadyWeaponHandlerEx::installHook();
 		ActivateHandlerEx::installHook();
-
 		TESObjectACTIEx::installHook();
 		TESObjectCONTEx::installHook();
 		TESNPCEx::installHook();

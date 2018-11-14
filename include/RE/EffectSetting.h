@@ -115,12 +115,14 @@ namespace RE
 				kArchetype_VampireLord
 			};
 
+
 			enum CastingType
 			{
 				kCastingType_ConstantEffect = 0,
 				kCastingType_FireAndForget,
 				kCastingType_Concentration
 			};
+
 
 			enum DeliveryType
 			{
@@ -131,6 +133,7 @@ namespace RE
 				kDeliveryType_TargetLocation
 			};
 
+
 			enum Volume
 			{
 				kVolume_Loud = 0,
@@ -138,6 +141,7 @@ namespace RE
 				kVolume_Silent,
 				kVolume_VeryLoud
 			};
+
 
 			enum ActorValue
 			{

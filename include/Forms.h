@@ -16,6 +16,8 @@ namespace QuickLootRE
 	enum FACTFormID : UInt32
 	{
 		kFACTFormID_CreatureFaction			= 0x00000013,
+		kFACTFormID_PredatorFaction			= 0x0002E893,
+		kFACTFormID_PreyFaction				= 0x0002E894,
 		kFACTFormID_CurrentFollowerFaction	= 0x0005C84E
 	};
 
@@ -102,6 +104,8 @@ namespace QuickLootRE
 
 	// Factions
 	extern Form<RE::TESFaction>	CreatureFaction;
+	extern Form<RE::TESFaction>	PredatorFaction;
+	extern Form<RE::TESFaction>	PreyFaction;
 	extern Form<RE::TESFaction>	CurrentFollowerFaction;
 
 	// Keywords

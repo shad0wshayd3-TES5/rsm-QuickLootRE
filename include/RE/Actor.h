@@ -2,9 +2,11 @@
 
 #include "skse64/GameEvents.h"  // BSTEventSink
 #include "skse64/GameReferences.h"  // IPostAnimationChannelUpdateFunctor, SpellArray, Actor
+#include "skse64/GameTypes.h"  // tList
 
 #include "Offsets.h"
 
+#include "RE/ActiveEffect.h"  // ActiveEffect
 #include "RE/ActorProcessManager.h"  // ActorProcessManager
 #include "RE/ActorState.h"  // ActorState
 #include "RE/ActorValueOwner.h"  // ActorValueOwner
@@ -90,6 +92,12 @@ namespace RE
 		public:
 			virtual bool Accept(TESFaction* a_faction, SInt8 a_rank) = 0;
 		};
+
+
+		// override (MagicTarget)
+		virtual Actor*					GetMagicTargetActor() const override;	// 2
+		virtual bool					IsActorMagicTarget() const override;	// 3
+		virtual tList<ActiveEffect>*	GetActiveEffects() override;			// 7
 
 
 		virtual	~Actor();

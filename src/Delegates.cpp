@@ -238,6 +238,22 @@ namespace QuickLootRE
 	}
 
 
+	void UpdateButtonsUIDelegate::Run()
+	{
+		if (LootMenu::IsOpen()) {
+			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.updateButtons", 0, 0, 0);
+		}
+	}
+
+
+	void UpdateButtonsUIDelegate::Dispose()
+	{
+		if (this) {
+			Heap_Free(this);
+		}
+	}
+
+
 	void CloseContainerUIDelegate::Run()
 	{
 		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.closeContainer", 0, 0, 0);

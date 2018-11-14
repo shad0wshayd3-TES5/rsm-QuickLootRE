@@ -16,4 +16,9 @@ class ButtonPanel extends MovieClip
 		name.autoSize = "left";
 		name.htmlText = a_name;
 	}
+
+	public function updateButton(a_key:Number): Void
+	{
+		icon.gotoAndStop(a_key);
+	}
 }

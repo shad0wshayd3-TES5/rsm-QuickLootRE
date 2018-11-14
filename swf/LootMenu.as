@@ -107,6 +107,13 @@ class LootMenu extends MovieClip
 		buttonTakeAll.setButton(_povKey, sTakeAll);
 		buttonSearch.setButton(_weaponKey, sSearch);
 	}
+
+	public function updateButtons(): Void
+	{
+		buttonTake.updateButton(_activateKey);
+		buttonTakeAll.updateButton(_povKey);
+		buttonSearch.updateButton(_weaponKey);
+	}
 	
 	public function closeContainer(): Void
 	{

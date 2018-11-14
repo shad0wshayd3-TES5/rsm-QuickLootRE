@@ -162,9 +162,6 @@
     <ClCompile Include="src\RE\PlayerCharacter.cpp">
       <Filter>src\RE\Skyrim\TESForms</Filter>
     </ClCompile>
-    <ClCompile Include="src\HasActivateChoiceVisitor.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\RE\InputManager.cpp">
       <Filter>src\RE\Skyrim\BSDevices</Filter>
     </ClCompile>
@@ -276,6 +273,15 @@
     <ClCompile Include="src\RE\TESFaction.cpp">
       <Filter>src\RE\Skyrim\TESForms\Character</Filter>
     </ClCompile>
+    <ClCompile Include="src\RE\BGSEntryPointPerkEntry.cpp">
+      <Filter>src\RE\Skyrim\TESForms\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HaACTITextOverrideVisitor.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\UIManager.cpp">
+      <Filter>src\RE\Skyrim\Menus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -361,9 +367,6 @@
     </ClInclude>
     <ClInclude Include="include\RE\BGSEntryPointFunctionData.h">
       <Filter>include\RE\Skyrim\TESForms\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="include\HasActivateChoiceVisitor.h">
-      <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\RE\BGSEntryPointFunctionDataActivateChoice.h">
       <Filter>include\RE\Skyrim\TESForms\Character</Filter>
@@ -560,6 +563,18 @@
     </ClInclude>
     <ClInclude Include="include\RE\ExtraFactionChanges.h">
       <Filter>include\RE\Skyrim\ExtraData</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BGSEntryPointFunctionDataText.h">
+      <Filter>include\RE\Skyrim\TESForms\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HaACTITextOverrideVisitor.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\FavoritesHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\UIManager.h">
+      <Filter>include\RE\Skyrim\Menus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
