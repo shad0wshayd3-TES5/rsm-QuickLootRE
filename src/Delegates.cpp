@@ -21,17 +21,19 @@
 
 namespace QuickLootRE
 {
-	void SetTakeAllKeyUIDelegate::Run()
+	void SetKeyMappingsUIDelegate::Run()
 	{
-		GFxValue args[1];
+		GFxValue args[3];
 
-		args[0].SetString(LootMenu::GetTakeAllStr());
+		args[0].SetString(LootMenu::GetTakeMapping());
+		args[1].SetString(LootMenu::GetTakeAllMapping());
+		args[2].SetString(LootMenu::GetSearchMapping());
 
-		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetTakeAllKey", 0, args, 1);
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetKeyMappings", 0, args, 3);
 	}
 
 
-	void SetTakeAllKeyUIDelegate::Dispose()
+	void SetKeyMappingsUIDelegate::Dispose()
 	{
 		if (this) {
 			Heap_Free(this);
@@ -53,6 +55,26 @@ namespace QuickLootRE
 
 
 	void SetPlatformUIDelegate::Dispose()
+	{
+		if (this) {
+			Heap_Free(this);
+		}
+	}
+
+
+	void SetSelectedIndexUIDelegate::Run()
+	{
+		if (LootMenu::IsOpen()) {
+			GFxValue args[1];
+
+			args[0].SetNumber(LootMenu::GetSelectedIndex());
+
+			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetSelectedIndex", 0, args, 1);
+		}
+	}
+
+
+	void SetSelectedIndexUIDelegate::Dispose()
 	{
 		if (this) {
 			Heap_Free(this);
@@ -100,6 +122,44 @@ namespace QuickLootRE
 
 
 	void SetupUIDelegate::Dispose()
+	{
+		if (this) {
+			Heap_Free(this);
+		}
+	}
+
+
+	void SetContainerUIDelegate::Run()
+	{
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static const char*			sTake = (*g_gameSettingCollection)->Get("sTake")->data.s;
+		static const char*			sSteal = (*g_gameSettingCollection)->Get("sSteal")->data.s;
+		static const char*			sTakeAll = (*g_gameSettingCollection)->Get("sTakeAll")->data.s;
+
+		GFxValue args[6];
+
+		const char* takeType;
+		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+		if (IsValidPickPocketTarget(ref, player->IsSneaking())) {
+			takeType = sSteal;
+		} else if (ref->IsOffLimits()) {
+			takeType = sSteal;
+		} else {
+			takeType = sTake;
+		}
+
+		args[0].SetNumber(ref->formID);
+		args[1].SetString(ref->GetReferenceName());
+		args[2].SetString(takeType);
+		args[3].SetString(LootMenu::GetActiText());
+		args[4].SetString(sTakeAll);
+		args[5].SetNumber(LootMenu::GetSelectedIndex());
+
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetContainer", 0, args, 6);
+	}
+
+
+	void SetContainerUIDelegate::Dispose()
 	{
 		if (this) {
 			Heap_Free(this);
@@ -175,7 +235,7 @@ namespace QuickLootRE
 				if (Settings::disableIfEmpty && displaySize <= 0) {
 					LootMenu::Close();
 				} else {
-					loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, 1);
+					loot->view->Invoke("_root.Menu_mc.OpenContainer", 0, args, 1);
 				}
 
 				GFxValueDeallocTaskDelegate* dlgt = (GFxValueDeallocTaskDelegate*)Heap_Allocate(sizeof(GFxValueDeallocTaskDelegate));
@@ -219,63 +279,9 @@ namespace QuickLootRE
 	}
 
 
-	void SetContainerUIDelegate::Run()
-	{
-		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static const char*			sTake		= (*g_gameSettingCollection)->Get("sTake")->data.s;
-		static const char*			sSteal		= (*g_gameSettingCollection)->Get("sSteal")->data.s;
-		static const char*			sTakeAll	= (*g_gameSettingCollection)->Get("sTakeAll")->data.s;
-
-		GFxValue args[6];
-
-		const char* takeType;
-		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
-		if (IsValidPickPocketTarget(ref, player->IsSneaking())) {
-			takeType = sSteal;
-		} else if (ref->IsOffLimits()) {
-			takeType = sSteal;
-		} else {
-			takeType = sTake;
-		}
-
-		args[0].SetNumber(ref->formID);
-		args[1].SetString(ref->GetReferenceName());
-		args[2].SetString(takeType);
-		args[3].SetString(LootMenu::GetActiText());
-		args[4].SetString(sTakeAll);
-		args[5].SetNumber(LootMenu::GetSelectedIndex());
-
-		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.setContainer", 0, args, 6);
-	}
-
-
-	void SetContainerUIDelegate::Dispose()
-	{
-		if (this) {
-			Heap_Free(this);
-		}
-	}
-
-
-	void UpdateButtonsUIDelegate::Run()
-	{
-		if (LootMenu::IsOpen()) {
-			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.updateButtons", 0, 0, 0);
-		}
-	}
-
-
-	void UpdateButtonsUIDelegate::Dispose()
-	{
-		if (this) {
-			Heap_Free(this);
-		}
-	}
-
-
 	void CloseContainerUIDelegate::Run()
 	{
-		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.closeContainer", 0, 0, 0);
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.CloseContainer", 0, 0, 0);
 	}
 
 
@@ -287,19 +293,15 @@ namespace QuickLootRE
 	}
 
 
-	void SetSelectedIndexUIDelegate::Run()
+	void UpdateButtonsUIDelegate::Run()
 	{
 		if (LootMenu::IsOpen()) {
-			GFxValue args[1];
-
-			args[0].SetNumber(LootMenu::GetSelectedIndex());
-
-			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.setSelectedIndex", 0, args, 1);
+			LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.UpdateButtons", 0, 0, 0);
 		}
 	}
 
 
-	void SetSelectedIndexUIDelegate::Dispose()
+	void UpdateButtonsUIDelegate::Dispose()
 	{
 		if (this) {
 			Heap_Free(this);
@@ -313,7 +315,7 @@ namespace QuickLootRE
 
 		args[0].SetNumber(LootMenu::GetStyle());
 
-		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.switchStyle", 0, args, 1);
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SwitchStyle", 0, args, 1);
 	}
 
 

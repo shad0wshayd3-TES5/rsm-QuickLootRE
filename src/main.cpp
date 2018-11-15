@@ -55,7 +55,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		break;
 	}
 	case SKSEMessagingInterface::kMessage_DataLoaded:
-		Hooks::installHooks();
+		Hooks::InstallHooks();
 		_MESSAGE("[MESSAGE] Hooks installed!");
 		break;
 	}

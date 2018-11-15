@@ -15,6 +15,9 @@ namespace QuickLootRE
 		using nlohmann::json;
 
 		std::ifstream istream(FILE_NAME);
+		if (!istream.is_open()) {
+			_ERROR("[ERROR] Failed to open .json file!\n");
+		}
 		json j;
 		try {
 			istream >> j;
@@ -23,7 +26,7 @@ namespace QuickLootRE
 				it = j.find(setting->key());
 
 				if (it == j.end()) {
-					_ERROR("[ERROR] Failed to find (%s) within .json!", setting->key().c_str());
+					_ERROR("[ERROR] Failed to find (%s) within .json!\n", setting->key().c_str());
 					continue;
 				}
 
@@ -60,11 +63,11 @@ namespace QuickLootRE
 					break;
 				}
 				default:
-					_DMESSAGE("[ERROR] Parsed value is of invalid type (%s)!", j.type_name());
+					_DMESSAGE("[ERROR] Parsed value is of invalid type (%s)!\n", j.type_name());
 				}
 			}
 		} catch (std::exception& e) {
-			_ERROR("[ERROR] Failed to parse json file!");
+			_ERROR("[ERROR] Failed to parse .json file!\n");
 			_ERROR(e.what());
 			istream.close();
 			return false;
@@ -97,7 +100,10 @@ namespace QuickLootRE
 	fSetting	Settings::positionX("positionX", -1.0);
 	fSetting	Settings::positionY("positionY", -1.0);
 	fSetting	Settings::opacity("opacity", -1.0);
+	sSetting	Settings::singleLootModifier("singleLootModifier", "sprint");
+	sSetting	Settings::takeMethod("takeMethod", "activate");
 	sSetting	Settings::takeAllMethod("takeAllMethod", "togglePOV");
+	sSetting	Settings::searchMethod("searchMethod", "readyWeapon");
 	sSetting	Settings::interfaceStyle("interfaceStyle", "default");
 	aSetting	Settings::sortOrder("sortOrder", { "stolen", "type", "name", "value", "count" });
 

@@ -7,11 +7,13 @@ class LootMenu extends MovieClip
 {
 	// private
 	private var _platform: Number;
-	private var _activateKey: Number;
-	private var _weaponKey: Number;
-	private var _takeAllKey: Number;
-	private var _takeAllString: String;
 	private var _refID: Number;
+	private var _takeKey: Number;
+	private var _takeMapping: String;
+	private var _takeAllKey: Number;
+	private var _takeAllMapping: String;
+	private var _searchKey: Number;
+	private var _searchMapping: String;
 	
 
 	// stage elements
@@ -33,9 +35,9 @@ class LootMenu extends MovieClip
 		
 		_visible = false;
 		
-		_activateKey = skse.GetMappedKey("Activate", 0, 0);
+		_takeKey = skse.GetMappedKey("Activate", 0, 0);
 		_takeAllKey = skse.GetMappedKey("Toggle POV", 0, 0);
-		_weaponKey = skse.GetMappedKey("Ready Weapon", 0, 0);
+		_searchKey = skse.GetMappedKey("Ready Weapon", 0, 0);
 	}
 
 
@@ -45,9 +47,11 @@ class LootMenu extends MovieClip
 	}
 	
 
-	public function SetTakeAllKey(a_key:String): Void
+	public function SetKeyMappings(a_takeMapping:String, a_takeAllMapping:String, a_searchMapping:String): Void
 	{
-		_takeAllString = a_key;
+		_takeMapping = a_takeMapping;
+		_takeAllMapping = a_takeAllMapping;
+		_searchMapping = a_searchMapping;
 	}
 
 
@@ -63,9 +67,15 @@ class LootMenu extends MovieClip
 			device = 2;
 		}
 
-		_activateKey = skse.GetMappedKey("Activate", device, 0);
-		_takeAllKey = skse.GetMappedKey(_takeAllString, device, 0);
-		_weaponKey = skse.GetMappedKey("Ready Weapon", device, 0);
+		_takeKey = skse.GetMappedKey(_takeMapping, device, 0);
+		_takeAllKey = skse.GetMappedKey(_takeAllMapping, device, 0);
+		_searchKey = skse.GetMappedKey(_searchMapping, device, 0);
+	}
+	
+	
+	public function SetSelectedIndex(idx: Number): Void
+	{
+		itemList.selectedIndex = idx;
 	}
 	
 
@@ -100,7 +110,20 @@ class LootMenu extends MovieClip
 	}
 	
 
-	public function openContainer(items:Array): Void
+	public function SetContainer(refID:Number, title:String, sTake:String, sSearch:String, sTakeAll:String, selectedIndex:Number): Void
+	{
+		itemList.selectedIndex = selectedIndex;
+		
+		_refID = refID;
+		titleText.htmlText = title;
+		
+		buttonTake.setButton(_takeKey, sTake);
+		buttonTakeAll.setButton(_takeAllKey, sTakeAll);
+		buttonSearch.setButton(_searchKey, sSearch);
+	}
+	
+	
+	public function OpenContainer(items:Array): Void
 	{
 		itemList.clearList();
 		itemList.listEnumeration = new BasicEnumeration(itemList.entryList);
@@ -112,42 +135,23 @@ class LootMenu extends MovieClip
 		_visible = true;
 	}
 	
-
-	public function setContainer(refID:Number, title:String, sTake:String, sSearch:String, sTakeAll:String, selectedIndex:Number): Void
-	{
-		itemList.selectedIndex = selectedIndex;
-		
-		_refID = refID;
-		titleText.htmlText = title;
-		
-		buttonTake.setButton(_activateKey, sTake);
-		buttonTakeAll.setButton(_takeAllKey, sTakeAll);
-		buttonSearch.setButton(_weaponKey, sSearch);
-	}
-
-
-	public function updateButtons(): Void
-	{
-		buttonTake.updateButton(_activateKey);
-		buttonTakeAll.updateButton(_takeAllKey);
-		buttonSearch.updateButton(_weaponKey);
-	}
 	
-
-	public function closeContainer(): Void
+	public function CloseContainer(): Void
 	{
 		itemList.clearList();
 		_visible = false;
 	}
-	
 
-	public function setSelectedIndex(idx: Number): Void
+
+	public function UpdateButtons(): Void
 	{
-		itemList.selectedIndex = idx;
+		buttonTake.updateButton(_takeKey);
+		buttonTakeAll.updateButton(_takeAllKey);
+		buttonSearch.updateButton(_searchKey);
 	}
 
 
-	public function switchStyle(style: Number): Void
+	public function SwitchStyle(style: Number): Void
 	{
 		switch(style){
 			case 0:

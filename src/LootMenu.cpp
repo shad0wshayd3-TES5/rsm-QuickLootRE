@@ -114,20 +114,6 @@ namespace QuickLootRE
 	}
 
 
-	LootMenu::Style LootMenu::GetStyle()
-	{
-		if (Settings::interfaceStyle == "dialogue") {
-			return kStyle_Dialogue;
-		} else {
-			if (Settings::interfaceStyle != "default") {
-				_ERROR("Invalid style (%s)!", Settings::interfaceStyle.c_str());
-				_ERROR("Using default!\n");
-			}
-			return kStyle_Default;
-		}
-	}
-
-
 	RE::TESObjectREFR* LootMenu::GetContainerRef()
 	{
 		return _containerRef;
@@ -177,15 +163,51 @@ namespace QuickLootRE
 	}
 
 
-	const char* LootMenu::GetTakeAllStr()
+	const char* LootMenu::GetSingleLootMapping()
 	{
-		return _takeAllStr.c_str();
+		return _singleLootMapping.c_str();
 	}
 
 
-	void LootMenu::SetTakeAllStr(const char* a_takeAllStr)
+	void LootMenu::SetSingleLootMapping(const char* a_singLootMapping)
 	{
-		_takeAllStr = a_takeAllStr;
+		_singleLootMapping = a_singLootMapping;
+	}
+
+
+	const char* LootMenu::GetTakeMapping()
+	{
+		return _takeMapping.c_str();
+	}
+
+
+	void LootMenu::SetTakeMapping(const char* a_takeStr)
+	{
+		_takeMapping = a_takeStr;
+	}
+
+
+	const char* LootMenu::GetTakeAllMapping()
+	{
+		return _takeAllMapping.c_str();
+	}
+
+
+	void LootMenu::SetTakeAllMapping(const char* a_takeAllStr)
+	{
+		_takeAllMapping = a_takeAllStr;
+	}
+
+
+	const char* LootMenu::GetSearchMapping()
+	{
+		return _searchMapping.c_str();
+	}
+
+
+	void LootMenu::SetSearchMapping(const char* a_searchStr)
+	{
+		_searchMapping = a_searchStr;
 	}
 
 
@@ -331,35 +353,49 @@ namespace QuickLootRE
 	void LootMenu::Register(Scaleform a_reg)
 	{
 		switch (a_reg) {
-		case kScaleform_SetTakeAllKey:
-			AllocateAndDispatch<SetTakeAllKeyUIDelegate>();
+		case kScaleform_SetKeyMappings:
+			AllocateAndDispatch<SetKeyMappingsUIDelegate>();
 			break;
 		case kScaleform_SetPlatform:
 			AllocateAndDispatch<SetPlatformUIDelegate>();
 			break;
+		case kScaleform_SetSelectedIndex:
+			AllocateAndDispatch<SetSelectedIndexUIDelegate>();
+			break;
 		case kScaleform_Setup:
 			AllocateAndDispatch<SetupUIDelegate>();
-			break;
-		case kScaleform_OpenContainer:
-			AllocateAndDispatch<OpenContainerUIDelegate>();
 			break;
 		case kScaleform_SetContainer:
 			AllocateAndDispatch<SetContainerUIDelegate>();
 			break;
-		case kScaleform_UpdateButtons:
-			AllocateAndDispatch<UpdateButtonsUIDelegate>();
+		case kScaleform_OpenContainer:
+			AllocateAndDispatch<OpenContainerUIDelegate>();
 			break;
 		case kScaleform_CloseContainer:
 			AllocateAndDispatch<CloseContainerUIDelegate>();
 			break;
-		case kScaleform_SetSelectedIndex:
-			AllocateAndDispatch<SetSelectedIndexUIDelegate>();
+		case kScaleform_UpdateButtons:
+			AllocateAndDispatch<UpdateButtonsUIDelegate>();
 			break;
 		case kScaleform_SwitchStyle:
 			AllocateAndDispatch<SwitchStyleTaskDelegate>();
 			break;
 		default:
 			_ERROR("[ERROR] Invalid registration (%i)", a_reg);
+		}
+	}
+
+
+	LootMenu::Style LootMenu::GetStyle()
+	{
+		if (Settings::interfaceStyle == "dialogue") {
+			return kStyle_Dialogue;
+		} else {
+			if (Settings::interfaceStyle != "default") {
+				_ERROR("Invalid style (%s)!", Settings::interfaceStyle.c_str());
+				_ERROR("Using default!\n");
+			}
+			return kStyle_Default;
 		}
 	}
 
@@ -442,6 +478,8 @@ namespace QuickLootRE
 			Close();
 			if (CanOpen(_containerRef, !player->IsSneaking())) {
 				Open();
+			} else {
+				LootMenu::ClearContainerRef();
 			}
 		}
 
@@ -504,7 +542,7 @@ namespace QuickLootRE
 
 		_selectedIndex = 0;
 		_isMenuOpen = true;
-		Register(kScaleform_SetTakeAllKey);
+		Register(kScaleform_SetKeyMappings);
 		Register(kScaleform_SetPlatform);
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_UpdateButtons);
@@ -572,12 +610,7 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice		BSWin32GamepadDevice;
 		typedef RE::BSInputDevice::InputDevice	InputDevice;
 
-		static RE::InputEventDispatcher*	inputDispatcher	= RE::InputEventDispatcher::GetSingleton();
-		static RE::InputManager*			inputManager	= RE::InputManager::GetSingleton();
-		static InputStringHolder*			strHolder		= InputStringHolder::GetSingleton();
-
-		UInt32 keyboardSprint = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Keyboard);
-		UInt32 gamepadSprint = inputManager->GetMappedKey(strHolder->sprint, InputDevice::kInputDevice_Gamepad);
+		static RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
 
 		if (Settings::disableSingleLoot) {
 			return false;
@@ -586,7 +619,8 @@ namespace QuickLootRE
 		try {
 			RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
 			if (keyboard && keyboard->IsEnabled()) {
-				if (keyboardSprint != RE::InputManager::kInvalid && keyboard->IsPressed(keyboardSprint)) {
+				UInt32 singleLootKeyboard = GetSingleLootKey(InputDevice::kInputDevice_Keyboard);
+				if (singleLootKeyboard != RE::InputManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
 					return true;
 				}
 			}
@@ -599,7 +633,8 @@ namespace QuickLootRE
 			gamepadHandle = inputDispatcher->GetGamepad();
 			RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 			if (gamepad && gamepad->IsEnabled()) {
-				if (gamepadSprint != RE::InputManager::kInvalid && gamepad->IsPressed(gamepadSprint)) {
+				UInt32 singleLootSprint = GetSingleLootKey(InputDevice::kInputDevice_Gamepad);
+				if (singleLootSprint != RE::InputManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
 					return true;
 				}
 			}
@@ -762,6 +797,15 @@ namespace QuickLootRE
 	}
 
 
+	UInt32 LootMenu::GetSingleLootKey(RE::BSInputDevice::InputDevice a_inputDevice)
+	{
+		static RE::InputManager* inputManager = RE::InputManager::GetSingleton();
+
+		BSFixedString str = _singleLootMapping.c_str();
+		return inputManager->GetMappedKey(str, a_inputDevice);
+	}
+
+
 	LootMenu*			LootMenu::_singleton = 0;
 	SInt32				LootMenu::_selectedIndex = 0;
 	SInt32				LootMenu::_displaySize = 0;
@@ -772,5 +816,8 @@ namespace QuickLootRE
 	bool				LootMenu::_isRegistered = false;
 	LootMenu::Platform	LootMenu::_platform = kPlatform_PC;
 	std::string			LootMenu::_actiText = "";
-	std::string			LootMenu::_takeAllStr = "";
+	std::string			LootMenu::_singleLootMapping = "";
+	std::string			LootMenu::_takeMapping = "";
+	std::string			LootMenu::_takeAllMapping = "";
+	std::string			LootMenu::_searchMapping = "";
 }

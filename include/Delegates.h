@@ -12,7 +12,7 @@ class GFxValue;
 
 namespace QuickLootRE
 {
-	class SetTakeAllKeyUIDelegate : public UIDelegate_v1
+	class SetKeyMappingsUIDelegate : public UIDelegate_v1
 	{
 	public:
 		virtual void Run() override;
@@ -28,7 +28,23 @@ namespace QuickLootRE
 	};
 
 
+	class SetSelectedIndexUIDelegate : public UIDelegate_v1
+	{
+	public:
+		virtual void Run() override;
+		virtual void Dispose() override;
+	};
+
+
 	class SetupUIDelegate : public UIDelegate_v1
+	{
+	public:
+		virtual void Run() override;
+		virtual void Dispose() override;
+	};
+
+
+	class SetContainerUIDelegate : public UIDelegate_v1
 	{
 	public:
 		virtual void Run() override;
@@ -47,7 +63,7 @@ namespace QuickLootRE
 	};
 
 
-	class SetContainerUIDelegate : public UIDelegate_v1
+	class CloseContainerUIDelegate : public UIDelegate_v1
 	{
 	public:
 		virtual void Run() override;
@@ -57,22 +73,6 @@ namespace QuickLootRE
 
 	class UpdateButtonsUIDelegate : public UIDelegate_v1
 	{
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class CloseContainerUIDelegate : public UIDelegate_v1
-	{
-	public:
-		virtual void Run() override;
-		virtual void Dispose() override;
-	};
-
-
-	class SetSelectedIndexUIDelegate : public UIDelegate_v1
-	{
-	public:
 		virtual void Run() override;
 		virtual void Dispose() override;
 	};

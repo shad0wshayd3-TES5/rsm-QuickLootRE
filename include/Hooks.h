@@ -26,6 +26,9 @@ namespace Hooks
 
 	enum ControlID
 	{
+		kControlID_None,
+		kControlID_Activate,
+		kControlID_ReadyWeapon,
 		kControlID_TogglePOV,
 		kControlID_Jump,
 		kControlID_Sprint,
@@ -36,5 +39,10 @@ namespace Hooks
 
 	BSFixedString& GetControlID(ControlID a_controlID);
 
-	void installHooks();
+	bool CheckForMappingConflicts();
+
+	void InstallHooks();
+
+
+	static bool activateHandlerHooked = false;
 }

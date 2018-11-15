@@ -428,43 +428,43 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypeMisc(TESObjectMISC* a_misc)
 	{
-		if (a_misc->keyword.HasKeyword(VendorItemAnimalHide)) {
-			return kType_MiscHide;
-		} else if (a_misc->keyword.HasKeyword(VendorItemDaedricArtifact)) {
-			return kType_MiscArtifact;
-		} else if (a_misc->keyword.HasKeyword(VendorItemGem)) {
-			return kType_MiscGem;
-		} else if (a_misc->keyword.HasKeyword(VendorItemAnimalPart)) {
-			return kType_MiscRemains;
-		} else if (a_misc->keyword.HasKeyword(VendorItemOreIngot)) {
-			return kType_MiscIngot;
-		} else if (a_misc->keyword.HasKeyword(VendorItemClutter)) {
-			return kType_MiscClutter;
-		} else if (a_misc->keyword.HasKeyword(VendorItemFireword)) {
-			return kType_MiscWood;
-		} else {
-			switch (a_misc->formID) {
-			case kMISCFormID_LockPick:
-				return kType_MiscLockPick;
-			case kMISCFormID_Gold:
-				return kType_MiscGold;
-			case kMISCFormID_Leather01:
-				return kType_MiscLeather;
-			case kMISCFormID_LeatherStrips:
-				return kType_MiscStrips;
-			case kMISCFormID_DragonClawIron:
-			case kMISCFormID_DragonClawGoldenE3:
-			case kMISCFormID_DragonClawGoldenMS13:
-			case kMISCFormID_DragonClawCoral:
-			case kMISCFormID_DragonClawIvory:
-			case kMISCFormID_DragonClawRuby:
-			case kMISCFormID_DragonClawSapphire:
-			case kMISCFormID_DragonClawEmerald:
-			case kMISCFormID_DragonClawGlass:
-			case kMISCFormID_DragonClawEbony:
-			case kMISCFormID_DragonClawDiamond:
-				return kType_MiscDragonClaw;
-			default:
+		switch (a_misc->formID) {
+		case kMISCFormID_LockPick:
+			return kType_MiscLockPick;
+		case kMISCFormID_Gold:
+			return kType_MiscGold;
+		case kMISCFormID_Leather01:
+			return kType_MiscLeather;
+		case kMISCFormID_LeatherStrips:
+			return kType_MiscStrips;
+		case kMISCFormID_DragonClawIron:
+		case kMISCFormID_DragonClawGoldenE3:
+		case kMISCFormID_DragonClawGoldenMS13:
+		case kMISCFormID_DragonClawCoral:
+		case kMISCFormID_DragonClawIvory:
+		case kMISCFormID_DragonClawRuby:
+		case kMISCFormID_DragonClawSapphire:
+		case kMISCFormID_DragonClawEmerald:
+		case kMISCFormID_DragonClawGlass:
+		case kMISCFormID_DragonClawEbony:
+		case kMISCFormID_DragonClawDiamond:
+			return kType_MiscDragonClaw;
+		default:
+			if (a_misc->keyword.HasKeyword(VendorItemAnimalHide)) {
+				return kType_MiscHide;
+			} else if (a_misc->keyword.HasKeyword(VendorItemDaedricArtifact)) {
+				return kType_MiscArtifact;
+			} else if (a_misc->keyword.HasKeyword(VendorItemGem)) {
+				return kType_MiscGem;
+			} else if (a_misc->keyword.HasKeyword(VendorItemAnimalPart)) {
+				return kType_MiscRemains;
+			} else if (a_misc->keyword.HasKeyword(VendorItemOreIngot)) {
+				return kType_MiscIngot;
+			} else if (a_misc->keyword.HasKeyword(VendorItemClutter)) {
+				return kType_MiscClutter;
+			} else if (a_misc->keyword.HasKeyword(VendorItemFireword)) {
+				return kType_MiscWood;
+			} else {
 				return kType_DefaultMisc;
 			}
 		}

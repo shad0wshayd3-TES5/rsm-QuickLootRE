@@ -6,6 +6,7 @@
 
 #include <string>  // string
 
+#include "RE/BSIInputDevice.h"  // BSIInputDevice
 #include "RE/IMenu.h"  // IMenu
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
@@ -52,14 +53,14 @@ namespace QuickLootRE
 
 		enum Scaleform : UInt32
 		{
-			kScaleform_SetTakeAllKey,
+			kScaleform_SetKeyMappings,
 			kScaleform_SetPlatform,
-			kScaleform_Setup,
-			kScaleform_OpenContainer,
-			kScaleform_SetContainer,
-			kScaleform_UpdateButtons,
-			kScaleform_CloseContainer,
 			kScaleform_SetSelectedIndex,
+			kScaleform_Setup,
+			kScaleform_SetContainer,
+			kScaleform_OpenContainer,
+			kScaleform_CloseContainer,
+			kScaleform_UpdateButtons,
 			kScaleform_SwitchStyle
 		};
 
@@ -79,7 +80,6 @@ namespace QuickLootRE
 		static SInt32				GetSelectedIndex();
 		static void					ModSelectedIndex(SInt32 a_indexOffset);
 		static void					SetDisplaySize(SInt32 a_size);
-		static Style				GetStyle();
 		static RE::TESObjectREFR*	GetContainerRef();
 		static bool					IsOpen();
 		static bool					IsVisible();
@@ -88,8 +88,14 @@ namespace QuickLootRE
 		static BSFixedString		GetName();
 		static const char*			GetActiText();
 		static void					SetActiText(const char* a_actiText);
-		static const char*			GetTakeAllStr();
-		static void					SetTakeAllStr(const char* a_takeAllStr);
+		static const char*			GetSingleLootMapping();
+		static void					SetSingleLootMapping(const char* a_singLootMapping);
+		static const char*			GetTakeMapping();
+		static void					SetTakeMapping(const char* a_takeStr);
+		static const char*			GetTakeAllMapping();
+		static void					SetTakeAllMapping(const char* a_takeAllStr);
+		static const char*			GetSearchMapping();
+		static void					SetSearchMapping(const char* a_searchStr);
 
 		static void					Open();
 		static void					Close();
@@ -99,6 +105,7 @@ namespace QuickLootRE
 		static void					ClearContainerRef(bool a_playAnimation = true);
 		static bool					CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
 		static void					Register(Scaleform a_reg);
+		static Style				GetStyle();
 
 		// IMenu
 		virtual UInt32				ProcessMessage(UIMessage* a_message) override;
@@ -121,6 +128,7 @@ namespace QuickLootRE
 		void						TakeItem(ItemData& a_item, UInt32 a_numItems);
 		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
 		void						DispellWornItemEnchantments();
+		UInt32						GetSingleLootKey(RE::BSInputDevice::InputDevice a_inputDevice);
 
 
 		static LootMenu*			_singleton;
@@ -133,7 +141,10 @@ namespace QuickLootRE
 		static bool					_isRegistered;
 		static Platform				_platform;
 		static std::string			_actiText;
-		static std::string			_takeAllStr;
+		static std::string			_singleLootMapping;
+		static std::string			_takeMapping;
+		static std::string			_takeAllMapping;
+		static std::string			_searchMapping;
 	};
 
 
