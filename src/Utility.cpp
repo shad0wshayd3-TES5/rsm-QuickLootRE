@@ -11,6 +11,7 @@
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/TESRace.h"  // TESRace
 
 
 namespace QuickLootRE
@@ -44,6 +45,10 @@ namespace QuickLootRE
 
 	bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
 	{
+		if (!a_refr) {
+			return false;
+		}
+
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (a_refr && a_refr->baseForm->formType == kFormType_NPC) {
@@ -54,9 +59,8 @@ namespace QuickLootRE
 					!actor->IsChild() &&
 					!actor->IsPlayerTeammate() &&
 					!actor->IsInFaction(CurrentFollowerFaction) &&
-					!actor->IsInFaction(CreatureFaction) &&
-					!actor->IsInFaction(PredatorFaction) &&
-					!actor->IsInFaction(PreyFaction));
+					!actor->GetRace()->HasKeyword(ActorTypeCreature) &&
+					!actor->GetRace()->HasKeyword(ActorTypeAnimal));
 		} else {
 			return false;
 		}

@@ -2,6 +2,8 @@
 
 #include "skse64/GameObjects.h"  // TESNPC
 
+class TESRace;
+
 
 namespace RE
 {

@@ -7,6 +7,7 @@
 #include "RE/TESActorBaseData.h"  // TESActorBaseData
 #include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESNPC.h"  // TESNPC
+#include "RE/TESRace.h"  // TESRace
 
 
 namespace RE
@@ -49,7 +50,7 @@ namespace RE
 
 	void Actor::SetRace(TESRace* a_race, bool a_isPlayer)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), SetRace)(a_race, a_isPlayer);
+		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), SetRace)(reinterpret_cast<::TESRace*>(a_race), a_isPlayer);
 	}
 
 

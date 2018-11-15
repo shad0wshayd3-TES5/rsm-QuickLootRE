@@ -28,6 +28,7 @@ namespace RE
 {
 	class BaseExtraList;
 	class PerkEntryVisitor;
+	class TESRace;
 	class TESFaction;
 
 

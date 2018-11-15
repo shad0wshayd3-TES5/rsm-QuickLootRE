@@ -97,7 +97,13 @@ namespace QuickLootRE
 		inline				operator std::string()										const				{ return _value; }
 		inline				operator const char*()										const				{ return _value.c_str(); }
 		inline friend bool	operator==(const sSetting& a_lhs, const std::string& a_rhs)						{ return a_lhs._value == a_rhs; }
+		inline friend bool	operator!=(const sSetting& a_lhs, const std::string& a_rhs)						{ return !(operator==(a_lhs, a_rhs)); }
+		inline friend bool	operator==(const std::string& a_lhs, const sSetting& a_rhs)						{ return operator==(a_rhs, a_lhs); }
+		inline friend bool	operator!=(const std::string& a_lhs, const sSetting& a_rhs)						{ return !(operator==(a_lhs, a_rhs)); }
 		inline friend bool	operator==(const sSetting& a_lhs, const char* a_rhs)							{ return a_lhs._value.compare(a_rhs) == 0; }
+		inline friend bool	operator!=(const sSetting& a_lhs, const char* a_rhs)							{ return !(operator==(a_lhs, a_rhs)); }
+		inline friend bool	operator==(const char* a_lhs, const sSetting& a_rhs)							{ return operator==(a_rhs, a_lhs); }
+		inline friend bool	operator!=(const char* a_lhs, const sSetting& a_rhs)							{ return !(operator==(a_rhs, a_lhs)); }
 
 	protected:
 		std::string _value;
@@ -155,6 +161,7 @@ namespace QuickLootRE
 		static fSetting	positionY;
 		static fSetting	opacity;
 		static sSetting	takeAllMethod;
+		static sSetting	interfaceStyle;
 		static aSetting	sortOrder;
 
 		static bool		isApplied;

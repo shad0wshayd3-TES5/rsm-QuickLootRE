@@ -307,6 +307,24 @@ namespace QuickLootRE
 	}
 
 
+	void SwitchStyleTaskDelegate::Run()
+	{
+		GFxValue args[1];
+
+		args[0].SetNumber(LootMenu::GetStyle());
+
+		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.switchStyle", 0, args, 1);
+	}
+
+
+	void SwitchStyleTaskDelegate::Dispose()
+	{
+		if (this) {
+			Heap_Free(this);
+		}
+	}
+
+
 	void GFxValueDeallocTaskDelegate::Run()
 	{
 		for (auto& val : heapAllocVals) {

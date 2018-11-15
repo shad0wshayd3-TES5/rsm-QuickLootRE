@@ -62,7 +62,7 @@ namespace RE
 
 
 		// members
-		tArray<IMenu>							menuStack;						// 110
+		tArray<IMenu*>							menuStack;						// 110
 		MenuTable								menuTable;						// 128   (Entries ptr at 150)
 		SimpleLock								menuTableLock;					// 158
 		UInt32									numPauseGame;					// 160 (= 0) += 1 if (imenu->flags & 0x0001)

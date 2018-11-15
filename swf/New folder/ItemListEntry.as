@@ -2,14 +2,12 @@
 import skyui.components.list.ListState;
 import skyui.components.list.BasicListEntry;
 
-
 class ItemListEntry extends BasicListEntry
 {
 	// PRIVATE VARIABLES
 	private var _iconLabel: String;
 	private var _iconSource: String;
 	
-
 	// STAGE ELMENTS
   	public var itemIcon: MovieClip;
 	public var stolenIcon: MovieClip;
@@ -18,7 +16,6 @@ class ItemListEntry extends BasicListEntry
 	public var textField: TextField;
 	public var pickPocketChance: TextField;
   	public var selectIndicator: MovieClip;
-
 
 	// @override BasicListEntry
 	public function initialize(a_index: Number, a_state: ListState): Void
@@ -34,14 +31,12 @@ class ItemListEntry extends BasicListEntry
 		itemIcon._visible = false;
 	}
 	
-
 	// @implements MovieClipLoader
 	private function onLoadInit(a_icon: MovieClip): Void
 	{
 		a_icon.gotoAndStop(_iconLabel);
 		//changeIconColor(a_icon, _iconColor);
 	}
-	
 	
 	// @override BasicListEntry
 	public function setEntry(a_entryObject: Object, a_state: ListState): Void

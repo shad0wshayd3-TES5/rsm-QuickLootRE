@@ -40,6 +40,9 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 
 		RE::EventDispatcherList* dispatcherList = RE::EventDispatcherList::GetEventDispatcherList();
+		dispatcherList->combatDispatcher.AddEventSink(&QuickLootRE::g_combatEventHandler);
+		_MESSAGE("[MESSAGE] Combat event handler sinked");
+
 		dispatcherList->containerChangedDispatcher.AddEventSink(&QuickLootRE::g_containerChangedEventHandler);
 		_MESSAGE("[MESSAGE] Container changed event handler sinked");
 

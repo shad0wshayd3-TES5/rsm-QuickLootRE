@@ -78,6 +78,14 @@ namespace QuickLootRE
 	};
 
 
+	class SwitchStyleTaskDelegate : public UIDelegate_v1
+	{
+	public:
+		virtual void Run() override;
+		virtual void Dispose() override;
+	};
+
+
 	class GFxValueDeallocTaskDelegate : public TaskDelegate
 	{
 	public:

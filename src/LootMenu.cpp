@@ -41,6 +41,7 @@
 #include "RE/TESBoundObject.h"  // TESBoundObject
 #include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/TESRace.h"  // TESRace
 #include "RE/UIManager.h"  // UIManager
 
 class TESObjectREFR;
@@ -68,7 +69,7 @@ namespace QuickLootRE
 		RE::GFxLoader* loader = RE::GFxLoader::GetSingleton();
 		if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kScaleModeType_ShowAll, 0.0)) {
 			flags = Flag(kFlag_DoNotDeleteOnClose | kFlag_DoNotPreventGameSave | kFlag_Unk10000);
-			context = Context::kContext_Console;  // menuDepth, set lower than fade menu (3)
+			context = Context::kContext_Inventory;
 		}
 	}
 
@@ -110,6 +111,20 @@ namespace QuickLootRE
 	void LootMenu::SetDisplaySize(SInt32 a_size)
 	{
 		_displaySize = a_size;
+	}
+
+
+	LootMenu::Style LootMenu::GetStyle()
+	{
+		if (Settings::interfaceStyle == "dialogue") {
+			return kStyle_Dialogue;
+		} else {
+			if (Settings::interfaceStyle != "default") {
+				_ERROR("Invalid style (%s)!", Settings::interfaceStyle.c_str());
+				_ERROR("Using default!\n");
+			}
+			return kStyle_Default;
+		}
 	}
 
 
@@ -285,7 +300,7 @@ namespace QuickLootRE
 			break;
 		case kFormType_NPC:
 			RE::Actor* target = static_cast<RE::Actor*>(a_ref);
-			if (Settings::disableForAnimals && (target->IsInFaction(PredatorFaction) || target->IsInFaction(PreyFaction))) {
+			if (Settings::disableForAnimals && target->GetRace()->HasKeyword(ActorTypeAnimal)) {
 				return false;
 			} else if (a_ref->IsDead(true) && !target->IsSummoned()) {
 				containerRef = a_ref;
@@ -340,6 +355,9 @@ namespace QuickLootRE
 		case kScaleform_SetSelectedIndex:
 			AllocateAndDispatch<SetSelectedIndexUIDelegate>();
 			break;
+		case kScaleform_SwitchStyle:
+			AllocateAndDispatch<SwitchStyleTaskDelegate>();
+			break;
 		default:
 			_ERROR("[ERROR] Invalid registration (%i)", a_reg);
 		}
@@ -354,6 +372,7 @@ namespace QuickLootRE
 
 		if (!Settings::isApplied) {
 			Register(kScaleform_Setup);
+			Register(kScaleform_SwitchStyle);
 		}
 
 		switch (a_message->message) {
@@ -470,12 +489,25 @@ namespace QuickLootRE
 
 	void LootMenu::OnMenuOpen()
 	{
+		typedef RE::BSGamepadDevice			BSGamepadDevice;
+		typedef RE::BSWin32GamepadDevice	BSWin32GamepadDevice;
+
+		static RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
+
+		RE::BSGamepadDevice* gamepadHandle = inputDispatcher->GetGamepad();
+		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
+		if (gamepad && gamepad->IsEnabled()) {
+			_platform = kPlatform_Other;
+		} else {
+			_platform = kPlatform_PC;
+		}
+
 		_selectedIndex = 0;
 		_isMenuOpen = true;
 		Register(kScaleform_SetTakeAllKey);
 		Register(kScaleform_SetPlatform);
-		Register(kScaleform_UpdateButtons);
 		Register(kScaleform_SetContainer);
+		Register(kScaleform_UpdateButtons);
 		Register(kScaleform_OpenContainer);
 		Register(kScaleform_SetSelectedIndex);
 		SetVisible(true);

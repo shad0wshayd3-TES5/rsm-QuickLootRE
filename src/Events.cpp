@@ -15,6 +15,7 @@
 #include "Delegates.h"  // DelayedUpdater
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
+#include "Settings.h"  // Settings
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
@@ -132,6 +133,24 @@ namespace QuickLootRE
 	}
 
 
+	EventResult TESCombatEventHandler::ReceiveEvent(TESCombatEvent* a_event, EventDispatcher<TESCombatEvent>* a_dispatcher)
+	{
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+		if (!a_event || !LootMenu::IsOpen()) {
+			return kEvent_Continue;
+		}
+
+		if (a_event->source->formID == player->formID || a_event->target->formID == player->formID) {
+			if (IsValidPickPocketTarget(LootMenu::GetContainerRef(), player->IsSneaking()) || Settings::disableInCombat) {
+				LootMenu::Close();
+			}
+		}
+
+		return kEvent_Continue;
+	}
+
+
 	EventResult TESContainerChangedEventHandler::ReceiveEvent(TESContainerChangedEvent* a_event, EventDispatcher<TESContainerChangedEvent>* a_dispatcher)
 	{
 		if (!a_event || !LootMenu::IsVisible() || LootMenu::InTakeAllMode()) {
@@ -150,5 +169,6 @@ namespace QuickLootRE
 	CrosshairRefEventHandler g_crosshairRefEventHandler;
 	InputEventHandler g_inputEventHandler;
 	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
+	TESCombatEventHandler g_combatEventHandler;
 	TESContainerChangedEventHandler g_containerChangedEventHandler;
 }

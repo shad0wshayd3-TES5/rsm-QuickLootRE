@@ -30,8 +30,7 @@ namespace Hooks
 		kControlID_Jump,
 		kControlID_Sprint,
 		kControlID_Sneak,
-		kControlID_NextFocus,
-		kControlID_PreviousFocus
+		kControlID_Shout
 	};
 
 

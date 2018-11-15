@@ -15,9 +15,6 @@ namespace QuickLootRE
 {
 	enum FACTFormID : UInt32
 	{
-		kFACTFormID_CreatureFaction			= 0x00000013,
-		kFACTFormID_PredatorFaction			= 0x0002E893,
-		kFACTFormID_PreyFaction				= 0x0002E894,
 		kFACTFormID_CurrentFollowerFaction	= 0x0005C84E
 	};
 
@@ -38,7 +35,10 @@ namespace QuickLootRE
 		kKYWDFormID_VendorItemClutter			= 0x000914E9,
 		kKYWDFormID_VendorItemFireword			= 0x000BECD7,
 
-		kKYWDFormID_WeapTypeWarhammer			= 0x0006D930
+		kKYWDFormID_WeapTypeWarhammer			= 0x0006D930,
+
+		kKYWDFormID_ActorTypeCreature			= 0x00013795,
+		kKYWDFormID_ActorTypeAnimal				= 0x00013798
 	};
 
 
@@ -103,9 +103,6 @@ namespace QuickLootRE
 
 
 	// Factions
-	extern Form<RE::TESFaction>	CreatureFaction;
-	extern Form<RE::TESFaction>	PredatorFaction;
-	extern Form<RE::TESFaction>	PreyFaction;
 	extern Form<RE::TESFaction>	CurrentFollowerFaction;
 
 	// Keywords
@@ -124,6 +121,9 @@ namespace QuickLootRE
 	extern Form<BGSKeyword>		VendorItemFireword;
 
 	extern Form<BGSKeyword>		WeapTypeWarhammer;
+
+	extern Form<BGSKeyword>		ActorTypeCreature;
+	extern Form<BGSKeyword>		ActorTypeAnimal;
 
 	// Perks
 	extern Form<BGSPerk>		Misdirection;

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "skse64/GameFormComponents.h"  // TESRaceForm, BGSOverridePackCollection
+#include "skse64/GameFormComponents.h"  // BGSOverridePackCollection
 #include "skse64/GameTypes.h"  // BSFixedString
 
 #include "RE/TESActorBase.h"  // TESActorBase
+#include "RE/TESRaceForm.h"  // TESRaceForm
 
 class BGSColorForm;
 class BGSHeadPart;
@@ -18,6 +19,7 @@ class TESObjectARMO;
 namespace RE
 {
 	class TESFaction;
+	class TESRace;
 
 
 	class TESNPC :

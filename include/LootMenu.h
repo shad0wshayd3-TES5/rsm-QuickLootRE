@@ -42,14 +42,14 @@ namespace QuickLootRE
 	private:
 		friend class LootMenuCreator;
 
-
+	public:
 		enum Platform : UInt32
 		{
-			kPlatform_PC = 0,
-			kPlatform_Other = 2
+			kPlatform_PC	= 0,
+			kPlatform_Other	= 2
 		};
 
-	public:
+
 		enum Scaleform : UInt32
 		{
 			kScaleform_SetTakeAllKey,
@@ -59,7 +59,15 @@ namespace QuickLootRE
 			kScaleform_SetContainer,
 			kScaleform_UpdateButtons,
 			kScaleform_CloseContainer,
-			kScaleform_SetSelectedIndex
+			kScaleform_SetSelectedIndex,
+			kScaleform_SwitchStyle
+		};
+
+
+		enum Style : UInt32
+		{
+			kStyle_Default	= 0,
+			kStyle_Dialogue	= 1
 		};
 
 	protected:
@@ -71,6 +79,7 @@ namespace QuickLootRE
 		static SInt32				GetSelectedIndex();
 		static void					ModSelectedIndex(SInt32 a_indexOffset);
 		static void					SetDisplaySize(SInt32 a_size);
+		static Style				GetStyle();
 		static RE::TESObjectREFR*	GetContainerRef();
 		static bool					IsOpen();
 		static bool					IsVisible();

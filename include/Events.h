@@ -44,6 +44,13 @@ namespace QuickLootRE
 	};
 
 
+	class TESCombatEventHandler : public BSTEventSink<TESCombatEvent>
+	{
+	public:
+		virtual EventResult ReceiveEvent(TESCombatEvent* a_event, EventDispatcher<TESCombatEvent>* a_dispatcher) override;
+	};
+
+
 	class TESContainerChangedEventHandler : public BSTEventSink<TESContainerChangedEvent>
 	{
 	public:
@@ -54,5 +61,6 @@ namespace QuickLootRE
 	extern CrosshairRefEventHandler g_crosshairRefEventHandler;
 	extern InputEventHandler g_inputEventHandler;
 	extern MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
+	extern TESCombatEventHandler g_combatEventHandler;
 	extern TESContainerChangedEventHandler g_containerChangedEventHandler;
 }

@@ -53,6 +53,6 @@ namespace RE
 
 	bool MenuManager::GameIsPaused()
 	{
-		return numPauseGame != 0;
+		return numPauseGame > 0;
 	}
 }

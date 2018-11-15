@@ -12,9 +12,6 @@ namespace RE
 namespace QuickLootRE
 {
 	// Factions
-	Form<RE::TESFaction>	CreatureFaction(kFACTFormID_CreatureFaction);
-	Form<RE::TESFaction>	PredatorFaction(kFACTFormID_PredatorFaction);
-	Form<RE::TESFaction>	PreyFaction(kFACTFormID_PreyFaction);
 	Form<RE::TESFaction>	CurrentFollowerFaction(kFACTFormID_CurrentFollowerFaction);
 
 	// Keywords
@@ -33,6 +30,9 @@ namespace QuickLootRE
 	Form<BGSKeyword>		VendorItemFireword(kKYWDFormID_VendorItemFireword);
 
 	Form<BGSKeyword>		WeapTypeWarhammer(kKYWDFormID_WeapTypeWarhammer);
+
+	Form<BGSKeyword>		ActorTypeCreature(kKYWDFormID_ActorTypeCreature);
+	Form<BGSKeyword>		ActorTypeAnimal(kKYWDFormID_ActorTypeAnimal);
 
 	// Perks
 	Form<BGSPerk>			Misdirection(kPERKFormID_Misdirection);

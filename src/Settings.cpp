@@ -98,6 +98,7 @@ namespace QuickLootRE
 	fSetting	Settings::positionY("positionY", -1.0);
 	fSetting	Settings::opacity("opacity", -1.0);
 	sSetting	Settings::takeAllMethod("takeAllMethod", "togglePOV");
+	sSetting	Settings::interfaceStyle("interfaceStyle", "default");
 	aSetting	Settings::sortOrder("sortOrder", { "stolen", "type", "name", "value", "count" });
 
 	bool		Settings::isApplied = false;

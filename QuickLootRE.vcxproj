@@ -292,6 +292,8 @@
     <ClInclude Include="include\RE\TESObjectCONT.h" />
     <ClInclude Include="include\RE\TESObjectLIGH.h" />
     <ClInclude Include="include\RE\TESObjectREFR.h" />
+    <ClInclude Include="include\RE\TESRace.h" />
+    <ClInclude Include="include\RE\TESRaceForm.h" />
     <ClInclude Include="include\RE\UIManager.h" />
     <ClInclude Include="include\RE\UserEventEnabledEvent.h" />
     <ClInclude Include="include\Settings.h" />

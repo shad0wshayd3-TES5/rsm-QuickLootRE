@@ -51,11 +51,11 @@ namespace Hooks
 
 			if (a_event && a_event->eventType == InputEvent::kEventType_Button && QuickLootRE::LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsDown() && *button->GetControlID() == GetControlID(controlID)) {
+				if (button->IsUp() && *button->GetControlID() == GetControlID(controlID)) {
 					LootMenu::GetSingleton()->TakeAllItems();
 					LootMenu::Register(LootMenu::kScaleform_OpenContainer);
-					return false;
 				}
+				return false;
 			}
 			return (this->*orig_CanProcess)(a_event);
 		}
@@ -74,9 +74,9 @@ namespace Hooks
 	typedef PlayerInputHandlerEx<FIRST_PERSON_STATE_VTBL_META + 0x60, kControlID_TogglePOV> FirstPersonStateHandlerEx;
 	typedef PlayerInputHandlerEx<THIRD_PERSON_STATE_VTBL_META + 0x98, kControlID_TogglePOV> ThirdPersonStateHandlerEx;
 	typedef PlayerInputHandlerEx<JUMP_HANDLER_VTBL_META + 0x10, kControlID_Jump> JumpHandlerEx;
-	typedef PlayerInputHandlerEx<SPRINT_HANDLER_VTBL_META + 0x10, kControlID_PreviousFocus> SprintHandlerEx;
+	typedef PlayerInputHandlerEx<SPRINT_HANDLER_VTBL_META + 0x10, kControlID_Sprint> SprintHandlerEx;
 	typedef PlayerInputHandlerEx<SNEAK_HANDLER_VTBL_META + 0x10, kControlID_Sneak> SneakHandlerEx;
-	typedef PlayerInputHandlerEx<SHOUT_HANDLER_VTBL_META + 0x10, kControlID_NextFocus> ShoutHandlerEx;
+	typedef PlayerInputHandlerEx<SHOUT_HANDLER_VTBL_META + 0x10, kControlID_Shout> ShoutHandlerEx;
 
 
 	class FavoritesHandlerEx : public RE::FavoritesHandler
@@ -126,10 +126,7 @@ namespace Hooks
 		{
 			using QuickLootRE::LootMenu;
 
-			static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-			static UIManager*			uiManager	= UIManager::GetSingleton();
-			static UIStringHolder*		strHolder	= UIStringHolder::GetSingleton();
-			static RE::MenuManager*		mm			= RE::MenuManager::GetSingleton();
+			static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 			if (a_event && LootMenu::IsVisible()) {
 				if (a_event->IsDown()) {  // This MUST be on down
@@ -177,7 +174,7 @@ namespace Hooks
 				if (button->IsUp()) {
 					LootMenu::GetSingleton()->TakeItemStack();
 					return false;
-				} else if (button->IsDown()) {  // inventory menu activation will queue up without this
+				} else if (button->IsDown()) {  // Inventory menu activation will queue up without this
 					return false;
 				}
 			}
@@ -262,6 +259,7 @@ namespace Hooks
 
 	BSFixedString& GetControlID(ControlID a_controlID)
 	{
+		using QuickLootRE::LootMenu;
 		static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
 		switch (a_controlID) {
@@ -269,12 +267,24 @@ namespace Hooks
 			return strHolder->togglePOV;
 		case kControlID_Jump:
 			return strHolder->jump;
+		case kControlID_Sprint:
+			switch (LootMenu::GetPlatform()) {
+			case LootMenu::kPlatform_PC:
+				return strHolder->sprint;
+			case LootMenu::kPlatform_Other:
+			default:
+				return strHolder->prevFocus;
+			}
 		case kControlID_Sneak:
 			return strHolder->sneak;
-		case kControlID_NextFocus:
-			return strHolder->nextFocus;
-		case kControlID_PreviousFocus:
-			return strHolder->prevFocus;
+		case kControlID_Shout:
+			switch (LootMenu::GetPlatform()) {
+			case LootMenu::kPlatform_PC:
+				return strHolder->shout;
+			case LootMenu::kPlatform_Other:
+			default:
+				return strHolder->nextFocus;
+			}
 		default:
 			static BSFixedString emptyStr = "";
 			_ERROR("[ERROR] Invalid control ID (%i)", a_controlID);

@@ -576,6 +576,12 @@
     <ClInclude Include="include\RE\UIManager.h">
       <Filter>include\RE\Skyrim\Menus</Filter>
     </ClInclude>
+    <ClInclude Include="include\RE\TESRace.h">
+      <Filter>include\RE\Skyrim\TESForms\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TESRaceForm.h">
+      <Filter>include\RE\Skyrim\FormComponents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
