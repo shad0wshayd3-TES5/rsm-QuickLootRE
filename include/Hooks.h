@@ -33,7 +33,8 @@ namespace Hooks
 		kControlID_Jump,
 		kControlID_Sprint,
 		kControlID_Sneak,
-		kControlID_Shout
+		kControlID_Shout,
+		kControlID_ToggleRun
 	};
 
 

@@ -17,9 +17,9 @@ Setting | Description
 `positionX` | The X position of the loot menu GUI. A negative value will use the default of `384`.
 `positionY` | The Y position of the loot menu GUI. A negative value will use the default of `0`.
 `opacity` | The opacity of the loot menu GUI. A negative value will use the default of `100`.
-`singleLootModifier` | Determines the key used for the single loot feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, and `"shout"`.
-`takeMethod` | Determines the key used for the take feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, and `"shout"`.
-`takeAllMethod` | Determines the key used for the take all feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, and `"shout"`.
-`searchMethod` | Determines the key used for the search feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, and `"shout"`.
+`singleLootModifier` | Determines the key used for the single loot feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, `"shout"`, and `"toggleRun"`.
+`takeMethod` | Determines the key used for the take feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, `"shout"`, and `"toggleRun"`.
+`takeAllMethod` | Determines the key used for the take all feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, `"shout"`, and `"toggleRun"`.
+`searchMethod` | Determines the key used for the search feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, `"shout"`, and `"toggleRun"`.
 `interfaceStyle` | Determines the interface style to use. Valid inputs are: `"default"`, and `"dialogue"`.
 `sortOrder` | Defines the order items are sorted in the loot menu. Valid inputs are: `"name"`, `"count"`, `"value"`, `"weight"`, `"type"`, `"stolen"`, `"read"`, `"enchanted"`, `"pickPocketChance"`, and `"valuePerWeight"`. `sortOrder` is an array, so multiple inputs are acceptable.

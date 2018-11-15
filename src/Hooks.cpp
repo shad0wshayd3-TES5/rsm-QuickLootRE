@@ -80,6 +80,7 @@ namespace Hooks
 	typedef PlayerInputHandlerEx<SPRINT_HANDLER_VTBL_META + 0x10, kControlID_Sprint, ##TYPE_NAME##> SprintHandlerEx;					\
 	typedef PlayerInputHandlerEx<SNEAK_HANDLER_VTBL_META + 0x10, kControlID_Sneak, ##TYPE_NAME##> SneakHandlerEx;						\
 	typedef PlayerInputHandlerEx<SHOUT_HANDLER_VTBL_META + 0x10, kControlID_Shout, ##TYPE_NAME##> ShoutHandlerEx;						\
+	typedef PlayerInputHandlerEx<TOGGLE_RUN_HANDLER_VTBL_META + 0x10, kControlID_ToggleRun, ##TYPE_NAME##> ToggleRunHandlerEx;			\
 	typedef PlayerInputHandlerEx<FAVORITES_HANDLER_VTBL_META + 0x10, kControlID_None, ##TYPE_NAME##> FavoritesHandlerEx;
 
 
@@ -235,6 +236,8 @@ namespace Hooks
 			default:
 				return strHolder->chargeItem;
 			}
+		case kControlID_ToggleRun:
+			return strHolder->toggleRun;
 		default:
 			_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
 		}
@@ -303,6 +306,10 @@ namespace Hooks
 		} else if (a_setting == "shout") {
 			T::ShoutHandlerEx::installHook();
 			set(strHolder->shout.c_str());
+			return true;
+		} else if (a_setting == "toggleRun") {
+			T::ToggleRunHandlerEx::installHook();
+			set(strHolder->toggleRun.c_str());
 			return true;
 		} else {
 			_ERROR("[ERROR] Unrecognized mapping (%s)!", a_setting.c_str());
