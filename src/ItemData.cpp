@@ -99,7 +99,7 @@ namespace QuickLootRE
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		if (a_lhs._canPickPocket != a_rhs._canPickPocket) {
-			return a_lhs._canPickPocket;  // ensures items that can't be pickpocketed sort to the end
+			return a_rhs._canPickPocket;  // ensures items that can't be pickpocketed sort to the end
 		}
 
 		for (ItemData::FnCompare compare : ItemData::_compares) {

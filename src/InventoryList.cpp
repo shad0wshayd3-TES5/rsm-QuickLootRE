@@ -54,7 +54,7 @@ namespace QuickLootRE
 			add(it.second.first, it.second.second);
 		}
 
-		std::sort(_itemList.begin(), _itemList.end());
+		std::sort(_itemList.rbegin(), _itemList.rend());
 	}
 
 

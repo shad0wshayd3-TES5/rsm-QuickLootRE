@@ -141,10 +141,9 @@ namespace QuickLootRE
 			return kEvent_Continue;
 		}
 
-		if (a_event->source->formID == player->formID || a_event->target->formID == player->formID) {
+		if ((a_event->source && a_event->source->formID == player->formID) || (a_event->target && a_event->target->formID == player->formID)) {
 			if (IsValidPickPocketTarget(LootMenu::GetContainerRef(), player->IsSneaking()) || Settings::disableInCombat) {
 				LootMenu::Close();
-				LootMenu::ClearContainerRef();
 			}
 		}
 
