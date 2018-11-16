@@ -348,8 +348,10 @@ namespace QuickLootRE
 	{
 		if (LootMenu::IsVisible()) {
 			RE::TESObjectREFR* containerRef = LootMenu::GetContainerRef();
-			g_invList.parseInventory(&containerRef->extraData, containerRef);
-			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+			if (containerRef) {
+				g_invList.parseInventory(containerRef);
+				LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+			}
 		}
 	}
 

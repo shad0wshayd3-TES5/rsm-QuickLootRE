@@ -4,6 +4,7 @@
 #include "skse64/GameFormComponents.h"  // TESFullName
 #include "skse64/GameForms.h"  // TESForm
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
+#include "skse64/GameTypes.h"  // tArray
 
 #include <algorithm>  // sort
 #include <utility>  // pair
@@ -14,9 +15,13 @@
 #include "LootMenu.h"
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
-#include "RE/InventoryEntryData.h"  // RE::InventoryEntryData
+#include "RE/BSTArray.h"  // BSScrapArray
+#include "RE/InventoryEntryData.h"  // InventoryEntryData
+#include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESLeveledList.h"  // TESLeveledList
+#include "RE/TESLevItem.h"  // TESLevItem
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/TESObjectLIGH.h"  // RE::TESObjectLIGH
+#include "RE/TESObjectLIGH.h"  // TESObjectLIGH
 
 
 namespace QuickLootRE
@@ -33,7 +38,7 @@ namespace QuickLootRE
 	}
 
 
-	void InventoryList::parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr)
+	void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
 	{
 		clear();
 		ItemData::setContainer(a_refr);
@@ -43,7 +48,7 @@ namespace QuickLootRE
 		a_refr->GetContainer()->Visit(containerOp);
 
 		// Extra container changes
-		ExtraContainerChanges* xContainerChanges = static_cast<ExtraContainerChanges*>(a_xList->GetByType(kExtraData_ContainerChanges));
+		ExtraContainerChanges* xContainerChanges = static_cast<ExtraContainerChanges*>(a_refr->extraData.GetByType(kExtraData_ContainerChanges));
 		EntryDataListVisitor entryDataListOp(_defaultMap);
 		if (xContainerChanges && xContainerChanges->data && xContainerChanges->data->objList) {
 			xContainerChanges->data->objList->Visit(entryDataListOp);
@@ -110,7 +115,7 @@ namespace QuickLootRE
 
 	void InventoryList::add(RE::InventoryEntryData* a_entryData)
 	{
-		if (isValidItem(a_entryData->type)) {
+		if (isValidItem(a_entryData->type, a_entryData->countDelta)) {
 			_itemList.emplace_back(a_entryData);
 		}
 	}
@@ -118,7 +123,7 @@ namespace QuickLootRE
 
 	void InventoryList::add(RE::InventoryEntryData* a_entryData, SInt32 a_count)
 	{
-		if (isValidItem(a_entryData->type)) {
+		if (isValidItem(a_entryData->type, a_count)) {
 			_itemList.emplace_back(a_entryData, a_count);
 		}
 	}
@@ -132,13 +137,24 @@ namespace QuickLootRE
 	}
 
 
-	bool InventoryList::isValidItem(TESForm* a_item)
+	bool InventoryList::isValidItem(TESForm* a_item, SInt32 a_count)
 	{
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(&g_thePlayer);
+
 		if (!a_item) {
 			return false;
 		}
 
 		if (a_item->formType == kFormType_LeveledItem) {
+#if 0
+			RE::BSScrapArray<RE::TESLeveledList::CalculatedResult> arr(a_count);
+			RE::TESLevItem* levItem = static_cast<RE::TESLevItem*>(a_item);
+			levItem->Calculate(player->GetLevel(), a_count, arr);
+			for (auto& result : arr) {
+				_DMESSAGE("[DEBUG] formType == %i", result.form->formType);
+				_DMESSAGE("[DEBUG] count == %i", result.count);
+			}
+#endif
 			return false;
 		}
 

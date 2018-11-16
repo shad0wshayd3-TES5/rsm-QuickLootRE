@@ -244,23 +244,14 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::SetContainerRef(TESObjectREFR* a_ref)
-	{
-		_containerRef = reinterpret_cast<RE::TESObjectREFR*>(a_ref);
-	}
-
-
 	void LootMenu::SetContainerRef(RE::TESObjectREFR* a_ref)
 	{
 		_containerRef = a_ref;
 	}
 
 
-	void LootMenu::ClearContainerRef(bool a_playAnimation)
+	void LootMenu::ClearContainerRef()
 	{
-		if (a_playAnimation && _isContainerOpen) {
-			_singleton->PlayAnimationClose();
-		}
 		_containerRef = 0;
 	}
 
@@ -558,6 +549,7 @@ namespace QuickLootRE
 			SetVisible(false);
 			_isMenuOpen = false;
 			Register(kScaleform_CloseContainer);
+			PlayAnimationClose();
 		}
 	}
 

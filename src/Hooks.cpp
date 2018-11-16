@@ -37,10 +37,10 @@ namespace Hooks
 
 
 	template <uintptr_t offset, ControlID controlID, typename Op>
-	class PlayerInputHandlerEx : public RE::PlayerInputHandler
+	class PlayerInputHandler : public RE::PlayerInputHandler
 	{
 	public:
-		typedef bool(PlayerInputHandlerEx::*_CanProcess_t)(InputEvent* a_event);
+		typedef bool(PlayerInputHandler::*_CanProcess_t)(InputEvent* a_event);
 		static _CanProcess_t orig_CanProcess;
 
 
@@ -69,19 +69,62 @@ namespace Hooks
 	};
 
 
-	template <uintptr_t offset, ControlID controlID, typename Op> typename PlayerInputHandlerEx<offset, controlID, Op>::_CanProcess_t PlayerInputHandlerEx<offset, controlID, Op>::orig_CanProcess;
-#define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)																						\
-																																		\
-	typedef PlayerInputHandlerEx<ACTIVATE_HANDLER_VTBL_META + 0x10, kControlID_Activate, ##TYPE_NAME##> ActivateHandlerEx;				\
-	typedef PlayerInputHandlerEx<READY_WEAPON_HANDLER_VTBL_META + 0x10, kControlID_ReadyWeapon, ##TYPE_NAME##> ReadyWeaponHandlerEx;	\
-	typedef PlayerInputHandlerEx<FIRST_PERSON_STATE_VTBL_META + 0x60, kControlID_TogglePOV, ##TYPE_NAME##> FirstPersonStateHandlerEx;	\
-	typedef PlayerInputHandlerEx<THIRD_PERSON_STATE_VTBL_META + 0x98, kControlID_TogglePOV, ##TYPE_NAME##> ThirdPersonStateHandlerEx;	\
-	typedef PlayerInputHandlerEx<JUMP_HANDLER_VTBL_META + 0x10, kControlID_Jump, ##TYPE_NAME##> JumpHandlerEx;							\
-	typedef PlayerInputHandlerEx<SPRINT_HANDLER_VTBL_META + 0x10, kControlID_Sprint, ##TYPE_NAME##> SprintHandlerEx;					\
-	typedef PlayerInputHandlerEx<SNEAK_HANDLER_VTBL_META + 0x10, kControlID_Sneak, ##TYPE_NAME##> SneakHandlerEx;						\
-	typedef PlayerInputHandlerEx<SHOUT_HANDLER_VTBL_META + 0x10, kControlID_Shout, ##TYPE_NAME##> ShoutHandlerEx;						\
-	typedef PlayerInputHandlerEx<TOGGLE_RUN_HANDLER_VTBL_META + 0x10, kControlID_ToggleRun, ##TYPE_NAME##> ToggleRunHandlerEx;			\
-	typedef PlayerInputHandlerEx<FAVORITES_HANDLER_VTBL_META + 0x10, kControlID_None, ##TYPE_NAME##> FavoritesHandlerEx;
+	// Activate handler needs to account for grabbing items
+	template <typename Op>
+	class ActivateHandler : public RE::ActivateHandler
+	{
+	public:
+		typedef bool(ActivateHandler::*_CanProcess_t)(InputEvent* a_event);
+		static _CanProcess_t orig_CanProcess;
+
+
+		bool hook_CanProcess(InputEvent* a_event)
+		{
+			using QuickLootRE::LootMenu;
+
+			static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+
+			if (player->GetGrabbedRef()) {
+				LootMenu::Close();
+				LootMenu::ClearContainerRef();
+			}
+
+			if (a_event && a_event->eventType == InputEvent::kEventType_Button && LootMenu::IsVisible()) {
+				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
+				if (button->IsUp() && *a_event->GetControlID() == GetControlID(kControlID_Activate)) {
+					Op::Run();
+					return false;
+				} else if (button->IsDown()) {  // inventory menu activation will queue up without this
+					return false;
+				}
+			}
+			return (this->*orig_CanProcess)(a_event);
+		}
+
+
+		static void installHook()
+		{
+			RelocPtr<_CanProcess_t> vtbl_CanProcess(ACTIVATE_HANDLER_VTBL_META + 0x10);
+			orig_CanProcess = *vtbl_CanProcess;
+			SafeWrite64(vtbl_CanProcess.GetUIntPtr(), GetFnAddr(&hook_CanProcess));
+		}
+	};
+
+
+	template <uintptr_t offset, ControlID controlID, typename Op> typename PlayerInputHandler<offset, controlID, Op>::_CanProcess_t PlayerInputHandler<offset, controlID, Op>::orig_CanProcess;
+	template <typename Op> typename ActivateHandler<Op>::_CanProcess_t ActivateHandler<Op>::orig_CanProcess;
+#define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)																								\
+																																			\
+	typedef ActivateHandler<##TYPE_NAME##>																		ActivateHandlerEx;			\
+	typedef PlayerInputHandler<READY_WEAPON_HANDLER_VTBL_META + 0x10, kControlID_ReadyWeapon, ##TYPE_NAME##>	ReadyWeaponHandlerEx;		\
+	typedef PlayerInputHandler<FIRST_PERSON_STATE_VTBL_META + 0x60, kControlID_TogglePOV, ##TYPE_NAME##>		FirstPersonStateHandlerEx;	\
+	typedef PlayerInputHandler<THIRD_PERSON_STATE_VTBL_META + 0x98, kControlID_TogglePOV, ##TYPE_NAME##>		ThirdPersonStateHandlerEx;	\
+	typedef PlayerInputHandler<JUMP_HANDLER_VTBL_META + 0x10, kControlID_Jump, ##TYPE_NAME##>					JumpHandlerEx;				\
+	typedef PlayerInputHandler<SPRINT_HANDLER_VTBL_META + 0x10, kControlID_Sprint, ##TYPE_NAME##>				SprintHandlerEx;			\
+	typedef PlayerInputHandler<SNEAK_HANDLER_VTBL_META + 0x10, kControlID_Sneak, ##TYPE_NAME##>					SneakHandlerEx;				\
+	typedef PlayerInputHandler<SHOUT_HANDLER_VTBL_META + 0x10, kControlID_Shout, ##TYPE_NAME##>					ShoutHandlerEx;				\
+	typedef PlayerInputHandler<TOGGLE_RUN_HANDLER_VTBL_META + 0x10, kControlID_ToggleRun, ##TYPE_NAME##>		ToggleRunHandlerEx;			\
+	typedef PlayerInputHandler<FAVORITES_HANDLER_VTBL_META + 0x10, kControlID_None, ##TYPE_NAME##>				FavoritesHandlerEx;
 
 
 	class TakeOp

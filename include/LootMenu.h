@@ -100,9 +100,8 @@ namespace QuickLootRE
 		static void					Open();
 		static void					Close();
 		static void					SetVisible(bool a_visible);
-		static void					SetContainerRef(TESObjectREFR* a_ref);
 		static void					SetContainerRef(RE::TESObjectREFR* a_ref);
-		static void					ClearContainerRef(bool a_playAnimation = true);
+		static void					ClearContainerRef();
 		static bool					CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
 		static void					Register(Scaleform a_reg);
 		static Style				GetStyle();

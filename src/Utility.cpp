@@ -45,24 +45,29 @@ namespace QuickLootRE
 
 	bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
 	{
-		if (!a_refr) {
-			return false;
-		}
-
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
-		if (a_refr && a_refr->baseForm->formType == kFormType_NPC) {
-			RE::Actor* actor = static_cast<RE::Actor*>(a_refr);
-			return (a_isSneaking &&
-					!actor->IsDead(true) &&
-					!actor->IsGhost() &&
-					!actor->IsChild() &&
-					!actor->IsPlayerTeammate() &&
-					!actor->IsInFaction(CurrentFollowerFaction) &&
-					!actor->GetRace()->HasKeyword(ActorTypeCreature) &&
-					!actor->GetRace()->HasKeyword(ActorTypeAnimal));
-		} else {
+		if (!a_refr || !a_refr->baseForm->formType == kFormType_NPC) {
 			return false;
 		}
+
+		RE::Actor* actor = static_cast<RE::Actor*>(a_refr);
+		if (!actor) {
+			return false;
+		}
+
+		RE::TESRace* race = actor->GetRace();
+		if (!race) {
+			return false;
+		}
+
+		return (a_isSneaking &&
+				!actor->IsDead(true) &&
+				!actor->IsGhost() &&
+				!actor->IsChild() &&
+				!actor->IsPlayerTeammate() &&
+				!actor->IsInFaction(CurrentFollowerFaction) &&
+				!actor->GetRace()->HasKeyword(ActorTypeCreature) &&
+				!actor->GetRace()->HasKeyword(ActorTypeAnimal));
 	}
 }

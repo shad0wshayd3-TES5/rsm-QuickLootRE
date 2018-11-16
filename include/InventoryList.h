@@ -25,7 +25,7 @@ namespace QuickLootRE
 		InventoryList();
 		~InventoryList();
 
-		void											parseInventory(RE::BaseExtraList* a_xList, RE::TESObjectREFR* a_refr);
+		void											parseInventory(RE::TESObjectREFR* a_refr);
 
 		ItemData&										operator[](UInt32 a_pos);
 
@@ -43,7 +43,7 @@ namespace QuickLootRE
 		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
 		void											add(TESForm* a_form, SInt32 a_count);
 
-		bool											isValidItem(TESForm* a_item);
+		bool											isValidItem(TESForm* a_item, SInt32 a_count);
 
 		typedef SInt32 Count;
 		typedef UInt32 FormID;

@@ -1,12 +1,11 @@
 #pragma once
 
-#include "RE/PlayerControls.h"  // PlayerControls::Data024
 #include "RE/PlayerInputHandler.h"  // PlayerInputHandler
 
 
 namespace RE
 {
-	class ReadyWeaponHandler : public PlayerInputHandler
+	class AutoMoveHandler : public PlayerInputHandler
 	{
 	public:
 		// override (PlayerInputHandler)

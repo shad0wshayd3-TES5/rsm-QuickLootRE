@@ -124,6 +124,9 @@
     <Filter Include="src\RE\Skyrim\TESForms\Objects">
       <UniqueIdentifier>{a45b72b2-4bd0-44e0-b255-a4941cbc080a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\RE\Skyrim\BSCore">
+      <UniqueIdentifier>{4f856d79-c408-46f8-9377-009394082805}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -281,6 +284,12 @@
     </ClCompile>
     <ClCompile Include="src\RE\UIManager.cpp">
       <Filter>src\RE\Skyrim\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\TESLeveledList.cpp">
+      <Filter>src\RE\Skyrim\FormComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RE\BSTArray.cpp">
+      <Filter>src\RE\Skyrim\BSCore</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -581,6 +590,45 @@
     </ClInclude>
     <ClInclude Include="include\RE\TESRaceForm.h">
       <Filter>include\RE\Skyrim\FormComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\ToggleRunHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\LookHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\SprintHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\AutoMoveHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\JumpHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\ShoutHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\AttackBlockHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\RunHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\SneakHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TogglePOVHandler.h">
+      <Filter>include\RE\Skyrim\BSDevices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TESLeveledList.h">
+      <Filter>include\RE\Skyrim\FormComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\TESLevItem.h">
+      <Filter>include\RE\Skyrim\FormComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BSTArray.h">
+      <Filter>include\RE\Skyrim\BSCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

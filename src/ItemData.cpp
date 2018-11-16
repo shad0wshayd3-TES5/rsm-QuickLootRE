@@ -716,7 +716,7 @@ namespace QuickLootRE
 
 	int compareByName(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		return strcmp(a_lhs._name, a_rhs._name);
+		return strcmp(a_rhs._name, a_lhs._name);	// Intentionally flipped to ensure the list is sorted alphabetically
 	}
 
 

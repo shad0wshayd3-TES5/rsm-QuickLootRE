@@ -13,8 +13,18 @@ class PlayerInputHandler;
 namespace RE
 {
 	class ActivateHandler;
+	class AttackBlockHandler;
+	class AutoMoveHandler;
+	class JumpHandler;
+	class LookHandler;
 	class MovementHandler;
 	class ReadyWeaponHandler;
+	class RunHandler;
+	class ShoutHandler;
+	class SneakHandler;
+	class SprintHandler;
+	class TogglePOVHandler;
+	class ToggleRunHandler;
 
 
 	class PlayerControls :
@@ -71,18 +81,18 @@ namespace RE
 		tArray<void*>				unk150;				// 150
 		UInt64						unk168;				// 168
 		MovementHandler*			movementHandler;	// 170
-		PlayerInputHandler*			lookHandler;		// 178
-		PlayerInputHandler*			sprintHandler;		// 180
+		LookHandler*				lookHandler;		// 178
+		SprintHandler*				sprintHandler;		// 180
 		ReadyWeaponHandler*			readyWeaponHandler; // 188
-		PlayerInputHandler*			autoMoveHandler;	// 190
-		PlayerInputHandler*			toggleRunHandler;	// 198
+		AutoMoveHandler*			autoMoveHandler;	// 190
+		ToggleRunHandler*			toggleRunHandler;	// 198
 		ActivateHandler*			activateHandler;	// 1A0
-		PlayerInputHandler*			jumpHandler;		// 1A8
-		PlayerInputHandler*			shoutHandler;		// 1B0
-		PlayerInputHandler*			attackBlockHandler; // 1B8
-		PlayerInputHandler*			runHandler;			// 1C0
-		PlayerInputHandler*			sneakHandler;		// 1C8
-		PlayerInputHandler*			togglePOVHandler;	// 1D0
+		JumpHandler*				jumpHandler;		// 1A8
+		ShoutHandler*				shoutHandler;		// 1B0
+		AttackBlockHandler*			attackBlockHandler; // 1B8
+		RunHandler*					runHandler;			// 1C0
+		SneakHandler*				sneakHandler;		// 1C8
+		TogglePOVHandler*			togglePOVHandler;	// 1D0
 	};
 	STATIC_ASSERT(offsetof(PlayerControls, data024) == 0x024);
 }

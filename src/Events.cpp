@@ -32,8 +32,7 @@ namespace QuickLootRE
 {
 	EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, EventDispatcher<SKSECrosshairRefEvent>* a_dispatcher)
 	{
-		static UIManager*			uiManager = UIManager::GetSingleton();
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 
 		// If player is not looking at anything
@@ -54,8 +53,7 @@ namespace QuickLootRE
 
 		// If player is looking at a container
 		if (LootMenu::CanOpen(ref, player->IsSneaking())) {
-			RE::TESObjectREFR* containerRef = LootMenu::GetContainerRef();
-			g_invList.parseInventory(&containerRef->extraData, containerRef);
+			g_invList.parseInventory(LootMenu::GetContainerRef());
 			LootMenu::Close();
 			LootMenu::Open();
 		}
@@ -116,15 +114,17 @@ namespace QuickLootRE
 		if (a_event->opening) {
 			RE::IMenu* menu = mm->GetMenu(&a_event->menuName);
 			if (menu) {
-				if (menuName == strHolder->dialogueMenu) {
+				if (menuName == strHolder->dialogueMenu || menuName == strHolder->messageBoxMenu) {
 					LootMenu::Close();
+					LootMenu::ClearContainerRef();
 				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) || menu->PausesGame()) {
 					LootMenu::SetVisible(false);
 				}
 			}
 		} else {
-			if (!LootMenu::IsVisible() && (!mm->GameIsPaused() || menuName == strHolder->dialogueMenu)) {
+			if (!LootMenu::IsVisible() && !mm->GameIsPaused()) {
 				LootMenu::SetVisible(true);
+				g_invList.parseInventory(LootMenu::GetContainerRef());
 				LootMenu::Register(LootMenu::kScaleform_OpenContainer);
 			}
 		}
@@ -144,6 +144,7 @@ namespace QuickLootRE
 		if ((a_event->source && a_event->source->formID == player->formID) || (a_event->target && a_event->target->formID == player->formID)) {
 			if (IsValidPickPocketTarget(LootMenu::GetContainerRef(), player->IsSneaking()) || Settings::disableInCombat) {
 				LootMenu::Close();
+				LootMenu::ClearContainerRef();
 			}
 		}
 

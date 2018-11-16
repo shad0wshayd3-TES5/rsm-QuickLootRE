@@ -164,6 +164,7 @@
     <ClCompile Include="src\RE\BGSBipedObjectForm.cpp" />
     <ClCompile Include="src\RE\BGSEntryPointPerkEntry.cpp" />
     <ClCompile Include="src\RE\BSInputDevice.cpp" />
+    <ClCompile Include="src\RE\BSTArray.cpp" />
     <ClCompile Include="src\RE\BSWin32KeyboardDevice.cpp" />
     <ClCompile Include="src\RE\ButtonEvent.cpp" />
     <ClCompile Include="src\RE\EffectSetting.cpp" />
@@ -190,6 +191,7 @@
     <ClCompile Include="src\RE\PlayerInputHandler.cpp" />
     <ClCompile Include="src\RE\TESActorBaseData.cpp" />
     <ClCompile Include="src\RE\TESFaction.cpp" />
+    <ClCompile Include="src\RE\TESLeveledList.cpp" />
     <ClCompile Include="src\RE\TESNPC.cpp" />
     <ClCompile Include="src\RE\TESObjectBOOK.cpp" />
     <ClCompile Include="src\RE\TESObjectLIGH.cpp" />
@@ -206,10 +208,13 @@
     <ClInclude Include="include\RE\ActivateHandler.h" />
     <ClInclude Include="include\RE\ActiveEffect.h" />
     <ClInclude Include="include\RE\ActorValueOwner.h" />
+    <ClInclude Include="include\RE\AttackBlockHandler.h" />
+    <ClInclude Include="include\RE\AutoMoveHandler.h" />
     <ClInclude Include="include\RE\BGSActorCellEvent.h" />
     <ClInclude Include="include\RE\BGSActorDeathEvent.h" />
     <ClInclude Include="include\RE\BGSEntryPointFunctionDataText.h" />
     <ClInclude Include="include\RE\bhkCharacterMoveFinishEvent.h" />
+    <ClInclude Include="include\RE\BSTArray.h" />
     <ClInclude Include="include\RE\BSTransformDeltaEvent.h" />
     <ClInclude Include="include\RE\BSTSingleton.h" />
     <ClInclude Include="include\RE\EffectSetting.h" />
@@ -264,6 +269,8 @@
     <ClInclude Include="include\RE\EventDispatcherList.h" />
     <ClInclude Include="include\RE\ExtraContainerChanges.h" />
     <ClInclude Include="include\RE\InventoryEntryData.h" />
+    <ClInclude Include="include\RE\JumpHandler.h" />
+    <ClInclude Include="include\RE\LookHandler.h" />
     <ClInclude Include="include\RE\MagicItem.h" />
     <ClInclude Include="include\RE\MagicTarget.h" />
     <ClInclude Include="include\RE\MenuControls.h" />
@@ -281,11 +288,17 @@
     <ClInclude Include="include\RE\PlayerInputHandler.h" />
     <ClInclude Include="include\RE\PositionPlayerEvent.h" />
     <ClInclude Include="include\RE\ReadyWeaponHandler.h" />
+    <ClInclude Include="include\RE\RunHandler.h" />
+    <ClInclude Include="include\RE\ShoutHandler.h" />
+    <ClInclude Include="include\RE\SneakHandler.h" />
+    <ClInclude Include="include\RE\SprintHandler.h" />
     <ClInclude Include="include\RE\TESActorBase.h" />
     <ClInclude Include="include\RE\TESActorBaseData.h" />
     <ClInclude Include="include\RE\TESBoundAnimObject.h" />
     <ClInclude Include="include\RE\TESBoundObject.h" />
     <ClInclude Include="include\RE\TESFaction.h" />
+    <ClInclude Include="include\RE\TESLeveledList.h" />
+    <ClInclude Include="include\RE\TESLevItem.h" />
     <ClInclude Include="include\RE\TESNPC.h" />
     <ClInclude Include="include\RE\TESObjectACTI.h" />
     <ClInclude Include="include\RE\TESObjectBOOK.h" />
@@ -294,6 +307,8 @@
     <ClInclude Include="include\RE\TESObjectREFR.h" />
     <ClInclude Include="include\RE\TESRace.h" />
     <ClInclude Include="include\RE\TESRaceForm.h" />
+    <ClInclude Include="include\RE\TogglePOVHandler.h" />
+    <ClInclude Include="include\RE\ToggleRunHandler.h" />
     <ClInclude Include="include\RE\UIManager.h" />
     <ClInclude Include="include\RE\UserEventEnabledEvent.h" />
     <ClInclude Include="include\Settings.h" />

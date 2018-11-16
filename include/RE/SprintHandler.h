@@ -1,17 +1,11 @@
 #pragma once
 
-#include "RE/HeldStateHandler.h"  // HeldStateHandler
-#include "RE/PlayerControls.h"  // PlayerControls::Data024
-
-class InputEvent;
+#include "RE/PlayerInputHandler.h"  // PlayerInputHandler
 
 
 namespace RE
 {
-	class ButtonEvent;
-
-
-	class ActivateHandler : public HeldStateHandler
+	class SprintHandler : public PlayerInputHandler
 	{
 	public:
 		// override (PlayerInputHandler)
