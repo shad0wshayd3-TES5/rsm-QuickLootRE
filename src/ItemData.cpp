@@ -608,6 +608,10 @@ namespace QuickLootRE
 			return true;
 		}
 
+		if (!_entryData->extraList) {
+			return true;
+		}
+
 		for (auto& xList : *_entryData->extraList) {
 			if (xList->HasType(kExtraData_Worn) ||
 				xList->HasType(kExtraData_WornLeft)) {
@@ -622,6 +626,7 @@ namespace QuickLootRE
 				}
 			}
 		}
+
 		return true;
 	}
 
