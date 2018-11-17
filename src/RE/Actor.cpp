@@ -14,67 +14,97 @@ namespace RE
 {
 	TESForm* Actor::GetEquippedObject(bool a_abLeftHand)
 	{
-		return reinterpret_cast<::Actor*>(this)->GetEquippedObject(a_abLeftHand);
+		typedef TESForm* _GetEquippedObject_t(Actor* a_this, bool a_abLeftHand);
+		static _GetEquippedObject_t* _GetEquippedObject = reinterpret_cast<_GetEquippedObject_t*>(GetFnAddr(&::Actor::GetEquippedObject));
+		return _GetEquippedObject(this, a_abLeftHand);
 	}
 
 
 	void Actor::UpdateSkinColor()
 	{
-		reinterpret_cast<::Actor*>(this)->UpdateSkinColor();
+		typedef void _UpdateSkinColor_t(Actor* a_this);
+		static _UpdateSkinColor_t* _UpdateSkinColor = reinterpret_cast<_UpdateSkinColor_t*>(GetFnAddr(&::Actor::UpdateSkinColor));
+		_UpdateSkinColor(this);
 	}
 
 
 	void Actor::UpdateHairColor()
 	{
-		reinterpret_cast<::Actor*>(this)->UpdateHairColor();
+		typedef void _UpdateHairColor_t(Actor* a_this);
+		static _UpdateHairColor_t* _UpdateHairColor = reinterpret_cast<_UpdateHairColor_t*>(GetFnAddr(&::Actor::UpdateHairColor));
+		_UpdateHairColor(this);
 	}
 
 
 	void Actor::QueueNiNodeUpdate(bool a_updateWeight)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), QueueNiNodeUpdate)(a_updateWeight);
+		typedef void _QueueNiNodeUpdate_t(Actor* a_this, bool a_updateWeight);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_QueueNiNodeUpdate_GetPtr());
+		static _QueueNiNodeUpdate_t* _QueueNiNodeUpdate = reinterpret_cast<_QueueNiNodeUpdate_t*>(*ptr);
+		_QueueNiNodeUpdate(this, a_updateWeight);
 	}
 
 
 	bool Actor::HasPerk(BGSPerk* a_perk)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), HasPerk)(a_perk);
+		typedef bool _HasPerk_t(Actor* a_this, BGSPerk* a_perk);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_HasPerk_GetPtr());
+		static _HasPerk_t* _HasPerk = reinterpret_cast<_HasPerk_t*>(*ptr);
+		return _HasPerk(this, a_perk);
 	}
 
 
 	UInt16 Actor::GetLevel()
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), GetLevel)();
+		typedef UInt16 _GetLevel_t(Actor* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_GetLevel_GetPtr());
+		static _GetLevel_t* _GetLevel = reinterpret_cast<_GetLevel_t*>(*ptr);
+		return _GetLevel(this);
 	}
 
 
 	void Actor::SetRace(TESRace* a_race, bool a_isPlayer)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), SetRace)(reinterpret_cast<::TESRace*>(a_race), a_isPlayer);
+		typedef void _SetRace_t(Actor* a_this, TESRace* a_race, bool a_isPlayer);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_SetRace_GetPtr());
+		static _SetRace_t* _SetRace = reinterpret_cast<_SetRace_t*>(*ptr);
+		_SetRace(this, a_race, a_isPlayer);
 	}
 
 
 	void Actor::UpdateWeaponAbility(TESForm* a_weapon, BaseExtraList* a_extraData, bool a_bLeftHand)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), UpdateWeaponAbility)(a_weapon, reinterpret_cast<::BaseExtraList*>(a_extraData), a_bLeftHand);
+		typedef void _UpdateWeaponAbility_t(Actor* a_this, TESForm* a_weapon, BaseExtraList* a_extraData, bool a_bLeftHand);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_UpdateWeaponAbility_GetPtr());
+		static _UpdateWeaponAbility_t* _UpdateWeaponAbility = reinterpret_cast<_UpdateWeaponAbility_t*>(*ptr);
+		_UpdateWeaponAbility(this, a_weapon, a_extraData, a_bLeftHand);
 	}
 
 
 	void Actor::UpdateArmorAbility(TESForm* a_armor, BaseExtraList* a_extraData)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), UpdateArmorAbility)(a_armor, reinterpret_cast<::BaseExtraList*>(a_extraData));
+		typedef void _UpdateArmorAbility_t(Actor* a_this, TESForm* a_armor, BaseExtraList* a_extraData);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_UpdateArmorAbility_GetPtr());
+		static _UpdateArmorAbility_t* _UpdateArmorAbility = reinterpret_cast<_UpdateArmorAbility_t*>(*ptr);
+		_UpdateArmorAbility(this, a_armor, a_extraData);
 	}
 
 
-	bool Actor::IsHostileToActor(::Actor* a_actor)
+	bool Actor::IsHostileToActor(Actor* a_actor)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), IsHostileToActor)(a_actor);
+		typedef bool _IsHostileToActor_t(Actor* a_this, Actor* a_actor);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_IsHostileToActor_GetPtr());
+		static _IsHostileToActor_t* _IsHostileToActor = reinterpret_cast<_IsHostileToActor_t*>(*ptr);
+		return _IsHostileToActor(this, a_actor);
 	}
 
 
 	void Actor::ResetAI(UInt32 a_unk1, UInt32 a_unk2)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::Actor*>(this), ResetAI)(a_unk1, a_unk2);
+		typedef void _ResetAI_t(Actor* a_this, UInt32 a_unk1, UInt32 a_unk2);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::Actor*>(this)->_ResetAI_GetPtr());
+		static _ResetAI_t* _ResetAI = reinterpret_cast<_ResetAI_t*>(*ptr);
+		_ResetAI(this, a_unk1, a_unk2);
 	}
 
 
@@ -222,8 +252,7 @@ namespace RE
 
 	bool Actor::IsSummoned()
 	{
-		TESNPC* npc = GetActorBase();
-		return npc ? npc->IsSummonable() : false;
+		return GetActorBase() ? GetActorBase()->IsSummonable() : false;
 	}
 
 

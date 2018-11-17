@@ -81,6 +81,7 @@ namespace QuickLootRE
 		static void					ModSelectedIndex(SInt32 a_indexOffset);
 		static void					SetDisplaySize(SInt32 a_size);
 		static RE::TESObjectREFR*	GetContainerRef();
+		static void					ClearContainerRef();
 		static bool					IsOpen();
 		static bool					IsVisible();
 		static bool					InTakeAllMode();
@@ -101,7 +102,6 @@ namespace QuickLootRE
 		static void					Close();
 		static void					SetVisible(bool a_visible);
 		static void					SetContainerRef(RE::TESObjectREFR* a_ref);
-		static void					ClearContainerRef();
 		static bool					CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
 		static void					Register(Scaleform a_reg);
 		static Style				GetStyle();

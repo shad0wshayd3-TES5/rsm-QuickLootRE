@@ -26,7 +26,7 @@ namespace RE
 		const char*		GetDisplayName(TESForm* a_type);
 		BSExtraData*	GetByType(UInt32 a_type);
 
-		void			SetInventoryChanges(ExtraContainerChanges::Data* a_changes);
+		void			SetInventoryChanges(InventoryChanges* a_changes);
 		UInt32			GetAshPileRefHandle(UInt32& a_refHandle);
 
 
@@ -35,7 +35,7 @@ namespace RE
 		BSReadWriteLock						m_lock;		// 10
 
 	private:
-		typedef void _SetInventoryChanges_Impl_t(BaseExtraList* a_this, ExtraContainerChanges::Data* a_changes);
+		typedef void _SetInventoryChanges_Impl_t(BaseExtraList* a_this, InventoryChanges* a_changes);
 		static RelocAddr<_SetInventoryChanges_Impl_t*> _SetInventoryChanges_Impl;
 
 		typedef UInt32 _GetAshPileRefHandle_Impl_t(BaseExtraList* a_this, UInt32& refHandle);

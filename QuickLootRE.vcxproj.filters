@@ -291,6 +291,9 @@
     <ClCompile Include="src\RE\BSTArray.cpp">
       <Filter>src\RE\Skyrim\BSCore</Filter>
     </ClCompile>
+    <ClCompile Include="src\RE\InventoryChanges.cpp">
+      <Filter>src\RE\Skyrim\Misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -628,6 +631,15 @@
       <Filter>include\RE\Skyrim\FormComponents</Filter>
     </ClInclude>
     <ClInclude Include="include\RE\BSTArray.h">
+      <Filter>include\RE\Skyrim\BSCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\InventoryChanges.h">
+      <Filter>include\RE\Skyrim\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\Memory.h">
+      <Filter>src\RE\Skyrim</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RE\BSTList.h">
       <Filter>include\RE\Skyrim\BSCore</Filter>
     </ClInclude>
   </ItemGroup>

@@ -34,6 +34,7 @@ namespace Hooks
 {
 	RelocAddr<_SendItemsPickPocketedEvent_t*> _SendItemsPickPocketedEvent(SEND_ITEMS_PICK_POCKETED_EVENT);
 	RelocAddr<_GetPickPocketChance_t*> _GetPickPocketChance(GET_PICK_POCKET_CHANCE);
+	RelocAddr<_HeapAllocAbstraction_t*> _HeapAllocAbstraction(HEAP_ALLOC_ABSTRACTION);
 
 
 	template <uintptr_t offset, ControlID controlID, typename Op>
@@ -86,7 +87,6 @@ namespace Hooks
 
 			if (player->GetGrabbedRef()) {
 				LootMenu::Close();
-				LootMenu::ClearContainerRef();
 			}
 
 			if (a_event && a_event->eventType == InputEvent::kEventType_Button && LootMenu::IsVisible()) {

@@ -19,37 +19,54 @@ namespace RE
 {
 	float TESObjectREFR::GetBaseScale()
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetBaseScale)();
+		typedef float _GetBaseScale_t(TESObjectREFR* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::TESObjectREFR*>(this)->_GetBaseScale_GetPtr());
+		static _GetBaseScale_t* _GetBaseScale = reinterpret_cast<_GetBaseScale_t*>(*ptr);
+		return _GetBaseScale(this);
 	}
 
 
 	bool TESObjectREFR::IsOffLimits()
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), IsOffLimits)();
+		typedef bool _IsOffLimits_t(TESObjectREFR* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::TESObjectREFR*>(this)->_IsOffLimits_GetPtr());
+		static _IsOffLimits_t* _IsOffLimits = reinterpret_cast<_IsOffLimits_t*>(*ptr);
+		return _IsOffLimits(this);
 	}
 
 
 	float TESObjectREFR::GetWeight()
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWeight)();
+		typedef float _GetWeight_t(TESObjectREFR* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::TESObjectREFR*>(this)->_GetWeight_GetPtr());
+		static _GetWeight_t* _GetWeight = reinterpret_cast<_GetWeight_t*>(*ptr);
+		return _GetWeight(this);
 	}
 
 
 	const char* TESObjectREFR::GetReferenceName()
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetReferenceName)();
+		typedef const char* _GetReferenceName_t(TESObjectREFR* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::TESObjectREFR*>(this)->_GetReferenceName_GetPtr());
+		static _GetReferenceName_t* _GetReferenceName = reinterpret_cast<_GetReferenceName_t*>(*ptr);
+		return _GetReferenceName(this);
 	}
 
 
 	TESWorldSpace* TESObjectREFR::GetWorldspace()
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::TESObjectREFR*>(this), GetWorldspace)();
+		typedef TESWorldSpace* _GetWorldspace_t(TESObjectREFR* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::TESObjectREFR*>(this)->_GetWorldspace_GetPtr());
+		static _GetWorldspace_t* _GetWorldspace = reinterpret_cast<_GetWorldspace_t*>(*ptr);
+		return _GetWorldspace(this);
 	}
 
 
 	UInt32 TESObjectREFR::CreateRefHandle()
 	{
-		return reinterpret_cast<::TESObjectREFR*>(this)->CreateRefHandle();
+		typedef UInt32 _CreateRefHandle_t(TESObjectREFR* a_this);
+		static _CreateRefHandle_t* _CreateRefHandle = reinterpret_cast<_CreateRefHandle_t*>(GetFnAddr(&::TESObjectREFR::CreateRefHandle));
+		return _CreateRefHandle(this);
 	}
 
 
@@ -202,19 +219,18 @@ namespace RE
 
 	bool TESObjectREFR::LookupByHandle(UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut)
 	{
-		typedef bool _Lookup(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
-		static _Lookup* Lookup = reinterpret_cast<_Lookup*>(::LookupREFRObjectByHandle.GetUIntPtr());
+		typedef bool _Lookup_t(const UInt32& a_refHandle, TESObjectREFRPtr& a_refrOut);
+		static _Lookup_t* _Lookup = reinterpret_cast<_Lookup_t*>(::LookupREFRObjectByHandle.GetUIntPtr());
 
-		return Lookup(a_refHandle, a_refrOut);
+		return _Lookup(a_refHandle, a_refrOut);
 	}
 
 
 	bool TESObjectREFR::LookupByHandle(UInt32& a_refHandle, TESObjectREFR*& a_refrOut)
 	{
-		typedef bool _Lookup(const UInt32& a_refHandle, TESObjectREFR*& a_refrOut);
-		static _Lookup* Lookup = reinterpret_cast<_Lookup*>(::LookupREFRByHandle.GetUIntPtr());
-
-		return Lookup(a_refHandle, a_refrOut);
+		typedef bool _Lookup_t(const UInt32& a_refHandle, TESObjectREFR*& a_refrOut);
+		static _Lookup_t* _Lookup = reinterpret_cast<_Lookup_t*>(::LookupREFRByHandle.GetUIntPtr());
+		return _Lookup(a_refHandle, a_refrOut);
 	}
 
 
@@ -243,9 +259,24 @@ namespace RE
 	}
 
 
+	bool TESObjectREFR::HasInventoryChanges()
+	{
+		RE::ExtraContainerChanges* xContainerChanges = static_cast<RE::ExtraContainerChanges*>(extraData.GetByType(kExtraData_ContainerChanges));
+		RE::InventoryChanges* changes = xContainerChanges ? xContainerChanges->changes : 0;
+		return changes != 0;
+	}
+
+
+	InventoryChanges* TESObjectREFR::GetInventoryChanges()
+	{
+		return _GetInventoryChanges(this);
+	}
+
+
 	RelocAddr<TESObjectREFR::_GetOwner_Impl_t*> TESObjectREFR::_GetOwner_Impl(TES_OBJECT_REFR_GET_OWNER_IMPL);
 	RelocAddr<TESObjectREFR::_GetLockState_Impl_t*> TESObjectREFR::_GetLockState_Impl(TES_OBJECT_REFR_GET_LOCK_STATE_IMPL);
 	RelocAddr<TESObjectREFR::_GetNumItems_t*> TESObjectREFR::_GetNumItems(TES_OBJECT_REFR_GET_NUM_ITEMS);
 	RelocAddr<TESObjectREFR::_ActivateRefChildren_t*> TESObjectREFR::_ActivateRefChildren(TES_OBJECT_REFR_ACTIVATE_CHILDREN);
 	RelocAddr<TESObjectREFR::_PlayAnimation_t*> TESObjectREFR::_PlayAnimation(TES_OBJECT_REFR_PLAY_ANIMATION);
+	RelocAddr<TESObjectREFR::_GetInventoryChanges_t*> TESObjectREFR::_GetInventoryChanges(TES_OBJECT_REFR_GET_INVENTORY_CHANGES);
 }

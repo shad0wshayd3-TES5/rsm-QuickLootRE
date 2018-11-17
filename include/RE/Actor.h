@@ -248,7 +248,7 @@ namespace RE
 		void			SetRace(TESRace* a_race, bool a_isPlayer);
 		void			UpdateWeaponAbility(TESForm* a_weapon, BaseExtraList* a_extraData, bool a_bLeftHand);
 		void			UpdateArmorAbility(TESForm* a_armor, BaseExtraList* a_extraData);
-		bool			IsHostileToActor(::Actor* a_actor);
+		bool			IsHostileToActor(Actor* a_actor);
 		void			ResetAI(UInt32 a_unk1, UInt32 a_unk2);
 
 		bool			VisitFactions(FactionVisitor& a_visitor);

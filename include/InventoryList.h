@@ -43,7 +43,7 @@ namespace QuickLootRE
 		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
 		void											add(TESForm* a_form, SInt32 a_count);
 
-		bool											isValidItem(TESForm* a_item, SInt32 a_count);
+		bool											isValidItem(TESForm* a_item);
 
 		typedef SInt32 Count;
 		typedef UInt32 FormID;
@@ -60,18 +60,6 @@ namespace QuickLootRE
 			explicit TESContainerVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap);
 
 			virtual bool Accept(TESContainer::Entry* a_entry);
-
-		private:
-			std::map<FormID, std::pair<TESForm*, Count>>& _defaultMap;
-		};
-
-
-		class EntryDataListVisitor
-		{
-		public:
-			explicit EntryDataListVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap);
-
-			virtual bool Accept(InventoryEntryData* a_entryData);
 
 		private:
 			std::map<FormID, std::pair<TESForm*, Count>>& _defaultMap;

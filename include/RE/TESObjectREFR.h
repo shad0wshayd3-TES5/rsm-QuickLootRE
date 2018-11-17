@@ -19,6 +19,7 @@ class TESObjectCELL;
 
 namespace RE
 {
+	class InventoryChanges;
 	class NiControllerManager;
 	class NiControllerSequence;
 	class NiNode;
@@ -205,6 +206,8 @@ namespace RE
 		UInt32							GetNumItems(bool a_unk1, bool a_unk2);
 		UInt32							ActivateRefChildren(TESObjectREFR* a_activator);
 		void							PlayAnimation(NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);
+		bool							HasInventoryChanges();
+		InventoryChanges*				GetInventoryChanges();
 
 
 		// members
@@ -235,6 +238,9 @@ namespace RE
 
 		typedef void _PlayAnimation_t(TESObjectREFR* a_this, NiControllerManager* a_manager, NiControllerSequence* a_toSeq, NiControllerSequence* a_fromSeq, bool a_unk);
 		static RelocAddr<_PlayAnimation_t*> _PlayAnimation;
+
+		typedef InventoryChanges* _GetInventoryChanges_t(TESObjectREFR* a_this);  // Creates inventory changes if none found
+		static RelocAddr<_GetInventoryChanges_t*> _GetInventoryChanges;
 	};
 	STATIC_ASSERT(sizeof(TESObjectREFR) == 0x98);
 	STATIC_ASSERT(offsetof(TESObjectREFR, extraData) == 0x70);

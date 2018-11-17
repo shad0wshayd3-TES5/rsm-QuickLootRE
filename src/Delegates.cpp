@@ -13,6 +13,7 @@
 
 #include "RE/GFxMovieDef.h"  // GFxMovieDef
 #include "RE/GFxMovieView.h"  // GFxMovieView
+#include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/MenuControls.h"  // MenuControls
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
@@ -174,7 +175,6 @@ namespace QuickLootRE
 		if (LootMenu::IsOpen()) {
 			try {
 				LootMenu* loot = LootMenu::GetSingleton();
-				AddContainerChanges();
 
 				GFxValue args[1];
 
@@ -260,21 +260,6 @@ namespace QuickLootRE
 	{
 		if (this) {
 			Heap_Free(this);
-		}
-	}
-
-
-	void OpenContainerUIDelegate::AddContainerChanges()
-	{
-		// Containers don't have ExtraContainerChanges if the player hasn't opened them yet, so we must add them ourselves
-		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
-		RE::ExtraContainerChanges* xContainerChanges = static_cast<RE::ExtraContainerChanges*>(ref->extraData.GetByType(kExtraData_ContainerChanges));
-		RE::ExtraContainerChanges::Data* changes = xContainerChanges ? xContainerChanges->data : 0;
-		if (!changes) {
-			RE::ExtraContainerChanges::Data* changes = (RE::ExtraContainerChanges::Data*)Heap_Allocate(sizeof(RE::ExtraContainerChanges::Data));
-			new (changes)RE::ExtraContainerChanges::Data(ref);
-			ref->extraData.SetInventoryChanges(changes);
-			changes->InitContainer();
 		}
 	}
 

@@ -34,9 +34,12 @@ namespace QuickLootRE
 	{
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
+		if (!a_event) {
+			return kEvent_Continue;
+		}
 
 		// If player is not looking at anything
-		if (!a_event || !a_event->crosshairRef) {
+		if (!a_event->crosshairRef) {
 			if (LootMenu::IsOpen()) {
 				LootMenu::Close();
 				LootMenu::ClearContainerRef();
@@ -54,7 +57,6 @@ namespace QuickLootRE
 		// If player is looking at a container
 		if (LootMenu::CanOpen(ref, player->IsSneaking())) {
 			g_invList.parseInventory(LootMenu::GetContainerRef());
-			LootMenu::Close();
 			LootMenu::Open();
 		}
 
@@ -79,7 +81,6 @@ namespace QuickLootRE
 			if ((*a_event)->eventType == InputEvent::kEventType_Button && (*a_event)->deviceType == kDeviceType_Keyboard) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
 				if (*button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
-					_DMESSAGE("[DEBUG] 0x%p", mm);
 					if (mm->GetMovieView(&uiStrHolder->inventoryMenu)) {
 						uiManager->AddMessage(uiStrHolder->inventoryMenu, UIMessage::kMessage_Close, 0);
 					} else if (mm->GetMovieView(&uiStrHolder->statsMenu) && !mm->GetMovieView(&uiStrHolder->levelUpMenu)) {
@@ -116,7 +117,6 @@ namespace QuickLootRE
 			if (menu) {
 				if (menuName == strHolder->dialogueMenu || menuName == strHolder->messageBoxMenu) {
 					LootMenu::Close();
-					LootMenu::ClearContainerRef();
 				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) || menu->PausesGame()) {
 					LootMenu::SetVisible(false);
 				}
@@ -144,7 +144,6 @@ namespace QuickLootRE
 		if ((a_event->source && a_event->source->formID == player->formID) || (a_event->target && a_event->target->formID == player->formID)) {
 			if (IsValidPickPocketTarget(LootMenu::GetContainerRef(), player->IsSneaking()) || Settings::disableInCombat) {
 				LootMenu::Close();
-				LootMenu::ClearContainerRef();
 			}
 		}
 

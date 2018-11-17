@@ -20,7 +20,7 @@ namespace RE
 
 		static InventoryEntryData*	Create(TESForm* a_item, UInt32 a_count);
 		void						Delete(void);
-		void						GetExtraWornBaseLists(BaseExtraList** a_pWornBaseListOut, BaseExtraList** a_pWornLeftBaseListOut);
+		void						GetExtraWornBaseLists(BaseExtraList*& a_pWornBaseListOut, BaseExtraList*& a_pWornLeftBaseListOut);
 		void						GetEquipItemData(::InventoryEntryData::EquipData& a_stateOut, SInt32 a_itemId, SInt32 a_baseCount);
 		const char*					GenerateName();
 		SInt32						GetValue();

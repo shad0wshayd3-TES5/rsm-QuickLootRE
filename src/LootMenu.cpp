@@ -25,7 +25,6 @@
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
-#include "RE/ExtraContainerChanges.h"  // ExtraContainerChanges, ExtraContainerChanges::Data
 #include "RE/GFxMovieDef.h"  // GFxMovieDef
 #include "RE/GFxMovieView.h"  // GFxMovieView
 #include "RE/GFxLoader.h"  // GFxLoader
@@ -117,6 +116,15 @@ namespace QuickLootRE
 	RE::TESObjectREFR* LootMenu::GetContainerRef()
 	{
 		return _containerRef;
+	}
+
+
+	void LootMenu::ClearContainerRef()
+	{
+		if (_singleton) {
+			_singleton->PlayAnimationClose();
+		}
+		_containerRef = 0;
 	}
 
 
@@ -250,19 +258,13 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::ClearContainerRef()
-	{
-		_containerRef = 0;
-	}
-
-
 	bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	{
-		static RE::MenuManager*		mm					= RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping				= RE::InputManager::GetSingleton();
-		static UIStringHolder*		strHolder			= UIStringHolder::GetSingleton();
-		static RE::PlayerCharacter*	player				= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static BSFixedString		strAnimationDriven	= "bAnimationDriven";
+		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
+		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
+		static UIStringHolder*		strHolder = UIStringHolder::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static BSFixedString		strAnimationDriven = "bAnimationDriven";
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
@@ -393,9 +395,9 @@ namespace QuickLootRE
 
 	UInt32 LootMenu::ProcessMessage(UIMessage* a_message)
 	{
-		static RE::MenuManager*		mm		= RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping	= RE::InputManager::GetSingleton();
-		static RE::PlayerCharacter*	player	= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
+		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!Settings::isApplied) {
 			Register(kScaleform_Setup);
@@ -457,8 +459,8 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static InputStringHolder*	strHolder	= InputStringHolder::GetSingleton();
-		static RE::PlayerCharacter*	player		= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static InputStringHolder*	strHolder = InputStringHolder::GetSingleton();
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!a_event->IsDown()) {
 			return true;
@@ -466,11 +468,10 @@ namespace QuickLootRE
 
 		BSFixedString controlID = *a_event->GetControlID();
 		if (controlID == strHolder->sneak) {
+			RE::TESObjectREFR* ref = _containerRef;
 			Close();
-			if (CanOpen(_containerRef, !player->IsSneaking())) {
+			if (CanOpen(ref, !player->IsSneaking())) {
 				Open();
-			} else {
-				LootMenu::ClearContainerRef();
 			}
 		}
 
@@ -698,8 +699,8 @@ namespace QuickLootRE
 		typedef RE::TESObjectREFR::RemoveType				RemoveType;
 		typedef RE::EffectSetting::Properties::Archetype	Archetype;
 
-		static RE::PlayerCharacter*	player			= reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static UInt32				droppedHandle	= 0;
+		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static UInt32				droppedHandle = 0;
 
 		// Locate item's extra list (if any)
 		BaseExtraList* xList = 0;

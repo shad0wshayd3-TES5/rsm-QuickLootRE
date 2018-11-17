@@ -16,6 +16,7 @@
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSTArray.h"  // BSScrapArray
+#include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESLeveledList.h"  // TESLeveledList
@@ -43,15 +44,25 @@ namespace QuickLootRE
 		clear();
 		ItemData::setContainer(a_refr);
 
-		// Default container
+		// Get default items
 		TESContainerVisitor containerOp(_defaultMap);
 		a_refr->GetContainer()->Visit(containerOp);
 
-		// Extra container changes
-		ExtraContainerChanges* xContainerChanges = static_cast<ExtraContainerChanges*>(a_refr->extraData.GetByType(kExtraData_ContainerChanges));
-		EntryDataListVisitor entryDataListOp(_defaultMap);
-		if (xContainerChanges && xContainerChanges->data && xContainerChanges->data->objList) {
-			xContainerChanges->data->objList->Visit(entryDataListOp);
+		// Parse changes
+		bool changesCreated = !a_refr->HasInventoryChanges();
+		RE::InventoryChanges* changes = a_refr->GetInventoryChanges();
+		if (changesCreated) {
+			changes->InitContainer();
+			changes->GenerateLeveledListChanges();
+		}
+		if (changes && changes->entryList) {
+			for (auto& entry : *changes->entryList) {
+				auto it = _defaultMap.find(entry->type->formID);
+				if (it != _defaultMap.end()) {
+					_defaultMap.erase(entry->type->formID);
+				}
+				add(entry);
+			}
 		}
 
 		// Add remaining default items
@@ -115,7 +126,7 @@ namespace QuickLootRE
 
 	void InventoryList::add(RE::InventoryEntryData* a_entryData)
 	{
-		if (isValidItem(a_entryData->type, a_entryData->countDelta)) {
+		if (isValidItem(a_entryData->type) && a_entryData->countDelta > 0) {
 			_itemList.emplace_back(a_entryData);
 		}
 	}
@@ -123,7 +134,7 @@ namespace QuickLootRE
 
 	void InventoryList::add(RE::InventoryEntryData* a_entryData, SInt32 a_count)
 	{
-		if (isValidItem(a_entryData->type, a_count)) {
+		if (isValidItem(a_entryData->type) && a_count > 0) {
 			_itemList.emplace_back(a_entryData, a_count);
 		}
 	}
@@ -137,24 +148,15 @@ namespace QuickLootRE
 	}
 
 
-	bool InventoryList::isValidItem(TESForm* a_item, SInt32 a_count)
+	bool InventoryList::isValidItem(TESForm* a_item)
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(&g_thePlayer);
+		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!a_item) {
 			return false;
 		}
 
 		if (a_item->formType == kFormType_LeveledItem) {
-#if 0
-			RE::BSScrapArray<RE::TESLeveledList::CalculatedResult> arr(a_count);
-			RE::TESLevItem* levItem = static_cast<RE::TESLevItem*>(a_item);
-			levItem->Calculate(player->GetLevel(), a_count, arr);
-			for (auto& result : arr) {
-				_DMESSAGE("[DEBUG] formType == %i", result.form->formType);
-				_DMESSAGE("[DEBUG] count == %i", result.count);
-			}
-#endif
 			return false;
 		}
 
@@ -192,34 +194,6 @@ namespace QuickLootRE
 	bool InventoryList::TESContainerVisitor::Accept(TESContainer::Entry* a_entry)
 	{
 		_defaultMap.emplace(a_entry->form->formID, std::pair<TESForm*, Count>(a_entry->form, a_entry->count));
-		return true;
-	}
-
-
-	InventoryList::EntryDataListVisitor::EntryDataListVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap) :
-		_defaultMap(a_defaultMap)
-	{}
-
-
-	bool InventoryList::EntryDataListVisitor::Accept(InventoryEntryData* a_entryData)
-	{
-		RE::InventoryEntryData* entryData = reinterpret_cast<RE::InventoryEntryData*>(a_entryData);
-
-		if (!entryData) {
-			return true;
-		}
-
-		auto it = _defaultMap.find(entryData->type->formID);
-		if (it != _defaultMap.end()) {
-			SInt32 count = it->second.second + entryData->countDelta;
-			if (count > 0) {
-				g_invList.add(entryData, count);
-			}
-			_defaultMap.erase(entryData->type->formID);
-		} else if (entryData->countDelta > 0) {
-			g_invList.add(entryData);
-		}
-
 		return true;
 	}
 

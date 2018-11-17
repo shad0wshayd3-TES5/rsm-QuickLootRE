@@ -9,23 +9,11 @@
 
 #include "Offsets.h"
 
+#include "RE/Memory.h"  // TES_HEAP_REDEFINE_NEW
+
+
 namespace RE
 {
-#define TES_FORMHEAP_REDEFINE_NEW()											\
-	static void* operator new(std::size_t size)								\
-	{ return Heap_Allocate(size); }											\
-	static void* operator new(std::size_t size, const std::nothrow_t &)		\
-	{ return Heap_Allocate(size); }											\
-	static void* operator new(std::size_t size, void* ptr)					\
-	{ return ptr; }															\
-	static void operator delete(void* ptr)									\
-	{ Heap_Free(ptr); }														\
-	static void operator delete(void* ptr, const std::nothrow_t &)			\
-	{ Heap_Free(ptr); }														\
-	static void operator delete(void*, void *)								\
-	{ }
-
-
 	class BSTArrayBase
 	{
 	public:
@@ -48,7 +36,7 @@ namespace RE
 			virtual ~IAllocatorFunctor() {}																															// 3
 
 
-			TES_FORMHEAP_REDEFINE_NEW();
+			TES_HEAP_REDEFINE_NEW();
 		};
 
 
@@ -431,7 +419,7 @@ namespace RE
 		using _TAlloc::capacity;
 
 
-		TES_FORMHEAP_REDEFINE_NEW();
+		TES_HEAP_REDEFINE_NEW();
 
 
 		typedef pointer			iterator;
