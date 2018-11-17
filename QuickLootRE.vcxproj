@@ -198,6 +198,7 @@
     <ClCompile Include="src\RE\TESActorBaseData.cpp" />
     <ClCompile Include="src\RE\TESFaction.cpp" />
     <ClCompile Include="src\RE\TESLeveledList.cpp" />
+    <ClCompile Include="src\RE\TESLevItem.cpp" />
     <ClCompile Include="src\RE\TESNPC.cpp" />
     <ClCompile Include="src\RE\TESObjectBOOK.cpp" />
     <ClCompile Include="src\RE\TESObjectLIGH.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="include\RE\BSTransformDeltaEvent.h" />
     <ClInclude Include="include\RE\BSTSingleton.h" />
     <ClInclude Include="include\RE\EffectSetting.h" />
+    <ClInclude Include="include\RE\ExtraDroppedItemList.h" />
     <ClInclude Include="include\RE\ExtraFactionChanges.h" />
     <ClInclude Include="include\RE\FavoritesHandler.h" />
     <ClInclude Include="include\RE\GFxFileConstants.h" />

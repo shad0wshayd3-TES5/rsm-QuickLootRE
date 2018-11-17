@@ -3,19 +3,18 @@
 
 namespace RE
 {
-	InventoryEntryData* InventoryEntryData::Create(TESForm* a_item, UInt32 a_count)
-	{
-		typedef InventoryEntryData* _Create_t(TESForm* a_item, UInt32 a_count);
-		static _Create_t* _Create = reinterpret_cast<_Create_t*>(GetFnAddr(&::InventoryEntryData::Create));
-		return _Create(a_item, a_count);
-	}
+	InventoryEntryData::InventoryEntryData(TESForm* a_item, UInt32 a_count) :
+		type(a_item),
+		extraList(0),
+		countDelta(a_count)
+	{}
 
 
-	void InventoryEntryData::Delete(void)
+	InventoryEntryData::~InventoryEntryData()
 	{
-		typedef void _Delete_t(InventoryEntryData* a_this);
-		static _Delete_t* _Delete = reinterpret_cast<_Delete_t*>(GetFnAddr(&::InventoryEntryData::Delete));
-		_Delete(this);
+		if (extraList) {
+			delete extraList;
+		}
 	}
 
 
@@ -68,6 +67,21 @@ namespace RE
 		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::InventoryEntryData*>(this)->_GetSoulLevel_GetPtr());
 		static _GetSoulLevel_t* _GetSoulLevel = reinterpret_cast<_GetSoulLevel_t*>(*ptr);
 		return _GetSoulLevel(this);
+	}
+
+
+	void InventoryEntryData::AddEntryList(BaseExtraList* a_extra)
+	{
+		if (!a_extra) {
+			return;
+		}
+
+		if (!extraList) {
+			extraList = new BSSimpleList<BaseExtraList*>;
+		}
+		if (extraList) {
+			extraList->push_back(a_extra);
+		}
 	}
 
 

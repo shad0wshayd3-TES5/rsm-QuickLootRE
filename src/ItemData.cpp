@@ -580,11 +580,11 @@ namespace QuickLootRE
 
 	bool ItemData::getEnchanted()
 	{
-		if (_entryData->extendDataList) {
-			ExtendDataListVisitor visitor({ kExtraData_Enchantment }, { });
-			_entryData->extendDataList->Visit(visitor);
-			if (visitor.Found()) {
-				return true;
+		if (_entryData->extraList) {
+			for (auto& xList : *_entryData->extraList) {
+				if (xList->HasType(kExtraData_Enchantment)) {
+					return true;
+				}
 			}
 		}
 		TESEnchantableForm* enchantForm = DYNAMIC_CAST(_entryData->type, TESForm, TESEnchantableForm);
@@ -608,9 +608,7 @@ namespace QuickLootRE
 			return true;
 		}
 
-		BaseExtraList* xList = 0;
-		for (SInt32 i = 0; i < _entryData->extendDataList->Count(); ++i) {
-			xList = _entryData->extendDataList->GetNthItem(i);
+		for (auto& xList : *_entryData->extraList) {
 			if (xList->HasType(kExtraData_Worn) ||
 				xList->HasType(kExtraData_WornLeft)) {
 				if (_entryData->type->formType == kFormType_Weapon) {

@@ -524,6 +524,10 @@ namespace QuickLootRE
 
 		static RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
 
+		if (!_containerRef) {
+			return;
+		}
+
 		RE::BSGamepadDevice* gamepadHandle = inputDispatcher->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
@@ -568,7 +572,9 @@ namespace QuickLootRE
 			numItems = 1;
 		}
 
-		TakeItem(itemCopy, numItems);
+		if (TakeItem(itemCopy, numItems)) {
+			DelayedUpdater::Register();
+		}
 	}
 
 
@@ -693,7 +699,7 @@ namespace QuickLootRE
 	}
 
 
-	void LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems)
+	bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems)
 	{
 		typedef RE::PlayerCharacter::EventType				EventType;
 		typedef RE::TESObjectREFR::RemoveType				RemoveType;
@@ -702,16 +708,19 @@ namespace QuickLootRE
 		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 		static UInt32				droppedHandle = 0;
 
+		bool manualUpdate = false;	// picking up dropped items doesn't disptach a container changed event
+
 		// Locate item's extra list (if any)
-		BaseExtraList* xList = 0;
-		if (a_item.entryData()->extendDataList && a_item.entryData()->extendDataList->Count() > 0) {
-			xList = a_item.entryData()->extendDataList->GetNthItem(0);
+		RE::BaseExtraList* xList = 0;
+		if (a_item.entryData()->extraList && !a_item.entryData()->extraList->empty()) {
+			xList = a_item.entryData()->extraList->front();
 		}
 
 		// Pickup dropped items
 		if (xList && xList->HasType(kExtraData_ItemDropper)) {
 			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((UInt64)xList - 0x70);
 			player->PickUpItem(refItem, 1, false, true);
+			manualUpdate = true;
 		} else {
 			RemoveType lootMode = RemoveType::kRemoveType_Take;
 
@@ -722,7 +731,7 @@ namespace QuickLootRE
 				// Pickpocket
 				} else {
 					if (!TryToPickPocket(a_item, lootMode)) {
-						return;
+						return manualUpdate;
 					}
 				}
 			} else {
@@ -755,6 +764,8 @@ namespace QuickLootRE
 			player->DispellEffectsWithArchetype(Archetype::kArchetype_Invisibility, false);
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}
+
+		return manualUpdate;
 	}
 
 

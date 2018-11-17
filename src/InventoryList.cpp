@@ -16,6 +16,7 @@
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSTArray.h"  // BSScrapArray
+#include "RE/ExtraDroppedItemList.h"  // ExtraDroppedItemList
 #include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
@@ -42,33 +43,26 @@ namespace QuickLootRE
 	void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
 	{
 		clear();
+
+		if (!a_refr) {
+			ItemData::setContainer(0);
+			return;
+		}
+
 		ItemData::setContainer(a_refr);
 
 		// Get default items
 		TESContainerVisitor containerOp(_defaultMap);
 		a_refr->GetContainer()->Visit(containerOp);
 
-		// Parse changes
-		bool changesCreated = !a_refr->HasInventoryChanges();
-		RE::InventoryChanges* changes = a_refr->GetInventoryChanges();
-		if (changesCreated) {
-			changes->InitContainer();
-			changes->GenerateLeveledListChanges();
-		}
-		if (changes && changes->entryList) {
-			for (auto& entry : *changes->entryList) {
-				auto it = _defaultMap.find(entry->type->formID);
-				if (it != _defaultMap.end()) {
-					_defaultMap.erase(entry->type->formID);
-				}
-				add(entry);
-			}
-		}
+		parseInventoryChanges(a_refr);
 
 		// Add remaining default items
 		for (auto& it : _defaultMap) {
 			add(it.second.first, it.second.second);
 		}
+
+		parseDroppedList(a_refr);
 
 		std::sort(_itemList.rbegin(), _itemList.rend());
 	}
@@ -110,7 +104,7 @@ namespace QuickLootRE
 		_defaultMap.clear();
 		_itemList.clear();
 		for (auto& entryData : _heapList) {
-			entryData->Delete();
+			delete entryData;
 		}
 		_heapList.clear();
 		_toDelete = end();
@@ -142,9 +136,64 @@ namespace QuickLootRE
 
 	void InventoryList::add(TESForm* a_form, SInt32 a_count)
 	{
-		RE::InventoryEntryData* entryData = RE::InventoryEntryData::Create(a_form, a_count);
+		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_form, a_count);
 		_heapList.push_back(entryData);
 		add(entryData);
+	}
+
+
+	void InventoryList::add(RE::TESObjectREFRPtr& a_refPtr)
+	{
+		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_refPtr->baseForm, 1);
+		entryData->AddEntryList(&a_refPtr->extraData);
+		_heapList.push_back(entryData);
+		add(entryData);
+	}
+
+
+	void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
+	{
+		bool changesCreated = !a_refr->HasInventoryChanges();
+		RE::InventoryChanges* changes = a_refr->GetInventoryChanges();
+
+		if (changesCreated) {
+			changes->InitContainer();
+			changes->GenerateLeveledListChanges();
+		}
+
+		if (!changes || !changes->entryList) {
+			return;
+		}
+
+		for (auto& entry : *changes->entryList) {
+			auto it = _defaultMap.find(entry->type->formID);
+			if (it != _defaultMap.end()) {
+				_defaultMap.erase(entry->type->formID);
+			}
+			add(entry);
+		}
+	}
+
+
+	void InventoryList::parseDroppedList(RE::TESObjectREFR* a_refr)
+	{
+		RE::ExtraDroppedItemList* droppedList = static_cast<RE::ExtraDroppedItemList*>(a_refr->extraData.GetByType(kExtraData_DroppedItemList));
+		if (!droppedList) {
+			return;
+		}
+
+		for (auto& handle : droppedList->handles) {
+			if (handle == *g_invalidRefHandle) {
+				continue;
+			}
+
+			RE::TESObjectREFRPtr refPtr;
+			if (!RE::TESObjectREFR::LookupByHandle(handle, refPtr)) {
+				continue;
+			}
+
+			add(refPtr);
+		}
 	}
 
 
@@ -156,16 +205,33 @@ namespace QuickLootRE
 			return false;
 		}
 
-		if (a_item->formType == kFormType_LeveledItem) {
-			return false;
-		}
-
-		if (a_item->formType == kFormType_Light) {
+		switch (a_item->formType) {
+		case kFormType_ScrollItem:
+		case kFormType_Armor:
+		case kFormType_Book:
+		case kFormType_Ingredient:
+		case kFormType_Misc:
+		case kFormType_Weapon:
+		case kFormType_Ammo:
+		case kFormType_Key:
+		case kFormType_Potion:
+		case kFormType_Note:
+		case kFormType_SoulGem:
+			break;
+		case kFormType_Light:
+		{
 			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(a_item);
 			if (!light->CanBeCarried()) {
 				return false;
+			} else {
+				break;
 			}
-		} else if (!a_item->IsPlayable()) {
+		}
+		default:
+			return false;
+		}
+
+		if (!a_item->IsPlayable()) {
 			return false;
 		}
 
@@ -178,7 +244,7 @@ namespace QuickLootRE
 			}
 		} catch (std::exception& e) {
 			_ERROR("[ERROR] Form (0x%X) does not have TESFullName (%i)\n", a_item->formID, a_item->formType);
-			_ERROR(e.what());
+			_ERROR("[ERROR] %s", e.what());
 			return false;
 		}
 
@@ -193,7 +259,7 @@ namespace QuickLootRE
 
 	bool InventoryList::TESContainerVisitor::Accept(TESContainer::Entry* a_entry)
 	{
-		_defaultMap.emplace(a_entry->form->formID, std::pair<TESForm*, Count>(a_entry->form, a_entry->count));
+		_defaultMap.emplace(a_entry->form->formID, std::make_pair(a_entry->form, a_entry->count));
 		return true;
 	}
 

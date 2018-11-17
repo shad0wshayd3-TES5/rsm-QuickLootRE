@@ -5,6 +5,8 @@
 #include <new>
 #include <utility>
 
+#include "RE/Memory.h"
+
 
 namespace RE
 {
@@ -294,7 +296,7 @@ namespace RE
 				m_listHead.next = next->next;
 			}
 
-			FormHeap_Free(next);
+			Heap_Free(next);
 		}
 
 		// insert ref before it
@@ -321,7 +323,7 @@ namespace RE
 		NodePtr _make_node_front()
 		{
 			if (!empty()) {
-				NodePtr newNode = FormHeap_Allocate<Node>();
+				NodePtr newNode = Heap_Allocate<Node>();
 				if (!newNode)
 					return nullptr;
 
@@ -338,7 +340,7 @@ namespace RE
 			if (empty())
 				return &m_listHead;
 
-			NodePtr newNode = FormHeap_Allocate<Node>();
+			NodePtr newNode = Heap_Allocate<Node>();
 			if (!newNode)
 				return nullptr;
 
@@ -358,7 +360,7 @@ namespace RE
 			NodePtr node = &m_listHead;
 			do {
 				if (node->next == it.m_cur) {
-					NodePtr newNode = FormHeap_Allocate<Node>();
+					NodePtr newNode = Heap_Allocate<Node>();
 					if (newNode) {
 						newNode->next = node->next;
 						node->next = newNode;
@@ -376,7 +378,7 @@ namespace RE
 		NodePtr _make_node_after(const_iterator it)
 		{
 			NodePtr node = it.m_cur;
-			NodePtr newNode = FormHeap_Allocate<Node>();
+			NodePtr newNode = Heap_Allocate<Node>();
 			if (newNode) {
 				newNode->next = node->next;
 				node->next = newNode;

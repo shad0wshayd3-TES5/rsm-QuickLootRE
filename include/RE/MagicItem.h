@@ -1,5 +1,7 @@
 #pragma once
 
+#include "skse64_common/Utilities.h"
+#include "skse64/GameAPI.h"
 #include "skse64/GameFormComponents.h"  // TESFullName,  BGSKeywordForm
 #include "skse64/GameTypes.h"  // tArray
 

@@ -6,6 +6,8 @@
 
 #include "ItemData.h"  // ItemData
 
+#include "RE/TESObjectREFR.h"  // TESObjectREFR, TESObjectREFRPtr
+
 class TESContainer;
 class TESForm;
 
@@ -13,7 +15,6 @@ namespace RE
 {
 	class BaseExtraList;
 	class InventoryEntryData;
-	class TESObjectREFR;
 }
 
 
@@ -42,6 +43,10 @@ namespace QuickLootRE
 		void											add(RE::InventoryEntryData* a_entryData);
 		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
 		void											add(TESForm* a_form, SInt32 a_count);
+		void											add(RE::TESObjectREFRPtr& a_refPtr);
+
+		void											parseInventoryChanges(RE::TESObjectREFR* a_refr);
+		void											parseDroppedList(RE::TESObjectREFR* a_refr);
 
 		bool											isValidItem(TESForm* a_item);
 

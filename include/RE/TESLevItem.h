@@ -19,6 +19,8 @@ namespace RE
 		// override (TESLeveledList)
 		virtual SInt32	GetLevDifferenceMax() override;				// 6
 		virtual bool	IsValidLevItem(UInt32 a_formType) override;	// 7
+
+		bool			IsValidInventoryItem() const;
 	};
 	STATIC_ASSERT(sizeof(TESLevItem) == 0x58);
 }
