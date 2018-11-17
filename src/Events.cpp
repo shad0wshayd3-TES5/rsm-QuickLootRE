@@ -158,6 +158,10 @@ namespace QuickLootRE
 		}
 
 		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+		if (!ref) {
+			return kEvent_Continue;
+		}
+
 		if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
 			DelayedUpdater::Register();  // This event is fired before the item is removed, so we have to wait a bit
 		}
