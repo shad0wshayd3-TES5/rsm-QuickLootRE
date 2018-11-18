@@ -10,7 +10,9 @@ namespace RE
 {
 	InputEventDispatcher* InputEventDispatcher::GetSingleton()
 	{
-		return reinterpret_cast<InputEventDispatcher*>(::InputEventDispatcher::GetSingleton());
+		typedef InputEventDispatcher* _GetSingleton_t();
+		static _GetSingleton_t* _GetSingleton = reinterpret_cast<_GetSingleton_t*>(GetFnAddr(&::InputEventDispatcher::GetSingleton));
+		return _GetSingleton();
 	}
 
 

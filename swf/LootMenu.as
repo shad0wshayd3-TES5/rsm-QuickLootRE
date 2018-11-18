@@ -110,16 +110,16 @@ class LootMenu extends MovieClip
 	}
 	
 
-	public function SetContainer(refID:Number, title:String, sTake:String, sSearch:String, sTakeAll:String, selectedIndex:Number): Void
+	public function SetContainer(a_refID:Number, title:String, a_sTake:String, a_sTakeAll:String, a_sSearch:String, selectedIndex:Number): Void
 	{
 		itemList.selectedIndex = selectedIndex;
 		
-		_refID = refID;
+		_refID = a_refID;
 		titleText.htmlText = title;
 		
-		buttonTake.setButton(_takeKey, sTake);
-		buttonTakeAll.setButton(_takeAllKey, sTakeAll);
-		buttonSearch.setButton(_searchKey, sSearch);
+		buttonTake.SetButton(_takeKey, a_sTake);
+		buttonTakeAll.SetButton(_takeAllKey, a_sTakeAll);
+		buttonSearch.SetButton(_searchKey, a_sSearch);
 	}
 	
 	
@@ -145,15 +145,31 @@ class LootMenu extends MovieClip
 
 	public function UpdateButtons(): Void
 	{
-		buttonTake.updateButton(_takeKey);
-		buttonTakeAll.updateButton(_takeAllKey);
-		buttonSearch.updateButton(_searchKey);
+		buttonTake.UpdateButton(_takeKey);
+		buttonTakeAll.UpdateButton(_takeAllKey);
+		buttonSearch.UpdateButton(_searchKey);
+	}
+	
+	
+	public function HideButtons(a_take:Boolean, a_takeAll:Boolean, a_search:Boolean): Void
+	{
+		if (a_take) {
+			buttonTake.HideButton();
+		}
+		
+		if (a_takeAll) {
+			buttonTakeAll.HideButton();
+		}
+		
+		if (a_search) {
+			buttonSearch.HideButton();
+		}
 	}
 
 
-	public function SwitchStyle(style: Number): Void
+	public function SwitchStyle(a_style:Number): Void
 	{
-		switch(style){
+		switch(a_style){
 			case 0:
 				background.gotoAndStop("Default");
 				itemList.scrollbar._x = itemList.width - itemList.scrollbar.width;

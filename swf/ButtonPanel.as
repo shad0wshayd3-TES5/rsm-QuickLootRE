@@ -10,7 +10,7 @@
 	}
 
 
-	public function setButton(a_key:Number, a_name:String): Void
+	public function SetButton(a_key:Number, a_name:String): Void
 	{
 		icon.gotoAndStop(a_key);
 		name.textAutoSize = "shrink";
@@ -19,8 +19,14 @@
 	}
 
 
-	public function updateButton(a_key:Number): Void
+	public function UpdateButton(a_key:Number): Void
 	{
 		icon.gotoAndStop(a_key);
+	}
+	
+	
+	public function HideButton(): Void
+	{
+		icon.gotoAndStop("Hidden");
 	}
 }

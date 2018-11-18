@@ -183,7 +183,7 @@ namespace QuickLootRE
 		bool							isRead()			const;
 		bool							isEnchanted()		const;
 		bool							canPickPocket()		const;
-		UInt32							pickPocketChance()	const;
+		SInt32							pickPocketChance()	const;
 		TESForm*						form()				const;
 
 		void							modCount(SInt32 a_mod);
@@ -206,7 +206,7 @@ namespace QuickLootRE
 		bool							getRead();
 		bool							getEnchanted();
 		bool							getCanPickPocket();
-		UInt32							getPickPocketChance();
+		SInt32							getPickPocketChance();
 		Priority						getPriority();
 
 		static friend int				compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
@@ -230,7 +230,7 @@ namespace QuickLootRE
 		bool							_isRead;
 		bool							_isEnchanted;
 		bool							_canPickPocket;
-		UInt32							_pickPocketChance;
+		SInt32							_pickPocketChance;
 		Priority						_priority;
 
 		static std::vector<FnCompare>	_compares;

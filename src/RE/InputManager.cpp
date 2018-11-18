@@ -8,36 +8,40 @@ namespace RE
 {
 	InputManager* InputManager::GetSingleton()
 	{
-		return reinterpret_cast<InputManager*>(::InputManager::GetSingleton());
+		typedef InputManager* _GetSingleton_t();
+		static _GetSingleton_t* _GetSingleton = reinterpret_cast<_GetSingleton_t*>(GetFnAddr(&::InputManager::GetSingleton));
+		return _GetSingleton();
 	}
 
 
-	UInt8 InputManager::AllowTextInput(bool allow)
+	UInt8 InputManager::AllowTextInput(bool a_allow)
 	{
-		return reinterpret_cast<::InputManager*>(this)->AllowTextInput(allow);
+		typedef UInt8 _AllowTextInput_t(InputManager* a_this, bool a_allow);
+		static _AllowTextInput_t* _AllowTextInput = reinterpret_cast<_AllowTextInput_t*>(GetFnAddr(&::InputManager::AllowTextInput));
+		return _AllowTextInput(this, a_allow);
 	}
 
 
-	UInt32 InputManager::GetMappedKey(const BSFixedString& name, InputDevice deviceType, Context contextIdx) const
+	UInt32 InputManager::GetMappedKey(const BSFixedString& a_name, InputDevice a_deviceType, Context a_contextIdx) const
 	{
 		tArray<InputContext::Mapping>* maps = 0;
 
-		switch (deviceType) {
+		switch (a_deviceType) {
 		case InputDevice::kInputDevice_Mouse:
-			maps = &context[contextIdx]->mouseMap;
+			maps = &context[a_contextIdx]->mouseMap;
 			break;
 		case InputDevice::kInputDevice_Gamepad:
-			maps = &context[contextIdx]->gamepadMap;
+			maps = &context[a_contextIdx]->gamepadMap;
 			break;
 		case InputDevice::kInputDevice_Keyboard:
-			maps = &context[contextIdx]->keyboardMap;
+			maps = &context[a_contextIdx]->keyboardMap;
 			break;
 		}
 
 		if (maps) {
 			InputContext::Mapping mapping;
 			for (int i = 0; i < maps->count; ++i) {
-				if (maps->GetNthItem(i, mapping) && mapping.name == name) {
+				if (maps->GetNthItem(i, mapping) && mapping.name == a_name) {
 					return mapping.buttonID;
 				}
 			}
@@ -47,19 +51,19 @@ namespace RE
 	}
 
 
-	const BSFixedString& InputManager::GetUserEventName(UInt32 buttonID, InputDevice deviceType, Context contextIdx) const
+	const BSFixedString& InputManager::GetUserEventName(UInt32 a_buttonID, InputDevice a_deviceType, Context a_contextIdx) const
 	{
 		tArray<InputContext::Mapping>* maps = 0;
 
-		switch (deviceType) {
+		switch (a_deviceType) {
 		case InputDevice::kInputDevice_Mouse:
-			maps = &context[contextIdx]->mouseMap;
+			maps = &context[a_contextIdx]->mouseMap;
 			break;
 		case InputDevice::kInputDevice_Gamepad:
-			maps = &context[contextIdx]->gamepadMap;
+			maps = &context[a_contextIdx]->gamepadMap;
 			break;
 		case InputDevice::kInputDevice_Keyboard:
-			maps = &context[contextIdx]->keyboardMap;
+			maps = &context[a_contextIdx]->keyboardMap;
 			break;
 		}
 
@@ -68,7 +72,7 @@ namespace RE
 		if (maps) {
 			static InputContext::Mapping mapping;
 			for (int i = 0; i < maps->count; ++i) {
-				if (maps->GetNthItem(i, mapping) && mapping.buttonID == buttonID) {
+				if (maps->GetNthItem(i, mapping) && mapping.buttonID == a_buttonID) {
 					return mapping.name;
 				}
 			}
@@ -80,30 +84,30 @@ namespace RE
 
 	bool InputManager::IsLookingControlsEnabled() const
 	{
-		return (controlState & kControlState_Looking) == kControlState_Looking;
+		return (controlState & kControlState_Looking) != 0;
 	}
 
 
 	bool InputManager::IsFlyingControlsEnabled() const
 	{
-		return (controlState & kControlState_Flying) == kControlState_Flying;
+		return (controlState & kControlState_Flying) != 0;
 	}
 
 
 	bool InputManager::IsSneakingControlsEnabled() const
 	{
-		return (controlState & kControlState_Sneaking) == kControlState_Sneaking;
+		return (controlState & kControlState_Sneaking) != 0;
 	}
 
 
 	bool InputManager::IsMenuControlsEnabled() const
 	{
-		return (controlState & kControlState_Menu) == kControlState_Menu;
+		return (controlState & kControlState_Menu) != 0;
 	}
 
 
 	bool InputManager::IsMovementControlsEnabled() const
 	{
-		return (controlState & kControlState_Movement) == kControlState_Movement;
+		return (controlState & kControlState_Movement) != 0;
 	}
 }

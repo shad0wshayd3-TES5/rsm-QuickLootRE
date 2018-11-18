@@ -75,6 +75,13 @@ namespace QuickLootRE
 	};
 
 
+	class HideButtonsUIDelegate : public UIDelegate_v1
+	{
+		virtual void Run() override;
+		virtual void Dispose() override;
+	};
+
+
 	class SwitchStyleTaskDelegate : public UIDelegate_v1
 	{
 	public:

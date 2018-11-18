@@ -7,6 +7,8 @@ namespace RE
 {
 	NiNode* NiNode::Create(UInt32 arrBufLen)
 	{
-		return reinterpret_cast<NiNode*>(::NiNode::Create(arrBufLen));
+		typedef NiNode* _Create_t();
+		static _Create_t* _Create = reinterpret_cast<_Create_t*>(GetFnAddr(&::NiNode::Create));
+		return _Create();
 	}
 }

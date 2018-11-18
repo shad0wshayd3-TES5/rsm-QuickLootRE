@@ -79,10 +79,10 @@ namespace RE
 
 
 		static InputManager*	GetSingleton();
-		UInt8					AllowTextInput(bool allow);
+		UInt8					AllowTextInput(bool a_allow);
 
-		UInt32					GetMappedKey(const BSFixedString& name, InputDevice deviceType, Context contextIdx = kContext_Gameplay) const;
-		const BSFixedString&	GetUserEventName(UInt32 buttonID, InputDevice deviceType, Context contextIdx = kContext_Gameplay) const;
+		UInt32					GetMappedKey(const BSFixedString& a_name, InputDevice a_deviceType, Context a_contextIdx = kContext_Gameplay) const;
+		const BSFixedString&	GetUserEventName(UInt32 a_buttonID, InputDevice a_deviceType, Context a_contextIdx = kContext_Gameplay) const;
 		bool					IsLookingControlsEnabled() const;
 		bool					IsFlyingControlsEnabled() const;
 		bool					IsSneakingControlsEnabled() const;

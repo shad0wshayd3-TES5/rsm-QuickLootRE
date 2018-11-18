@@ -61,6 +61,7 @@ namespace QuickLootRE
 			kScaleform_OpenContainer,
 			kScaleform_CloseContainer,
 			kScaleform_UpdateButtons,
+			kScaleform_HideButtons,
 			kScaleform_SwitchStyle
 		};
 

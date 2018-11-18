@@ -5,7 +5,9 @@ namespace RE
 {
 	UInt32 TESObjectBOOK::Data::GetSanitizedType()
 	{
-		return reinterpret_cast<::TESObjectBOOK*>(this)->data.GetSanitizedType();
+		typedef UInt32 _GetSanitizedType_t(TESObjectBOOK::Data* a_this);
+		static _GetSanitizedType_t* _GetSanitizedType = reinterpret_cast<_GetSanitizedType_t*>(GetFnAddr(&::TESObjectBOOK::Data::GetSanitizedType));
+		return _GetSanitizedType(this);
 	}
 
 

@@ -10,7 +10,6 @@
 #include <cmath>  // floor, ceil
 #include <string>  // string
 
-#include "ExtendDataListVisitor.h"  // ExtendDataListVisitor
 #include "Hooks.h"  // GetPickPocketChance()
 #include "Forms.h"  // keywords, FormID
 #include "Settings.h"  // Settings
@@ -38,7 +37,7 @@ namespace QuickLootRE
 		_isRead(false),
 		_isEnchanted(false),
 		_canPickPocket(true),
-		_pickPocketChance(0),
+		_pickPocketChance(-1),
 		_priority(kPriority_Key)
 	{
 		_count = _entryData->countDelta;
@@ -57,7 +56,7 @@ namespace QuickLootRE
 		_isRead(false),
 		_isEnchanted(false),
 		_canPickPocket(true),
-		_pickPocketChance(0.0),
+		_pickPocketChance(-1),
 		_priority(kPriority_Key)
 	{
 		constructCommon();
@@ -201,7 +200,7 @@ namespace QuickLootRE
 	}
 
 
-	UInt32 ItemData::pickPocketChance() const
+	SInt32 ItemData::pickPocketChance() const
 	{
 		return _pickPocketChance;
 	}
@@ -631,7 +630,7 @@ namespace QuickLootRE
 	}
 
 
-	UInt32 ItemData::getPickPocketChance()
+	SInt32 ItemData::getPickPocketChance()
 	{
 		using Hooks::_GetPickPocketChance;
 		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
@@ -649,10 +648,12 @@ namespace QuickLootRE
 			UInt32 chance = _GetPickPocketChance(playerSkill, targetSkill, totalValue, totalWeight, player, targetActor, isDetected, _entryData->type);
 			if (chance > 100) {
 				chance = 100;
+			} else if (chance < 0) {
+				chance = 0;
 			}
 			return chance;
 		} else {
-			return 0;
+			return -1;
 		}
 	}
 

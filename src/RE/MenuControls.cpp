@@ -7,7 +7,9 @@ namespace RE
 {
 	MenuControls* MenuControls::GetSingleton()
 	{
-		return reinterpret_cast<MenuControls*>(::MenuControls::GetSingleton());
+		typedef MenuControls* _GetSingleton_t();
+		static _GetSingleton_t* _GetSingleton = reinterpret_cast<_GetSingleton_t*>(GetFnAddr(&::MenuControls::GetSingleton));
+		return _GetSingleton();
 	}
 
 

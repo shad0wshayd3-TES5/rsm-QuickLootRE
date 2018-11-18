@@ -21,7 +21,7 @@ class ItemListEntry extends BasicListEntry
 
 
 	// @override BasicListEntry
-	public function initialize(a_index: Number, a_state: ListState): Void
+	public function initialize(a_index:Number, a_state:ListState): Void
 	{
 		super.initialize();
 
@@ -36,7 +36,7 @@ class ItemListEntry extends BasicListEntry
 	
 
 	// @implements MovieClipLoader
-	private function onLoadInit(a_icon: MovieClip): Void
+	private function onLoadInit(a_icon:MovieClip): Void
 	{
 		a_icon.gotoAndStop(_iconLabel);
 		//changeIconColor(a_icon, _iconColor);
@@ -44,7 +44,7 @@ class ItemListEntry extends BasicListEntry
 	
 	
 	// @override BasicListEntry
-	public function setEntry(a_entryObject: Object, a_state: ListState): Void
+	public function setEntry(a_entryObject:Object, a_state:ListState): Void
 	{		
 		var isAssigned = a_entryObject == a_state.assignedEntry;
 		var isSelected = a_entryObject == a_state.list.selectedEntry || isAssigned;
@@ -98,7 +98,7 @@ class ItemListEntry extends BasicListEntry
 		}
 		
 		pickPocketChance.autoSize = "right";
-		if (a_entryObject.itemChance == 0){
+		if (a_entryObject.itemChance < 0){
 			pickPocketChance.text = "";
 		} else {
 			var chance = a_entryObject.itemChance.toString();

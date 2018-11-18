@@ -76,7 +76,7 @@ namespace RE
 		void			ChangeHeadPart(BGSHeadPart* a_target);
 		void			ApplyMorph(MorphAction* a_morphAction);
 		void			UpdateNeck(BSFaceGenNiNode* a_faceNode);
-		void			SetSkinFromTint(NiColorA* a_result, TintMask* a_tintMask, UInt32 a_compute, UInt32 a_unk1);
+		void			SetSkinFromTint(NiColorA* a_result, TintMask* a_tintMask, UInt32 a_compute, UInt32 a_unk4);
 		void			SetFaceTexture(BGSTextureSet* a_textureSet);
 		void			SetHairColor(BGSColorForm* a_hairColor);
 		BGSHeadPart*	GetHeadPartByType(UInt32 a_type);

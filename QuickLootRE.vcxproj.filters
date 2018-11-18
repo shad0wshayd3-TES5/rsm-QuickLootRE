@@ -147,9 +147,6 @@
     <ClCompile Include="src\InventoryList.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\ExtendDataListVisitor.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Hooks.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -312,9 +309,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\InventoryList.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ExtendDataListVisitor.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Hooks.h">

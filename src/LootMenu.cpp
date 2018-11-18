@@ -370,6 +370,9 @@ namespace QuickLootRE
 		case kScaleform_UpdateButtons:
 			AllocateAndDispatch<UpdateButtonsUIDelegate>();
 			break;
+		case kScaleform_HideButtons:
+			AllocateAndDispatch<HideButtonsUIDelegate>();
+			break;
 		case kScaleform_SwitchStyle:
 			AllocateAndDispatch<SwitchStyleTaskDelegate>();
 			break;
@@ -522,7 +525,8 @@ namespace QuickLootRE
 		typedef RE::BSGamepadDevice			BSGamepadDevice;
 		typedef RE::BSWin32GamepadDevice	BSWin32GamepadDevice;
 
-		static RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
+		static RE::InputEventDispatcher*	inputDispatcher = RE::InputEventDispatcher::GetSingleton();
+		static RE::PlayerCharacter*			player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!_containerRef) {
 			return;
@@ -542,6 +546,9 @@ namespace QuickLootRE
 		Register(kScaleform_SetPlatform);
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_UpdateButtons);
+		if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
+			Register(kScaleform_HideButtons);
+		}
 		Register(kScaleform_OpenContainer);
 		Register(kScaleform_SetSelectedIndex);
 		SetVisible(true);

@@ -170,10 +170,10 @@ namespace RE
 		STATIC_ASSERT(offsetof(Data10, lightLevel) == 0x3A8);
 
 
-		void	SetEquipFlag(Flag flag);
-		void	UpdateEquipment(Actor* actor);
-		void	SetDataFlag(float flag);
-		void	UpdateEquipment_Hooked(Actor* actor);
+		void	SetEquipFlag(Flag a_flag);
+		void	UpdateEquipment(Actor* a_actor);
+		void	SetDataFlag(float a_flag);
+		void	UpdateEquipment_Hooked(Actor* a_actor);
 
 
 		// members

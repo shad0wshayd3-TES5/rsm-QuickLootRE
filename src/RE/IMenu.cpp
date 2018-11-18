@@ -14,11 +14,14 @@ namespace RE
 
 	IMenu::~IMenu()
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), dtor)();
+		typedef void _IMenu_dtor_t(IMenu* a_this);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::IMenu*>(this)->_dtor_GetPtr());
+		static _IMenu_dtor_t* _IMenu_dtor = reinterpret_cast<_IMenu_dtor_t*>(*ptr);
+		_IMenu_dtor(this);
 	}
 
 
-	void IMenu::Accept(CallbackProcessor* processor)
+	void IMenu::Accept(CallbackProcessor* a_processor)
 	{}
 
 
@@ -30,15 +33,21 @@ namespace RE
 	{}
 
 
-	UInt32 IMenu::ProcessMessage(UIMessage* message)
+	UInt32 IMenu::ProcessMessage(UIMessage* a_message)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), ProcessMessage_internal)(message);
+		typedef UInt32 _ProcessMessage_t(IMenu* a_this, UIMessage* a_message);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::IMenu*>(this)->_ProcessMessage_internal_GetPtr());
+		static _ProcessMessage_t* _ProcessMessage = reinterpret_cast<_ProcessMessage_t*>(*ptr);
+		return _ProcessMessage(this, a_message);
 	}
 
 
-	void IMenu::NextFrame(UInt32 arg0, UInt32 arg1)
+	void IMenu::NextFrame(UInt32 a_arg1, UInt32 a_arg2)
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), NextFrame_internal)(arg0, arg1);
+		typedef void _NextFrame_t(IMenu* a_this, UInt32 a_arg1, UInt32 a_arg2);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::IMenu*>(this)->_NextFrame_internal_GetPtr());
+		static _NextFrame_t* _NextFrame = reinterpret_cast<_NextFrame_t*>(*ptr);
+		_NextFrame(this, a_arg1, a_arg2);
 	}
 
 
@@ -56,7 +65,10 @@ namespace RE
 
 	void IMenu::InitMovie()
 	{
-		CALL_MEMBER_FN(reinterpret_cast<::IMenu*>(this), InitMovie_internal)(reinterpret_cast<::GFxMovieView*>(view));
+		typedef void _InitMovie_t(IMenu* a_this, GFxMovieView* a_view);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::IMenu*>(this)->_InitMovie_internal_GetPtr());
+		static _InitMovie_t* _InitMovie = reinterpret_cast<_InitMovie_t*>(*ptr);
+		_InitMovie(this, view);
 	}
 
 

@@ -12,10 +12,10 @@ namespace RE
 	class NiObjectNET : public NiObject
 	{
 	public:
-		void				AddExtraData(NiExtraData* extraData);
-		bool				RemoveExtraData(NiExtraData* extraData);
-		SInt32				GetIndexOf(NiExtraData* extraData);
-		NiExtraData*		GetExtraData(BSFixedString name);
+		void				AddExtraData(NiExtraData* a_extraData);
+		bool				RemoveExtraData(NiExtraData* a_extraData);
+		SInt32				GetIndexOf(NiExtraData* a_extraData);
+		NiExtraData*		GetExtraData(BSFixedString a_name);
 
 		NiTimeController*	GetController() const;
 

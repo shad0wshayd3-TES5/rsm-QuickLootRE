@@ -38,24 +38,24 @@ namespace RE
 		};
 
 
-		virtual void		UpdateControllers(ControllerUpdateContext* ctx);
-		virtual void		UpdateNodeBound(ControllerUpdateContext* ctx);
-		virtual void		ApplyTransform(NiMatrix33* mtx, NiPoint3* translate, bool postTransform);
-		virtual void		SetPropertyState(NiProperty* prop);
-		virtual void		Unk_25(UInt32 arg0);
-		virtual NiAVObject*	GetObjectByName(const char** name);
-		virtual void		SetSelectiveUpdateFlags(bool* selectiveUpdate, bool selectiveUpdateTransforms, bool* rigid);
-		virtual void		UpdateDownwardPass(ControllerUpdateContext* ctx, void* unk1);
-		virtual void		UpdateSelectedDownwardPass(ControllerUpdateContext* ctx, void* unk1);
-		virtual void		UpdateRigidDownwardPass(ControllerUpdateContext* ctx, void* unk1);
+		virtual void		UpdateControllers(ControllerUpdateContext* a_ctx);
+		virtual void		UpdateNodeBound(ControllerUpdateContext* a_ctx);
+		virtual void		ApplyTransform(NiMatrix33* a_mtx, NiPoint3* a_translate, bool a_postTransform);
+		virtual void		SetPropertyState(NiProperty* a_prop);
+		virtual void		Unk_25(UInt32 a_arg1);
+		virtual NiAVObject*	GetObjectByName(const char*& a_name);
+		virtual void		SetSelectiveUpdateFlags(bool& a_selectiveUpdate, bool a_selectiveUpdateTransforms, bool& a_rigid);
+		virtual void		UpdateDownwardPass(ControllerUpdateContext* a_ctx, void* a_unk2);
+		virtual void		UpdateSelectedDownwardPass(ControllerUpdateContext* a_ctx, void* unk2);
+		virtual void		UpdateRigidDownwardPass(ControllerUpdateContext* a_ctx, void* a_unk2);
 		virtual void		UpdateWorldBound(void);
-		virtual void		UpdateWorldData(ControllerUpdateContext* ctx);
-		virtual void		UpdateNoControllers(ControllerUpdateContext* ctx);
-		virtual void		UpdateDownwardPassTempParent(NiNode* parent, ControllerUpdateContext* ctx);
+		virtual void		UpdateWorldData(ControllerUpdateContext* a_ctx);
+		virtual void		UpdateNoControllers(ControllerUpdateContext* a_ctx);
+		virtual void		UpdateDownwardPassTempParent(NiNode* a_parent, ControllerUpdateContext* a_ctx);
 		virtual void		Unk_30(void);
-		virtual void		Unk_31(UInt32 arg0);
+		virtual void		Unk_31(UInt32 a_arg1);
 
-		void				UpdateNode(ControllerUpdateContext* ctx);
+		void				UpdateNode(ControllerUpdateContext* a_ctx);
 
 
 		// members

@@ -9,37 +9,53 @@ namespace RE
 {
 	TintMask* PlayerCharacter::GetOverlayTintMask(TintMask* a_original)
 	{
-		return reinterpret_cast<::PlayerCharacter*>(this)->GetOverlayTintMask(a_original);
+		typedef TintMask* _GetOverlayTintMask_t(PlayerCharacter* a_this, TintMask* a_original);
+		static _GetOverlayTintMask_t* _GetOverlayTintMask = reinterpret_cast<_GetOverlayTintMask_t*>(GetFnAddr(&::PlayerCharacter::GetOverlayTintMask));
+		return _GetOverlayTintMask(this, a_original);
 	}
 
 
 	tArray<TintMask*>* PlayerCharacter::GetTintList()
 	{
-		return reinterpret_cast<::PlayerCharacter*>(this)->GetTintList();
+		typedef tArray<TintMask*>* _GetTintList_t(PlayerCharacter* a_this);
+		static _GetTintList_t* _GetTintList = reinterpret_cast<_GetTintList_t*>(GetFnAddr(&::PlayerCharacter::GetTintList));
+		return _GetTintList(this);
 	}
 
 
 	UInt32 PlayerCharacter::GetNumTints(UInt32 a_tintType)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetNumTints)(a_tintType);
+		typedef UInt32 _GetNumTints_t(PlayerCharacter* a_this, UInt32 a_tintType);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::PlayerCharacter*>(this)->_GetNumTints_GetPtr());
+		static _GetNumTints_t* _GetNumTints = reinterpret_cast<_GetNumTints_t*>(*ptr);
+		return _GetNumTints(this, a_tintType);
 	}
 
 
 	TintMask* PlayerCharacter::GetTintMask(UInt32 a_tintType, UInt32 a_index)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetTintMask)(a_tintType, a_index);
+		typedef TintMask* _GetTintMask_t(PlayerCharacter* a_this, UInt32 a_tintType, UInt32 a_index);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::PlayerCharacter*>(this)->_GetTintMask_GetPtr());
+		static _GetTintMask_t* _GetTintMask = reinterpret_cast<_GetTintMask_t*>(*ptr);
+		return _GetTintMask(this, a_tintType, a_index);
 	}
 
 
 	float PlayerCharacter::GetDamage(InventoryEntryData* a_pForm)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetDamage)(reinterpret_cast<::InventoryEntryData*>(a_pForm));
+		typedef float _GetDamage_t(PlayerCharacter* a_this, InventoryEntryData* a_pForm);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::PlayerCharacter*>(this)->_GetDamage_GetPtr());
+		static _GetDamage_t* _GetDamage = reinterpret_cast<_GetDamage_t*>(*ptr);
+		return _GetDamage(this, a_pForm);
 	}
 
 
 	float PlayerCharacter::GetArmorValue(InventoryEntryData* a_pForm)
 	{
-		return CALL_MEMBER_FN(reinterpret_cast<::PlayerCharacter*>(this), GetArmorValue)(reinterpret_cast<::InventoryEntryData*>(a_pForm));
+		typedef float _GetArmorValue_t(PlayerCharacter* a_this, InventoryEntryData* a_pForm);
+		static uintptr_t* ptr = reinterpret_cast<uintptr_t*>(reinterpret_cast<::PlayerCharacter*>(this)->_GetArmorValue_GetPtr());
+		static _GetArmorValue_t* _GetArmorValue = reinterpret_cast<_GetArmorValue_t*>(*ptr);
+		return _GetArmorValue(this, a_pForm);
 	}
 
 

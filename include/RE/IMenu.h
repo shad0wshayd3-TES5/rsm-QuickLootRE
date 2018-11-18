@@ -68,11 +68,11 @@ namespace RE
 		IMenu();
 		virtual ~IMenu();
 
-		virtual void	Accept(CallbackProcessor* processor) override;
+		virtual void	Accept(CallbackProcessor* a_processor) override;
 		virtual void	OnOpen();
 		virtual void	Unk_03(void);
-		virtual UInt32	ProcessMessage(UIMessage* message);
-		virtual void	NextFrame(UInt32 arg0, UInt32 arg1);
+		virtual UInt32	ProcessMessage(UIMessage* a_message);
+		virtual void	NextFrame(UInt32 a_arg1, UInt32 a_arg2);
 		virtual void	Render();
 		virtual void	Unk_07(void);
 		virtual void	InitMovie();
