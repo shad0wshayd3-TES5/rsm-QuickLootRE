@@ -115,13 +115,9 @@ namespace RE
 		const char* result = 0;
 		if (baseForm) {
 			TESFullName* fullName = 0;
-			try {
-				fullName = DYNAMIC_CAST(baseForm, TESForm, TESFullName);
-				if (fullName) {
-					result = fullName->GetName();
-				}
-			} catch (std::exception& e) {
-				_ERROR(e.what());
+			fullName = DYNAMIC_CAST(baseForm, TESForm, TESFullName);
+			if (fullName) {
+				result = fullName->GetName();
 			}
 		}
 		return result;

@@ -52,7 +52,7 @@ namespace QuickLootRE
 	{
 		void* p = ScaleformHeap_Allocate(sizeof(LootMenu));
 		if (p) {
-			LootMenu::_singleton = new (p) LootMenu(LootMenu::GetName());
+			LootMenu::_singleton = new (p) LootMenu(LootMenu::GetName().c_str());
 			return LootMenu::_singleton;
 		} else {
 			return 0;
@@ -74,11 +74,7 @@ namespace QuickLootRE
 
 
 	LootMenu::~LootMenu()
-	{
-		if (this) {
-			ScaleformHeap_Free(this);
-		}
-	}
+	{}
 
 
 	LootMenu* LootMenu::GetSingleton()
@@ -622,30 +618,22 @@ namespace QuickLootRE
 			return false;
 		}
 
-		try {
-			RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
-			if (keyboard && keyboard->IsEnabled()) {
-				UInt32 singleLootKeyboard = GetSingleLootKey(InputDevice::kInputDevice_Keyboard);
-				if (singleLootKeyboard != RE::InputManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
-					return true;
-				}
+		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
+		if (keyboard && keyboard->IsEnabled()) {
+			UInt32 singleLootKeyboard = GetSingleLootKey(InputDevice::kInputDevice_Keyboard);
+			if (singleLootKeyboard != RE::InputManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
+				return true;
 			}
-		} catch (std::exception& e) {
-			_ERROR("[ERROR] %s", e.what());
 		}
 
 		RE::BSGamepadDevice* gamepadHandle = 0;
-		try {
-			gamepadHandle = inputDispatcher->GetGamepad();
-			RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
-			if (gamepad && gamepad->IsEnabled()) {
-				UInt32 singleLootSprint = GetSingleLootKey(InputDevice::kInputDevice_Gamepad);
-				if (singleLootSprint != RE::InputManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
-					return true;
-				}
+		gamepadHandle = inputDispatcher->GetGamepad();
+		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
+		if (gamepad && gamepad->IsEnabled()) {
+			UInt32 singleLootSprint = GetSingleLootKey(InputDevice::kInputDevice_Gamepad);
+			if (singleLootSprint != RE::InputManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
+				return true;
 			}
-		} catch (std::exception& e) {
-			_ERROR("[ERROR] %s", e.what());
 		}
 
 		return false;
@@ -654,32 +642,34 @@ namespace QuickLootRE
 
 	void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName)
 	{
+		typedef RE::NiControllerManager NiControllerManager;
+
 		if (Settings::playAnimations) {
-			typedef RE::NiControllerManager NiControllerManager;
-
-			RE::NiNode* niNode = _containerRef->GetNiNode();
-			if (!niNode) {
-				return;
-			}
-
-			NiTimeController* controller = niNode->GetController();
-			if (!controller) {
-				return;
-			}
-
-			RE::NiControllerManager* manager = ni_cast(controller, NiControllerManager);
-			if (!manager) {
-				return;
-			}
-
-			RE::NiControllerSequence* fromSeq = manager->GetSequenceByName(a_fromName);
-			RE::NiControllerSequence* toSeq = manager->GetSequenceByName(a_toName);
-			if (!fromSeq || !toSeq) {
-				return;
-			}
-
-			_containerRef->PlayAnimation(manager, toSeq, fromSeq, false);
+			return;
 		}
+
+		RE::NiNode* niNode = _containerRef->GetNiNode();
+		if (!niNode) {
+			return;
+		}
+
+		NiTimeController* controller = niNode->GetController();
+		if (!controller) {
+			return;
+		}
+
+		RE::NiControllerManager* manager = ni_cast(controller, NiControllerManager);
+		if (!manager) {
+			return;
+		}
+
+		RE::NiControllerSequence* fromSeq = manager->GetSequenceByName(a_fromName);
+		RE::NiControllerSequence* toSeq = manager->GetSequenceByName(a_toName);
+		if (!fromSeq || !toSeq) {
+			return;
+		}
+
+		_containerRef->PlayAnimation(manager, toSeq, fromSeq, false);
 	}
 
 

@@ -47,6 +47,7 @@ namespace QuickLootRE
 
 		void											parseInventoryChanges(RE::TESObjectREFR* a_refr);
 		void											parseDroppedList(RE::TESObjectREFR* a_refr);
+		void											parseEquippedWeapons(RE::TESObjectREFR* a_refr);
 
 		bool											isValidItem(TESForm* a_item);
 

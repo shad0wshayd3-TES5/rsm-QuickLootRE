@@ -63,6 +63,7 @@ namespace QuickLootRE
 		}
 
 		parseDroppedList(a_refr);
+		parseEquippedWeapons(a_refr);
 
 		std::sort(_itemList.rbegin(), _itemList.rend());
 	}
@@ -193,6 +194,27 @@ namespace QuickLootRE
 			}
 
 			add(refPtr);
+		}
+	}
+
+
+	void InventoryList::parseEquippedWeapons(RE::TESObjectREFR* a_refr)
+	{
+		typedef RE::ActorProcessManager::EquippedHand EquippedHand;
+		if (!a_refr || a_refr->formType != kFormType_NPC) {
+			return;
+		}
+
+		RE::Actor* actor = static_cast<RE::Actor*>(a_refr);
+
+		TESForm* left = actor->processManager->equippedObject[EquippedHand::kEquippedHand_Left];
+		if (left && left->formType == kFormType_Weapon) {
+			add(left, 1);
+		}
+
+		TESForm* right = actor->processManager->equippedObject[EquippedHand::kEquippedHand_Left];
+		if (right && right->formType == kFormType_Weapon) {
+			add(right, 1);
 		}
 	}
 
