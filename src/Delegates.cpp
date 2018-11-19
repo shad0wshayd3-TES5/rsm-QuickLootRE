@@ -164,8 +164,8 @@ namespace QuickLootRE
 		args[0].SetNumber(ref->formID);
 		args[1].SetString(ref->GetReferenceName());
 		args[2].SetString(takeType);
-		args[4].SetString(sTakeAll);
-		args[3].SetString(LootMenu::GetActiText());
+		args[3].SetString(sTakeAll);
+		args[4].SetString(LootMenu::GetActiText());
 		args[5].SetNumber(LootMenu::GetSelectedIndex());
 
 		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetContainer", 0, args, 6);

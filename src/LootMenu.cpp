@@ -644,7 +644,7 @@ namespace QuickLootRE
 	{
 		typedef RE::NiControllerManager NiControllerManager;
 
-		if (Settings::playAnimations) {
+		if (!Settings::playAnimations) {
 			return;
 		}
 

@@ -21,8 +21,8 @@ class LootMenu extends MovieClip
 	public var itemList: ScrollingList;
 	public var titleText: TextField;
 	public var buttonTake: ButtonPanel;
-	public var buttonSearch: ButtonPanel;
 	public var buttonTakeAll: ButtonPanel;
+	public var buttonSearch: ButtonPanel;
 	
 
 	public function LootMenu()
@@ -110,12 +110,12 @@ class LootMenu extends MovieClip
 	}
 	
 
-	public function SetContainer(a_refID:Number, title:String, a_sTake:String, a_sTakeAll:String, a_sSearch:String, selectedIndex:Number): Void
+	public function SetContainer(a_refID:Number, a_title:String, a_sTake:String, a_sTakeAll:String, a_sSearch:String, selectedIndex:Number): Void
 	{
 		itemList.selectedIndex = selectedIndex;
 		
 		_refID = a_refID;
-		titleText.htmlText = title;
+		titleText.htmlText = a_title;
 		
 		buttonTake.SetButton(_takeKey, a_sTake);
 		buttonTakeAll.SetButton(_takeAllKey, a_sTakeAll);
