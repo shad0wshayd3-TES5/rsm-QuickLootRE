@@ -13,7 +13,7 @@
 #include <map>  // map
 #include <vector>  // vector
 
-#include "LootMenu.h"
+#include "Forms.h"
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSTArray.h"  // BSScrapArray
@@ -56,13 +56,12 @@ namespace QuickLootRE
 		a_refr->GetContainer()->Visit(containerOp);
 
 		parseInventoryChanges(a_refr);
+		parseDroppedList(a_refr);
 
 		// Add remaining default items
 		for (auto& it : _defaultMap) {
 			add(it.second.first, it.second.second);
 		}
-
-		parseDroppedList(a_refr);
 
 		std::sort(_itemList.begin(), _itemList.end(), operator>);
 	}
@@ -151,26 +150,34 @@ namespace QuickLootRE
 
 	void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
 	{
-		RE::InventoryChanges* invChanges = 0;
-		if (!a_refr->HasInventoryChanges()) {
-			invChanges = a_refr->GetInventoryChanges();
+		bool createdChanges = !a_refr->HasInventoryChanges();
+		RE::InventoryChanges* invChanges = a_refr->GetInventoryChanges();
+
+		if (!invChanges) {
+			return;
+		}
+
+		if (createdChanges) {
 			invChanges->InitContainer();
 			invChanges->GenerateLeveledListChanges();
 		}
 
-		RE::ExtraContainerChanges* xChanges = static_cast<RE::ExtraContainerChanges*>(a_refr->extraData.GetByType(kExtraData_ContainerChanges));  // Some items are excluded, so we need to reacquire them
-		invChanges = xChanges ? xChanges->changes : 0;
-
-		if (!invChanges || !invChanges->entryList) {
+		if (!invChanges->entryList) {
 			return;
 		}
 
 		for (auto& entry : *invChanges->entryList) {
 			auto it = _defaultMap.find(entry->type->formID);
 			if (it != _defaultMap.end()) {
-				_defaultMap.erase(entry->type->formID);
+				if (entry->type->formID == kMISCFormID_Gold) {
+					_defaultMap.erase(entry->type->formID);  // Extra gold overrides the default container's gold. Not sure if this is intentional or a bug
+					add(entry);
+				} else {
+					it->second.second += entry->countDelta;
+				}
+			} else {
+				add(entry);
 			}
-			add(entry);
 		}
 	}
 
@@ -235,16 +242,10 @@ namespace QuickLootRE
 			return false;
 		}
 
+		static BSFixedString emptyStr = "";
 		TESFullName* fullName = 0;
-		try {
-			static BSFixedString emptyStr = "";
-			fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
-			if (!fullName || fullName->name == emptyStr) {
-				return false;
-			}
-		} catch (std::exception& e) {
-			_ERROR("[ERROR] Form (0x%X) does not have TESFullName (%i)\n", a_item->formID, a_item->formType);
-			_ERROR("[ERROR] %s", e.what());
+		fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
+		if (!fullName || fullName->name == emptyStr) {
 			return false;
 		}
 
