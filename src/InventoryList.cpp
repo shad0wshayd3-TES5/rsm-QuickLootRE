@@ -1,5 +1,6 @@
 #include "InventoryList.h"
 
+#include "skse64/GameBSExtraData.h"  // BSExtraData
 #include "skse64/GameExtraData.h"  // InventoryEntryData
 #include "skse64/GameFormComponents.h"  // TESFullName
 #include "skse64/GameForms.h"  // TESForm
@@ -16,6 +17,7 @@
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSTArray.h"  // BSScrapArray
+#include "RE/ExtraContainerChanges.h"  // ExtraContainerChanges
 #include "RE/ExtraDroppedItemList.h"  // ExtraDroppedItemList
 #include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
@@ -28,9 +30,7 @@
 
 namespace QuickLootRE
 {
-	InventoryList::InventoryList() :
-		_toDelete(end()),
-		_deleteCount(0)
+	InventoryList::InventoryList()
 	{}
 
 
@@ -63,9 +63,8 @@ namespace QuickLootRE
 		}
 
 		parseDroppedList(a_refr);
-		parseEquippedWeapons(a_refr);
 
-		std::sort(_itemList.rbegin(), _itemList.rend());
+		std::sort(_itemList.begin(), _itemList.end(), operator>);
 	}
 
 
@@ -108,8 +107,6 @@ namespace QuickLootRE
 			delete entryData;
 		}
 		_heapList.clear();
-		_toDelete = end();
-		_deleteCount = 0;
 	}
 
 
@@ -143,9 +140,9 @@ namespace QuickLootRE
 	}
 
 
-	void InventoryList::add(RE::TESObjectREFRPtr& a_refPtr)
+	void InventoryList::add(RE::TESObjectREFRPtr& a_refPtr, SInt32 a_count)
 	{
-		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_refPtr->baseForm, 1);
+		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_refPtr->baseForm, a_count);
 		entryData->AddEntryList(&a_refPtr->extraData);
 		_heapList.push_back(entryData);
 		add(entryData);
@@ -154,19 +151,21 @@ namespace QuickLootRE
 
 	void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
 	{
-		bool changesCreated = !a_refr->HasInventoryChanges();
-		RE::InventoryChanges* changes = a_refr->GetInventoryChanges();
-
-		if (changesCreated) {
-			changes->InitContainer();
-			changes->GenerateLeveledListChanges();
+		RE::InventoryChanges* invChanges = 0;
+		if (!a_refr->HasInventoryChanges()) {
+			invChanges = a_refr->GetInventoryChanges();
+			invChanges->InitContainer();
+			invChanges->GenerateLeveledListChanges();
 		}
 
-		if (!changes || !changes->entryList) {
+		RE::ExtraContainerChanges* xChanges = static_cast<RE::ExtraContainerChanges*>(a_refr->extraData.GetByType(kExtraData_ContainerChanges));  // Some items are excluded, so we need to reacquire them
+		invChanges = xChanges ? xChanges->changes : 0;
+
+		if (!invChanges || !invChanges->entryList) {
 			return;
 		}
 
-		for (auto& entry : *changes->entryList) {
+		for (auto& entry : *invChanges->entryList) {
 			auto it = _defaultMap.find(entry->type->formID);
 			if (it != _defaultMap.end()) {
 				_defaultMap.erase(entry->type->formID);
@@ -193,28 +192,7 @@ namespace QuickLootRE
 				continue;
 			}
 
-			add(refPtr);
-		}
-	}
-
-
-	void InventoryList::parseEquippedWeapons(RE::TESObjectREFR* a_refr)
-	{
-		typedef RE::ActorProcessManager::EquippedHand EquippedHand;
-		if (!a_refr || a_refr->formType != kFormType_NPC) {
-			return;
-		}
-
-		RE::Actor* actor = static_cast<RE::Actor*>(a_refr);
-
-		TESForm* left = actor->processManager->equippedObject[EquippedHand::kEquippedHand_Left];
-		if (left && left->formType == kFormType_Weapon) {
-			add(left, 1);
-		}
-
-		TESForm* right = actor->processManager->equippedObject[EquippedHand::kEquippedHand_Left];
-		if (right && right->formType == kFormType_Weapon) {
-			add(right, 1);
+			add(refPtr, 1);
 		}
 	}
 

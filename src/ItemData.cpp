@@ -7,6 +7,7 @@
 #include "skse64/GameObjects.h"  // TESObjectARMO, TESObjectBOOK, TESObjectMISC, TESObjectWEAP, TESAmmo, AlchemyItem, TESSoulGem
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
+#include <limits>
 #include <cmath>  // floor, ceil
 #include <string>  // string
 
@@ -98,7 +99,7 @@ namespace QuickLootRE
 	bool operator<(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		if (a_lhs._canPickPocket != a_rhs._canPickPocket) {
-			return a_rhs._canPickPocket;  // ensures items that can't be pickpocketed sort to the end
+			return a_rhs._canPickPocket;  // Ensures items that can't be pickpocketed sort to the end
 		}
 
 		for (ItemData::FnCompare compare : ItemData::_compares) {
@@ -751,7 +752,7 @@ namespace QuickLootRE
 
 	int compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		return a_lhs._priority - a_rhs._priority;
+		return a_rhs._priority - a_lhs._priority;	// Lower numbers have higher priority
 	}
 
 
@@ -794,8 +795,8 @@ namespace QuickLootRE
 
 	int compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		float leftVpW = a_lhs._value / a_lhs._weight;
-		float rightVpW = a_rhs._value / a_rhs._weight;
+		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::infinity();
+		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::infinity();
 		float result = leftVpW - rightVpW;
 		if (result < -0.001) {
 			return (int)std::floor(result);

@@ -435,7 +435,6 @@ namespace QuickLootRE
 			ButtonEvent* button = static_cast<ButtonEvent*>(a_event);
 
 			BSFixedString controlID = *a_event->GetControlID();
-
 			if (controlID == strHolder->sneak) {
 				return true;
 			}
@@ -472,6 +471,7 @@ namespace QuickLootRE
 			if (CanOpen(ref, !player->IsSneaking())) {
 				Open();
 			}
+			return true;
 		}
 
 		switch (a_event->deviceType) {

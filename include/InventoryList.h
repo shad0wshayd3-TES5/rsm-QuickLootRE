@@ -43,11 +43,10 @@ namespace QuickLootRE
 		void											add(RE::InventoryEntryData* a_entryData);
 		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
 		void											add(TESForm* a_form, SInt32 a_count);
-		void											add(RE::TESObjectREFRPtr& a_refPtr);
+		void											add(RE::TESObjectREFRPtr& a_refPtr, SInt32 a_count);
 
 		void											parseInventoryChanges(RE::TESObjectREFR* a_refr);
 		void											parseDroppedList(RE::TESObjectREFR* a_refr);
-		void											parseEquippedWeapons(RE::TESObjectREFR* a_refr);
 
 		bool											isValidItem(TESForm* a_item);
 
@@ -56,8 +55,6 @@ namespace QuickLootRE
 		std::map<FormID, std::pair<TESForm*, Count>>	_defaultMap;
 		std::vector<ItemData>							_itemList;
 		std::vector<RE::InventoryEntryData*>			_heapList;
-		std::vector<ItemData>::iterator					_toDelete;
-		SInt32											_deleteCount;
 
 
 		class TESContainerVisitor

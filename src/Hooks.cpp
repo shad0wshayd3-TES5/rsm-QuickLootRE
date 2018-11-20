@@ -52,7 +52,7 @@ namespace Hooks
 
 			if (a_event && a_event->eventType == InputEvent::kEventType_Button && QuickLootRE::LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsUp() && *button->GetControlID() == GetControlID(controlID)) {
+				if (button->IsDown() && *button->GetControlID() == GetControlID(controlID)) {	// Must be IsDown, otherwise might process input received from another context
 					Op::Run();
 				}
 				return false;
@@ -91,10 +91,10 @@ namespace Hooks
 
 			if (a_event && a_event->eventType == InputEvent::kEventType_Button && LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsUp() && *a_event->GetControlID() == GetControlID(kControlID_Activate)) {
+				if (button->IsUp() && *a_event->GetControlID() == GetControlID(kControlID_Activate)) {	// This must be IsUp, so as to avoid taking an item when grabbing
 					Op::Run();
 					return false;
-				} else if (button->IsDown()) {  // inventory menu activation will queue up without this
+				} else if (button->IsDown()) {  // Inventory menu activation will queue up without this
 					return false;
 				}
 			}
