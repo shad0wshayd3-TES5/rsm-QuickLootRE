@@ -12,7 +12,6 @@
 
 #include "HaACTITextOverrideVisitor.h"  // HaACTITextOverrideVisitor
 #include "LootMenu.h"  // LootMenu
-#include "Offsets.h"
 #include "Settings.h"  // Settings
 
 #include "RE/ActivateHandler.h"  // ActivateHandler
@@ -20,6 +19,7 @@
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/FavoritesHandler.h"  // FavoritesHandler
 #include "RE/MenuManager.h"  // MenuManager
+#include "RE/Offsets.h"
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
 #include "RE/PlayerInputHandler.h"  // PlayerInputHandler
@@ -32,11 +32,6 @@ class PlayerCharacter;
 
 namespace Hooks
 {
-	RelocAddr<_SendItemsPickPocketedEvent_t*> _SendItemsPickPocketedEvent(SEND_ITEMS_PICK_POCKETED_EVENT);
-	RelocAddr<_GetPickPocketChance_t*> _GetPickPocketChance(GET_PICK_POCKET_CHANCE);
-	RelocAddr<_HeapAllocAbstraction_t*> _HeapAllocAbstraction(HEAP_ALLOC_ABSTRACTION);
-
-
 	template <uintptr_t offset, ControlID controlID, typename Op>
 	class PlayerInputHandler : public RE::PlayerInputHandler
 	{

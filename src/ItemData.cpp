@@ -633,7 +633,7 @@ namespace QuickLootRE
 
 	SInt32 ItemData::getPickPocketChance()
 	{
-		using Hooks::_GetPickPocketChance;
+		using RE::_GetPickPocketChance;
 		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
 		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 

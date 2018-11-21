@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -75,7 +75,7 @@
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)CommonLibSSE.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -97,7 +97,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)CommonLibSSE.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -152,10 +152,6 @@
   <ItemGroup>
     <ClCompile Include="src\Delegates.cpp" />
     <ClCompile Include="src\HaACTITextOverrideVisitor.cpp" />
-    <ClCompile Include="src\RE\ActiveEffect.cpp" />
-    <ClCompile Include="src\RE\Actor.cpp" />
-    <ClCompile Include="src\RE\ActorProcessManager.cpp" />
-    <ClCompile Include="src\RE\ActorState.cpp" />
     <ClCompile Include="src\Hooks.cpp" />
     <ClCompile Include="src\InventoryList.cpp" />
     <ClCompile Include="src\ItemData.cpp" />
@@ -163,46 +159,6 @@
     <ClCompile Include="src\LootMenu.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Events.cpp" />
-    <ClCompile Include="src\RE\ActorValueOwner.cpp" />
-    <ClCompile Include="src\RE\BaseExtraList.cpp" />
-    <ClCompile Include="src\RE\BGSBipedObjectForm.cpp" />
-    <ClCompile Include="src\RE\BGSEntryPointPerkEntry.cpp" />
-    <ClCompile Include="src\RE\BSInputDevice.cpp" />
-    <ClCompile Include="src\RE\BSTArray.cpp" />
-    <ClCompile Include="src\RE\BSWin32KeyboardDevice.cpp" />
-    <ClCompile Include="src\RE\ButtonEvent.cpp" />
-    <ClCompile Include="src\RE\EffectSetting.cpp" />
-    <ClCompile Include="src\RE\EventDispatcherList.cpp" />
-    <ClCompile Include="src\RE\ExtraContainerChanges.cpp" />
-    <ClCompile Include="src\RE\GFxLoader.cpp" />
-    <ClCompile Include="src\RE\GFxState.cpp" />
-    <ClCompile Include="src\RE\IMenu.cpp" />
-    <ClCompile Include="src\RE\InputEventDispatcher.cpp" />
-    <ClCompile Include="src\RE\InputManager.cpp" />
-    <ClCompile Include="src\RE\InventoryChanges.cpp" />
-    <ClCompile Include="src\RE\InventoryEntryData.cpp" />
-    <ClCompile Include="src\RE\MagicItem.cpp" />
-    <ClCompile Include="src\RE\MagicTarget.cpp" />
-    <ClCompile Include="src\RE\MenuControls.cpp" />
-    <ClCompile Include="src\RE\MenuEventHandler.cpp" />
-    <ClCompile Include="src\RE\MenuManager.cpp" />
-    <ClCompile Include="src\RE\NiAVObject.cpp" />
-    <ClCompile Include="src\RE\NiControllerManager.cpp" />
-    <ClCompile Include="src\RE\NiControllerSequence.cpp" />
-    <ClCompile Include="src\RE\NiNode.cpp" />
-    <ClCompile Include="src\RE\NiObjectNET.cpp" />
-    <ClCompile Include="src\RE\PlayerCharacter.cpp" />
-    <ClCompile Include="src\RE\PlayerControls.cpp" />
-    <ClCompile Include="src\RE\PlayerInputHandler.cpp" />
-    <ClCompile Include="src\RE\TESActorBaseData.cpp" />
-    <ClCompile Include="src\RE\TESFaction.cpp" />
-    <ClCompile Include="src\RE\TESLeveledList.cpp" />
-    <ClCompile Include="src\RE\TESLevItem.cpp" />
-    <ClCompile Include="src\RE\TESNPC.cpp" />
-    <ClCompile Include="src\RE\TESObjectBOOK.cpp" />
-    <ClCompile Include="src\RE\TESObjectLIGH.cpp" />
-    <ClCompile Include="src\RE\TESObjectREFR.cpp" />
-    <ClCompile Include="src\RE\UIManager.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
@@ -210,116 +166,12 @@
     <ClInclude Include="include\Delegates.h" />
     <ClInclude Include="include\Events.h" />
     <ClInclude Include="include\Exceptions.h" />
-    <ClInclude Include="include\RE\ActivateHandler.h" />
-    <ClInclude Include="include\RE\ActiveEffect.h" />
-    <ClInclude Include="include\RE\ActorValueOwner.h" />
-    <ClInclude Include="include\RE\AttackBlockHandler.h" />
-    <ClInclude Include="include\RE\AutoMoveHandler.h" />
-    <ClInclude Include="include\RE\BGSActorCellEvent.h" />
-    <ClInclude Include="include\RE\BGSActorDeathEvent.h" />
-    <ClInclude Include="include\RE\BGSEntryPointFunctionDataText.h" />
-    <ClInclude Include="include\RE\bhkCharacterMoveFinishEvent.h" />
-    <ClInclude Include="include\RE\BSTArray.h" />
-    <ClInclude Include="include\RE\BSTList.h" />
-    <ClInclude Include="include\RE\BSTransformDeltaEvent.h" />
-    <ClInclude Include="include\RE\BSTSingleton.h" />
-    <ClInclude Include="include\RE\EffectSetting.h" />
-    <ClInclude Include="include\RE\ExtraDroppedItemList.h" />
-    <ClInclude Include="include\RE\ExtraFactionChanges.h" />
-    <ClInclude Include="include\RE\FavoritesHandler.h" />
-    <ClInclude Include="include\RE\GFxFileConstants.h" />
-    <ClInclude Include="include\RE\GFxLoader.h" />
-    <ClInclude Include="include\RE\GFxMovie.h" />
-    <ClInclude Include="include\RE\GFxMovieDef.h" />
-    <ClInclude Include="include\RE\GFxMovieView.h" />
     <ClInclude Include="include\Hooks.h" />
-    <ClInclude Include="include\Offsets.h" />
-    <ClInclude Include="include\RE\Actor.h" />
-    <ClInclude Include="include\RE\ActorProcessManager.h" />
-    <ClInclude Include="include\RE\ActorState.h" />
-    <ClInclude Include="include\RE\BGSEntryPointFunctionData.h" />
-    <ClInclude Include="include\RE\BGSEntryPointFunctionDataActivateChoice.h" />
-    <ClInclude Include="include\RE\BGSEntryPointPerkEntry.h" />
-    <ClInclude Include="include\RE\BGSPerkEntry.h" />
-    <ClInclude Include="include\RE\BSGamepadDevice.h" />
-    <ClInclude Include="include\RE\BSIInputDevice.h" />
-    <ClInclude Include="include\RE\BSInputDevice.h" />
-    <ClInclude Include="include\RE\BSKeyboardDevice.h" />
-    <ClInclude Include="include\RE\BSMouseDevice.h" />
-    <ClInclude Include="include\RE\BSPCGamepadDeviceDelegate.h" />
-    <ClInclude Include="include\RE\BSPCGamepadDeviceHandler.h" />
-    <ClInclude Include="include\RE\BSTHashMap.h" />
-    <ClInclude Include="include\RE\BSTScatterTable.h" />
-    <ClInclude Include="include\RE\BSVirtualKeyboardDevice.h" />
-    <ClInclude Include="include\RE\BSWin32GamepadDevice.h" />
-    <ClInclude Include="include\RE\BSWin32KeyboardDevice.h" />
-    <ClInclude Include="include\RE\BSWin32MouseDevice.h" />
-    <ClInclude Include="include\RE\ButtonEvent.h" />
-    <ClInclude Include="include\RE\Character.h" />
-    <ClInclude Include="include\RE\CRC.h" />
-    <ClInclude Include="include\RE\ExtraLock.h" />
     <ClInclude Include="include\HaACTITextOverrideVisitor.h" />
-    <ClInclude Include="include\RE\GFxResource.h" />
-    <ClInclude Include="include\RE\GFxState.h" />
-    <ClInclude Include="include\RE\GFxStateBag.h" />
-    <ClInclude Include="include\RE\HeldStateHandler.h" />
-    <ClInclude Include="include\RE\IAnimationGraphManagerHolder.h" />
-    <ClInclude Include="include\RE\IMenu.h" />
-    <ClInclude Include="include\RE\InputEventDispatcher.h" />
-    <ClInclude Include="include\RE\InputManager.h" />
     <ClInclude Include="include\InventoryList.h" />
     <ClInclude Include="include\ItemData.h" />
     <ClInclude Include="include\Forms.h" />
     <ClInclude Include="include\LootMenu.h" />
-    <ClInclude Include="include\RE\BaseExtraList.h" />
-    <ClInclude Include="include\RE\BGSBipedObjectForm.h" />
-    <ClInclude Include="include\RE\EventDispatcherList.h" />
-    <ClInclude Include="include\RE\ExtraContainerChanges.h" />
-    <ClInclude Include="include\RE\InventoryChanges.h" />
-    <ClInclude Include="include\RE\InventoryEntryData.h" />
-    <ClInclude Include="include\RE\JumpHandler.h" />
-    <ClInclude Include="include\RE\LookHandler.h" />
-    <ClInclude Include="include\RE\MagicItem.h" />
-    <ClInclude Include="include\RE\MagicTarget.h" />
-    <ClInclude Include="include\RE\Memory.h" />
-    <ClInclude Include="include\RE\MenuControls.h" />
-    <ClInclude Include="include\RE\MenuEventHandler.h" />
-    <ClInclude Include="include\RE\MenuManager.h" />
-    <ClInclude Include="include\RE\MovementHandler.h" />
-    <ClInclude Include="include\RE\NiAVObject.h" />
-    <ClInclude Include="include\RE\NiControllerManager.h" />
-    <ClInclude Include="include\RE\NiControllerSequence.h" />
-    <ClInclude Include="include\RE\NiNode.h" />
-    <ClInclude Include="include\RE\NiObjectNET.h" />
-    <ClInclude Include="include\RE\PerkEntryVisitor.h" />
-    <ClInclude Include="include\RE\PlayerCharacter.h" />
-    <ClInclude Include="include\RE\PlayerControls.h" />
-    <ClInclude Include="include\RE\PlayerInputHandler.h" />
-    <ClInclude Include="include\RE\PositionPlayerEvent.h" />
-    <ClInclude Include="include\RE\ReadyWeaponHandler.h" />
-    <ClInclude Include="include\RE\RunHandler.h" />
-    <ClInclude Include="include\RE\ShoutHandler.h" />
-    <ClInclude Include="include\RE\SneakHandler.h" />
-    <ClInclude Include="include\RE\SprintHandler.h" />
-    <ClInclude Include="include\RE\TESActorBase.h" />
-    <ClInclude Include="include\RE\TESActorBaseData.h" />
-    <ClInclude Include="include\RE\TESBoundAnimObject.h" />
-    <ClInclude Include="include\RE\TESBoundObject.h" />
-    <ClInclude Include="include\RE\TESFaction.h" />
-    <ClInclude Include="include\RE\TESLeveledList.h" />
-    <ClInclude Include="include\RE\TESLevItem.h" />
-    <ClInclude Include="include\RE\TESNPC.h" />
-    <ClInclude Include="include\RE\TESObjectACTI.h" />
-    <ClInclude Include="include\RE\TESObjectBOOK.h" />
-    <ClInclude Include="include\RE\TESObjectCONT.h" />
-    <ClInclude Include="include\RE\TESObjectLIGH.h" />
-    <ClInclude Include="include\RE\TESObjectREFR.h" />
-    <ClInclude Include="include\RE\TESRace.h" />
-    <ClInclude Include="include\RE\TESRaceForm.h" />
-    <ClInclude Include="include\RE\TogglePOVHandler.h" />
-    <ClInclude Include="include\RE\ToggleRunHandler.h" />
-    <ClInclude Include="include\RE\UIManager.h" />
-    <ClInclude Include="include\RE\UserEventEnabledEvent.h" />
     <ClInclude Include="include\Settings.h" />
     <ClInclude Include="include\Utility.h" />
     <ClInclude Include="version.h" />

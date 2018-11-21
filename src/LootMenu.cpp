@@ -768,7 +768,7 @@ namespace QuickLootRE
 
 	bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode)
 	{
-		using Hooks::_SendItemsPickPocketedEvent;
+		using RE::_SendItemsPickPocketedEvent;
 
 		typedef RE::PlayerCharacter::EventType	EventType;
 		typedef RE::TESObjectREFR::RemoveType	RemoveType;
