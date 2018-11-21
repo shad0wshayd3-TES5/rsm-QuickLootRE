@@ -1,4 +1,4 @@
-#include "HaACTITextOverrideVisitor.h"
+#include "HasACTITextOverrideVisitor.h"
 
 #include "skse64/GameForms.h"  // BGSPerk
 
@@ -18,13 +18,13 @@ namespace RE
 
 namespace QuickLootRE
 {
-	HaACTITextOverrideVisitor::HaACTITextOverrideVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target) :
+	HasACTITextOverrideVisitor::HasACTITextOverrideVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target) :
 		_actor(a_actor),
 		_target(a_target)
 	{}
 
 
-	UInt32 HaACTITextOverrideVisitor::Visit(RE::BGSPerkEntry* perkEntry)
+	UInt32 HasACTITextOverrideVisitor::Visit(RE::BGSPerkEntry* perkEntry)
 	{
 		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 

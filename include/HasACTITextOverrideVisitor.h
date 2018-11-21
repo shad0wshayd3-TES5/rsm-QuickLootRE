@@ -12,10 +12,10 @@ namespace RE
 
 namespace QuickLootRE
 {
-	class HaACTITextOverrideVisitor : public RE::PerkEntryVisitor
+	class HasACTITextOverrideVisitor : public RE::PerkEntryVisitor
 	{
 	public:
-		HaACTITextOverrideVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target);
+		HasACTITextOverrideVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target);
 
 		virtual UInt32 Visit(RE::BGSPerkEntry* perkEntry) override;
 

@@ -16,6 +16,8 @@
 #include "LootMenu.h"  // LootMenuCreator
 #include "Settings.h"  // Settings
 
+#include "HookShare.h"  // _RegisterHook_t
+
 #include "RE/EventDispatcherList.h"  // RE::EventDispatcherList
 #include "RE/MenuManager.h"  // RE::MenuManager
 
@@ -24,9 +26,22 @@ static PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
 static SKSEMessagingInterface* g_messaging = 0;
 
 
+void HooksReady(SKSEMessagingInterface::Message* a_msg)
+{
+	using HookShare::_RegisterHook_t;
+
+	_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
+	Hooks::InstallHooks(_RegisterHook);
+	_MESSAGE("[MESSAGE] Hooks registered");
+}
+
+
 void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
+	case SKSEMessagingInterface::kMessage_PostPostLoad:
+		g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady);
+		break;
 	case SKSEMessagingInterface::kMessage_InputLoaded:
 	{
 		EventDispatcher<SKSECrosshairRefEvent>* crosshairRefDispatcher = (EventDispatcher<SKSECrosshairRefEvent>*)g_messaging->GetEventDispatcher(SKSEMessagingInterface::kDispatcher_CrosshairEvent);
@@ -54,10 +69,6 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 
 		break;
 	}
-	case SKSEMessagingInterface::kMessage_DataLoaded:
-		Hooks::InstallHooks();
-		_MESSAGE("[MESSAGE] Hooks installed!");
-		break;
 	}
 }
 
@@ -98,24 +109,24 @@ extern "C" {
 
 		g_messaging = (SKSEMessagingInterface*)a_skse->QueryInterface(kInterface_Messaging);
 		if (g_messaging->RegisterListener(g_pluginHandle, "SKSE", MessageHandler)) {
-			_MESSAGE("[MESSAGE] Messaging interface registration successful!");
+			_MESSAGE("[MESSAGE] Messaging interface registration successful");
 		} else {
-			_FATALERROR("[FATAL ERROR] Messaging interface registration failed!");
+			_FATALERROR("[FATAL ERROR] Messaging interface registration failed!\n");
 			return false;
 		}
 
 		QuickLootRE::g_task = (SKSETaskInterface*)a_skse->QueryInterface(kInterface_Task);
 		if (QuickLootRE::g_task) {
-			_MESSAGE("[MESSAGE] Task interface query successful!");
+			_MESSAGE("[MESSAGE] Task interface query successful");
 		} else {
-			_FATALERROR("[FATAL ERROR] Task interface query failed!");
+			_FATALERROR("[FATAL ERROR] Task interface query failed!\n");
 			return false;
 		}
 
 		if (QuickLootRE::Settings::loadSettings()) {
-			_MESSAGE("[MESSAGE] Settings successfully loaded!");
+			_MESSAGE("[MESSAGE] Settings successfully loaded");
 		} else {
-			_FATALERROR("[FATAL ERROR] Settings failed to load!");
+			_FATALERROR("[FATAL ERROR] Settings failed to load!\n");
 			return false;
 		}
 

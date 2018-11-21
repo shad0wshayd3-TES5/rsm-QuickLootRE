@@ -81,17 +81,17 @@ namespace QuickLootRE
 			if ((*a_event)->eventType == InputEvent::kEventType_Button && (*a_event)->deviceType == kDeviceType_Keyboard) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
 				if (*button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
-					if (mm->GetMovieView(&uiStrHolder->inventoryMenu)) {
+					if (mm->GetMovieView(uiStrHolder->inventoryMenu)) {
 						uiManager->AddMessage(uiStrHolder->inventoryMenu, UIMessage::kMessage_Close, 0);
-					} else if (mm->GetMovieView(&uiStrHolder->statsMenu) && !mm->GetMovieView(&uiStrHolder->levelUpMenu)) {
+					} else if (mm->GetMovieView(uiStrHolder->statsMenu) && !mm->GetMovieView(uiStrHolder->levelUpMenu)) {
 						uiManager->AddMessage(uiStrHolder->statsMenu, UIMessage::kMessage_Close, 0);
-					} else if (mm->GetMovieView(&uiStrHolder->magicMenu)) {
+					} else if (mm->GetMovieView(uiStrHolder->magicMenu)) {
 						uiManager->AddMessage(uiStrHolder->magicMenu, UIMessage::kMessage_Close, 0);
-					} else if (mm->GetMovieView(&uiStrHolder->mapMenu)) {
+					} else if (mm->GetMovieView(uiStrHolder->mapMenu)) {
 						uiManager->AddMessage(uiStrHolder->mapMenu, UIMessage::kMessage_Close, 0);
-					} else if (mm->GetMovieView(&uiStrHolder->containerMenu)) {
+					} else if (mm->GetMovieView(uiStrHolder->containerMenu)) {
 						uiManager->AddMessage(uiStrHolder->containerMenu, UIMessage::kMessage_Close, 0);
-					} else if (mm->GetMovieView(&uiStrHolder->journalMenu)) {
+					} else if (mm->GetMovieView(uiStrHolder->journalMenu)) {
 						uiManager->AddMessage(uiStrHolder->journalMenu, UIMessage::kMessage_Close, 0);
 					}
 				}
@@ -113,7 +113,7 @@ namespace QuickLootRE
 
 		BSFixedString menuName = a_event->menuName;
 		if (a_event->opening) {
-			RE::IMenu* menu = mm->GetMenu(&a_event->menuName);
+			RE::IMenu* menu = mm->GetMenu(a_event->menuName);
 			if (menu) {
 				if (menuName == strHolder->dialogueMenu || menuName == strHolder->messageBoxMenu) {
 					LootMenu::Close();

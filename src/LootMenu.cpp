@@ -266,7 +266,7 @@ namespace QuickLootRE
 			return false;
 		}
 
-		if (mm->GameIsPaused() || mm->numStopCrosshairUpdate > 0 || mm->GetMenu(&strHolder->dialogueMenu)) {
+		if (mm->GameIsPaused() || mm->CrosshairIsPaused() || mm->GetMenu(strHolder->dialogueMenu)) {
 			return false;
 		}
 

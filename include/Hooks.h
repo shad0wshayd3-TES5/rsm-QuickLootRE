@@ -2,6 +2,8 @@
 
 #include "skse64/GameTypes.h"  // BSFixedString
 
+#include "HookShare.h"  // _RegisterHook_t
+
 
 namespace Hooks
 {
@@ -15,7 +17,8 @@ namespace Hooks
 		kControlID_Sprint,
 		kControlID_Sneak,
 		kControlID_Shout,
-		kControlID_ToggleRun
+		kControlID_ToggleRun,
+		kControlID_AutoMove
 	};
 
 
@@ -23,7 +26,7 @@ namespace Hooks
 
 	bool CheckForMappingConflicts();
 
-	void InstallHooks();
+	void InstallHooks(HookShare::_RegisterHook_t* a_register);
 
 
 	static bool activateHandlerHooked = false;

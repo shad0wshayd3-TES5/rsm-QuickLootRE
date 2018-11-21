@@ -78,7 +78,7 @@
     <ClInclude Include="include\Forms.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\HaACTITextOverrideVisitor.h">
+    <ClInclude Include="include\HasACTITextOverrideVisitor.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
