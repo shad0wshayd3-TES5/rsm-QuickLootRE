@@ -87,6 +87,9 @@ namespace Hooks
 
 
 #define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)														\
+	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		FirstPersonStateHandlerEx;	\
+	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		ThirdPersonStateHandlerEx;	\
+	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sprint>		SprintHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ReadyWeapon>	ReadyWeaponHandlerEx;		\
@@ -95,8 +98,7 @@ namespace Hooks
 	typedef ActivateHandler<##TYPE_NAME##>								ActivateHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Jump>			JumpHandlerEx;				\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Shout>			ShoutHandlerEx;				\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sneak>			SneakHandlerEx;				\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		TogglePOVHandlerEx;
+	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sneak>			SneakHandlerEx;
 
 
 
@@ -307,7 +309,8 @@ namespace Hooks
 			set(strHolder->readyWeapon.c_str());
 			return true;
 		} else if (a_setting == "togglePOV") {
-			a_register(T::TogglePOVHandlerEx::hook_CanProcess, Hook::kHook_TogglePOV);
+			a_register(T::FirstPersonStateHandlerEx::hook_CanProcess, Hook::kHook_FirstPersonState);
+			a_register(T::ThirdPersonStateHandlerEx::hook_CanProcess, Hook::kHook_ThirdPersonState);
 			set(strHolder->togglePOV.c_str());
 			return true;
 		} else if (a_setting == "jump") {
