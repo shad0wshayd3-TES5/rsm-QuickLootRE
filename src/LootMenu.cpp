@@ -110,6 +110,15 @@ namespace QuickLootRE
 	}
 
 
+	bool LootMenu::SkipNextInput()
+	{
+		if (_skipInputCount > 0) {
+			--_skipInputCount;
+		}
+		return _skipInputCount > 0;
+	}
+
+
 	RE::TESObjectREFR* LootMenu::GetContainerRef()
 	{
 		return _containerRef;
@@ -413,7 +422,7 @@ namespace QuickLootRE
 			break;
 		}
 
-		return Result::kResult_Processed;
+		return Result::kResult_NotProcessed;
 	}
 
 
@@ -539,6 +548,7 @@ namespace QuickLootRE
 		}
 
 		_selectedIndex = 0;
+		_skipInputCount = 0;
 		_isMenuOpen = true;
 		Register(kScaleform_SetKeyMappings);
 		Register(kScaleform_SetPlatform);
@@ -601,6 +611,7 @@ namespace QuickLootRE
 			TakeItem(item, item.count());
 		}
 		g_invList.clear();
+		++_skipInputCount;
 
 		_inTakeAllMode = false;
 	}
@@ -812,6 +823,7 @@ namespace QuickLootRE
 	LootMenu*			LootMenu::_singleton = 0;
 	SInt32				LootMenu::_selectedIndex = 0;
 	SInt32				LootMenu::_displaySize = 0;
+	SInt32				LootMenu::_skipInputCount = 0;
 	RE::TESObjectREFR*	LootMenu::_containerRef = 0;
 	bool				LootMenu::_isContainerOpen = false;
 	bool				LootMenu::_isMenuOpen = false;

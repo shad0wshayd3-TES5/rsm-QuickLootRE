@@ -79,6 +79,7 @@ namespace QuickLootRE
 		static SInt32				GetSelectedIndex();
 		static void					ModSelectedIndex(SInt32 a_indexOffset);
 		static void					SetDisplaySize(SInt32 a_size);
+		static bool					SkipNextInput();
 		static RE::TESObjectREFR*	GetContainerRef();
 		static void					ClearContainerRef();
 		static bool					IsOpen();
@@ -132,6 +133,7 @@ namespace QuickLootRE
 		static LootMenu*			_singleton;
 		static SInt32				_selectedIndex;
 		static SInt32				_displaySize;
+		static SInt32				_skipInputCount;
 		static RE::TESObjectREFR*	_containerRef;
 		static bool					_isContainerOpen;
 		static bool					_isMenuOpen;

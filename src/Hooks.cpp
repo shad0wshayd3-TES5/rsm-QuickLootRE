@@ -9,6 +9,7 @@
 #include <string>  // string
 #include <sstream>  // stringstream
 
+#include "Events.h"  // skipCount
 #include "HasACTITextOverrideVisitor.h"  // HasACTITextOverrideVisitor
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
@@ -70,7 +71,10 @@ namespace Hooks
 
 			if (a_event->eventType == InputEvent::kEventType_Button && QuickLootRE::LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsUp() && button->GetControlID() == GetControlID(kControlID_ReadyWeapon)) {  // This must be IsUp(), or else we might ready our weapon on accident
+				if (button->IsUp() && LootMenu::SkipNextInput()) {  // If you use this handler as the take all key and enable "disableIfEmpty", then you'll ready your weapon without this
+					return ReturnType::kReturnType_False;
+				}
+				if (button->IsDown() && button->GetControlID() == GetControlID(kControlID_ReadyWeapon)) {  // Must be IsDown, otherwise might process input received from another context
 					Op::Run();
 				}
 				return ReturnType::kReturnType_False;
