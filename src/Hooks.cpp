@@ -1,6 +1,5 @@
 #include "Hooks.h"
 
-#include "skse64/GameInput.h"  // InputStringHolder
 #include "skse64/GameReferences.h"  // g_thePlayer
 #include "skse64/GameTypes.h"  // BSString
 #include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
@@ -17,9 +16,12 @@
 #include "HookShare.h"  // ReturnType, _RegisterHook_t
 
 #include "RE/ActivateHandler.h"  // ActivateHandler
+#include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/FavoritesHandler.h"  // FavoritesHandler
+#include "RE/InputEvent.h"  // InputEvent
+#include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/Offsets.h"
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
@@ -36,16 +38,39 @@ namespace Hooks
 	class PlayerInputHandler
 	{
 	public:
-		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, InputEvent* a_event)
+		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
 			using QuickLootRE::LootMenu;
 			using HookShare::ReturnType;
+			using RE::InputEvent;
+
+			if (a_event->eventType == InputEvent::kEventType_Button && QuickLootRE::LootMenu::IsVisible()) {
+				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
+				if (button->IsDown() && button->GetControlID() == GetControlID(controlID)) {	// Must be IsDown, otherwise might process input received from another context
+					Op::Run();
+				}
+				return ReturnType::kReturnType_False;
+			}
+			return ReturnType::kReturnType_Continue;
+		}
+	};
+
+
+	template <typename Op>
+	class ReadyWeaponHandler
+	{
+	public:
+		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+		{
+			using QuickLootRE::LootMenu;
+			using HookShare::ReturnType;
+			using RE::InputEvent;
 
 			static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
 			if (a_event->eventType == InputEvent::kEventType_Button && QuickLootRE::LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsDown() && *button->GetControlID() == GetControlID(controlID)) {	// Must be IsDown, otherwise might process input received from another context
+				if (button->IsUp() && button->GetControlID() == GetControlID(kControlID_ReadyWeapon)) {  // This must be IsUp(), or else we might ready our weapon on accident
 					Op::Run();
 				}
 				return ReturnType::kReturnType_False;
@@ -60,10 +85,11 @@ namespace Hooks
 	class ActivateHandler
 	{
 	public:
-		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, InputEvent* a_event)
+		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
 			using QuickLootRE::LootMenu;
 			using HookShare::ReturnType;
+			using RE::InputEvent;
 
 			static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
@@ -74,7 +100,7 @@ namespace Hooks
 
 			if (a_event->eventType == InputEvent::kEventType_Button && LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsUp() && *a_event->GetControlID() == GetControlID(kControlID_Activate)) {	// This must be IsUp, so as to avoid taking an item when grabbing
+				if (button->IsUp() && a_event->GetControlID() == GetControlID(kControlID_Activate)) {	// This must be IsUp, so as to avoid taking an item when grabbing
 					Op::Run();
 					return ReturnType::kReturnType_False;
 				} else if (button->IsDown()) {  // Inventory menu activation will queue up without this
@@ -92,7 +118,7 @@ namespace Hooks
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sprint>		SprintHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ReadyWeapon>	ReadyWeaponHandlerEx;		\
+	typedef ReadyWeaponHandler<##TYPE_NAME##>							ReadyWeaponHandlerEx;		\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_AutoMove>		AutoMoveHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ToggleRun>		ToggleRunHandlerEx;			\
 	typedef ActivateHandler<##TYPE_NAME##>								ActivateHandlerEx;			\
@@ -219,17 +245,17 @@ namespace Hooks
 
 
 	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
-	typedef TESBoundAnimObjectEx<TES_OBJECT_ACTI_VTBL_META + 0x268> TESObjectACTIEx;
-	typedef TESBoundAnimObjectEx<TES_OBJECT_CONT_VTBL_META + 0x268> TESObjectCONTEx;
-	typedef TESBoundAnimObjectEx<TES_NPC_VTBL_META + 0x268> TESNPCEx;
+	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL_META + 0x268> TESObjectACTIEx;
+	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL_META + 0x268> TESObjectCONTEx;
+	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268> TESNPCEx;
 
 
-	BSFixedString& GetControlID(ControlID a_controlID)
+	RE::BSFixedString& GetControlID(ControlID a_controlID)
 	{
 		using QuickLootRE::LootMenu;
-		static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
+		static RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 
-		static BSFixedString emptyStr = "";
+		static RE::BSFixedString emptyStr = "";
 
 		switch (a_controlID) {
 		case kControlID_None:

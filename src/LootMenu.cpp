@@ -2,10 +2,7 @@
 
 #include "skse64/GameAPI.h"  // g_thePlayer
 #include "skse64/GameSettings.h"  // g_gameSettingCollection
-#include "skse64/GameInput.h"  // InputEvent, InputStringHolder
-#include "skse64/GameMenus.h"  // IMenu
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
-#include "skse64/GameTypes.h"  // BSFixedString
 #include "skse64/NiRTTI.h"  // ni_cast
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
@@ -21,6 +18,7 @@
 
 #include "RE/Actor.h"  // Actor
 #include "RE/ActorProcessManager.h"  // ActorProcessManager
+#include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
@@ -29,8 +27,10 @@
 #include "RE/GFxMovieView.h"  // GFxMovieView
 #include "RE/GFxLoader.h"  // GFxLoader
 #include "RE/IMenu.h"  // IMenu
+#include "RE/InputEvent.h"  // InputEvent
 #include "RE/InputEventDispatcher.h"  // InputEventDispatcher
 #include "RE/InputManager.h"  // InputMappingManager
+#include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/MenuControls.h"  // MenuControls
 #include "RE/MenuManager.h"  // MenuManager
@@ -42,6 +42,7 @@
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 #include "RE/TESRace.h"  // TESRace
 #include "RE/UIManager.h"  // UIManager
+#include "RE/UIStringHolder.h"  // UIStringHolder
 
 class TESObjectREFR;
 
@@ -148,9 +149,9 @@ namespace QuickLootRE
 	}
 
 
-	BSFixedString LootMenu::GetName()
+	RE::BSFixedString LootMenu::GetName()
 	{
-		static BSFixedString name = "LootMenu";
+		static RE::BSFixedString name = "LootMenu";
 		return name;
 	}
 
@@ -258,9 +259,9 @@ namespace QuickLootRE
 	{
 		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
 		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
-		static UIStringHolder*		strHolder = UIStringHolder::GetSingleton();
+		static RE::UIStringHolder*	strHolder = RE::UIStringHolder::GetSingleton();
 		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static BSFixedString		strAnimationDriven = "bAnimationDriven";
+		static RE::BSFixedString	strAnimationDriven = "bAnimationDriven";
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
@@ -392,7 +393,7 @@ namespace QuickLootRE
 	}
 
 
-	UInt32 LootMenu::ProcessMessage(UIMessage* a_message)
+	RE::IMenu::Result LootMenu::ProcessMessage(UIMessage* a_message)
 	{
 		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
 		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
@@ -411,7 +412,8 @@ namespace QuickLootRE
 			OnMenuClose();
 			break;
 		}
-		return 2;
+
+		return Result::kResult_Processed;
 	}
 
 
@@ -423,28 +425,28 @@ namespace QuickLootRE
 	}
 
 
-	bool LootMenu::CanProcess(InputEvent* a_event)
+	bool LootMenu::CanProcess(RE::InputEvent* a_event)
 	{
-		typedef RE::BSInputDevice::InputDevice		InputDevice;
+		typedef RE::InputEvent::DeviceType			DeviceType;
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static InputStringHolder* strHolder = InputStringHolder::GetSingleton();
+		static RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 
 		if (IsOpen() && a_event->eventType == InputEvent::kEventType_Button) {
-			ButtonEvent* button = static_cast<ButtonEvent*>(a_event);
+			RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 
-			BSFixedString controlID = *a_event->GetControlID();
+			RE::BSFixedString controlID = a_event->GetControlID();
 			if (controlID == strHolder->sneak) {
 				return true;
 			}
 
 			switch (a_event->deviceType) {
-			case InputDevice::kInputDevice_Gamepad:
+			case DeviceType::kDeviceType_Gamepad:
 				return (button->keyMask == Gamepad::kGamepad_Up || button->keyMask == Gamepad::kGamepad_Down);
-			case InputDevice::kInputDevice_Mouse:
+			case DeviceType::kDeviceType_Mouse:
 				return (button->keyMask == Mouse::kMouse_WheelDown || button->keyMask == Mouse::kMouse_WheelUp);
-			case InputDevice::kInputDevice_Keyboard:
+			case DeviceType::kDeviceType_Keyboard:
 				return (controlID == strHolder->zoomIn || controlID == strHolder->zoomOut);
 			}
 		}
@@ -457,14 +459,14 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static InputStringHolder*	strHolder = InputStringHolder::GetSingleton();
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		static RE::InputStringHolder*	strHolder = RE::InputStringHolder::GetSingleton();
+		static RE::PlayerCharacter*		player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 		if (!a_event->IsDown()) {
 			return true;
 		}
 
-		BSFixedString controlID = *a_event->GetControlID();
+		RE::BSFixedString controlID = a_event->GetControlID();
 		if (controlID == strHolder->sneak) {
 			RE::TESObjectREFR* ref = _containerRef;
 			Close();
@@ -606,11 +608,11 @@ namespace QuickLootRE
 
 	bool LootMenu::SingleLootEnabled()
 	{
-		typedef RE::BSKeyboardDevice			BSKeyboardDevice;
-		typedef RE::BSWin32KeyboardDevice		BSWin32KeyboardDevice;
-		typedef RE::BSGamepadDevice				BSGamepadDevice;
-		typedef RE::BSWin32GamepadDevice		BSWin32GamepadDevice;
-		typedef RE::BSInputDevice::InputDevice	InputDevice;
+		typedef RE::BSKeyboardDevice		BSKeyboardDevice;
+		typedef RE::BSWin32KeyboardDevice	BSWin32KeyboardDevice;
+		typedef RE::BSGamepadDevice			BSGamepadDevice;
+		typedef RE::BSWin32GamepadDevice	BSWin32GamepadDevice;
+		typedef RE::InputEvent::DeviceType	DeviceType;
 
 		static RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
 
@@ -620,7 +622,7 @@ namespace QuickLootRE
 
 		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
 		if (keyboard && keyboard->IsEnabled()) {
-			UInt32 singleLootKeyboard = GetSingleLootKey(InputDevice::kInputDevice_Keyboard);
+			UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kDeviceType_Keyboard);
 			if (singleLootKeyboard != RE::InputManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
 				return true;
 			}
@@ -630,7 +632,7 @@ namespace QuickLootRE
 		gamepadHandle = inputDispatcher->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
-			UInt32 singleLootSprint = GetSingleLootKey(InputDevice::kInputDevice_Gamepad);
+			UInt32 singleLootSprint = GetSingleLootKey(DeviceType::kDeviceType_Gamepad);
 			if (singleLootSprint != RE::InputManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
 				return true;
 			}
@@ -798,12 +800,12 @@ namespace QuickLootRE
 	}
 
 
-	UInt32 LootMenu::GetSingleLootKey(RE::BSInputDevice::InputDevice a_inputDevice)
+	UInt32 LootMenu::GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType)
 	{
 		static RE::InputManager* inputManager = RE::InputManager::GetSingleton();
 
-		BSFixedString str = _singleLootMapping.c_str();
-		return inputManager->GetMappedKey(str, a_inputDevice);
+		RE::BSFixedString str = _singleLootMapping.c_str();
+		return inputManager->GetMappedKey(str, a_deviceType);
 	}
 
 

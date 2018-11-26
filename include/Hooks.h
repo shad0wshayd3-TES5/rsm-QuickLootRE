@@ -1,8 +1,8 @@
 #pragma once
 
-#include "skse64/GameTypes.h"  // BSFixedString
-
 #include "HookShare.h"  // _RegisterHook_t
+
+#include "RE/BSFixedString.h"  // BSFixedString
 
 
 namespace Hooks
@@ -22,7 +22,7 @@ namespace Hooks
 	};
 
 
-	BSFixedString& GetControlID(ControlID a_controlID);
+	RE::BSFixedString& GetControlID(ControlID a_controlID);
 
 	bool CheckForMappingConflicts();
 

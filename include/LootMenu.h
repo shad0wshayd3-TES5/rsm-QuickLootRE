@@ -1,18 +1,14 @@
 #pragma once
 
-#undef PlaySound
-
-#include "skse64/GameTypes.h"  // BSFixedString
-
 #include <string>  // string
 
+#include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSIInputDevice.h"  // BSIInputDevice
 #include "RE/IMenu.h"  // IMenu
+#include "RE/InputEvent.h"  // InputEvent
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 
-class InputEvent;
-class TESObjectREFR;
 class UIMessage;
 
 namespace RE
@@ -42,6 +38,8 @@ namespace QuickLootRE
 	{
 	private:
 		friend class LootMenuCreator;
+
+		typedef RE::IMenu::Result Result;
 
 	public:
 		enum Platform : UInt32
@@ -87,7 +85,7 @@ namespace QuickLootRE
 		static bool					IsVisible();
 		static bool					InTakeAllMode();
 		static Platform				GetPlatform();
-		static BSFixedString		GetName();
+		static RE::BSFixedString	GetName();
 		static const char*			GetActiText();
 		static void					SetActiText(const char* a_actiText);
 		static const char*			GetSingleLootMapping();
@@ -108,11 +106,11 @@ namespace QuickLootRE
 		static Style				GetStyle();
 
 		// IMenu
-		virtual UInt32				ProcessMessage(UIMessage* a_message) override;
+		virtual Result				ProcessMessage(UIMessage* a_message) override;
 		virtual void				Render() override;
 
 		// MenuEventHandler
-		virtual bool				CanProcess(InputEvent* a_event) override;
+		virtual bool				CanProcess(RE::InputEvent* a_event) override;
 		virtual bool				ProcessButton(RE::ButtonEvent* a_event) override;
 
 		void						OnMenuOpen();
@@ -128,7 +126,7 @@ namespace QuickLootRE
 		bool						TakeItem(ItemData& a_item, UInt32 a_numItems);
 		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
 		void						DispellWornItemEnchantments();
-		UInt32						GetSingleLootKey(RE::BSInputDevice::InputDevice a_inputDevice);
+		UInt32						GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType);
 
 
 		static LootMenu*			_singleton;

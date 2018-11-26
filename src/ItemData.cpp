@@ -7,7 +7,7 @@
 #include "skse64/GameObjects.h"  // TESObjectARMO, TESObjectBOOK, TESObjectMISC, TESObjectWEAP, TESAmmo, AlchemyItem, TESSoulGem
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
-#include <limits>
+#include <limits>  // numeric_limits
 #include <cmath>  // floor, ceil
 #include <string>  // string
 

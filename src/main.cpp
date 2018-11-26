@@ -18,8 +18,9 @@
 
 #include "HookShare.h"  // _RegisterHook_t
 
-#include "RE/EventDispatcherList.h"  // RE::EventDispatcherList
-#include "RE/MenuManager.h"  // RE::MenuManager
+#include "RE/EventSourceList.h"  // EventSourceList
+#include "RE/InputEventDispatcher.h"  // InputEventDispatcher
+#include "RE/MenuManager.h"  // MenuManager
 
 
 static PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
@@ -48,17 +49,17 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		crosshairRefDispatcher->AddEventSink(&QuickLootRE::g_crosshairRefEventHandler);
 		_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
 
-		InputEventDispatcher::GetSingleton()->AddEventSink(&QuickLootRE::g_inputEventHandler);
+		RE::InputEventDispatcher::GetSingleton()->AddEventSink(&QuickLootRE::g_inputEventHandler);
 		_MESSAGE("[MESSAGE] Input event handler sinked");
 
-		RE::MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher()->AddEventSink(&QuickLootRE::g_menuOpenCloseEventHandler);
+		RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(&QuickLootRE::g_menuOpenCloseEventHandler);
 		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 
-		RE::EventDispatcherList* dispatcherList = RE::EventDispatcherList::GetEventDispatcherList();
-		dispatcherList->combatDispatcher.AddEventSink(&QuickLootRE::g_combatEventHandler);
+		RE::EventSourceList* sourceList = RE::EventSourceList::GetEventSourceList();
+		sourceList->combatEventSource.AddEventSink(&QuickLootRE::g_combatEventHandler);
 		_MESSAGE("[MESSAGE] Combat event handler sinked");
 
-		dispatcherList->containerChangedDispatcher.AddEventSink(&QuickLootRE::g_containerChangedEventHandler);
+		sourceList->containerChangedEventSource.AddEventSink(&QuickLootRE::g_containerChangedEventHandler);
 		_MESSAGE("[MESSAGE] Container changed event handler sinked");
 
 		RE::MenuManager::GetSingleton()->Register("LootMenu", QuickLootRE::LootMenuCreator::Create);
