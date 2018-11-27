@@ -134,7 +134,7 @@ namespace QuickLootRE
 		void						PlayAnimation(const char* a_fromName, const char* a_toName);
 		void						PlayAnimationOpen();
 		void						PlayAnimationClose();
-		bool						TakeItem(ItemData& a_item, UInt32 a_numItems);
+		bool						TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound);
 		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
 		void						DispellWornItemEnchantments();
 		UInt32						GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType);

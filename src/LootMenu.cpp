@@ -616,7 +616,7 @@ namespace QuickLootRE
 			numItems = 1;
 		}
 
-		if (TakeItem(itemCopy, numItems)) {
+		if (TakeItem(itemCopy, numItems, true, true)) {
 			DelayedUpdater::Register();
 		}
 	}
@@ -636,8 +636,12 @@ namespace QuickLootRE
 
 		_inTakeAllMode = true;
 
+		UInt32 playSound = 5;
 		for (auto& item : g_invList) {
-			TakeItem(item, item.count());
+			TakeItem(item, item.count(), false, playSound);
+			if (playSound) {
+				--playSound;
+			}
 		}
 		g_invList.clear();
 		SkipNextInput();
@@ -686,7 +690,7 @@ namespace QuickLootRE
 	{
 		typedef RE::NiControllerManager NiControllerManager;
 
-		if (!Settings::playAnimations) {
+		if (Settings::disableAnimations) {
 			return;
 		}
 
@@ -738,7 +742,7 @@ namespace QuickLootRE
 	}
 
 
-	bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems)
+	bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound)
 	{
 		typedef RE::PlayerCharacter::EventType				EventType;
 		typedef RE::TESObjectREFR::RemoveType				RemoveType;
@@ -798,8 +802,12 @@ namespace QuickLootRE
 				}
 			}
 
-			player->PlaySounds(a_item.form(), true, false);
-			PlayAnimationOpen();
+			if (a_playAnim) {
+				PlayAnimationOpen();
+			}
+			if (a_playSound) {
+				player->PlaySounds(a_item.form(), true, false);
+			}
 			player->DispellEffectsWithArchetype(Archetype::kArchetype_Invisibility, false);
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}

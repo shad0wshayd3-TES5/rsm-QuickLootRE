@@ -159,8 +159,9 @@ namespace QuickLootRE
 		static bSetting	disablePickPocketing;
 		static bSetting	disableIfEmpty;
 		static bSetting	disableSingleLoot;
-		static bSetting	playAnimations;
 		static bSetting	disableForAnimals;
+		static bSetting	disableActiTextHook;
+		static bSetting	disableAnimations;
 		static iSetting	itemLimit;
 		static fSetting	scale;
 		static fSetting	positionX;

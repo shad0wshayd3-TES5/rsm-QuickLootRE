@@ -220,10 +220,10 @@ namespace Hooks
 
 				return false;
 
-					} else {
+			} else {
 				return result;
 			}
-				}
+		}
 
 
 		static void installHook()
@@ -232,7 +232,7 @@ namespace Hooks
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
 			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&hook_GetCrosshairText));
 		}
-			};
+	};
 
 
 	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
@@ -391,8 +391,11 @@ namespace Hooks
 		}
 
 		a_register(NullOp::FavoritesHandlerEx::hook_CanProcess, Hook::kHook_Favorites);
-		TESObjectACTIEx::installHook();
-		TESObjectCONTEx::installHook();
-		TESNPCEx::installHook();
-	}
+
+		if (!Settings::disableActiTextHook) {
+			TESObjectACTIEx::installHook();
+			TESObjectCONTEx::installHook();
+			TESNPCEx::installHook();
 		}
+	}
+}
