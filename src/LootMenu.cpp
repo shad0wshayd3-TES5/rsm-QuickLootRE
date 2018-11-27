@@ -6,6 +6,7 @@
 #include "skse64/NiRTTI.h"  // ni_cast
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
+#include <queue>  // queue
 #include <string>  // string
 
 #include "Delegates.h"
@@ -110,12 +111,23 @@ namespace QuickLootRE
 	}
 
 
-	bool LootMenu::SkipNextInput()
+	bool LootMenu::ShouldSkipNextInput()
+	{
+		return _skipInputCount;
+	}
+
+
+	void LootMenu::SkipNextInput()
+	{
+		++_skipInputCount;
+	}
+
+
+	void LootMenu::NextInputSkipped()
 	{
 		if (_skipInputCount > 0) {
 			--_skipInputCount;
 		}
-		return _skipInputCount > 0;
 	}
 
 
@@ -388,6 +400,21 @@ namespace QuickLootRE
 	}
 
 
+	void LootMenu::QueueMessage(Message a_msg)
+	{
+		switch (a_msg) {
+		case kMessage_NoInputLoaded:
+			_messageQueue.push("[LootMenu] ERROR: Input mapping conflicts detected! No inputs mapped!");
+		default:
+			_ERROR("[ERROR] Invalid message (%i)", a_msg);
+		}
+
+		if (IsOpen()) {
+			_singleton->ProcessMessageQueue();
+		}
+	}
+
+
 	LootMenu::Style LootMenu::GetStyle()
 	{
 		if (Settings::interfaceStyle == "dialogue") {
@@ -479,6 +506,7 @@ namespace QuickLootRE
 		if (controlID == strHolder->sneak) {
 			RE::TESObjectREFR* ref = _containerRef;
 			Close();
+			SkipNextInput();
 			if (CanOpen(ref, !player->IsSneaking())) {
 				Open();
 			}
@@ -560,6 +588,7 @@ namespace QuickLootRE
 		Register(kScaleform_OpenContainer);
 		Register(kScaleform_SetSelectedIndex);
 		SetVisible(true);
+		ProcessMessageQueue();
 	}
 
 
@@ -611,7 +640,7 @@ namespace QuickLootRE
 			TakeItem(item, item.count());
 		}
 		g_invList.clear();
-		++_skipInputCount;
+		SkipNextInput();
 
 		_inTakeAllMode = false;
 	}
@@ -820,19 +849,33 @@ namespace QuickLootRE
 	}
 
 
-	LootMenu*			LootMenu::_singleton = 0;
-	SInt32				LootMenu::_selectedIndex = 0;
-	SInt32				LootMenu::_displaySize = 0;
-	SInt32				LootMenu::_skipInputCount = 0;
-	RE::TESObjectREFR*	LootMenu::_containerRef = 0;
-	bool				LootMenu::_isContainerOpen = false;
-	bool				LootMenu::_isMenuOpen = false;
-	bool				LootMenu::_inTakeAllMode = false;
-	bool				LootMenu::_isRegistered = false;
-	LootMenu::Platform	LootMenu::_platform = kPlatform_PC;
-	std::string			LootMenu::_actiText = "";
-	std::string			LootMenu::_singleLootMapping = "";
-	std::string			LootMenu::_takeMapping = "";
-	std::string			LootMenu::_takeAllMapping = "";
-	std::string			LootMenu::_searchMapping = "";
+	void LootMenu::ProcessMessageQueue()
+	{
+		using RE::_DebugNotification;
+
+		const char* msg = 0;
+		while (!_messageQueue.empty()) {
+			msg = _messageQueue.front();
+			_messageQueue.pop();
+			_DebugNotification(msg, 0, true);
+		}
+	}
+
+
+	LootMenu*				LootMenu::_singleton = 0;
+	SInt32					LootMenu::_selectedIndex = 0;
+	SInt32					LootMenu::_displaySize = 0;
+	SInt32					LootMenu::_skipInputCount = 0;
+	RE::TESObjectREFR*		LootMenu::_containerRef = 0;
+	bool					LootMenu::_isContainerOpen = false;
+	bool					LootMenu::_isMenuOpen = false;
+	bool					LootMenu::_inTakeAllMode = false;
+	bool					LootMenu::_isRegistered = false;
+	LootMenu::Platform		LootMenu::_platform = kPlatform_PC;
+	std::string				LootMenu::_actiText = "";
+	std::string				LootMenu::_singleLootMapping = "";
+	std::string				LootMenu::_takeMapping = "";
+	std::string				LootMenu::_takeAllMapping = "";
+	std::string				LootMenu::_searchMapping = "";
+	std::queue<const char*>	LootMenu::_messageQueue;
 }

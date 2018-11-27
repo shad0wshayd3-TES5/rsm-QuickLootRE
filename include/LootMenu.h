@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>  // queue
 #include <string>  // string
 
 #include "RE/BSFixedString.h"  // BSFixedString
@@ -64,6 +65,12 @@ namespace QuickLootRE
 		};
 
 
+		enum Message : UInt32
+		{
+			kMessage_NoInputLoaded
+		};
+
+
 		enum Style : UInt32
 		{
 			kStyle_Default	= 0,
@@ -79,7 +86,9 @@ namespace QuickLootRE
 		static SInt32				GetSelectedIndex();
 		static void					ModSelectedIndex(SInt32 a_indexOffset);
 		static void					SetDisplaySize(SInt32 a_size);
-		static bool					SkipNextInput();
+		static bool					ShouldSkipNextInput();
+		static void					SkipNextInput();
+		static void					NextInputSkipped();
 		static RE::TESObjectREFR*	GetContainerRef();
 		static void					ClearContainerRef();
 		static bool					IsOpen();
@@ -104,6 +113,7 @@ namespace QuickLootRE
 		static void					SetContainerRef(RE::TESObjectREFR* a_ref);
 		static bool					CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
 		static void					Register(Scaleform a_reg);
+		static void					QueueMessage(Message a_msg);
 		static Style				GetStyle();
 
 		// IMenu
@@ -128,23 +138,25 @@ namespace QuickLootRE
 		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
 		void						DispellWornItemEnchantments();
 		UInt32						GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType);
+		void						ProcessMessageQueue();
 
 
-		static LootMenu*			_singleton;
-		static SInt32				_selectedIndex;
-		static SInt32				_displaySize;
-		static SInt32				_skipInputCount;
-		static RE::TESObjectREFR*	_containerRef;
-		static bool					_isContainerOpen;
-		static bool					_isMenuOpen;
-		static bool					_inTakeAllMode;
-		static bool					_isRegistered;
-		static Platform				_platform;
-		static std::string			_actiText;
-		static std::string			_singleLootMapping;
-		static std::string			_takeMapping;
-		static std::string			_takeAllMapping;
-		static std::string			_searchMapping;
+		static LootMenu*				_singleton;
+		static SInt32					_selectedIndex;
+		static SInt32					_displaySize;
+		static SInt32					_skipInputCount;
+		static RE::TESObjectREFR*		_containerRef;
+		static bool						_isContainerOpen;
+		static bool						_isMenuOpen;
+		static bool						_inTakeAllMode;
+		static bool						_isRegistered;
+		static Platform					_platform;
+		static std::string				_actiText;
+		static std::string				_singleLootMapping;
+		static std::string				_takeMapping;
+		static std::string				_takeAllMapping;
+		static std::string				_searchMapping;
+		static std::queue<const char*>	_messageQueue;
 	};
 
 
