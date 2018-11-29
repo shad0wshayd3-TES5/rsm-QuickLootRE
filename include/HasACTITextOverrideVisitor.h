@@ -15,12 +15,12 @@ namespace QuickLootRE
 	class HasACTITextOverrideVisitor : public RE::PerkEntryVisitor
 	{
 	public:
-		HasACTITextOverrideVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target);
+		HasACTITextOverrideVisitor(RE::Actor* a_perkOwner, RE::TESObjectREFR* a_target);
 
-		virtual UInt32 Visit(RE::BGSPerkEntry* perkEntry) override;
+		virtual ReturnType Visit(RE::BGSPerkEntry* a_perkEntry) override;
 
 	protected:
-		RE::Actor*			_actor;
+		RE::Actor*			_perkOwner;
 		RE::TESObjectREFR*	_target;
 	};
 }

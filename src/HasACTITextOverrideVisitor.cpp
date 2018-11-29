@@ -4,9 +4,11 @@
 
 #include "LootMenu.h"
 
+#include "RE/Actor.h"  // Actor
 #include "RE/BGSEntryPointFunctionDataText.h"  // BGSEntryPointFunctionDataText
 #include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
 #include "RE/BGSPerkEntry.h"  // BGSPerkEntry
+#include "RE/Condition.h"  // Condition
 
 namespace RE
 {
@@ -18,26 +20,26 @@ namespace RE
 
 namespace QuickLootRE
 {
-	HasACTITextOverrideVisitor::HasACTITextOverrideVisitor(RE::Actor* a_actor, RE::TESObjectREFR* a_target) :
-		_actor(a_actor),
+	HasACTITextOverrideVisitor::HasACTITextOverrideVisitor(RE::Actor* a_perkOwner, RE::TESObjectREFR* a_target) :
+		_perkOwner(a_perkOwner),
 		_target(a_target)
 	{}
 
 
-	UInt32 HasACTITextOverrideVisitor::Visit(RE::BGSPerkEntry* perkEntry)
+	HasACTITextOverrideVisitor::ReturnType HasACTITextOverrideVisitor::Visit(RE::BGSPerkEntry* perkEntry)
 	{
 		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 
-		if (perkEntry->CanProcess(2, &_actor)) {
-			RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(perkEntry);
-			if (entryPoint->HasType(EntryPointType::kEntryPoint_Set_Activate_Label)) {
+		RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(perkEntry);
+		if (entryPoint && entryPoint->HasType(EntryPointType::kEntryPoint_Set_Activate_Label)) {
+			if (entryPoint->conditions && entryPoint->conditions->Run(_perkOwner, _target)) {
 				RE::BGSEntryPointFunctionDataText* fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
 				if (fnDataText) {
-					_DMESSAGE("[DEBUG] 0x%p", fnDataText);
 					LootMenu::SetActiText(fnDataText->text);
 				}
 			}
 		}
-		return 1;
+
+		return ReturnType::kReturnType_Continue;
 	}
 }

@@ -7,6 +7,7 @@ namespace RE
 	class TESObjectREFR;
 }
 
+
 namespace QuickLootRE
 {
 	std::string boolToString(bool a_bool);

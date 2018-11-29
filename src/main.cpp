@@ -1,5 +1,4 @@
-﻿#include "common/IDebugLog.h"  // IDebugLog
-#include "skse64/GameEvents.h"  // EventDispatcherList
+﻿#include "skse64/GameEvents.h"  // EventDispatcherList
 #include "skse64/GameInput.h"  // InputEventDispatcher
 #include "skse64/GameMenus.h"  // MenuManager
 #include "skse64/PluginAPI.h"  // PluginHandle, SKSEMessagingInterface, SKSETaskInterface, SKSEInterface, PluginInfo
@@ -66,7 +65,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		_MESSAGE("[MESSAGE] LootMenu registered");
 
 		QuickLootRE::ItemData::setCompareOrder();
-		_MESSAGE("[MESSAGE] Settings loaded");
+		_MESSAGE("[MESSAGE] Settings applied");
 
 		break;
 	}

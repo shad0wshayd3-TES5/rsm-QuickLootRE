@@ -42,7 +42,7 @@
     <ClCompile Include="src\Forms.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\HaACTITextOverrideVisitor.cpp">
+    <ClCompile Include="src\HasACTITextOverrideVisitor.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,8 @@
 #include "ItemData.h"
 
+#undef min
+#undef max
+
 #include "skse64/GameAPI.h"  // g_thePlayer
 #include "skse64/GameExtraData.h"  // InventoryEntryData
 #include "skse64/GameFormComponents.h"  // BGSBipedObjectForm, TESEnchantableForm
@@ -795,8 +798,8 @@ namespace QuickLootRE
 
 	int compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::infinity();
-		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::infinity();
+		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::max();
+		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::max();
 		float result = leftVpW - rightVpW;
 		if (result < -0.001) {
 			return (int)std::floor(result);

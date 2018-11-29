@@ -189,8 +189,10 @@ namespace Hooks
 		bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
 		{
 			typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
+
 			using QuickLootRE::LootMenu;
 			using QuickLootRE::HasACTITextOverrideVisitor;
+
 			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
 			bool result = (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
@@ -211,12 +213,10 @@ namespace Hooks
 					}
 				}
 
-#if 0
 				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kEntryPoint_Set_Activate_Label)) {
-					HaACTITextOverrideVisitor visitor(player, a_ref);
+					HasACTITextOverrideVisitor visitor(player, a_ref);
 					player->VisitEntryPointPerkEntries(EntryPointType::kEntryPoint_Set_Activate_Label, visitor);
 				}
-#endif
 
 				return false;
 
