@@ -139,9 +139,6 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\common\common_vc14.vcxproj">
-      <Project>{d4c128a1-73dc-4941-a453-ce55af239ba8}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
       <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
     </ProjectReference>
