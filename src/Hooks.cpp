@@ -391,7 +391,7 @@ namespace Hooks
 
 		if (!CheckForMappingConflicts()) {
 			if (!ApplySetting<NullOp, &LootMenu::SetSingleLootMapping>(a_register, Settings::singleLootModifier)) {
-				_ERROR("[ERROR] Failed to single loot hook!\n");
+				_ERROR("[ERROR] Failed to apply single loot hook!\n");
 			}
 			if (!ApplySetting<TakeOp, &LootMenu::SetTakeMapping>(a_register, Settings::takeMethod)) {
 				_ERROR("[ERROR] Failed to apply take hook!\n");
