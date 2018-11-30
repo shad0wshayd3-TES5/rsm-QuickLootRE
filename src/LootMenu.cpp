@@ -447,7 +447,7 @@ namespace QuickLootRE
 	RE::IMenu::Result LootMenu::ProcessMessage(UIMessage* a_message)
 	{
 		if (!view) {
-			_FATALERROR("[FATAL ERROR] LootMenu was missing a view! Dependencies were not loaded!\n");
+			_FATALERROR("[FATAL ERROR] LootMenu is missing a view! Dependencies were not loaded!\n");
 			QueueMessage(kMessage_MissingDependencies);
 			ProcessMessageQueue();
 			return Result::kResult_NotProcessed;
