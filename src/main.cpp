@@ -29,18 +29,31 @@ static SKSEMessagingInterface* g_messaging = 0;
 void HooksReady(SKSEMessagingInterface::Message* a_msg)
 {
 	using HookShare::_RegisterHook_t;
+	using QuickLootRE::LootMenu;
 
-	_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
-	Hooks::InstallHooks(_RegisterHook);
-	_MESSAGE("[MESSAGE] Hooks registered");
+	if (a_msg->type == HOOK_SHARE_API_VERSION_MAJOR) {
+		_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
+		Hooks::InstallHooks(_RegisterHook);
+		_MESSAGE("[MESSAGE] Hooks registered");
+	} else {
+		_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
+		LootMenu::QueueMessage(LootMenu::kMessage_HookShareIncompatible);
+	}
 }
 
 
 void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 {
+	using QuickLootRE::LootMenu;
+
 	switch (a_msg->type) {
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
-		g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady);
+		if (g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady)) {
+			_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
+		} else {
+			_FATALERROR("[FATAL ERROR] HookShareSSE not loaded!\n");
+			LootMenu::QueueMessage(LootMenu::kMessage_HookShareMissing);
+		}
 		break;
 	case SKSEMessagingInterface::kMessage_InputLoaded:
 	{

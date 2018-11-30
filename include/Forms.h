@@ -92,9 +92,9 @@ namespace QuickLootRE
 	public:
 		Form(UInt32 a_formID) : _formID(a_formID) {}
 
-		operator T*()
+		operator T()
 		{
-			return static_cast<T*>(LookupFormByID(_formID));
+			return static_cast<T>(LookupFormByID(_formID));
 		}
 
 	private:
@@ -103,29 +103,29 @@ namespace QuickLootRE
 
 
 	// Factions
-	extern Form<RE::TESFaction>	CurrentFollowerFaction;
+	extern Form<RE::TESFaction*>	CurrentFollowerFaction;
 
 	// Keywords
-	extern Form<BGSKeyword>		VendorItemClothing;
-	extern Form<BGSKeyword>		VendorItemJewelry;
+	extern Form<BGSKeyword*>		VendorItemClothing;
+	extern Form<BGSKeyword*>		VendorItemJewelry;
 
-	extern Form<BGSKeyword>		VendorItemRecipe;
-	extern Form<BGSKeyword>		VendorItemSpellTome;
+	extern Form<BGSKeyword*>		VendorItemRecipe;
+	extern Form<BGSKeyword*>		VendorItemSpellTome;
 
-	extern Form<BGSKeyword>		VendorItemAnimalHide;
-	extern Form<BGSKeyword>		VendorItemDaedricArtifact;
-	extern Form<BGSKeyword>		VendorItemGem;
-	extern Form<BGSKeyword>		VendorItemAnimalPart;
-	extern Form<BGSKeyword>		VendorItemOreIngot;
-	extern Form<BGSKeyword>		VendorItemClutter;
-	extern Form<BGSKeyword>		VendorItemFireword;
+	extern Form<BGSKeyword*>		VendorItemAnimalHide;
+	extern Form<BGSKeyword*>		VendorItemDaedricArtifact;
+	extern Form<BGSKeyword*>		VendorItemGem;
+	extern Form<BGSKeyword*>		VendorItemAnimalPart;
+	extern Form<BGSKeyword*>		VendorItemOreIngot;
+	extern Form<BGSKeyword*>		VendorItemClutter;
+	extern Form<BGSKeyword*>		VendorItemFireword;
 
-	extern Form<BGSKeyword>		WeapTypeWarhammer;
+	extern Form<BGSKeyword*>		WeapTypeWarhammer;
 
-	extern Form<BGSKeyword>		ActorTypeCreature;
-	extern Form<BGSKeyword>		ActorTypeAnimal;
+	extern Form<BGSKeyword*>		ActorTypeCreature;
+	extern Form<BGSKeyword*>		ActorTypeAnimal;
 
 	// Perks
-	extern Form<BGSPerk>		Misdirection;
-	extern Form<BGSPerk>		PerfectTouch;
+	extern Form<BGSPerk*>			Misdirection;
+	extern Form<BGSPerk*>			PerfectTouch;
 }

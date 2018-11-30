@@ -76,7 +76,19 @@ namespace QuickLootRE
 
 
 	LootMenu::~LootMenu()
-	{}
+	{
+		_singleton = 0;
+		_selectedIndex = 0;
+		_displaySize = 0;
+		_skipInputCount = 0;
+		_containerRef = 0;
+		_isContainerOpen = false;
+		_isMenuOpen = false;
+		_inTakeAllMode = false;
+		_isRegistered = false;
+		_platform = kPlatform_PC;
+		_actiText = "";
+	}
 
 
 	LootMenu* LootMenu::GetSingleton()
@@ -239,15 +251,13 @@ namespace QuickLootRE
 
 	void LootMenu::Open()
 	{
-		static RE::UIManager* uiManager = RE::UIManager::GetSingleton();
-		uiManager->AddMessage(GetName(), UIMessage::kMessage_Open, 0);
+		RE::UIManager::GetSingleton()->AddMessage(GetName(), UIMessage::kMessage_Open, 0);
 	}
 
 
 	void LootMenu::Close()
 	{
-		static RE::UIManager* uiManager = RE::UIManager::GetSingleton();
-		uiManager->AddMessage(GetName(), UIMessage::kMessage_Close, 0);
+		RE::UIManager::GetSingleton()->AddMessage(GetName(), UIMessage::kMessage_Close, 0);
 	}
 
 
@@ -255,8 +265,7 @@ namespace QuickLootRE
 	{
 		typedef RE::InputManager::Context Context;
 
-		static RE::MenuControls* mc = RE::MenuControls::GetSingleton();
-
+		RE::MenuControls* mc = RE::MenuControls::GetSingleton();
 		if (_singleton && _singleton->view) {
 			_singleton->view->SetVisible(a_visible);
 			if (a_visible && !_isRegistered) {
@@ -278,24 +287,24 @@ namespace QuickLootRE
 
 	bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	{
-		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
-		static RE::UIStringHolder*	strHolder = RE::UIStringHolder::GetSingleton();
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static RE::BSFixedString	strAnimationDriven = "bAnimationDriven";
+		static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
 		}
 
+		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+		RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 		if (mm->GameIsPaused() || mm->CrosshairIsPaused() || mm->GetMenu(strHolder->dialogueMenu)) {
 			return false;
 		}
 
-		if (!mapping->IsMovementControlsEnabled()) {
+		RE::InputManager* inputManager = RE::InputManager::GetSingleton();
+		if (!inputManager->IsMovementControlsEnabled()) {
 			return false;
 		}
 
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		if (player->GetGrabbedRef() || player->GetActorInFavorState() || player->IsInKillMove()) {
 			return false;
 		}
@@ -405,6 +414,12 @@ namespace QuickLootRE
 		switch (a_msg) {
 		case kMessage_NoInputLoaded:
 			_messageQueue.push("[LootMenu] ERROR: Input mapping conflicts detected! No inputs mapped!");
+		case kMessage_HookShareMissing:
+			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is not loaded!");
+		case kMessage_HookShareIncompatible:
+			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is an incompatible version!");
+		case kMessage_MissingDependencies:
+			_messageQueue.push("[LootMenu] ERROR: LootMenu is missing a view! Dependencies were not loaded!");
 		default:
 			_ERROR("[ERROR] Invalid message (%i)", a_msg);
 		}
@@ -431,9 +446,12 @@ namespace QuickLootRE
 
 	RE::IMenu::Result LootMenu::ProcessMessage(UIMessage* a_message)
 	{
-		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
-		static RE::InputManager*	mapping = RE::InputManager::GetSingleton();
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		if (!view) {
+			_FATALERROR("[FATAL ERROR] LootMenu was missing a view! Dependencies were not loaded!\n");
+			QueueMessage(kMessage_MissingDependencies);
+			ProcessMessageQueue();
+			return Result::kResult_NotProcessed;
+		}
 
 		if (!Settings::isApplied) {
 			Register(kScaleform_Setup);
@@ -467,12 +485,11 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
-
 		if (IsOpen() && a_event->eventType == InputEvent::kEventType_Button) {
 			RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 
 			RE::BSFixedString controlID = a_event->GetControlID();
+			RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 			if (controlID == strHolder->sneak) {
 				return true;
 			}
@@ -495,19 +512,17 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		static RE::InputStringHolder*	strHolder = RE::InputStringHolder::GetSingleton();
-		static RE::PlayerCharacter*		player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!a_event->IsDown()) {
 			return true;
 		}
 
 		RE::BSFixedString controlID = a_event->GetControlID();
+		RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 		if (controlID == strHolder->sneak) {
 			RE::TESObjectREFR* ref = _containerRef;
 			Close();
 			SkipNextInput();
-			if (CanOpen(ref, !player->IsSneaking())) {
+			if (CanOpen(ref, !RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
 				Open();
 			}
 			return true;
@@ -560,14 +575,11 @@ namespace QuickLootRE
 		typedef RE::BSGamepadDevice			BSGamepadDevice;
 		typedef RE::BSWin32GamepadDevice	BSWin32GamepadDevice;
 
-		static RE::InputEventDispatcher*	inputDispatcher = RE::InputEventDispatcher::GetSingleton();
-		static RE::PlayerCharacter*			player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!_containerRef) {
 			return;
 		}
 
-		RE::BSGamepadDevice* gamepadHandle = inputDispatcher->GetGamepad();
+		RE::BSGamepadDevice* gamepadHandle = RE::InputEventDispatcher::GetSingleton()->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
 			_platform = kPlatform_Other;
@@ -582,7 +594,7 @@ namespace QuickLootRE
 		Register(kScaleform_SetPlatform);
 		Register(kScaleform_SetContainer);
 		Register(kScaleform_UpdateButtons);
-		if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
+		if (IsValidPickPocketTarget(_containerRef, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
 			Register(kScaleform_HideButtons);
 		}
 		Register(kScaleform_OpenContainer);
@@ -624,13 +636,11 @@ namespace QuickLootRE
 
 	void LootMenu::TakeAllItems()
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!IsOpen() || !_containerRef || _displaySize <= 0) {
 			return;
 		}
 
-		if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
+		if (IsValidPickPocketTarget(_containerRef, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
 			return;
 		}
 
@@ -658,12 +668,11 @@ namespace QuickLootRE
 		typedef RE::BSWin32GamepadDevice	BSWin32GamepadDevice;
 		typedef RE::InputEvent::DeviceType	DeviceType;
 
-		static RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
-
 		if (Settings::disableSingleLoot) {
 			return false;
 		}
 
+		RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
 		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
 		if (keyboard && keyboard->IsEnabled()) {
 			UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kDeviceType_Keyboard);
@@ -721,12 +730,10 @@ namespace QuickLootRE
 
 	void LootMenu::PlayAnimationOpen()
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (_containerRef && !_isContainerOpen) {
 			PlayAnimation("Close", "Open");
 			if (_containerRef->formType != kFormType_Character) {
-				_containerRef->ActivateRefChildren(player);  // Triggers traps
+				_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Triggers traps
 			}
 			_isContainerOpen = true;
 		}
@@ -748,9 +755,6 @@ namespace QuickLootRE
 		typedef RE::TESObjectREFR::RemoveType				RemoveType;
 		typedef RE::EffectSetting::Properties::Archetype	Archetype;
 
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-		static UInt32				droppedHandle = 0;
-
 		bool manualUpdate = false;	// picking up dropped items doesn't disptach a container changed event
 
 		// Locate item's extra list (if any)
@@ -758,6 +762,8 @@ namespace QuickLootRE
 		if (a_item.entryData()->extraList && !a_item.entryData()->extraList->empty()) {
 			xList = a_item.entryData()->extraList->front();
 		}
+
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
 		// Pickup dropped items
 		if (xList && xList->HasType(kExtraData_ItemDropper)) {
@@ -809,6 +815,7 @@ namespace QuickLootRE
 				player->PlaySounds(a_item.form(), true, false);
 			}
 			player->DispellEffectsWithArchetype(Archetype::kArchetype_Invisibility, false);
+			UInt32 droppedHandle = 0;
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}
 
@@ -823,9 +830,8 @@ namespace QuickLootRE
 		typedef RE::PlayerCharacter::EventType	EventType;
 		typedef RE::TESObjectREFR::RemoveType	RemoveType;
 
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
 		player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
 		a_lootMode = RemoveType::kRemoveType_Steal;
@@ -850,10 +856,8 @@ namespace QuickLootRE
 
 	UInt32 LootMenu::GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType)
 	{
-		static RE::InputManager* inputManager = RE::InputManager::GetSingleton();
-
 		RE::BSFixedString str = _singleLootMapping.c_str();
-		return inputManager->GetMappedKey(str, a_deviceType);
+		return RE::InputManager::GetSingleton()->GetMappedKey(str, a_deviceType);
 	}
 
 

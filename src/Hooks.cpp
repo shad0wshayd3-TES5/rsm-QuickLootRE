@@ -81,9 +81,7 @@ namespace Hooks
 			using HookShare::ReturnType;
 			typedef	RE::InputEvent::EventType EventType;
 
-			static RE::PlayerCharacter*	player = RE::PlayerCharacter::GetSingleton();
-
-			if (player->GetGrabbedRef()) {
+			if (RE::PlayerCharacter::GetSingleton()->GetGrabbedRef()) {
 				LootMenu::Close();
 				return ReturnType::kReturnType_Continue;
 			}
@@ -106,7 +104,6 @@ namespace Hooks
 #define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)														\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		FirstPersonStateHandlerEx;	\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		ThirdPersonStateHandlerEx;	\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sprint>		SprintHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ReadyWeapon>	ReadyWeaponHandlerEx;		\
@@ -156,9 +153,7 @@ namespace Hooks
 	public:
 		static void Run()
 		{
-			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
-			player->StartActivation();
+			RE::PlayerCharacter::GetSingleton()->StartActivation();
 		}
 
 
@@ -193,10 +188,9 @@ namespace Hooks
 			using QuickLootRE::LootMenu;
 			using QuickLootRE::HasACTITextOverrideVisitor;
 
-			static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 			bool result = (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
 
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 			if (LootMenu::CanOpen(a_ref, player->IsSneaking())) {
 				std::stringstream ss(a_dst->Get());
 				std::string dispText;
@@ -241,16 +235,41 @@ namespace Hooks
 	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268> TESNPCEx;
 
 
+#if 0
+	class FavoritesHandlerEx
+	{
+	public:
+		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+		{
+			using QuickLootRE::LootMenu;
+			using HookShare::ReturnType;
+
+			typedef	RE::InputEvent::EventType EventType;
+
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+
+			if (a_event->eventType == EventType::kEventType_Button) {
+				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
+				if (!button->IsUp()) {
+					return ReturnType::kReturnType_False;
+				}
+			}
+
+			return ReturnType::kReturnType_Continue;
+		}
+	};
+#endif
+
+
 	RE::BSFixedString& GetControlID(ControlID a_controlID)
 	{
 		using QuickLootRE::LootMenu;
-		static RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 
 		static RE::BSFixedString emptyStr = "";
 
+		RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+
 		switch (a_controlID) {
-		case kControlID_None:
-			break;
 		case kControlID_Activate:
 			return strHolder->activate;
 		case kControlID_ReadyWeapon:
@@ -275,10 +294,11 @@ namespace Hooks
 			return strHolder->toggleRun;
 		case kControlID_AutoMove:
 			return strHolder->autoMove;
+		case kControlID_None:
 		default:
 			_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
+			return emptyStr;
 		}
-		return emptyStr;
 	}
 
 

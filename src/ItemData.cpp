@@ -567,7 +567,7 @@ namespace QuickLootRE
 
 	bool ItemData::getStolen()
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
 		TESForm* owner = _entryData->GetOwner();
 		if (!owner) {
@@ -600,8 +600,6 @@ namespace QuickLootRE
 
 	bool ItemData::getCanPickPocket()
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (_container->baseForm->formType != kFormType_NPC) {
 			return true;
 		}
@@ -618,6 +616,7 @@ namespace QuickLootRE
 		for (auto& xList : *_entryData->extraList) {
 			if (xList->HasType(kExtraData_Worn) ||
 				xList->HasType(kExtraData_WornLeft)) {
+				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 				if (_entryData->type->formType == kFormType_Weapon) {
 					if (!player->HasPerk(Misdirection)) {
 						return false;
@@ -637,9 +636,10 @@ namespace QuickLootRE
 	SInt32 ItemData::getPickPocketChance()
 	{
 		using RE::_GetPickPocketChance;
-		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
 
+		typedef RE::EffectSetting::Properties::ActorValue ActorValue;
+
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		if (IsValidPickPocketTarget(_container, player->IsSneaking())) {
 			RE::Actor* targetActor = static_cast<RE::Actor*>(_container);
 

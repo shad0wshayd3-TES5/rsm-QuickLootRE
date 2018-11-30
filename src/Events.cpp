@@ -35,8 +35,6 @@ namespace QuickLootRE
 {
 	EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, EventDispatcher<SKSECrosshairRefEvent>* a_dispatcher)
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!a_event) {
 			return kEvent_Continue;
 		}
@@ -58,7 +56,7 @@ namespace QuickLootRE
 		}
 
 		// If player is looking at a container
-		if (LootMenu::CanOpen(ref, player->IsSneaking())) {
+		if (LootMenu::CanOpen(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
 			g_invList.parseInventory(LootMenu::GetContainerRef());
 			LootMenu::Open();
 		}
@@ -71,21 +69,25 @@ namespace QuickLootRE
 	{
 		using RE::EventResult;
 
-		typedef RE::BSWin32KeyboardDevice::Keyboard Keyboard;
-
-		static RE::UIStringHolder*		uiStrHolder = RE::UIStringHolder::GetSingleton();
-		static RE::MenuManager*			mm = RE::MenuManager::GetSingleton();
-		static RE::UIManager*			uiManager = RE::UIManager::GetSingleton();
-		static RE::InputStringHolder*	inputStrHolder = RE::InputStringHolder::GetSingleton();
+		typedef RE::InputEvent::EventType			EventType;
+		typedef RE::InputEvent::DeviceType			DeviceType;
+		typedef RE::BSWin32KeyboardDevice::Keyboard	Keyboard;
 
 		if (!a_event || !*a_event) {
 			return EventResult::kEvent_Continue;
 		}
 
 		if (LootMenu::IsOpen()) {
-			if ((*a_event)->eventType == InputEvent::kEventType_Button && (*a_event)->deviceType == kDeviceType_Keyboard) {
+			if ((*a_event)->eventType == EventType::kEventType_Button && (*a_event)->deviceType == DeviceType::kDeviceType_Keyboard) {
+
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
-				if (button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
+
+				if (button->GetControlID() == RE::InputStringHolder::GetSingleton()->nextFocus) {  // Tab
+
+					RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+					RE::UIStringHolder* uiStrHolder = RE::UIStringHolder::GetSingleton();
+					RE::UIManager* uiManager = RE::UIManager::GetSingleton();
+
 					if (mm->GetMovieView(uiStrHolder->inventoryMenu)) {
 						uiManager->AddMessage(uiStrHolder->inventoryMenu, UIMessage::kMessage_Close, 0);
 					} else if (mm->GetMovieView(uiStrHolder->statsMenu) && !mm->GetMovieView(uiStrHolder->levelUpMenu)) {
@@ -110,24 +112,27 @@ namespace QuickLootRE
 	{
 		using RE::EventResult;
 
-		static UIStringHolder*	strHolder = UIStringHolder::GetSingleton();
-		static RE::MenuManager*	mm = RE::MenuManager::GetSingleton();
-
 		LootMenu* loot = LootMenu::GetSingleton();
 		if (!a_event || !loot || !LootMenu::IsOpen()) {
 			return EventResult::kEvent_Continue;
 		}
 
 		RE::BSFixedString menuName = a_event->menuName;
+		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+
 		if (a_event->isOpening) {
 			RE::IMenu* menu = mm->GetMenu(a_event->menuName);
+
 			if (menu) {
+				RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+
 				if (menuName == strHolder->dialogueMenu || menuName == strHolder->messageBoxMenu) {
 					LootMenu::Close();
 				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) || menu->PausesGame()) {
 					LootMenu::SetVisible(false);
 				}
 			}
+
 		} else {
 			if (!LootMenu::IsVisible() && !mm->GameIsPaused()) {
 				LootMenu::SetVisible(true);
@@ -144,12 +149,11 @@ namespace QuickLootRE
 	{
 		using RE::EventResult;
 
-		static RE::PlayerCharacter*	player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!a_event || !LootMenu::IsOpen()) {
 			return EventResult::kEvent_Continue;
 		}
 
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		if ((a_event->source && a_event->source->formID == player->formID) || (a_event->target && a_event->target->formID == player->formID)) {
 			if (IsValidPickPocketTarget(LootMenu::GetContainerRef(), player->IsSneaking()) || Settings::disableInCombat) {
 				LootMenu::Close();

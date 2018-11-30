@@ -67,7 +67,10 @@ namespace QuickLootRE
 
 		enum Message : UInt32
 		{
-			kMessage_NoInputLoaded
+			kMessage_NoInputLoaded,
+			kMessage_HookShareMissing,
+			kMessage_HookShareIncompatible,
+			kMessage_MissingDependencies
 		};
 
 

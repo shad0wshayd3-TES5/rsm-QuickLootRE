@@ -45,8 +45,6 @@ namespace QuickLootRE
 
 	bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!a_refr || a_refr->baseForm->formType != kFormType_NPC) {
 			return false;
 		}

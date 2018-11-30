@@ -145,27 +145,26 @@ namespace QuickLootRE
 			return;
 		}
 
-		static RE::PlayerCharacter*	player = RE::PlayerCharacter::GetSingleton();
-		static const char*			sTake = (*g_gameSettingCollection)->Get("sTake")->data.s;
-		static const char*			sSteal = (*g_gameSettingCollection)->Get("sSteal")->data.s;
-		static const char*			sTakeAll = (*g_gameSettingCollection)->Get("sTakeAll")->data.s;
-		static const char*			sSearch = (*g_gameSettingCollection)->Get("sSearch")->data.s;
+		static std::string	sTake = (*g_gameSettingCollection)->Get("sTake")->data.s;
+		static std::string	sSteal = (*g_gameSettingCollection)->Get("sSteal")->data.s;
+		static std::string	sTakeAll = (*g_gameSettingCollection)->Get("sTakeAll")->data.s;
+		static std::string	sSearch = (*g_gameSettingCollection)->Get("sSearch")->data.s;
 
 		GFxValue args[6];
 
 		const char* takeText;
-		if (IsValidPickPocketTarget(ref, player->IsSneaking()) || ref->IsOffLimits()) {
-			takeText = sSteal;
+		if (IsValidPickPocketTarget(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking()) || ref->IsOffLimits()) {
+			takeText = sSteal.c_str();
 		} else {
-			takeText = sTake;
+			takeText = sTake.c_str();
 		}
 
-		const char* searchText = Settings::disableActiTextHook ? sSearch : LootMenu::GetActiText();
+		const char* searchText = Settings::disableActiTextHook ? sSearch.c_str() : LootMenu::GetActiText();
 
 		args[0].SetNumber(ref->formID);
 		args[1].SetString(ref->GetReferenceName());
 		args[2].SetString(takeText);
-		args[3].SetString(sTakeAll);
+		args[3].SetString(sTakeAll.c_str());
 		args[4].SetString(searchText);
 		args[5].SetNumber(LootMenu::GetSelectedIndex());
 
@@ -183,8 +182,6 @@ namespace QuickLootRE
 
 	void OpenContainerUIDelegate::Run()
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!LootMenu::IsOpen()) {
 			return;
 		}

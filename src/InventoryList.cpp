@@ -206,8 +206,6 @@ namespace QuickLootRE
 
 	bool InventoryList::isValidItem(TESForm* a_item)
 	{
-		static RE::PlayerCharacter* player = reinterpret_cast<RE::PlayerCharacter*>(*g_thePlayer);
-
 		if (!a_item) {
 			return false;
 		}
