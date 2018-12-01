@@ -251,6 +251,15 @@ namespace QuickLootRE
 				loot->view->Invoke("_root.Menu_mc.OpenContainer", 0, args, 1);
 			}
 
+			if (ITEM_DATA_DEBUG_ENABLED) {
+				UInt32 i = 0;
+				_DMESSAGE("");
+				for (auto& item : g_invList) {
+					item.dbgDumpType(i);
+					++i;
+				}
+			}
+
 			GFxValueDeallocTaskDelegate* dlgt = (GFxValueDeallocTaskDelegate*)Heap_Allocate(sizeof(GFxValueDeallocTaskDelegate));
 			new (dlgt)GFxValueDeallocTaskDelegate;
 			dlgt->heapAllocVals.push_back(item);
@@ -263,7 +272,7 @@ namespace QuickLootRE
 			dlgt->heapAllocVals.push_back(iconLabel);
 			g_task->AddTask(dlgt);
 		} catch (std::exception& e) {
-			_ERROR(e.what());
+			_ERROR("[ERROR] %s!\n", e.what());
 		}
 	}
 

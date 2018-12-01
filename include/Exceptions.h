@@ -10,7 +10,7 @@ namespace QuickLootRE
 	public:
 		virtual const char* what() const throw() override
 		{
-			return "GFxValue did not have an object interface!";
+			return "GFxValue did not have an object interface";
 		}
 	};
 }

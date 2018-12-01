@@ -70,7 +70,8 @@ namespace QuickLootRE
 			kMessage_NoInputLoaded,
 			kMessage_HookShareMissing,
 			kMessage_HookShareIncompatible,
-			kMessage_MissingDependencies
+			kMessage_MissingDependencies,
+			kMessage_LootMenuToggled
 		};
 
 
@@ -97,6 +98,9 @@ namespace QuickLootRE
 		static bool					IsOpen();
 		static bool					IsVisible();
 		static bool					InTakeAllMode();
+		static bool					GetEnabled();
+		static void					SetEnabled(bool a_enabled);
+		static void					ToggleEnabled();
 		static Platform				GetPlatform();
 		static RE::BSFixedString	GetName();
 		static const char*			GetActiText();
@@ -141,7 +145,7 @@ namespace QuickLootRE
 		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
 		void						DispellWornItemEnchantments();
 		UInt32						GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType);
-		void						ProcessMessageQueue();
+		static void					ProcessMessageQueue();
 
 
 		static LootMenu*				_singleton;
@@ -153,6 +157,7 @@ namespace QuickLootRE
 		static bool						_isMenuOpen;
 		static bool						_inTakeAllMode;
 		static bool						_isRegistered;
+		static bool						_isEnabled;
 		static Platform					_platform;
 		static std::string				_actiText;
 		static std::string				_singleLootMapping;

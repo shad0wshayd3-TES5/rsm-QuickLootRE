@@ -174,7 +174,7 @@
     <ClInclude Include="include\LootMenu.h" />
     <ClInclude Include="include\Settings.h" />
     <ClInclude Include="include\Utility.h" />
-    <ClInclude Include="version.h" />
+    <ClInclude Include="include\version.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

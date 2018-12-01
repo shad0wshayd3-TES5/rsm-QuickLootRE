@@ -166,13 +166,34 @@ namespace QuickLootRE
 
 	bool LootMenu::IsVisible()
 	{
-		return _singleton && _singleton->view->GetVisible();;
+		return _singleton && _singleton->view && _singleton->view->GetVisible();;
 	}
 
 
 	bool LootMenu::InTakeAllMode()
 	{
 		return _inTakeAllMode;
+	}
+
+
+	bool LootMenu::GetEnabled()
+	{
+		return _isEnabled;
+	}
+
+
+	void LootMenu::SetEnabled(bool a_enable)
+	{
+		_isEnabled = a_enable;
+		if (!_isEnabled) {
+			Close();
+		}
+	}
+
+
+	void LootMenu::ToggleEnabled()
+	{
+		SetEnabled(!_isEnabled);
 	}
 
 
@@ -251,7 +272,9 @@ namespace QuickLootRE
 
 	void LootMenu::Open()
 	{
-		RE::UIManager::GetSingleton()->AddMessage(GetName(), UIMessage::kMessage_Open, 0);
+		if (_isEnabled) {
+			RE::UIManager::GetSingleton()->AddMessage(GetName(), UIMessage::kMessage_Open, 0);
+		}
 	}
 
 
@@ -414,18 +437,32 @@ namespace QuickLootRE
 		switch (a_msg) {
 		case kMessage_NoInputLoaded:
 			_messageQueue.push("[LootMenu] ERROR: Input mapping conflicts detected! No inputs mapped!");
+			break;
 		case kMessage_HookShareMissing:
 			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is not loaded!");
+			break;
 		case kMessage_HookShareIncompatible:
 			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is an incompatible version!");
+			break;
 		case kMessage_MissingDependencies:
 			_messageQueue.push("[LootMenu] ERROR: LootMenu is missing a view! Dependencies were not loaded!");
+			ProcessMessageQueue();
+			break;
+		case kMessage_LootMenuToggled:
+		{
+			static const char* enabled = "[LootMenu] LootMenu enabled";
+			static const char* disabled = "[LootMenu] LootMenu disabled";
+			const char* state = _isEnabled ? enabled : disabled;
+			_messageQueue.push(state);
+			ProcessMessageQueue();
+			break;
+		}
 		default:
 			_ERROR("[ERROR] Invalid message (%i)", a_msg);
 		}
 
 		if (IsOpen()) {
-			_singleton->ProcessMessageQueue();
+			ProcessMessageQueue();
 		}
 	}
 
@@ -449,7 +486,6 @@ namespace QuickLootRE
 		if (!view) {
 			_FATALERROR("[FATAL ERROR] LootMenu is missing a view! Dependencies were not loaded!\n");
 			QueueMessage(kMessage_MissingDependencies);
-			ProcessMessageQueue();
 			return Result::kResult_NotProcessed;
 		}
 
@@ -767,7 +803,7 @@ namespace QuickLootRE
 
 		// Pickup dropped items
 		if (xList && xList->HasType(kExtraData_ItemDropper)) {
-			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((UInt64)xList - 0x70);
+			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((uintptr_t)xList - 0x70);
 			player->PickUpItem(refItem, 1, false, true);
 			manualUpdate = true;
 		} else {
@@ -883,6 +919,7 @@ namespace QuickLootRE
 	bool					LootMenu::_isMenuOpen = false;
 	bool					LootMenu::_inTakeAllMode = false;
 	bool					LootMenu::_isRegistered = false;
+	bool					LootMenu::_isEnabled = true;
 	LootMenu::Platform		LootMenu::_platform = kPlatform_PC;
 	std::string				LootMenu::_actiText = "";
 	std::string				LootMenu::_singleLootMapping = "";

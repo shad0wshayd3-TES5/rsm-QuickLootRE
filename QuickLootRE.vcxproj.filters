@@ -65,7 +65,6 @@
     <ClInclude Include="include\Hooks.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="version.h" />
     <ClInclude Include="include\Settings.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -79,6 +78,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\HasACTITextOverrideVisitor.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\version.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

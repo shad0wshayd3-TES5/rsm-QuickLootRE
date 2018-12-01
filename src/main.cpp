@@ -14,6 +14,7 @@
 #include "ItemData.h"  // SetCompareOrder()
 #include "LootMenu.h"  // LootMenuCreator
 #include "Settings.h"  // Settings
+#include "version.h"
 
 #include "HookShare.h"  // _RegisterHook_t
 
@@ -93,20 +94,20 @@ extern "C" {
 		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
 		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
 
-		_MESSAGE("QuickLootRE");
+		_MESSAGE("QuickLootRE v%i.%i.%i.%i", QUICKLOOTRE_VERSION_MAJOR, QUICKLOOTRE_VERSION_MINOR, QUICKLOOTRE_VERSION_PATCH, QUICKLOOTRE_VERSION_BETA);
 
-		// populate info structure
 		a_info->infoVersion = PluginInfo::kInfoVersion;
 		a_info->name = "QuickLootRE";
 		a_info->version = 1;
 
-		// store plugin handle so we can identify ourselves later
 		g_pluginHandle = a_skse->GetPluginHandle();
 
 		if (a_skse->isEditor) {
 			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!");
 			return false;
-		} else if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_53) {
+		}
+
+		if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_53) {
 			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!", a_skse->runtimeVersion);
 			return false;
 		}
@@ -118,7 +119,6 @@ extern "C" {
 			return false;
 		}
 
-		// supported runtime version
 		return true;
 	}
 

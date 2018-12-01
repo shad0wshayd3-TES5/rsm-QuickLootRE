@@ -15,6 +15,28 @@ namespace RE
 }
 
 
+enum
+{
+	kDebugType_Name,
+	kDebugType_Count,
+	kDebugType_Value,
+	kDebugType_Weight,
+	kDebugType_Type,
+	kDebugType_Read,
+	kDebugType_Enchanted,
+	kDebugType_PickPocketChance,
+	kDebugType_ValuePerWeight,
+	kDebugType_Priority
+};
+
+
+#define ITEM_DATA_DEBUG_ENABLED	false
+#if ITEM_DATA_DEBUG_ENABLED
+#pragma message("ItemData debugging is enabled! Don't forget to disable it!")
+#endif
+#define ITEM_DATA_DEBUG_TYPE	kDebugType_Name
+
+
 namespace QuickLootRE
 {
 	class ItemData
@@ -191,6 +213,8 @@ namespace QuickLootRE
 		static void						setCompareOrder();
 		static void						setContainer(RE::TESObjectREFR* a_container);
 
+		void							dbgDumpType(UInt32 a_index);
+
 	private:
 		void							constructCommon();
 
@@ -210,15 +234,25 @@ namespace QuickLootRE
 		Priority						getPriority();
 
 		static friend int				compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
-		static friend int				compareByStolen(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs);
 		static friend int				compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+		static friend int				r_compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
 
 		RE::InventoryEntryData*			_entryData;
 		const char*						_name;
@@ -235,6 +269,16 @@ namespace QuickLootRE
 
 		static std::vector<FnCompare>	_compares;
 		static RE::TESObjectREFR*		_container;
+		static const					std::string NAME;
+		static const					std::string COUNT;
+		static const					std::string VALUE;
+		static const					std::string WEIGHT;
+		static const					std::string TYPE;
+		static const					std::string READ;
+		static const					std::string ENCHANTED;
+		static const					std::string PICK_POCKET_CHANCE;
+		static const					std::string VALUE_PER_WEIGHT;
+		static const					std::string PRIORITY;
 		static const char*				_strIcons[];
 	};
 }

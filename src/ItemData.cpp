@@ -11,7 +11,6 @@
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <limits>  // numeric_limits
-#include <cmath>  // floor, ceil
 #include <string>  // string
 
 #include "Hooks.h"  // GetPickPocketChance()
@@ -105,7 +104,7 @@ namespace QuickLootRE
 			return a_rhs._canPickPocket;  // Ensures items that can't be pickpocketed sort to the end
 		}
 
-		for (ItemData::FnCompare compare : ItemData::_compares) {
+		for (auto& compare : ItemData::_compares) {
 			int cmp = compare(a_lhs, a_rhs);
 			if (cmp) {
 				return cmp < 0;
@@ -232,36 +231,68 @@ namespace QuickLootRE
 	{
 		_compares.clear();
 		for (auto& compare : Settings::sortOrder) {
-			if (compare == "name") {
+			if (compare == NAME) {
 				_compares.push_back(&compareByName);
-				_DMESSAGE("[DEBUG] Added compare by name");
-			} else if (compare == "count") {
+				_DMESSAGE("[DEBUG] Added compare by %s", NAME.c_str());
+			} else if (compare == "r_" + NAME) {
+				_compares.push_back(&r_compareByName);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", NAME.c_str());
+			} else if (compare == COUNT) {
 				_compares.push_back(&compareByCount);
-				_DMESSAGE("[DEBUG] Added compare by count");
-			} else if (compare == "value") {
+				_DMESSAGE("[DEBUG] Added compare by %s", COUNT.c_str());
+			} else if (compare == "r_" + COUNT) {
+				_compares.push_back(&r_compareByCount);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", COUNT.c_str());
+			} else if (compare == VALUE) {
 				_compares.push_back(&compareByValue);
-				_DMESSAGE("[DEBUG] Added compare by value");
-			} else if (compare == "weight") {
+				_DMESSAGE("[DEBUG] Added compare by %s", VALUE.c_str());
+			} else if (compare == "r_" + VALUE) {
+				_compares.push_back(&r_compareByValue);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", VALUE.c_str());
+			} else if (compare == WEIGHT) {
 				_compares.push_back(&compareByWeight);
-				_DMESSAGE("[DEBUG] Added compare by weight");
-			} else if (compare == "type") {
+				_DMESSAGE("[DEBUG] Added compare by %s", WEIGHT.c_str());
+			} else if (compare == "r_" + WEIGHT) {
+				_compares.push_back(&r_compareByWeight);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", WEIGHT.c_str());
+			} else if (compare == TYPE) {
 				_compares.push_back(&compareByType);
-				_DMESSAGE("[DEBUG] Added compare by type");
-			} else if (compare == "stolen") {
-				_compares.push_back(&compareByStolen);
-				_DMESSAGE("[DEBUG] Added compare by stolen");
-			} else if (compare == "read") {
+				_DMESSAGE("[DEBUG] Added compare by %s", TYPE.c_str());
+			} else if (compare == "r_" + TYPE) {
+				_compares.push_back(&r_compareByType);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", TYPE.c_str());
+			} else if (compare == READ) {
 				_compares.push_back(&compareByRead);
-				_DMESSAGE("[DEBUG] Added compare by read");
-			} else if (compare == "enchanted") {
+				_DMESSAGE("[DEBUG] Added compare by %s", READ.c_str());
+			} else if (compare == "r_" + READ) {
+				_compares.push_back(&r_compareByRead);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", READ.c_str());
+			} else if (compare == ENCHANTED) {
 				_compares.push_back(&compareByEnchanted);
-				_DMESSAGE("[DEBUG] Added compare by enchanted");
-			} else if (compare == "pickPocketChance") {
+				_DMESSAGE("[DEBUG] Added compare by %s", ENCHANTED.c_str());
+			} else if (compare == "r_" + ENCHANTED) {
+				_compares.push_back(&r_compareByEnchanted);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", ENCHANTED.c_str());
+			} else if (compare == PICK_POCKET_CHANCE) {
 				_compares.push_back(&compareByPickPocketChance);
-				_DMESSAGE("[DEBUG] Added compare by pickpocket chance");
-			} else if (compare == "valuePerWeight") {
+				_DMESSAGE("[DEBUG] Added compare by %s", PICK_POCKET_CHANCE.c_str());
+			} else if (compare == "r_" + PICK_POCKET_CHANCE) {
+				_compares.push_back(&r_compareByPickPocketChance);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", PICK_POCKET_CHANCE.c_str());
+			} else if (compare == VALUE_PER_WEIGHT) {
 				_compares.push_back(&compareByValuePerWeight);
-				_DMESSAGE("[DEBUG] Added compare by value/weight");
+				_DMESSAGE("[DEBUG] Added compare by %s", VALUE_PER_WEIGHT.c_str());
+			} else if (compare == "r_" + VALUE_PER_WEIGHT) {
+				_compares.push_back(&r_compareByValuePerWeight);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", VALUE_PER_WEIGHT.c_str());
+			} else if (compare == PRIORITY) {
+				_compares.push_back(&compareByPriority);
+				_DMESSAGE("[DEBUG] Added compare by %s", PRIORITY.c_str());
+			} else if (compare == "r_" + PRIORITY) {
+				_compares.push_back(&r_compareByPriority);
+				_DMESSAGE("[DEBUG] Added compare by reverse %s", PRIORITY.c_str());
+			} else {
+				_ERROR("[ERROR] Encountered unknown compare (%s)!\n", compare.c_str());
 			}
 		}
 	}
@@ -270,6 +301,46 @@ namespace QuickLootRE
 	void ItemData::setContainer(RE::TESObjectREFR* a_container)
 	{
 		_container = a_container;
+	}
+
+
+	void ItemData::dbgDumpType(UInt32 a_index)
+	{
+		switch (ITEM_DATA_DEBUG_TYPE) {
+		case kDebugType_Name:
+			_DMESSAGE("[DEBUG] (%u) %s == (%s)", a_index, NAME.c_str(), _name);
+			break;
+		case kDebugType_Count:
+			_DMESSAGE("[DEBUG] (%u) %s == (%i)", a_index, COUNT.c_str(), _count);
+			break;
+		case kDebugType_Value:
+			_DMESSAGE("[DEBUG] (%u) %s == (%i)", a_index, VALUE.c_str(), _value);
+			break;
+		case kDebugType_Weight:
+			_DMESSAGE("[DEBUG] (%u) %s == (%F)", a_index, WEIGHT.c_str(), _weight);
+			break;
+		case kDebugType_Type:
+			_DMESSAGE("[DEBUG] (%u) %s == (%u)", a_index, TYPE.c_str(), _type);
+			break;
+		case kDebugType_Read:
+			_DMESSAGE("[DEBUG] (%u) %s == (%s)", a_index, READ.c_str(), boolToString(_isRead).c_str());
+			break;
+		case kDebugType_Enchanted:
+			_DMESSAGE("[DEBUG] (%u) %s == (%s)", a_index, ENCHANTED.c_str(), boolToString(_isEnchanted).c_str());
+			break;
+		case kDebugType_PickPocketChance:
+			_DMESSAGE("[DEBUG] (%u) %s == (%i)", a_index, PICK_POCKET_CHANCE.c_str(), _pickPocketChance);
+			break;
+		case kDebugType_ValuePerWeight:
+		{
+			float vpw = _weight ? _value / _weight : std::numeric_limits<float>::infinity();
+			_DMESSAGE("[DEBUG] (%u) %s == (%F)", a_index, VALUE_PER_WEIGHT.c_str(), vpw);
+			break;
+		}
+		case kDebugType_Priority:
+			_DMESSAGE("[DEBUG] (%u) %s == (%u)", a_index, PRIORITY.c_str(), _priority);
+			break;
+		}
 	}
 
 
@@ -728,15 +799,33 @@ namespace QuickLootRE
 	}
 
 
+	int r_compareByName(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByName(a_lhs, a_rhs);
+	}
+
+
 	int compareByCount(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		return a_lhs._count - a_rhs._count;
 	}
 
 
+	int r_compareByCount(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByCount(a_lhs, a_rhs);
+	}
+
+
 	int compareByValue(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		return a_lhs._value - a_rhs._value;
+	}
+
+
+	int r_compareByValue(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByValue(a_lhs, a_rhs);
 	}
 
 
@@ -753,17 +842,21 @@ namespace QuickLootRE
 	}
 
 
-	int compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
+	int r_compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		return a_rhs._priority - a_lhs._priority;	// Lower numbers have higher priority
+		return -1 * compareByWeight(a_lhs, a_rhs);
 	}
 
 
-	int compareByStolen(const ItemData& a_lhs, const ItemData& a_rhs)
+	int compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		SInt32 valueLHS = a_lhs._isStolen ? 1 : 0;
-		SInt32 valueRHS = a_rhs._isStolen ? 1 : 0;
-		return valueLHS - valueRHS;
+		return a_lhs._type - a_rhs._type;
+	}
+
+
+	int r_compareByType(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByType(a_lhs, a_rhs);
 	}
 
 
@@ -775,11 +868,23 @@ namespace QuickLootRE
 	}
 
 
+	int r_compareByRead(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByRead(a_lhs, a_rhs);
+	}
+
+
 	int compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		SInt32 valueLHS = a_lhs._isEnchanted ? 1 : 0;
 		SInt32 valueRHS = a_rhs._isEnchanted ? 1 : 0;
 		return valueLHS - valueRHS;
+	}
+
+
+	int r_compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByEnchanted(a_lhs, a_rhs);
 	}
 
 
@@ -796,23 +901,57 @@ namespace QuickLootRE
 	}
 
 
+	int r_compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByPickPocketChance(a_lhs, a_rhs);
+	}
+
+
 	int compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::max();
-		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::max();
+		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::infinity();
+		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::infinity();
 		float result = leftVpW - rightVpW;
 		if (result < -0.001) {
-			return (int)std::floor(result);
+			return -1;
 		} else if (result > 0.001) {
-			return (int)std::ceil(result);
+			return 1;
 		} else {
 			return 0;
 		}
 	}
 
 
+	int r_compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByValuePerWeight(a_lhs, a_rhs);
+	}
+
+
+	int compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return a_rhs._priority - a_lhs._priority;  // Lower numbers have higher priority
+	}
+
+
+	int r_compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs)
+	{
+		return -1 * compareByPriority(a_lhs, a_rhs);
+	}
+
+
 	std::vector<ItemData::FnCompare>	ItemData::_compares;
 	RE::TESObjectREFR*					ItemData::_container = 0;
+	const std::string					ItemData::NAME = "name";
+	const std::string					ItemData::COUNT = "count";
+	const std::string					ItemData::VALUE = "value";
+	const std::string					ItemData::WEIGHT = "weight";
+	const std::string					ItemData::TYPE = "type";
+	const std::string					ItemData::READ = "read";
+	const std::string					ItemData::ENCHANTED = "enchanted";
+	const std::string					ItemData::PICK_POCKET_CHANCE = "pickPocketChance";
+	const std::string					ItemData::VALUE_PER_WEIGHT = "valuePerWeight";
+	const std::string					ItemData::PRIORITY = "priority";
 
 	const char* ItemData::_strIcons[] = {
 		"none",					// 00

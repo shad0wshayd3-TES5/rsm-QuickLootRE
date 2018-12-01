@@ -32,6 +32,8 @@
 #include "RE/ReadyWeaponHandler.h"  // ReadyWeaponHandler
 #include "RE/TESBoundAnimObject.h"  // TESObjectACTI
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/UIManager.h"  // UIManager
+#include "RE/UIStringHolder.h"  // UIStringHolder
 
 
 namespace Hooks
@@ -237,32 +239,6 @@ namespace Hooks
 	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268> TESNPCEx;
 
 
-#if 0
-	class FavoritesHandlerEx
-	{
-	public:
-		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
-		{
-			using QuickLootRE::LootMenu;
-			using HookShare::ReturnType;
-
-			typedef	RE::InputEvent::EventType EventType;
-
-			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-
-			if (a_event->eventType == EventType::kEventType_Button) {
-				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (!button->IsUp()) {
-					return ReturnType::kReturnType_False;
-				}
-			}
-
-			return ReturnType::kReturnType_Continue;
-		}
-	};
-#endif
-
-
 	class ActorEx : public RE::Actor
 	{
 	public:
@@ -316,7 +292,9 @@ namespace Hooks
 			return strHolder->autoMove;
 		case kControlID_None:
 		default:
-			_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
+			if (a_controlID != kControlID_None) {
+				_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
+			}
 			return emptyStr;
 		}
 	}
