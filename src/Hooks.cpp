@@ -8,6 +8,7 @@
 
 #include <string>  // string
 #include <sstream>  // stringstream
+#include <typeinfo>  // typeid
 
 #include "Events.h"  // skipCount
 #include "HasACTITextOverrideVisitor.h"  // HasACTITextOverrideVisitor
@@ -225,6 +226,7 @@ namespace Hooks
 			RelocPtr<_GetCrosshairText_t> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
 			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&hook_GetCrosshairText));
+			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
 		}
 	};
 
@@ -259,6 +261,24 @@ namespace Hooks
 		}
 	};
 #endif
+
+
+	class ActorEx : public RE::Actor
+	{
+	public:
+		bool Hook_IsRunning()
+		{
+			return this ? IsRunning() : false;
+		}
+
+
+		static void InstallHook()
+		{
+			RelocAddr<uintptr_t> call_IsRunning(0x002DB800 + 0x22);
+			g_branchTrampoline.Write5Call(call_IsRunning.GetUIntPtr(), GetFnAddr(&Hook_IsRunning));
+			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(ActorEx).name());
+		}
+	};
 
 
 	RE::BSFixedString& GetControlID(ControlID a_controlID)
@@ -417,5 +437,7 @@ namespace Hooks
 			TESObjectCONTEx::installHook();
 			TESNPCEx::installHook();
 		}
+
+		ActorEx::InstallHook();
 	}
 }

@@ -111,6 +111,13 @@ extern "C" {
 			return false;
 		}
 
+		if (g_branchTrampoline.Create(1024 * 8)) {
+			_MESSAGE("[MESSAGE] Branch trampoline creation successful");
+		} else {
+			_FATALERROR("[FATAL ERROR] Branch trampoline creation failed!\n");
+			return false;
+		}
+
 		// supported runtime version
 		return true;
 	}
