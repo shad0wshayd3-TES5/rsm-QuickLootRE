@@ -30,4 +30,4 @@ Setting | Description
 ## Console commands
 Command | Example Usage | Description
 --- | --- | ---
-`[SetQuickLootVariable|sqlv] [variable name] [new value]` | `sqlv itemLimit 25` | Sets the specified variable to the specified value. String and array variables can not be set from the console.
+`[SetQuickLootVariable\|sqlv] [variable name] [new value]` | `sqlv itemLimit 25` | Sets the specified variable to the specified value. String and array variables can not be set from the console.
