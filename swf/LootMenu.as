@@ -38,6 +38,8 @@ class LootMenu extends MovieClip
 		_takeKey = skse.GetMappedKey("Activate", 0, 0);
 		_takeAllKey = skse.GetMappedKey("Toggle POV", 0, 0);
 		_searchKey = skse.GetMappedKey("Ready Weapon", 0, 0);
+		
+		background.gotoAndStop("Default");
 	}
 
 
@@ -105,8 +107,6 @@ class LootMenu extends MovieClip
 			}
 			background._alpha = a_opacity;
 		}
-
-		background.gotoAndStop("Default");
 	}
 	
 

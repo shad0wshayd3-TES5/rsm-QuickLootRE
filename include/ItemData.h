@@ -34,7 +34,7 @@ enum
 #if ITEM_DATA_DEBUG_ENABLED
 #pragma message("ItemData debugging is enabled! Don't forget to disable it!")
 #endif
-#define ITEM_DATA_DEBUG_TYPE	kDebugType_Name
+#define ITEM_DATA_DEBUG_TYPE	kDebugType_ValuePerWeight
 
 
 namespace QuickLootRE

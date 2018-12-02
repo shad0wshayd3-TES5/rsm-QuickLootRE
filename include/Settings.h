@@ -9,22 +9,27 @@
 
 namespace QuickLootRE
 {
+	class ISetting;
+	static std::vector<ISetting*> settings;
+	static std::vector<ISetting*> consoleSettings;
+
 	class ISetting
 	{
 	private:
 		typedef nlohmann::json json;
 
 	public:
-		ISetting(std::string a_key) : _key(a_key) {}
+		ISetting(std::string a_key, bool a_consoleOK) : _key(a_key) { settings.push_back(this); if (a_consoleOK) consoleSettings.push_back(this); }
 		virtual ~ISetting() {}
 
-		virtual void				Assign(bool a_val)					{}
-		virtual void				Assign(int a_val)					{}
-		virtual void				Assign(float a_val)					{}
-		virtual void				Assign(const char* a_val)			{}
-		virtual void				Assign(std::string a_val)			{}
-		virtual void				Assign(json& a_val)					{}
-		virtual void				Dump()								= 0;
+		virtual void				assign(bool a_val)					{}
+		virtual void				assign(int a_val)					{}
+		virtual void				assign(float a_val)					{}
+		virtual void				assign(const char* a_val)			{}
+		virtual void				assign(std::string a_val)			{}
+		virtual void				assign(json& a_val)					{}
+		virtual void				dump()								= 0;
+		virtual std::string			getValueAsString()			const	= 0;
 		inline const std::string&	key()						const	{ return _key; };
 
 	protected:
@@ -32,20 +37,18 @@ namespace QuickLootRE
 	};
 
 
-	static std::vector<ISetting*> settings;
-
-
 	class bSetting : public ISetting
 	{
 	public:
-		bSetting(std::string a_key, bool a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
+		bSetting(std::string a_key, bool a_consoleOK, bool a_value) : ISetting(a_key, a_consoleOK), _value(a_value) {}
 		virtual ~bSetting() {}
 
-		virtual void	Assign(bool a_val)			override	{ _value = a_val; }
-		virtual void	Assign(int a_val)			override	{ _value = a_val ? true : false; }
-		virtual void	Assign(float a_val)			override	{ _value = (int)a_val ? true : false; }
-		virtual void	Dump()						override	{ _DMESSAGE("%s: %s", _key.c_str(), boolToString(_value).c_str()); }
-		inline			operator bool()		const				{ return _value; }
+		virtual void		assign(bool a_val)			override	{ _value = a_val; }
+		virtual void		assign(int a_val)			override	{ _value = a_val ? true : false; }
+		virtual void		assign(float a_val)			override	{ _value = (int)a_val ? true : false; }
+		virtual void		dump()						override	{ _DMESSAGE("%s: %s", _key.c_str(), boolToString(_value).c_str()); }
+		virtual std::string	getValueAsString()	const	override	{ return _value ? "True" : "False"; }
+		inline				operator bool()		const				{ return _value; }
 
 	protected:
 		bool _value;
@@ -55,13 +58,14 @@ namespace QuickLootRE
 	class iSetting : public ISetting
 	{
 	public:
-		iSetting(std::string a_key, SInt32 a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
+		iSetting(std::string a_key, bool a_consoleOK, SInt32 a_value) : ISetting(a_key, a_consoleOK), _value(a_value) {}
 		virtual ~iSetting() {}
 
-		virtual void	Assign(int a_val)			override	{ _value = a_val; }
-		virtual void	Assign(float a_val)			override	{ _value = (int)a_val; }
-		virtual void	Dump()						override	{ _DMESSAGE("%s: %i", _key.c_str(), _value); }
-		inline			operator SInt32()	const				{ return _value; }
+		virtual void		assign(int a_val)			override	{ _value = a_val; }
+		virtual void		assign(float a_val)			override	{ _value = (int)a_val; }
+		virtual void		dump()						override	{ _DMESSAGE("%s: %i", _key.c_str(), _value); }
+		virtual std::string	getValueAsString()	const	override	{ return std::to_string(_value); }
+		inline				operator SInt32()	const				{ return _value; }
 
 	protected:
 		SInt32 _value;
@@ -71,13 +75,14 @@ namespace QuickLootRE
 	class fSetting : public ISetting
 	{
 	public:
-		fSetting(std::string a_key, float a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
+		fSetting(std::string a_key, bool a_consoleOK, float a_value) : ISetting(a_key, a_consoleOK), _value(a_value) {}
 		virtual ~fSetting() {}
 
-		virtual void	Assign(int a_val)			override	{ _value = (float)a_val; }
-		virtual void	Assign(float a_val)			override	{ _value = a_val; }
-		virtual void	Dump()						override	{ _DMESSAGE("%s: %f", _key.c_str(), _value); }
-		inline			operator float()	const				{ return _value; }
+		virtual void		assign(int a_val)			override	{ _value = (float)a_val; }
+		virtual void		assign(float a_val)			override	{ _value = a_val; }
+		virtual void		dump()						override	{ _DMESSAGE("%s: %f", _key.c_str(), _value); }
+		virtual std::string	getValueAsString()	const	override	{ return std::to_string(_value); }
+		inline				operator float()	const				{ return _value; }
 
 	protected:
 		float _value;
@@ -87,12 +92,13 @@ namespace QuickLootRE
 	class sSetting : public ISetting
 	{
 	public:
-		sSetting(std::string a_key, std::string a_value) : ISetting(a_key), _value(a_value) { settings.push_back(this); }
+		sSetting(std::string a_key, bool a_consoleOK, std::string a_value) : ISetting(a_key, a_consoleOK), _value(a_value) {}
 		virtual ~sSetting() {}
 
-		virtual void		Assign(std::string a_val)											override	{ _value = a_val; }
-		virtual void		Assign(const char* a_val)											override	{ _value = a_val; }
-		virtual void		Dump()																override	{ _DMESSAGE("%s: %s", _key.c_str(), _value.c_str()); }
+		virtual void		assign(std::string a_val)											override	{ _value = a_val; }
+		virtual void		assign(const char* a_val)											override	{ _value = a_val; }
+		virtual void		dump()																override	{ _DMESSAGE("%s: %s", _key.c_str(), _value.c_str()); }
+		virtual std::string	getValueAsString()											const	override	{ return _value; }
 		inline const char*	c_str()														const				{ return _value.c_str(); }
 		inline				operator std::string()										const				{ return _value; }
 		inline				operator const char*()										const				{ return _value.c_str(); }
@@ -116,71 +122,89 @@ namespace QuickLootRE
 	};
 
 
-	class aSetting : public ISetting
+	template <typename T>
+	class aSetting :
+		public ISetting,
+		public std::vector<T>
+	{
+		virtual ~aSetting() {}
+	};
+
+
+	template <>
+	class aSetting<std::string> :
+		public ISetting,
+		public std::vector<std::string>
 	{
 	private:
-		typedef nlohmann::json json;
+		using json = nlohmann::json;
 
 	public:
-		aSetting(std::string a_key, std::initializer_list<std::string> a_list = {}) : ISetting(a_key), _values(a_list) { settings.push_back(this); }
+		aSetting(std::string a_key, bool a_consoleOK, std::initializer_list<std::string> a_list = {}) : ISetting(a_key, a_consoleOK), std::vector<std::string>(a_list) {}
 		virtual ~aSetting() {}
 
-		virtual void Assign(json& a_val) override
+		virtual void assign(json& a_val) override
 		{
-			_values.clear();
+			clear();
 			for (auto& val : a_val) {
-				_values.emplace_back(val.get<std::string>());
+				emplace_back(val.get<std::string>());
 			}
 		}
-		virtual void Dump() override
+
+		virtual void dump() override
 		{
 			_DMESSAGE("%s:", _key.c_str());
-			for (auto& val : _values) {
-				_DMESSAGE("\t%s", val.c_str());
+			for (auto& it = begin(); it != end(); ++it) {
+				_DMESSAGE("\t%s", it->c_str());
 			}
 		}
-		inline std::vector<std::string>::iterator	begin()	noexcept	{ return _values.begin(); }
-		inline std::vector<std::string>::iterator	end()	noexcept	{ return _values.end(); }
 
-	protected:
-		std::vector<std::string> _values;
+		virtual std::string	getValueAsString() const override
+		{
+			std::string str = _key + ":";
+			for (auto& it = begin(); it != end(); ++it) {
+				str += "\t" + *it + "\n";
+			}
+			return str;
+		}
 	};
 
 
 	class Settings
 	{
 	public:
-		static bool		loadSettings();
-		static void		dump();
+		static bool						loadSettings();
+		static ISetting*				set(std::string& a_key, int a_val);
+		static void						dump();
 
 
-		static bSetting	disableInCombat;
-		static bSetting	disableTheft;
-		static bSetting	disablePickPocketing;
-		static bSetting	disableIfEmpty;
-		static bSetting	disableSingleLoot;
-		static bSetting	disableForAnimals;
-		static bSetting	disableActiTextHook;
-		static bSetting	disableAnimations;
-		static iSetting	itemLimit;
-		static fSetting	scale;
-		static fSetting	positionX;
-		static fSetting	positionY;
-		static fSetting	opacity;
-		static sSetting	singleLootModifier;
-		static sSetting	takeMethod;
-		static sSetting	takeAllMethod;
-		static sSetting	searchMethod;
-		static sSetting	interfaceStyle;
-		static aSetting	sortOrder;
+		static bSetting					disableInCombat;
+		static bSetting					disableTheft;
+		static bSetting					disablePickPocketing;
+		static bSetting					disableIfEmpty;
+		static bSetting					disableSingleLoot;
+		static bSetting					disableForAnimals;
+		static bSetting					disableActiTextHook;
+		static bSetting					disableAnimations;
+		static iSetting					itemLimit;
+		static fSetting					scale;
+		static fSetting					positionX;
+		static fSetting					positionY;
+		static fSetting					opacity;
+		static sSetting					singleLootModifier;
+		static sSetting					takeMethod;
+		static sSetting					takeAllMethod;
+		static sSetting					searchMethod;
+		static sSetting					interfaceStyle;
+		static aSetting<std::string>	sortOrder;
 
-		static bool		isApplied;
+		static bool						isApplied;
 
 	private:
 		Settings() {}
 		~Settings() {}
 
 
-		static const char* FILE_NAME;
+		static const char*				FILE_NAME;
 	};
 }

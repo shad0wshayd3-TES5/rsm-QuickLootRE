@@ -95,6 +95,7 @@ namespace QuickLootRE
 		static void					NextInputSkipped();
 		static RE::TESObjectREFR*	GetContainerRef();
 		static void					ClearContainerRef();
+		static bool					IsConstructed();
 		static bool					IsOpen();
 		static bool					IsVisible();
 		static bool					InTakeAllMode();

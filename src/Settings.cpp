@@ -34,32 +34,32 @@ namespace QuickLootRE
 				case json::value_t::array:
 				{
 					json jArr = it.value();
-					setting->Assign(jArr);
+					setting->assign(jArr);
 					break;
 				}
 				case json::value_t::string:
 				{
 					std::string str = it.value();
-					setting->Assign(str);
+					setting->assign(str);
 					break;
 				}
 				case json::value_t::boolean:
 				{
 					bool b = it.value();
-					setting->Assign(b);
+					setting->assign(b);
 					break;
 				}
 				case json::value_t::number_integer:
 				case json::value_t::number_unsigned:
 				{
 					int num = it.value();
-					setting->Assign(num);
+					setting->assign(num);
 					break;
 				}
 				case json::value_t::number_float:
 				{
 					float num = it.value();
-					setting->Assign(num);
+					setting->assign(num);
 					break;
 				}
 				default:
@@ -78,37 +78,49 @@ namespace QuickLootRE
 	}
 
 
+	ISetting* Settings::set(std::string& a_key, int a_val)
+	{
+		for (auto& setting : consoleSettings) {
+			if (setting->key() == a_key) {
+				setting->assign(a_val);
+				return setting;
+			}
+		}
+		return 0;
+	}
+
+
 	void Settings::dump()
 	{
 		_DMESSAGE("=== SETTINGS DUMP BEGIN ===");
 		for (auto& setting : settings) {
-			setting->Dump();
+			setting->dump();
 		}
 		_DMESSAGE("=== SETTINGS DUMP END ===");
 	}
 
 
-	bSetting	Settings::disableInCombat("disableInCombat", true);
-	bSetting	Settings::disableTheft("disableTheft", false);
-	bSetting	Settings::disablePickPocketing("disablePickpocketing", false);
-	bSetting	Settings::disableIfEmpty("disableIfEmpty", true);
-	bSetting	Settings::disableSingleLoot("disableSingleLoot", false);
-	bSetting	Settings::disableForAnimals("disableForAnimals", false);
-	bSetting	Settings::disableActiTextHook("disableActiTextHook", false);
-	bSetting	Settings::disableAnimations("disableAnimations", false);
-	iSetting	Settings::itemLimit("itemLimit", 100);
-	fSetting	Settings::scale("scale", -1.0);
-	fSetting	Settings::positionX("positionX", -1.0);
-	fSetting	Settings::positionY("positionY", -1.0);
-	fSetting	Settings::opacity("opacity", -1.0);
-	sSetting	Settings::singleLootModifier("singleLootModifier", "sprint");
-	sSetting	Settings::takeMethod("takeMethod", "activate");
-	sSetting	Settings::takeAllMethod("takeAllMethod", "togglePOV");
-	sSetting	Settings::searchMethod("searchMethod", "readyWeapon");
-	sSetting	Settings::interfaceStyle("interfaceStyle", "default");
-	aSetting	Settings::sortOrder("sortOrder", { "stolen", "type", "name", "value", "count" });
+	bSetting				Settings::disableInCombat("disableInCombat", true, true);
+	bSetting				Settings::disableTheft("disableTheft", true, false);
+	bSetting				Settings::disablePickPocketing("disablePickpocketing", true, false);
+	bSetting				Settings::disableIfEmpty("disableIfEmpty", true, true);
+	bSetting				Settings::disableSingleLoot("disableSingleLoot", true, false);
+	bSetting				Settings::disableForAnimals("disableForAnimals", true, false);
+	bSetting				Settings::disableActiTextHook("disableActiTextHook", true, false);
+	bSetting				Settings::disableAnimations("disableAnimations", true, false);
+	iSetting				Settings::itemLimit("itemLimit", true, 100);
+	fSetting				Settings::scale("scale", true, -1.0);
+	fSetting				Settings::positionX("positionX", true, -1.0);
+	fSetting				Settings::positionY("positionY", true, -1.0);
+	fSetting				Settings::opacity("opacity", true, -1.0);
+	sSetting				Settings::singleLootModifier("singleLootModifier", false, "sprint");
+	sSetting				Settings::takeMethod("takeMethod", false, "activate");
+	sSetting				Settings::takeAllMethod("takeAllMethod", false, "togglePOV");
+	sSetting				Settings::searchMethod("searchMethod", false, "readyWeapon");
+	sSetting				Settings::interfaceStyle("interfaceStyle", false, "default");
+	aSetting<std::string>	Settings::sortOrder("sortOrder", false, { "stolen", "type", "name", "value", "count" });
 
-	bool		Settings::isApplied = false;
+	bool					Settings::isApplied = false;
 
-	const char*	Settings::FILE_NAME = "Data\\SKSE\\Plugins\\QuickLootRE.json";
+	const char*				Settings::FILE_NAME = "Data\\SKSE\\Plugins\\QuickLootRE.json";
 }

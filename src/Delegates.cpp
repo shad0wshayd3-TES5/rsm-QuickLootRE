@@ -89,7 +89,7 @@ namespace QuickLootRE
 
 	void SetupUIDelegate::Run()
 	{
-		if (!LootMenu::IsOpen()) {
+		if (!LootMenu::IsConstructed()) {
 			return;
 		}
 

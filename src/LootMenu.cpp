@@ -158,6 +158,12 @@ namespace QuickLootRE
 	}
 
 
+	bool LootMenu::IsConstructed()
+	{
+		return _singleton && _singleton->view;
+	}
+
+
 	bool LootMenu::IsOpen()
 	{
 		return _isMenuOpen;
@@ -166,7 +172,7 @@ namespace QuickLootRE
 
 	bool LootMenu::IsVisible()
 	{
-		return _singleton && _singleton->view && _singleton->view->GetVisible();;
+		return IsConstructed() && _singleton->view->GetVisible();;
 	}
 
 
@@ -395,39 +401,43 @@ namespace QuickLootRE
 
 	void LootMenu::Register(Scaleform a_reg)
 	{
-		switch (a_reg) {
-		case kScaleform_SetKeyMappings:
-			AllocateAndDispatch<SetKeyMappingsUIDelegate>();
-			break;
-		case kScaleform_SetPlatform:
-			AllocateAndDispatch<SetPlatformUIDelegate>();
-			break;
-		case kScaleform_SetSelectedIndex:
-			AllocateAndDispatch<SetSelectedIndexUIDelegate>();
-			break;
-		case kScaleform_Setup:
-			AllocateAndDispatch<SetupUIDelegate>();
-			break;
-		case kScaleform_SetContainer:
-			AllocateAndDispatch<SetContainerUIDelegate>();
-			break;
-		case kScaleform_OpenContainer:
-			AllocateAndDispatch<OpenContainerUIDelegate>();
-			break;
-		case kScaleform_CloseContainer:
-			AllocateAndDispatch<CloseContainerUIDelegate>();
-			break;
-		case kScaleform_UpdateButtons:
-			AllocateAndDispatch<UpdateButtonsUIDelegate>();
-			break;
-		case kScaleform_HideButtons:
-			AllocateAndDispatch<HideButtonsUIDelegate>();
-			break;
-		case kScaleform_SwitchStyle:
-			AllocateAndDispatch<SwitchStyleTaskDelegate>();
-			break;
-		default:
-			_ERROR("[ERROR] Invalid registration (%i)", a_reg);
+		if (LootMenu::IsConstructed()) {
+			switch (a_reg) {
+			case kScaleform_SetKeyMappings:
+				AllocateAndDispatch<SetKeyMappingsUIDelegate>();
+				break;
+			case kScaleform_SetPlatform:
+				AllocateAndDispatch<SetPlatformUIDelegate>();
+				break;
+			case kScaleform_SetSelectedIndex:
+				AllocateAndDispatch<SetSelectedIndexUIDelegate>();
+				break;
+			case kScaleform_Setup:
+				AllocateAndDispatch<SetupUIDelegate>();
+				break;
+			case kScaleform_SetContainer:
+				AllocateAndDispatch<SetContainerUIDelegate>();
+				break;
+			case kScaleform_OpenContainer:
+				AllocateAndDispatch<OpenContainerUIDelegate>();
+				break;
+			case kScaleform_CloseContainer:
+				AllocateAndDispatch<CloseContainerUIDelegate>();
+				break;
+			case kScaleform_UpdateButtons:
+				AllocateAndDispatch<UpdateButtonsUIDelegate>();
+				break;
+			case kScaleform_HideButtons:
+				AllocateAndDispatch<HideButtonsUIDelegate>();
+				break;
+			case kScaleform_SwitchStyle:
+				AllocateAndDispatch<SwitchStyleTaskDelegate>();
+				break;
+			default:
+				_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
+			}
+		} else {
+			_ERROR("[ERROR] The LootMenu has not been constructed!\n");
 		}
 	}
 

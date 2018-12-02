@@ -1,10 +1,10 @@
 #include "Hooks.h"
 
-#include "skse64/GameReferences.h"  // g_thePlayer
-#include "skse64/GameTypes.h"  // BSString
 #include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/SafeWrite.h"  // SafeWrite64
-#include "xbyak/xbyak.h"
+#include "skse64/GameReferences.h"  // g_thePlayer
+#include "skse64/GameTypes.h"  // BSString
+#include "skse64/ObScript.h"  // ObScriptCommand
 
 #include <string>  // string
 #include <sstream>  // stringstream
@@ -21,6 +21,8 @@
 #include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
+#include "RE/CommandTable.h"  // CommandInfo
+#include "RE/ConsoleManager.h"  // ConsoleManager
 #include "RE/FavoritesHandler.h"  // FavoritesHandler
 #include "RE/InputEvent.h"  // InputEvent
 #include "RE/InputStringHolder.h"  // InputStringHolder
@@ -75,7 +77,7 @@ namespace Hooks
 
 	// Activate handler needs to account for grabbing items
 	template <typename Op>
-	class ActivateHandler
+	class PlayerInputHandler<Op, kControlID_Activate>
 	{
 	public:
 		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
@@ -112,7 +114,7 @@ namespace Hooks
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ReadyWeapon>	ReadyWeaponHandlerEx;		\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_AutoMove>		AutoMoveHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ToggleRun>		ToggleRunHandlerEx;			\
-	typedef ActivateHandler<##TYPE_NAME##>								ActivateHandlerEx;			\
+	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Activate>		ActivateHandlerEx;			\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Jump>			JumpHandlerEx;				\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Shout>			ShoutHandlerEx;				\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sneak>			SneakHandlerEx;
@@ -257,6 +259,64 @@ namespace Hooks
 	};
 
 
+	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, Script* a_scriptObj, ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
+	{
+		using QuickLootRE::ISetting;
+		using QuickLootRE::Settings;
+		using QuickLootRE::LootMenu;
+
+		if (a_scriptData->strLen < 60) {
+			RE::CommandInfo::StringChunk* strChunk = (RE::CommandInfo::StringChunk*)a_scriptData->GetChunk();
+			std::string name = strChunk->GetString();
+
+			RE::ConsoleManager* console = RE::ConsoleManager::GetSingleton();
+
+			if (name.length() > 1) {
+				RE::CommandInfo::IntegerChunk* intChunk = (RE::CommandInfo::IntegerChunk*)strChunk->GetNext();
+				int val = intChunk->GetInteger();
+
+				ISetting* setting = Settings::set(name, val);
+				if (setting) {
+					LootMenu::Register(LootMenu::kScaleform_Setup);
+
+					if (console && RE::ConsoleManager::IsConsoleMode()) {
+						console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
+					}
+				} else {
+					if (console && RE::ConsoleManager::IsConsoleMode()) {
+						console->Print("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	void RegisterConsoleCommands()
+	{
+		typedef RE::SCRIPT_PARAMETER::Type Type;
+
+		RE::CommandInfo* info = RE::CommandInfo::Locate("TestSeenData");  // Unused
+		if (info) {
+			static RE::SCRIPT_PARAMETER params[] = {
+				{ "Name", Type::kType_String, 0 },
+				{ "Value", Type::kType_Integer, 0 }
+			};
+			info->longName = "SetQuickLootVariable";
+			info->shortName = "sqlv";
+			info->helpText = "Set QuickLoot variables \"sqlv [variable name] [new value]\"";
+			info->isRefRequired = false;
+			info->SetParameters(params);
+			info->execute = &Cmd_SetQuickLootVariable_Execute;
+			info->eval = 0;
+
+			_DMESSAGE("[DEBUG] Registered console command: %s (%s)", info->longName, info->shortName);
+		} else {
+			_ERROR("[ERROR] Failed to register console command!\n")
+		}
+	}
+
+
 	RE::BSFixedString& GetControlID(ControlID a_controlID)
 	{
 		using QuickLootRE::LootMenu;
@@ -388,20 +448,33 @@ namespace Hooks
 		using HookShare::Hook;
 
 		if (!CheckForMappingConflicts()) {
-			if (!ApplySetting<NullOp, &LootMenu::SetSingleLootMapping>(a_register, Settings::singleLootModifier)) {
-				_ERROR("[ERROR] Failed to apply single loot hook!\n");
+			if (ApplySetting<NullOp, &LootMenu::SetSingleLootMapping>(a_register, Settings::singleLootModifier)) {
+				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::singleLootModifier.key().c_str(), Settings::singleLootModifier.c_str());
+			} else {
+				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::singleLootModifier.key().c_str(), Settings::singleLootModifier.c_str());
 			}
-			if (!ApplySetting<TakeOp, &LootMenu::SetTakeMapping>(a_register, Settings::takeMethod)) {
-				_ERROR("[ERROR] Failed to apply take hook!\n");
+
+			if (ApplySetting<TakeOp, &LootMenu::SetTakeMapping>(a_register, Settings::takeMethod)) {
+				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::takeMethod.key().c_str(), Settings::takeMethod.c_str());
+			} else {
+				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::takeMethod.key().c_str(), Settings::takeMethod.c_str());
 			}
-			if (!ApplySetting<TakeAllOp, &LootMenu::SetTakeAllMapping>(a_register, Settings::takeAllMethod)) {
-				_ERROR("[ERROR] Failed to apply take all hook!\n");
+
+			if (ApplySetting<TakeAllOp, &LootMenu::SetTakeAllMapping>(a_register, Settings::takeAllMethod)) {
+				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::takeAllMethod.key().c_str(), Settings::takeAllMethod.c_str());
+			} else {
+				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::takeAllMethod.key().c_str(), Settings::takeAllMethod.c_str());
 			}
-			if (!ApplySetting<SearchOp, &LootMenu::SetSearchMapping>(a_register, Settings::searchMethod)) {
-				_ERROR("[ERROR] Failed to apply search hook!\n");
+
+			if (ApplySetting<SearchOp, &LootMenu::SetSearchMapping>(a_register, Settings::searchMethod)) {
+				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::searchMethod.key().c_str(), Settings::searchMethod.c_str());
+			} else {
+				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::searchMethod.key().c_str(), Settings::searchMethod.c_str());
 			}
+
 			if (!activateHandlerHooked) {
 				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_Activate);
+				_DMESSAGE("[DEBUG] Stubbed activate handler");
 			}
 		} else {
 			_ERROR("[ERROR] Mapping conflicts detected!");
@@ -409,6 +482,7 @@ namespace Hooks
 		}
 
 		a_register(NullOp::FavoritesHandlerEx::hook_CanProcess, Hook::kHook_Favorites);
+		_DMESSAGE("[DEBUG] Stubbed Favorites handler");
 
 		if (!Settings::disableActiTextHook) {
 			TESObjectACTIEx::installHook();
@@ -417,5 +491,7 @@ namespace Hooks
 		}
 
 		ActorEx::InstallHook();
+
+		RegisterConsoleCommands();
 	}
 }
