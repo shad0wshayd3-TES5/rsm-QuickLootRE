@@ -200,15 +200,17 @@ namespace Hooks
 				std::stringstream ss(a_dst->Get());
 				std::string dispText;
 				if (std::getline(ss, dispText, '\n')) {
-					if (dispText[0] == '<') {
-						int beg = dispText.find_first_of('>');
-						int end = dispText.find_last_of('<');
-						if (beg != std::string::npos && end != std::string::npos) {
-							std::string subStr = dispText.substr(beg + 1, end - beg - 1);
-							LootMenu::SetActiText(subStr.c_str());
+					if (!dispText.empty()) {
+						if (dispText[0] == '<') {
+							int beg = dispText.find_first_of('>');
+							int end = dispText.find_last_of('<');
+							if (beg != std::string::npos && end != std::string::npos) {
+								std::string subStr = dispText.substr(beg + 1, end - beg - 1);
+								LootMenu::SetActiText(subStr.c_str());
+							}
+						} else {
+							LootMenu::SetActiText(dispText.c_str());
 						}
-					} else {
-						LootMenu::SetActiText(dispText.c_str());
 					}
 				}
 

@@ -18,9 +18,9 @@
 
 #include "HookShare.h"  // _RegisterHook_t
 
-#include "RE/EventSourceList.h"  // EventSourceList
 #include "RE/InputEventDispatcher.h"  // InputEventDispatcher
 #include "RE/MenuManager.h"  // MenuManager
+#include "RE/ScriptEventSourceHolder.h"  // ScriptEventSourceHolder
 
 
 static PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
@@ -68,11 +68,11 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(&QuickLootRE::g_menuOpenCloseEventHandler);
 		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 
-		RE::EventSourceList* sourceList = RE::EventSourceList::GetEventSourceList();
-		sourceList->combatEventSource.AddEventSink(&QuickLootRE::g_combatEventHandler);
+		RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+		sourceHolder->combatEventSource.AddEventSink(&QuickLootRE::g_combatEventHandler);
 		_MESSAGE("[MESSAGE] Combat event handler sinked");
 
-		sourceList->containerChangedEventSource.AddEventSink(&QuickLootRE::g_containerChangedEventHandler);
+		sourceHolder->containerChangedEventSource.AddEventSink(&QuickLootRE::g_containerChangedEventHandler);
 		_MESSAGE("[MESSAGE] Container changed event handler sinked");
 
 		RE::MenuManager::GetSingleton()->Register("LootMenu", QuickLootRE::LootMenuCreator::Create);
