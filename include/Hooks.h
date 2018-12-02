@@ -30,4 +30,5 @@ namespace Hooks
 
 
 	static bool activateHandlerHooked = false;
+	static bool cameraStateHandlerHooked = false;
 }

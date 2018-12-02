@@ -292,6 +292,7 @@ namespace Hooks
 		return true;
 	}
 
+
 	void RegisterConsoleCommands()
 	{
 		typedef RE::SCRIPT_PARAMETER::Type Type;
@@ -398,8 +399,8 @@ namespace Hooks
 
 		if (a_setting == "activate") {
 			a_register(T::ActivateHandlerEx::hook_CanProcess, Hook::kHook_Activate);
-			activateHandlerHooked = true;
 			set(strHolder->activate.c_str());
+			activateHandlerHooked = true;
 			return true;
 		} else if (a_setting == "readyWeapon") {
 			a_register(T::ReadyWeaponHandlerEx::hook_CanProcess, Hook::kHook_ReadyWeapon);
@@ -409,6 +410,7 @@ namespace Hooks
 			a_register(T::FirstPersonStateHandlerEx::hook_CanProcess, Hook::kHook_FirstPersonState);
 			a_register(T::ThirdPersonStateHandlerEx::hook_CanProcess, Hook::kHook_ThirdPersonState);
 			set(strHolder->togglePOV.c_str());
+			cameraStateHandlerHooked = true;
 			return true;
 		} else if (a_setting == "jump") {
 			a_register(T::JumpHandlerEx::hook_CanProcess, Hook::kHook_Jump);
@@ -475,6 +477,12 @@ namespace Hooks
 			if (!activateHandlerHooked) {
 				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_Activate);
 				_DMESSAGE("[DEBUG] Stubbed activate handler");
+			}
+
+			if (!cameraStateHandlerHooked) {
+				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_FirstPersonState);
+				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_ThirdPersonState);
+				_DMESSAGE("[DEBUG] Stubbed camera state handlers");
 			}
 		} else {
 			_ERROR("[ERROR] Mapping conflicts detected!");
