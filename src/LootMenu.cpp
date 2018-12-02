@@ -9,6 +9,7 @@
 #include <queue>  // queue
 #include <string>  // string
 
+#include "ActivatePerkEntryVisitor.h"  // ActivatePerkEntryVisitor
 #include "Delegates.h"
 #include "Forms.h"  // FACTFormID
 #include "Hooks.h"  // SendItemsPickPocketedEvent()
@@ -316,6 +317,8 @@ namespace QuickLootRE
 
 	bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	{
+		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
+
 		static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
 		if (!a_ref || !a_ref->baseForm) {
@@ -391,6 +394,14 @@ namespace QuickLootRE
 
 		if (Settings::disableIfEmpty && numItems <= 0) {
 			return false;
+		}
+
+		if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPointType::kEntryPoint_Activate)) {
+			ActivatePerkEntryVisitor visitor(player, containerRef);
+			player->VisitEntryPointPerkEntries(EntryPointType::kEntryPoint_Activate, visitor);
+			if (visitor.GetResult()) {
+				return false;
+			}
 		}
 
 		_containerRef = containerRef;

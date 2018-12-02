@@ -1,10 +1,7 @@
-#include "HasACTITextOverrideVisitor.h"
-
-#include "skse64/GameForms.h"  // BGSPerk
+#include "SetActivateLabelPerkEntryVisitor.h"
 
 #include "LootMenu.h"
 
-#include "RE/Actor.h"  // Actor
 #include "RE/BGSEntryPointFunctionDataText.h"  // BGSEntryPointFunctionDataText
 #include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
 #include "RE/BGSPerkEntry.h"  // BGSPerkEntry
@@ -20,7 +17,7 @@ namespace RE
 
 namespace QuickLootRE
 {
-	HasACTITextOverrideVisitor::ReturnType HasACTITextOverrideVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
+	SetActivateLabelPerkEntryVisitor::ReturnType SetActivateLabelPerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
 	{
 		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 

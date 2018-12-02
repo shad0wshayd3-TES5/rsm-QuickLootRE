@@ -186,6 +186,7 @@ namespace QuickLootRE
 		static bSetting					disableForAnimals;
 		static bSetting					disableActiTextHook;
 		static bSetting					disableAnimations;
+		static bSetting					disableForActiOverride;
 		static iSetting					itemLimit;
 		static fSetting					scale;
 		static fSetting					positionX;

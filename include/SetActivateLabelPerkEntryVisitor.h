@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RE/PerkEntryVisitor.h"  // RE::PerkEntryVisitor
+#include "RE/PerkEntryVisitor.h"  // PerkEntryVisitor
 
 namespace RE
 {
@@ -12,10 +12,10 @@ namespace RE
 
 namespace QuickLootRE
 {
-	class HasACTITextOverrideVisitor : public RE::PerkEntryVisitor
+	class SetActivateLabelPerkEntryVisitor : public RE::PerkEntryVisitor
 	{
 	public:
-		constexpr HasACTITextOverrideVisitor(RE::TESObjectREFR* a_perkOwner, RE::TESObjectREFR* a_target) :
+		constexpr SetActivateLabelPerkEntryVisitor(RE::TESObjectREFR* a_perkOwner, RE::TESObjectREFR* a_target) :
 			_perkOwner(a_perkOwner),
 			_target(a_target)
 		{}

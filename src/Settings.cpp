@@ -108,6 +108,7 @@ namespace QuickLootRE
 	bSetting				Settings::disableForAnimals("disableForAnimals", true, false);
 	bSetting				Settings::disableActiTextHook("disableActiTextHook", true, false);
 	bSetting				Settings::disableAnimations("disableAnimations", true, false);
+	bSetting				Settings::disableForActiOverride("disableForActiOverride", true, false);
 	iSetting				Settings::itemLimit("itemLimit", true, 100);
 	fSetting				Settings::scale("scale", true, -1.0);
 	fSetting				Settings::positionX("positionX", true, -1.0);

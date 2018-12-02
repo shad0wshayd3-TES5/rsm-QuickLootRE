@@ -10,6 +10,12 @@
     <Filter Include="include">
       <UniqueIdentifier>{aee06ac9-1bc5-42ef-858c-7657bb1ee832}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\visitors">
+      <UniqueIdentifier>{73737ee5-1582-4a35-b496-c8e67dc954a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\visitors">
+      <UniqueIdentifier>{24f79ced-c779-4eb3-a35d-5a484d5facd2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -42,8 +48,11 @@
     <ClCompile Include="src\Forms.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\HasACTITextOverrideVisitor.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\SetActivateLabelPerkEntryVisitor.cpp">
+      <Filter>src\visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ActivatePerkEntryVisitor.cpp">
+      <Filter>src\visitors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,11 +86,14 @@
     <ClInclude Include="include\Forms.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\HasACTITextOverrideVisitor.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\version.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SetActivateLabelPerkEntryVisitor.h">
+      <Filter>include\visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ActivatePerkEntryVisitor.h">
+      <Filter>include\visitors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

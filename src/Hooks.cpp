@@ -11,7 +11,7 @@
 #include <typeinfo>  // typeid
 
 #include "Events.h"  // skipCount
-#include "HasACTITextOverrideVisitor.h"  // HasACTITextOverrideVisitor
+#include "SetActivateLabelPerkEntryVisitor.h"  // SetActivateLabelPerkEntryVisitor
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
 
@@ -191,7 +191,7 @@ namespace Hooks
 			typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 
 			using QuickLootRE::LootMenu;
-			using QuickLootRE::HasACTITextOverrideVisitor;
+			using QuickLootRE::SetActivateLabelPerkEntryVisitor;
 
 			bool result = (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
 
@@ -213,7 +213,7 @@ namespace Hooks
 				}
 
 				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kEntryPoint_Set_Activate_Label)) {
-					HasACTITextOverrideVisitor visitor(player, a_ref);
+					SetActivateLabelPerkEntryVisitor visitor(player, a_ref);
 					player->VisitEntryPointPerkEntries(EntryPointType::kEntryPoint_Set_Activate_Label, visitor);
 				}
 
