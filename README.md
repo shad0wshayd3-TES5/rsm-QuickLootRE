@@ -26,3 +26,8 @@ Setting | Description
 `searchMethod` | Determines the key used for the search feature. Valid inputs are: `"activate"`, `"readyWeapon"`, `"togglePOV"`, `"jump"`, `"sprint"`, `"sneak"`, `"shout"`, `"toggleRun"`, and `"autoMove"`.
 `interfaceStyle` | Determines the interface style to use. Valid inputs are: `"default"`, and `"dialogue"`.
 `sortOrder` | Defines the order items are sorted in the loot menu. Valid inputs are: `"name"`, `"count"`, `"value"`, `"weight"`, `"type"`, `"read"`, `"enchanted"`, `"pickPocketChance"`, `"valuePerWeight"`, and `"priority"`. Any sorting method can be prefixed with `"r_"` to reverse the sort order, e.g. `"r_name"` will sort in reverse alphabetical order. `sortOrder` is an array, so multiple inputs are acceptable.
+
+## Console commands
+Command | Example Usage | Description
+--- | --- | ---
+`[SetQuickLootVariable|sqlv] [variable name] [new value]` | `sqlv itemLimit 25` | Sets the specified variable to the specified value. String and array variables can not be set from the console.
