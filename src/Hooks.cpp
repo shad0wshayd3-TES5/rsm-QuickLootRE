@@ -25,6 +25,7 @@
 #include "RE/ConsoleManager.h"  // ConsoleManager
 #include "RE/FavoritesHandler.h"  // FavoritesHandler
 #include "RE/InputEvent.h"  // InputEvent
+#include "RE/InputEventDispatcher.h"
 #include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/MenuOpenHandler.h"  // MenuOpenHandler
@@ -191,8 +192,10 @@ namespace Hooks
 			using QuickLootRE::LootMenu;
 
 			RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+			RE::InputEventDispatcher* input = RE::InputEventDispatcher::GetSingleton();
 
-			if (!a_event || !(a_event->controlID == strHolder->journal || a_event->controlID == strHolder->pause)) {
+			RE::BSFixedString& str = input->IsGamepadEnabled() ? strHolder->journal : strHolder->pause;
+			if (!a_event || a_event->controlID != str) {
 				return orig_ProcessButton(this, a_event);
 			}
 
