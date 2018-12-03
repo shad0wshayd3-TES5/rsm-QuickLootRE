@@ -94,7 +94,7 @@ extern "C" {
 		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
 		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
 
-		_MESSAGE("QuickLootRE v%i.%i.%i.%i", QUICKLOOTRE_VERSION_MAJOR, QUICKLOOTRE_VERSION_MINOR, QUICKLOOTRE_VERSION_PATCH, QUICKLOOTRE_VERSION_BETA);
+		_MESSAGE("QuickLootRE v%s", QUICKLOOTRE_VERSION_VERSTRING);
 
 		a_info->infoVersion = PluginInfo::kInfoVersion;
 		a_info->name = "QuickLootRE";
@@ -103,12 +103,12 @@ extern "C" {
 		g_pluginHandle = a_skse->GetPluginHandle();
 
 		if (a_skse->isEditor) {
-			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!");
+			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
 			return false;
 		}
 
 		if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_53) {
-			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!", a_skse->runtimeVersion);
+			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
 			return false;
 		}
 

@@ -34,3 +34,6 @@ Setting | Description
 **Command** | `[SetQuickLootVariable\|sqlv] [variable name] [new value]`
 **Example Usage** | `sqlv itemLimit 25`
 **Description** | Sets the specified variable to the specified value. String and array variables can not be set from the console.
+
+## Tips
+* Hold the journal menu key (ESC) for 2 seconds toggle the loot menu on/off

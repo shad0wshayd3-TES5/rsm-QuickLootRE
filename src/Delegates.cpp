@@ -257,12 +257,7 @@ namespace QuickLootRE
 			}
 
 			if (ITEM_DATA_DEBUG_ENABLED) {
-				UInt32 i = 0;
-				_DMESSAGE("");
-				for (auto& item : g_invList) {
-					item.dbgDumpType(i);
-					++i;
-				}
+				DebugContents();
 			}
 
 			GFxValueDeallocTaskDelegate* dlgt = (GFxValueDeallocTaskDelegate*)Heap_Allocate(sizeof(GFxValueDeallocTaskDelegate));
@@ -286,6 +281,22 @@ namespace QuickLootRE
 	{
 		if (this) {
 			Heap_Free(this);
+		}
+	}
+
+
+	void OpenContainerUIDelegate::DebugContents()
+	{
+		UInt32 i = 0;
+		bool div = false;
+		_DMESSAGE("");
+		for (auto& item : g_invList) {
+			if (!div && !item.canPickPocket()) {
+				_DMESSAGE("========== HIDDEN ITEMS ==========");
+				div = true;
+			}
+			item.dbgDumpType(i);
+			++i;
 		}
 	}
 

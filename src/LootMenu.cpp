@@ -321,6 +321,10 @@ namespace QuickLootRE
 
 		static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
+		if (!LootMenu::GetEnabled()) {
+			return false;
+		}
+
 		if (!a_ref || !a_ref->baseForm) {
 			return false;
 		}

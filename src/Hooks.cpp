@@ -27,6 +27,7 @@
 #include "RE/InputEvent.h"  // InputEvent
 #include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/MenuManager.h"  // MenuManager
+#include "RE/MenuOpenHandler.h"  // MenuOpenHandler
 #include "RE/Offsets.h"
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
@@ -44,7 +45,7 @@ namespace Hooks
 	class PlayerInputHandler
 	{
 	public:
-		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
 			using QuickLootRE::LootMenu;
 			using HookShare::ReturnType;
@@ -80,7 +81,7 @@ namespace Hooks
 	class PlayerInputHandler<Op, kControlID_Activate>
 	{
 	public:
-		static HookShare::ReturnType hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
 			using QuickLootRE::LootMenu;
 			using HookShare::ReturnType;
@@ -118,7 +119,6 @@ namespace Hooks
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Jump>			JumpHandlerEx;				\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Shout>			ShoutHandlerEx;				\
 	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sneak>			SneakHandlerEx;
-
 
 
 	class TakeOp
@@ -178,6 +178,62 @@ namespace Hooks
 	};
 
 
+	struct MenuOpenHandlerEx : RE::MenuOpenHandler
+	{
+	public:
+		// MSVC was clobbering ecx when I tried (MenuOpenHandlerEx::*_ProcessButton_t)
+		typedef bool _ProcessButton_t(RE::MenuOpenHandler* a_this, RE::ButtonEvent* a_event);
+		static _ProcessButton_t* orig_ProcessButton;
+
+
+		bool Hook_ProcessButton(RE::ButtonEvent* a_event)
+		{
+			using QuickLootRE::LootMenu;
+
+			if (!a_event) {
+				return orig_ProcessButton(this, a_event);
+			}
+
+			static bool processed = false;
+
+			bool result = true;
+			if (a_event->IsDown()) {
+				processed = false;
+			} else if (a_event->IsHeld()) {
+				if (!processed && a_event->timer >= 2.0) {
+					processed = true;
+					LootMenu::ToggleEnabled();
+					LootMenu::QueueMessage(LootMenu::kMessage_LootMenuToggled);
+				}
+			} else {
+				if (!processed) {
+					float pressure = a_event->pressure;
+					float timer = a_event->timer;
+					a_event->pressure = 1.0;
+					a_event->timer = 0.0;
+					result = orig_ProcessButton(this, a_event);
+					a_event->pressure = pressure;
+					a_event->timer = timer;
+				}
+			}
+
+			return result;
+		}
+
+
+		static void InstallHook()
+		{
+			RelocPtr<_ProcessButton_t*> vtbl_ProcessButton(RE::MENU_OPEN_HANDLER_VTBL_META + 0x30);
+			orig_ProcessButton = *vtbl_ProcessButton;
+			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&Hook_ProcessButton));
+			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
+		}
+	};
+
+
+	MenuOpenHandlerEx::_ProcessButton_t* MenuOpenHandlerEx::orig_ProcessButton;
+
+
 	template <uintptr_t offset>
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
@@ -227,7 +283,7 @@ namespace Hooks
 		}
 
 
-		static void installHook()
+		static void InstallHook()
 		{
 			RelocPtr<_GetCrosshairText_t> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
@@ -238,9 +294,9 @@ namespace Hooks
 
 
 	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
-	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL_META + 0x268> TESObjectACTIEx;
-	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL_META + 0x268> TESObjectCONTEx;
-	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268> TESNPCEx;
+	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL_META + 0x268>	TESObjectACTIEx;
+	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL_META + 0x268>	TESObjectCONTEx;
+	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268>			TESNPCEx;
 
 
 	class ActorEx : public RE::Actor
@@ -396,52 +452,57 @@ namespace Hooks
 	bool ApplySetting(HookShare::_RegisterHook_t* a_register, QuickLootRE::sSetting& a_setting)
 	{
 		using HookShare::Hook;
+		using QuickLootRE::Settings;
 
 		InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
+		bool result = false;
+
 		if (a_setting == "activate") {
-			a_register(T::ActivateHandlerEx::hook_CanProcess, Hook::kHook_Activate);
+			a_register(T::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_Activate);
 			set(strHolder->activate.c_str());
 			activateHandlerHooked = true;
-			return true;
+			result = true;
 		} else if (a_setting == "readyWeapon") {
-			a_register(T::ReadyWeaponHandlerEx::hook_CanProcess, Hook::kHook_ReadyWeapon);
+			a_register(T::ReadyWeaponHandlerEx::Hook_CanProcess, Hook::kHook_ReadyWeapon);
 			set(strHolder->readyWeapon.c_str());
-			return true;
+			result = true;
 		} else if (a_setting == "togglePOV") {
-			a_register(T::FirstPersonStateHandlerEx::hook_CanProcess, Hook::kHook_FirstPersonState);
-			a_register(T::ThirdPersonStateHandlerEx::hook_CanProcess, Hook::kHook_ThirdPersonState);
+			a_register(T::FirstPersonStateHandlerEx::Hook_CanProcess, Hook::kHook_FirstPersonState);
+			a_register(T::ThirdPersonStateHandlerEx::Hook_CanProcess, Hook::kHook_ThirdPersonState);
 			set(strHolder->togglePOV.c_str());
 			cameraStateHandlerHooked = true;
-			return true;
+			result = true;
 		} else if (a_setting == "jump") {
-			a_register(T::JumpHandlerEx::hook_CanProcess, Hook::kHook_Jump);
+			a_register(T::JumpHandlerEx::Hook_CanProcess, Hook::kHook_Jump);
 			set(strHolder->jump.c_str());
-			return true;
+			result = true;
 		} else if (a_setting == "sprint") {
-			a_register(T::SprintHandlerEx::hook_CanProcess, Hook::kHook_Sprint);
+			a_register(T::SprintHandlerEx::Hook_CanProcess, Hook::kHook_Sprint);
 			set(strHolder->sprint.c_str());
-			return true;
+			result = true;
 		} else if (a_setting == "sneak") {
-			a_register(T::SneakHandlerEx::hook_CanProcess, Hook::kHook_Sneak);
+			a_register(T::SneakHandlerEx::Hook_CanProcess, Hook::kHook_Sneak);
 			set(strHolder->sneak.c_str());
-			return true;
+			result = true;
 		} else if (a_setting == "shout") {
-			a_register(T::ShoutHandlerEx::hook_CanProcess, Hook::kHook_Shout);
+			a_register(T::ShoutHandlerEx::Hook_CanProcess, Hook::kHook_Shout);
 			set(strHolder->shout.c_str());
-			return true;
+			result = true;
 		} else if (a_setting == "toggleRun") {
-			a_register(T::ToggleRunHandlerEx::hook_CanProcess, Hook::kHook_ToggleRun);
+			a_register(T::ToggleRunHandlerEx::Hook_CanProcess, Hook::kHook_ToggleRun);
 			set(strHolder->toggleRun.c_str());
-			return true;
+			result = true;
 		} else if (a_setting == "autoMove") {
-			a_register(T::AutoMoveHandlerEx::hook_CanProcess, Hook::kHook_AutoMove);
+			a_register(T::AutoMoveHandlerEx::Hook_CanProcess, Hook::kHook_AutoMove);
 			set(strHolder->autoMove.c_str());
-			return true;
+			result = true;
 		} else {
 			_ERROR("[ERROR] Unrecognized mapping (%s)!", a_setting.c_str());
-			return false;
+			result = false;
 		}
+
+		return result;
 	}
 
 
@@ -477,29 +538,30 @@ namespace Hooks
 			}
 
 			if (!activateHandlerHooked) {
-				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_Activate);
-				_DMESSAGE("[DEBUG] Stubbed activate handler");
+				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_Activate);
+				_DMESSAGE("[DEBUG] Stubbed activate can process handler");
 			}
 
 			if (!cameraStateHandlerHooked) {
-				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_FirstPersonState);
-				a_register(NullOp::ActivateHandlerEx::hook_CanProcess, Hook::kHook_ThirdPersonState);
-				_DMESSAGE("[DEBUG] Stubbed camera state handlers");
+				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_FirstPersonState);
+				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_ThirdPersonState);
+				_DMESSAGE("[DEBUG] Stubbed camera state can process handlers");
 			}
 		} else {
 			_ERROR("[ERROR] Mapping conflicts detected!");
 			_ERROR("[ERROR] No input hooks applied!\n");
 		}
 
-		a_register(NullOp::FavoritesHandlerEx::hook_CanProcess, Hook::kHook_Favorites);
-		_DMESSAGE("[DEBUG] Stubbed Favorites handler");
+		a_register(NullOp::FavoritesHandlerEx::Hook_CanProcess, Hook::kHook_Favorites);
+		_DMESSAGE("[DEBUG] Stubbed Favorites can process handler");
 
 		if (!Settings::disableActiTextHook) {
-			TESObjectACTIEx::installHook();
-			TESObjectCONTEx::installHook();
-			TESNPCEx::installHook();
+			TESObjectACTIEx::InstallHook();
+			TESObjectCONTEx::InstallHook();
+			TESNPCEx::InstallHook();
 		}
 
+		MenuOpenHandlerEx::InstallHook();
 		ActorEx::InstallHook();
 
 		RegisterConsoleCommands();
