@@ -1,5 +1,10 @@
 #pragma once
 
+#undef min
+#undef max
+
+#include <limits>  // numeric_limits
+
 #include "RE/PerkEntryVisitor.h"  // PerkEntryVisitor
 
 namespace RE
@@ -17,7 +22,8 @@ namespace QuickLootRE
 	public:
 		constexpr SetActivateLabelPerkEntryVisitor(RE::TESObjectREFR* a_perkOwner, RE::TESObjectREFR* a_target) :
 			_perkOwner(a_perkOwner),
-			_target(a_target)
+			_target(a_target),
+			_priority(-1 * std::numeric_limits<SInt16>::max())
 		{}
 
 		virtual ReturnType Visit(RE::BGSPerkEntry* a_perkEntry) override;
@@ -25,5 +31,6 @@ namespace QuickLootRE
 	protected:
 		RE::TESObjectREFR*	_perkOwner;
 		RE::TESObjectREFR*	_target;
+		SInt16				_priority;
 	};
 }

@@ -190,7 +190,9 @@ namespace Hooks
 		{
 			using QuickLootRE::LootMenu;
 
-			if (!a_event) {
+			RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+
+			if (!a_event || a_event->controlID != strHolder->journal) {
 				return orig_ProcessButton(this, a_event);
 			}
 
