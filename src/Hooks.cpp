@@ -192,11 +192,11 @@ namespace Hooks
 
 			RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 
-			if (!a_event || a_event->controlID != strHolder->journal) {
+			if (!a_event || !(a_event->controlID == strHolder->journal || a_event->controlID == strHolder->pause)) {
 				return orig_ProcessButton(this, a_event);
 			}
 
-			static bool processed = false;
+			static bool processed = true;
 
 			bool result = true;
 			if (a_event->IsDown()) {
@@ -216,6 +216,7 @@ namespace Hooks
 					result = orig_ProcessButton(this, a_event);
 					a_event->pressure = pressure;
 					a_event->timer = timer;
+					processed = true;
 				}
 			}
 
