@@ -25,7 +25,7 @@
 #include "RE/ConsoleManager.h"  // ConsoleManager
 #include "RE/FavoritesHandler.h"  // FavoritesHandler
 #include "RE/InputEvent.h"  // InputEvent
-#include "RE/InputEventDispatcher.h"
+#include "RE/InputManager.h"
 #include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/MenuOpenHandler.h"  // MenuOpenHandler
@@ -192,7 +192,7 @@ namespace Hooks
 			using QuickLootRE::LootMenu;
 
 			RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
-			RE::InputEventDispatcher* input = RE::InputEventDispatcher::GetSingleton();
+			RE::InputManager* input = RE::InputManager::GetSingleton();
 
 			RE::BSFixedString& str = input->IsGamepadEnabled() ? strHolder->journal : strHolder->pause;
 			if (!a_event || a_event->controlID != str) {
@@ -305,25 +305,7 @@ namespace Hooks
 	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268>			TESNPCEx;
 
 
-	class ActorEx : public RE::Actor
-	{
-	public:
-		bool Hook_IsRunning()
-		{
-			return this ? IsRunning() : false;
-		}
-
-
-		static void InstallHook()
-		{
-			RelocAddr<uintptr_t> call_IsRunning(0x002DB800 + 0x22);
-			g_branchTrampoline.Write5Call(call_IsRunning.GetUIntPtr(), GetFnAddr(&Hook_IsRunning));
-			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(ActorEx).name());
-		}
-	};
-
-
-	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, Script* a_scriptObj, ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
+	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 	{
 		using QuickLootRE::ISetting;
 		using QuickLootRE::Settings;
@@ -377,7 +359,7 @@ namespace Hooks
 
 			_DMESSAGE("[DEBUG] Registered console command: %s (%s)", info->longName, info->shortName);
 		} else {
-			_ERROR("[ERROR] Failed to register console command!\n")
+			_ERROR("[ERROR] Failed to register console command!\n");
 		}
 	}
 
@@ -568,7 +550,6 @@ namespace Hooks
 		}
 
 		MenuOpenHandlerEx::InstallHook();
-		ActorEx::InstallHook();
 
 		RegisterConsoleCommands();
 	}

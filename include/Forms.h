@@ -1,12 +1,14 @@
 #pragma once
 
-#include "skse64/GameForms.h"  // LookupFormByID
-
-class BGSPerk;
-class BGSKeyword;
+#include "RE/BGSKeyword.h"  // BGSKeyword
+#include "RE/BGSPerk.h"  // BGSPerk
+#include "RE/TESFaction.h"  // TESFaction
+#include "RE/TESForm.h"  // LookupForm
 
 namespace RE
 {
+	class BGSKeyword;
+	class BGSPerk;
 	class TESFaction;
 }
 
@@ -59,7 +61,7 @@ namespace QuickLootRE
 		kMISCFormID_DragonClawEmerald		= 0x000ED417,
 		kMISCFormID_DragonClawGlass			= 0x0007C260,
 		kMISCFormID_DragonClawEbony			= 0x0005AF48,
-		kMISCFormID_DragonClawDiamond		= 0x000AB375,
+		kMISCFormID_DragonClawDiamond		= 0x000AB375
 	};
 
 
@@ -94,7 +96,7 @@ namespace QuickLootRE
 
 		operator T()
 		{
-			return static_cast<T>(LookupFormByID(_formID));
+			return static_cast<T>(RE::TESForm::LookupByID(_formID));
 		}
 
 	private:
@@ -106,26 +108,26 @@ namespace QuickLootRE
 	extern Form<RE::TESFaction*>	CurrentFollowerFaction;
 
 	// Keywords
-	extern Form<BGSKeyword*>		VendorItemClothing;
-	extern Form<BGSKeyword*>		VendorItemJewelry;
+	extern Form<RE::BGSKeyword*>	VendorItemClothing;
+	extern Form<RE::BGSKeyword*>	VendorItemJewelry;
 
-	extern Form<BGSKeyword*>		VendorItemRecipe;
-	extern Form<BGSKeyword*>		VendorItemSpellTome;
+	extern Form<RE::BGSKeyword*>	VendorItemRecipe;
+	extern Form<RE::BGSKeyword*>	VendorItemSpellTome;
 
-	extern Form<BGSKeyword*>		VendorItemAnimalHide;
-	extern Form<BGSKeyword*>		VendorItemDaedricArtifact;
-	extern Form<BGSKeyword*>		VendorItemGem;
-	extern Form<BGSKeyword*>		VendorItemAnimalPart;
-	extern Form<BGSKeyword*>		VendorItemOreIngot;
-	extern Form<BGSKeyword*>		VendorItemClutter;
-	extern Form<BGSKeyword*>		VendorItemFireword;
+	extern Form<RE::BGSKeyword*>	VendorItemAnimalHide;
+	extern Form<RE::BGSKeyword*>	VendorItemDaedricArtifact;
+	extern Form<RE::BGSKeyword*>	VendorItemGem;
+	extern Form<RE::BGSKeyword*>	VendorItemAnimalPart;
+	extern Form<RE::BGSKeyword*>	VendorItemOreIngot;
+	extern Form<RE::BGSKeyword*>	VendorItemClutter;
+	extern Form<RE::BGSKeyword*>	VendorItemFireword;
 
-	extern Form<BGSKeyword*>		WeapTypeWarhammer;
+	extern Form<RE::BGSKeyword*>	WeapTypeWarhammer;
 
-	extern Form<BGSKeyword*>		ActorTypeCreature;
-	extern Form<BGSKeyword*>		ActorTypeAnimal;
+	extern Form<RE::BGSKeyword*>	ActorTypeCreature;
+	extern Form<RE::BGSKeyword*>	ActorTypeAnimal;
 
 	// Perks
-	extern Form<BGSPerk*>			Misdirection;
-	extern Form<BGSPerk*>			PerfectTouch;
+	extern Form<RE::BGSPerk*>		Misdirection;
+	extern Form<RE::BGSPerk*>		PerfectTouch;
 }

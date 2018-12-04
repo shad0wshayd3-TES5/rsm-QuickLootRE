@@ -18,7 +18,7 @@
 
 #include "HookShare.h"  // _RegisterHook_t
 
-#include "RE/InputEventDispatcher.h"  // InputEventDispatcher
+#include "RE/InputManager.h"  // InputManager
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/ScriptEventSourceHolder.h"  // ScriptEventSourceHolder
 
@@ -62,7 +62,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		crosshairRefDispatcher->AddEventSink(&QuickLootRE::g_crosshairRefEventHandler);
 		_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
 
-		RE::InputEventDispatcher::GetSingleton()->AddEventSink(&QuickLootRE::g_inputEventHandler);
+		RE::InputManager::GetSingleton()->AddEventSink(&QuickLootRE::g_inputEventHandler);
 		_MESSAGE("[MESSAGE] Input event handler sinked");
 
 		RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(&QuickLootRE::g_menuOpenCloseEventHandler);

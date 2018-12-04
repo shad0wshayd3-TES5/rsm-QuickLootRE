@@ -30,8 +30,8 @@
 #include "RE/GFxLoader.h"  // GFxLoader
 #include "RE/IMenu.h"  // IMenu
 #include "RE/InputEvent.h"  // InputEvent
-#include "RE/InputEventDispatcher.h"  // InputEventDispatcher
-#include "RE/InputManager.h"  // InputMappingManager
+#include "RE/InputManager.h"  // InputManager
+#include "RE/InputMappingManager.h"  // InputMappingManager
 #include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/MenuControls.h"  // MenuControls
@@ -66,7 +66,7 @@ namespace QuickLootRE
 	LootMenu::LootMenu(const char* a_swfPath)
 	{
 		typedef RE::GFxMovieView::ScaleModeType ScaleModeType;
-		typedef RE::InputManager::Context		Context;
+		typedef RE::InputMappingManager::Context	Context;
 
 		RE::GFxLoader* loader = RE::GFxLoader::GetSingleton();
 		if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kScaleModeType_ShowAll, 0.0)) {
@@ -293,7 +293,7 @@ namespace QuickLootRE
 
 	void LootMenu::SetVisible(bool a_visible)
 	{
-		typedef RE::InputManager::Context Context;
+		typedef RE::InputMappingManager::Context Context;
 
 		RE::MenuControls* mc = RE::MenuControls::GetSingleton();
 		if (_singleton && _singleton->view) {
@@ -335,8 +335,8 @@ namespace QuickLootRE
 			return false;
 		}
 
-		RE::InputManager* inputManager = RE::InputManager::GetSingleton();
-		if (!inputManager->IsMovementControlsEnabled()) {
+		RE::InputMappingManager* mappingManager = RE::InputMappingManager::GetSingleton();
+		if (!mappingManager->IsMovementControlsEnabled()) {
 			return false;
 		}
 
@@ -360,7 +360,7 @@ namespace QuickLootRE
 
 		RE::TESObjectREFR* containerRef = 0;
 		switch (a_ref->baseForm->formType) {
-		case kFormType_Activator:
+		case RE::FormType::Activator:
 		{
 			UInt32 refHandle = 0;
 			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
@@ -371,12 +371,12 @@ namespace QuickLootRE
 			}
 			break;
 		}
-		case kFormType_Container:
+		case RE::FormType::Container:
 			if (!a_ref->IsLocked()) {
 				containerRef = a_ref;
 			}
 			break;
-		case kFormType_NPC:
+		case RE::FormType::NPC:
 			RE::Actor* target = static_cast<RE::Actor*>(a_ref);
 			if (Settings::disableForAnimals && target->GetRace()->HasKeyword(ActorTypeAnimal)) {
 				return false;
@@ -640,7 +640,7 @@ namespace QuickLootRE
 			return;
 		}
 
-		RE::BSGamepadDevice* gamepadHandle = RE::InputEventDispatcher::GetSingleton()->GetGamepad();
+		RE::BSGamepadDevice* gamepadHandle = RE::InputManager::GetSingleton()->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
 			_platform = kPlatform_Other;
@@ -733,21 +733,21 @@ namespace QuickLootRE
 			return false;
 		}
 
-		RE::InputEventDispatcher* inputDispatcher = RE::InputEventDispatcher::GetSingleton();
-		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputDispatcher->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
+		RE::InputManager* inputManager = RE::InputManager::GetSingleton();
+		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputManager->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
 		if (keyboard && keyboard->IsEnabled()) {
 			UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kDeviceType_Keyboard);
-			if (singleLootKeyboard != RE::InputManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
+			if (singleLootKeyboard != RE::InputMappingManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
 				return true;
 			}
 		}
 
 		RE::BSGamepadDevice* gamepadHandle = 0;
-		gamepadHandle = inputDispatcher->GetGamepad();
+		gamepadHandle = inputManager->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
 			UInt32 singleLootSprint = GetSingleLootKey(DeviceType::kDeviceType_Gamepad);
-			if (singleLootSprint != RE::InputManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
+			if (singleLootSprint != RE::InputMappingManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
 				return true;
 			}
 		}
@@ -793,7 +793,7 @@ namespace QuickLootRE
 	{
 		if (_containerRef && !_isContainerOpen) {
 			PlayAnimation("Close", "Open");
-			if (_containerRef->formType != kFormType_Character) {
+			if (_containerRef->formType != RE::FormType::Character) {
 				_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Triggers traps
 			}
 			_isContainerOpen = true;
@@ -834,7 +834,7 @@ namespace QuickLootRE
 		} else {
 			RemoveType lootMode = RemoveType::kRemoveType_Take;
 
-			if (_containerRef->baseForm->formType == kFormType_NPC) {
+			if (_containerRef->baseForm->Is(RE::FormType::NPC)) {
 				// Dead body
 				if (_containerRef->IsDead(false)) {
 					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_DeadBody);
@@ -860,7 +860,7 @@ namespace QuickLootRE
 				bound->OnRemovedFrom(_containerRef);
 			}
 
-			if (_containerRef->baseForm->formType == kFormType_Character) {
+			if (_containerRef->baseForm->Is(RE::FormType::Character)) {
 				DispellWornItemEnchantments();
 			} else {
 				// Stealing
@@ -918,7 +918,7 @@ namespace QuickLootRE
 	UInt32 LootMenu::GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType)
 	{
 		RE::BSFixedString str = _singleLootMapping.c_str();
-		return RE::InputManager::GetSingleton()->GetMappedKey(str, a_deviceType);
+		return RE::InputMappingManager::GetSingleton()->GetMappedKey(str, a_deviceType);
 	}
 
 

@@ -1,17 +1,19 @@
 #pragma once
 
-#include "common/ITypes.h"  // UInt32
-#include "skse64/GameExtraData.h"  // InventoryEntryData
-#include "skse64/GameForms.h"  // TESForm
-#include "skse64/GameObjects.h"  // TESObjectARMO, TESObjectBOOK, TESObjectMISC, TESObjectWEAP, AlchemyItem, TESSoulGem
-
-#include <utility>  // swap
 #include <vector>  // vector
+
+class AlchemyItem;
+class TESSoulGem;
 
 namespace RE
 {
 	class InventoryEntryData;
+	class TESForm;
+	class TESObjectARMO;
+	class TESObjectBOOK;
+	class TESObjectMISC;
 	class TESObjectREFR;
+	class TESObjectWEAP;
 }
 
 
@@ -206,7 +208,7 @@ namespace QuickLootRE
 		bool							isEnchanted()		const;
 		bool							canPickPocket()		const;
 		SInt32							pickPocketChance()	const;
-		TESForm*						form()				const;
+		RE::TESForm*					form()				const;
 
 		void							modCount(SInt32 a_mod);
 
@@ -220,10 +222,10 @@ namespace QuickLootRE
 
 		float							getWeight();
 		Type							getType();
-		Type							getTypeArmor(TESObjectARMO* a_armor);
-		Type							getTypeBook(TESObjectBOOK* a_book);
-		Type							getTypeMisc(TESObjectMISC* a_misc);
-		Type							getTypeWeapon(TESObjectWEAP* a_weap);
+		Type							getTypeArmor(RE::TESObjectARMO* a_armor);
+		Type							getTypeBook(RE::TESObjectBOOK* a_book);
+		Type							getTypeMisc(RE::TESObjectMISC* a_misc);
+		Type							getTypeWeapon(RE::TESObjectWEAP* a_weap);
 		Type							getTypePotion(AlchemyItem* a_potion);
 		Type							getTypeSoulGem(TESSoulGem* a_gem);
 		bool							getStolen();

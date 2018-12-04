@@ -3,9 +3,7 @@
 #include "skse64/GameBSExtraData.h"  // BSExtraData
 #include "skse64/GameExtraData.h"  // InventoryEntryData
 #include "skse64/GameFormComponents.h"  // TESFullName
-#include "skse64/GameForms.h"  // TESForm
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
-#include "skse64/GameTypes.h"  // tArray
 
 #include <algorithm>  // sort
 #include <utility>  // pair
@@ -22,6 +20,8 @@
 #include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESContainer.h"  // TESContainer::Entry
+#include "RE/TESForm.h"  // TESForm
 #include "RE/TESLeveledList.h"  // TESLeveledList
 #include "RE/TESLevItem.h"  // TESLevItem
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
@@ -131,7 +131,7 @@ namespace QuickLootRE
 	}
 
 
-	void InventoryList::add(TESForm* a_form, SInt32 a_count)
+	void InventoryList::add(RE::TESForm* a_form, SInt32 a_count)
 	{
 		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_form, a_count);
 		_heapList.push_back(entryData);
@@ -204,26 +204,28 @@ namespace QuickLootRE
 	}
 
 
-	bool InventoryList::isValidItem(TESForm* a_item)
+	bool InventoryList::isValidItem(RE::TESForm* a_item)
 	{
+		using RE::FormType;
+
 		if (!a_item) {
 			return false;
 		}
 
 		switch (a_item->formType) {
-		case kFormType_ScrollItem:
-		case kFormType_Armor:
-		case kFormType_Book:
-		case kFormType_Ingredient:
-		case kFormType_Misc:
-		case kFormType_Weapon:
-		case kFormType_Ammo:
-		case kFormType_Key:
-		case kFormType_Potion:
-		case kFormType_Note:
-		case kFormType_SoulGem:
+		case FormType::ScrollItem:
+		case FormType::Armor:
+		case FormType::Book:
+		case FormType::Ingredient:
+		case FormType::Misc:
+		case FormType::Weapon:
+		case FormType::Ammo:
+		case FormType::Key:
+		case FormType::Potion:
+		case FormType::Note:
+		case FormType::SoulGem:
 			break;
-		case kFormType_Light:
+		case FormType::Light:
 		{
 			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(a_item);
 			if (!light->CanBeCarried()) {
@@ -251,12 +253,12 @@ namespace QuickLootRE
 	}
 
 
-	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, std::pair<TESForm*, Count>>& a_defaultMap) :
+	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, std::pair<RE::TESForm*, Count>>& a_defaultMap) :
 		_defaultMap(a_defaultMap)
 	{}
 
 
-	bool InventoryList::TESContainerVisitor::Accept(TESContainer::Entry* a_entry)
+	bool InventoryList::TESContainerVisitor::Accept(RE::TESContainer::Entry* a_entry)
 	{
 		_defaultMap.emplace(a_entry->form->formID, std::make_pair(a_entry->form, a_entry->count));
 		return true;

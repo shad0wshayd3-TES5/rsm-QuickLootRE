@@ -6,8 +6,7 @@
 #include "skse64/GameAPI.h"  // g_thePlayer
 #include "skse64/GameExtraData.h"  // InventoryEntryData
 #include "skse64/GameFormComponents.h"  // BGSBipedObjectForm, TESEnchantableForm
-#include "skse64/GameForms.h"  // TESForm
-#include "skse64/GameObjects.h"  // TESObjectARMO, TESObjectBOOK, TESObjectMISC, TESObjectWEAP, TESAmmo, AlchemyItem, TESSoulGem
+#include "skse64/GameObjects.h"  // TESObjectMISC, TESObjectWEAP, TESAmmo, AlchemyItem, TESSoulGem
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <limits>  // numeric_limits
@@ -23,8 +22,12 @@
 #include "RE/EffectSetting.h"  // EffectSetting::Properties::ActorValue
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
+#include "RE/TESForm.h"  // TESForm
+#include "RE/TESObjectARMO.h"  // TESObjectARMO
 #include "RE/TESObjectBOOK.h"  // TESObjectBOOK
+#include "RE/TESObjectMISC.h"  // TESObjectMISC
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/TESObjectWEAP.h"  // TESObjectWEAP
 
 
 namespace QuickLootRE
@@ -209,7 +212,7 @@ namespace QuickLootRE
 	}
 
 
-	TESForm* ItemData::form() const
+	RE::TESForm* ItemData::form() const
 	{
 		return _entryData->type;
 	}
@@ -369,35 +372,35 @@ namespace QuickLootRE
 	ItemData::Type ItemData::getType()
 	{
 		switch (_entryData->type->formType) {
-		case kFormType_ScrollItem:
+		case RE::FormType::ScrollItem:
 			return kType_DefaultScroll;
-		case kFormType_Armor:
-			return getTypeArmor(static_cast<TESObjectARMO*>(_entryData->type));
-		case kFormType_Book:
-			return getTypeBook(static_cast<TESObjectBOOK*>(_entryData->type));
-		case kFormType_Ingredient:
+		case RE::FormType::Armor:
+			return getTypeArmor(static_cast<RE::TESObjectARMO*>(_entryData->type));
+		case RE::FormType::Book:
+			return getTypeBook(static_cast<RE::TESObjectBOOK*>(_entryData->type));
+		case RE::FormType::Ingredient:
 			return kType_DefaultIngredient;
-		case kFormType_Light:
+		case RE::FormType::Light:
 			return kType_MiscTorch;
-		case kFormType_Misc:
-			return getTypeMisc(static_cast<TESObjectMISC*>(_entryData->type));
-		case kFormType_Weapon:
-			return getTypeWeapon(static_cast<TESObjectWEAP*>(_entryData->type));
-		case kFormType_Ammo:
-			return (static_cast<TESAmmo*>(_entryData->type)->isBolt()) ? kType_WeaponBolt : kType_WeaponArrow;
-		case kFormType_Key:
+		case RE::FormType::Misc:
+			return getTypeMisc(static_cast<RE::TESObjectMISC*>(_entryData->type));
+		case RE::FormType::Weapon:
+			return getTypeWeapon(static_cast<RE::TESObjectWEAP*>(_entryData->type));
+		case RE::FormType::Ammo:
+			return (static_cast<TESAmmo*>((::TESForm*)_entryData->type)->isBolt()) ? kType_WeaponBolt : kType_WeaponArrow;
+		case RE::FormType::Key:
 			return kType_DefaultKey;
-		case kFormType_Potion:
-			return getTypePotion(static_cast<AlchemyItem*>(_entryData->type));
-		case kFormType_SoulGem:
-			return getTypeSoulGem(static_cast<TESSoulGem*>(_entryData->type));
+		case RE::FormType::Potion:
+			return getTypePotion(static_cast<AlchemyItem*>((::TESForm*)_entryData->type));
+		case RE::FormType::SoulGem:
+			return getTypeSoulGem(static_cast<TESSoulGem*>((::TESForm*)_entryData->type));
 		default:
 			return kType_None;
 		}
 	}
 
 
-	ItemData::Type ItemData::getTypeArmor(TESObjectARMO* a_armor)
+	ItemData::Type ItemData::getTypeArmor(RE::TESObjectARMO* a_armor)
 	{
 		static Type types[] = {
 			kType_LightArmorBody,		// 0
@@ -435,16 +438,16 @@ namespace QuickLootRE
 		};
 
 		UInt32 index = 0;
-		RE::BGSBipedObjectForm* bipedObj = reinterpret_cast<RE::BGSBipedObjectForm*>(&a_armor->bipedObject);
+		RE::BGSBipedObjectForm* bipedObj = reinterpret_cast<RE::BGSBipedObjectForm*>(&a_armor);
 
 		if (bipedObj->IsLightArmor()) {
 			index = 0;
 		} else if (bipedObj->IsHeavyArmor()) {
 			index = 8;
 		} else {
-			if (a_armor->keyword.HasKeyword(VendorItemClothing)) {
+			if (a_armor->HasKeyword(VendorItemClothing)) {
 				index = 16;
-			} else if (a_armor->keyword.HasKeyword(VendorItemJewelry)) {
+			} else if (a_armor->HasKeyword(VendorItemJewelry)) {
 				if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Amulet)) {
 					index = 24;
 				} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Ring)) {
@@ -488,11 +491,11 @@ namespace QuickLootRE
 	}
 
 
-	ItemData::Type ItemData::getTypeBook(TESObjectBOOK* a_book)
+	ItemData::Type ItemData::getTypeBook(RE::TESObjectBOOK* a_book)
 	{
-		if (a_book->data.type == 0xFF || a_book->keyword.HasKeyword(VendorItemRecipe)) {
+		if (a_book->data.type == 0xFF || a_book->HasKeyword(VendorItemRecipe)) {
 			return kType_BookNote;
-		} else if (a_book->keyword.HasKeyword(VendorItemSpellTome)) {
+		} else if (a_book->HasKeyword(VendorItemSpellTome)) {
 			return kType_BookTome;
 		} else {
 			return kType_DefaultBook;
@@ -500,7 +503,7 @@ namespace QuickLootRE
 	}
 
 
-	ItemData::Type ItemData::getTypeMisc(TESObjectMISC* a_misc)
+	ItemData::Type ItemData::getTypeMisc(RE::TESObjectMISC* a_misc)
 	{
 		switch (a_misc->formID) {
 		case kMISCFormID_LockPick:
@@ -524,19 +527,19 @@ namespace QuickLootRE
 		case kMISCFormID_DragonClawDiamond:
 			return kType_MiscDragonClaw;
 		default:
-			if (a_misc->keyword.HasKeyword(VendorItemAnimalHide)) {
+			if (a_misc->HasKeyword(VendorItemAnimalHide)) {
 				return kType_MiscHide;
-			} else if (a_misc->keyword.HasKeyword(VendorItemDaedricArtifact)) {
+			} else if (a_misc->HasKeyword(VendorItemDaedricArtifact)) {
 				return kType_MiscArtifact;
-			} else if (a_misc->keyword.HasKeyword(VendorItemGem)) {
+			} else if (a_misc->HasKeyword(VendorItemGem)) {
 				return kType_MiscGem;
-			} else if (a_misc->keyword.HasKeyword(VendorItemAnimalPart)) {
+			} else if (a_misc->HasKeyword(VendorItemAnimalPart)) {
 				return kType_MiscRemains;
-			} else if (a_misc->keyword.HasKeyword(VendorItemOreIngot)) {
+			} else if (a_misc->HasKeyword(VendorItemOreIngot)) {
 				return kType_MiscIngot;
-			} else if (a_misc->keyword.HasKeyword(VendorItemClutter)) {
+			} else if (a_misc->HasKeyword(VendorItemClutter)) {
 				return kType_MiscClutter;
-			} else if (a_misc->keyword.HasKeyword(VendorItemFireword)) {
+			} else if (a_misc->HasKeyword(VendorItemFireword)) {
 				return kType_MiscWood;
 			} else {
 				return kType_DefaultMisc;
@@ -545,7 +548,7 @@ namespace QuickLootRE
 	}
 
 
-	ItemData::Type ItemData::getTypeWeapon(TESObjectWEAP* a_weap)
+	ItemData::Type ItemData::getTypeWeapon(RE::TESObjectWEAP* a_weap)
 	{
 		switch (a_weap->type()) {
 		case TESObjectWEAP::GameData::kType_OneHandSword:
@@ -559,7 +562,7 @@ namespace QuickLootRE
 		case TESObjectWEAP::GameData::kType_TwoHandSword:
 			return kType_WeaponGreatSword;
 		case TESObjectWEAP::GameData::kType_TwoHandAxe:
-			if (a_weap->keyword.HasKeyword(WeapTypeWarhammer)) {
+			if (a_weap->HasKeyword(WeapTypeWarhammer)) {
 				return kType_WeaponHammer;
 			} else {
 				return kType_WeaponBattleAxe;
@@ -640,14 +643,14 @@ namespace QuickLootRE
 	{
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
-		TESForm* owner = _entryData->GetOwner();
+		RE::TESForm* owner = _entryData->GetOwner();
 		if (!owner) {
 			owner = _container->GetOwner();
 		}
 		if (owner) {
 			return !_entryData->IsOwnedBy(player, owner, true);
 		} else {
-			return player->IsSneaking() && _container->baseForm->formType == kFormType_NPC && !_container->IsDead(true);
+			return player->IsSneaking() && _container->baseForm->Is(RE::FormType::NPC) && !_container->IsDead(true);
 		}
 	}
 
@@ -671,7 +674,7 @@ namespace QuickLootRE
 
 	bool ItemData::getCanPickPocket()
 	{
-		if (_container->baseForm->formType != kFormType_NPC) {
+		if (_container->baseForm->Is(RE::FormType::NPC)) {
 			return true;
 		}
 
@@ -688,7 +691,7 @@ namespace QuickLootRE
 			if (xList->HasType(kExtraData_Worn) ||
 				xList->HasType(kExtraData_WornLeft)) {
 				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-				if (_entryData->type->formType == kFormType_Weapon) {
+				if (_entryData->type->Is(RE::FormType::Weapon)) {
 					if (!player->HasPerk(Misdirection)) {
 						return false;
 					}
@@ -735,7 +738,7 @@ namespace QuickLootRE
 
 	bool ItemData::getRead()
 	{
-		if (_entryData->type->formType == kFormType_Book) {
+		if (_entryData->type->Is(RE::FormType::Book)) {
 			RE::TESObjectBOOK* book = static_cast<RE::TESObjectBOOK*>(_entryData->type);
 			return book->IsRead();
 		} else {
@@ -747,11 +750,11 @@ namespace QuickLootRE
 	ItemData::Priority ItemData::getPriority()
 	{
 		switch (_entryData->type->formType) {
-		case kFormType_Ammo:
+		case RE::FormType::Ammo:
 			return kPriority_Ammo;
-		case kFormType_SoulGem:
+		case RE::FormType::SoulGem:
 			return kPriority_SoulGem;
-		case kFormType_Potion:
+		case RE::FormType::Potion:
 			switch (_type) {
 			case kType_DefaultFood:
 			case kType_FoodWine:
@@ -762,9 +765,9 @@ namespace QuickLootRE
 			default:
 				return kPriority_Potion;
 			}
-		case kFormType_Weapon:
+		case RE::FormType::Weapon:
 			return (_isEnchanted) ? kPriority_EnchantedWeapon : kPriority_Weapon;
-		case kFormType_Armor:
+		case RE::FormType::Armor:
 			if (_isEnchanted) {
 				return kPriority_EnchantedArmor;
 			} else if (_type == kType_ArmorAmulet) {
@@ -774,9 +777,9 @@ namespace QuickLootRE
 			} else {
 				return kPriority_Armor;
 			}
-		case kFormType_Key:
+		case RE::FormType::Key:
 			return kPriority_Key;
-		case kFormType_Misc:
+		case RE::FormType::Misc:
 			switch (_type) {
 			case kType_MiscGold:
 				return kPriority_Gold;
