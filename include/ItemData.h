@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>  // vector
+#include <string>
 
 class AlchemyItem;
 class TESSoulGem;
