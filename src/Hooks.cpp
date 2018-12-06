@@ -229,7 +229,7 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			RelocPtr<_ProcessButton_t*> vtbl_ProcessButton(RE::MENU_OPEN_HANDLER_VTBL_META + 0x30);
+			RelocPtr<_ProcessButton_t*> vtbl_ProcessButton(RE::MENU_OPEN_HANDLER_VTBL + (0x5 * 0x8));
 			orig_ProcessButton = *vtbl_ProcessButton;
 			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&Hook_ProcessButton));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
@@ -300,9 +300,9 @@ namespace Hooks
 
 
 	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
-	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL_META + 0x268>	TESObjectACTIEx;
-	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL_META + 0x268>	TESObjectCONTEx;
-	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL_META + 0x268>			TESNPCEx;
+	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL + (0x4C * 0x8)>	TESObjectACTIEx;
+	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL + (0x4C * 0x8)>	TESObjectCONTEx;
+	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL + (0x4C * 0x8)>			TESNPCEx;
 
 
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)

@@ -915,9 +915,9 @@ namespace QuickLootRE
 		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::infinity();
 		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::infinity();
 		float result = leftVpW - rightVpW;
-		if (result < -0.001) {
+		if (result < -0.0001) {
 			return -1;
-		} else if (result > 0.001) {
+		} else if (result > 0.0001) {
 			return 1;
 		} else {
 			return 0;
