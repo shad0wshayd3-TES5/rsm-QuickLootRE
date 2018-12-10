@@ -21,6 +21,7 @@
 #include "RE/InputManager.h"  // InputManager
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/ScriptEventSourceHolder.h"  // ScriptEventSourceHolder
+#include "RE/TESDataHandler.h"  // TESDataHandler
 
 
 static PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
@@ -38,7 +39,7 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 		_MESSAGE("[MESSAGE] Hooks registered");
 	} else {
 		_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
-		LootMenu::QueueMessage(LootMenu::kMessage_HookShareIncompatible);
+		LootMenu::QueueMessage(LootMenu::Message::kHookShareIncompatible);
 	}
 }
 
@@ -53,7 +54,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 			_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
 		} else {
 			_FATALERROR("[FATAL ERROR] HookShareSSE not loaded!\n");
-			LootMenu::QueueMessage(LootMenu::kMessage_HookShareMissing);
+			LootMenu::QueueMessage(LootMenu::Message::kHookShareMissing);
 		}
 		break;
 	case SKSEMessagingInterface::kMessage_InputLoaded:
@@ -81,6 +82,16 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		QuickLootRE::ItemData::setCompareOrder();
 		_MESSAGE("[MESSAGE] Settings applied");
 
+		break;
+	}
+	case SKSEMessagingInterface::kMessage_DataLoaded:
+	{
+		RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
+		if (dataHandler->GetLoadedModIndex("SkyUI_SE.esp") != 0xFF) {
+			_MESSAGE("[MESSAGE] SkyUI is loaded");
+		} else {
+			_FATALERROR("[FATAL ERROR] SkyUI is not loaded!\n");
+		}
 		break;
 	}
 	}

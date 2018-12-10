@@ -43,42 +43,42 @@ namespace QuickLootRE
 		typedef RE::IMenu::Result Result;
 
 	public:
-		enum Platform : UInt32
+		enum class Platform : UInt32
 		{
-			kPlatform_PC	= 0,
-			kPlatform_Other	= 2
+			kPC = 0,
+			kOther = 2
 		};
 
 
-		enum Scaleform : UInt32
+		enum class Scaleform : UInt32
 		{
-			kScaleform_SetKeyMappings,
-			kScaleform_SetPlatform,
-			kScaleform_SetSelectedIndex,
-			kScaleform_Setup,
-			kScaleform_SetContainer,
-			kScaleform_OpenContainer,
-			kScaleform_CloseContainer,
-			kScaleform_UpdateButtons,
-			kScaleform_HideButtons,
-			kScaleform_SwitchStyle
+			kSetKeyMappings,
+			kSetPlatform,
+			kSetSelectedIndex,
+			kSetup,
+			kSetContainer,
+			kOpenContainer,
+			kCloseContainer,
+			kUpdateButtons,
+			kHideButtons,
+			kSwitchStyle
 		};
 
 
-		enum Message : UInt32
+		enum class Message : UInt32
 		{
-			kMessage_NoInputLoaded,
-			kMessage_HookShareMissing,
-			kMessage_HookShareIncompatible,
-			kMessage_MissingDependencies,
-			kMessage_LootMenuToggled
+			kNoInputLoaded,
+			kHookShareMissing,
+			kHookShareIncompatible,
+			kMissingDependencies,
+			kLootMenuToggled
 		};
 
 
 		enum Style : UInt32
 		{
-			kStyle_Default	= 0,
-			kStyle_Dialogue	= 1
+			kDefault = 0,
+			kDialogue = 1
 		};
 
 	protected:

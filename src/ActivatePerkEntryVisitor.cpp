@@ -19,7 +19,7 @@ namespace QuickLootRE
 		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 
 		RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
-		if (entryPoint && entryPoint->HasType(EntryPointType::kEntryPoint_Activate)) {
+		if (entryPoint && entryPoint->HasType(EntryPointType::kActivate)) {
 			if (entryPoint->conditions && entryPoint->conditions->Run(_perkOwner, _target)) {
 				if (entryPoint->functionData) {
 					RE::BGSEntryPointFunctionDataActivateChoice* fnDataActivateChoice = static_cast<RE::BGSEntryPointFunctionDataActivateChoice*>(entryPoint->functionData);

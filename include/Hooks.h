@@ -7,18 +7,19 @@
 
 namespace Hooks
 {
-	enum ControlID
+	enum class ControlID
 	{
-		kControlID_None,
-		kControlID_Activate,
-		kControlID_ReadyWeapon,
-		kControlID_TogglePOV,
-		kControlID_Jump,
-		kControlID_Sprint,
-		kControlID_Sneak,
-		kControlID_Shout,
-		kControlID_ToggleRun,
-		kControlID_AutoMove
+		kNone,
+		kActivate,
+		kReadyWeapon,
+		kTogglePOV,
+		kJump,
+		kSprint,
+		kSneak,
+		kShout,
+		kToggleRun,
+		kAutoMove,
+		kFavorites
 	};
 
 

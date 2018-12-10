@@ -22,7 +22,7 @@ namespace QuickLootRE
 		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
 
 		RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
-		if (entryPoint && entryPoint->HasType(EntryPointType::kEntryPoint_Set_Activate_Label)) {
+		if (entryPoint && entryPoint->HasType(EntryPointType::kSet_Activate_Label)) {
 			if (entryPoint->conditions && entryPoint->conditions->Run(_perkOwner, _target)) {
 				RE::BGSEntryPointFunctionDataText* fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
 				if (fnDataText && a_perkEntry->priority > _priority) {

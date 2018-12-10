@@ -113,7 +113,7 @@ namespace QuickLootRE
 			} else if (_selectedIndex > _displaySize - 1) {
 				_selectedIndex = _displaySize - 1;
 			}
-			Register(kScaleform_SetSelectedIndex);
+			Register(Scaleform::kSetSelectedIndex);
 		}
 	}
 
@@ -400,9 +400,9 @@ namespace QuickLootRE
 			return false;
 		}
 
-		if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPointType::kEntryPoint_Activate)) {
+		if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPointType::kActivate)) {
 			ActivatePerkEntryVisitor visitor(player, containerRef);
-			player->VisitEntryPointPerkEntries(EntryPointType::kEntryPoint_Activate, visitor);
+			player->VisitEntryPointPerkEntries(EntryPointType::kActivate, visitor);
 			if (visitor.GetResult()) {
 				return false;
 			}
@@ -418,34 +418,34 @@ namespace QuickLootRE
 	{
 		if (LootMenu::IsConstructed()) {
 			switch (a_reg) {
-			case kScaleform_SetKeyMappings:
+			case Scaleform::kSetKeyMappings:
 				AllocateAndDispatch<SetKeyMappingsUIDelegate>();
 				break;
-			case kScaleform_SetPlatform:
+			case Scaleform::kSetPlatform:
 				AllocateAndDispatch<SetPlatformUIDelegate>();
 				break;
-			case kScaleform_SetSelectedIndex:
+			case Scaleform::kSetSelectedIndex:
 				AllocateAndDispatch<SetSelectedIndexUIDelegate>();
 				break;
-			case kScaleform_Setup:
+			case Scaleform::kSetup:
 				AllocateAndDispatch<SetupUIDelegate>();
 				break;
-			case kScaleform_SetContainer:
+			case Scaleform::kSetContainer:
 				AllocateAndDispatch<SetContainerUIDelegate>();
 				break;
-			case kScaleform_OpenContainer:
+			case Scaleform::kOpenContainer:
 				AllocateAndDispatch<OpenContainerUIDelegate>();
 				break;
-			case kScaleform_CloseContainer:
+			case Scaleform::kCloseContainer:
 				AllocateAndDispatch<CloseContainerUIDelegate>();
 				break;
-			case kScaleform_UpdateButtons:
+			case Scaleform::kUpdateButtons:
 				AllocateAndDispatch<UpdateButtonsUIDelegate>();
 				break;
-			case kScaleform_HideButtons:
+			case Scaleform::kHideButtons:
 				AllocateAndDispatch<HideButtonsUIDelegate>();
 				break;
-			case kScaleform_SwitchStyle:
+			case Scaleform::kSwitchStyle:
 				AllocateAndDispatch<SwitchStyleTaskDelegate>();
 				break;
 			default:
@@ -460,20 +460,20 @@ namespace QuickLootRE
 	void LootMenu::QueueMessage(Message a_msg)
 	{
 		switch (a_msg) {
-		case kMessage_NoInputLoaded:
+		case Message::kNoInputLoaded:
 			_messageQueue.push("[LootMenu] ERROR: Input mapping conflicts detected! No inputs mapped!");
 			break;
-		case kMessage_HookShareMissing:
+		case Message::kHookShareMissing:
 			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is not loaded!");
 			break;
-		case kMessage_HookShareIncompatible:
+		case Message::kHookShareIncompatible:
 			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is an incompatible version!");
 			break;
-		case kMessage_MissingDependencies:
+		case Message::kMissingDependencies:
 			_messageQueue.push("[LootMenu] ERROR: LootMenu is missing a view! Dependencies were not loaded!");
 			ProcessMessageQueue();
 			break;
-		case kMessage_LootMenuToggled:
+		case Message::kLootMenuToggled:
 		{
 			static const char* enabled = "[LootMenu] LootMenu enabled";
 			static const char* disabled = "[LootMenu] LootMenu disabled";
@@ -495,13 +495,13 @@ namespace QuickLootRE
 	LootMenu::Style LootMenu::GetStyle()
 	{
 		if (Settings::interfaceStyle == "dialogue") {
-			return kStyle_Dialogue;
+			return Style::kDialogue;
 		} else {
 			if (Settings::interfaceStyle != "default") {
 				_ERROR("Invalid style (%s)!", Settings::interfaceStyle.c_str());
 				_ERROR("Using default!\n");
 			}
-			return kStyle_Default;
+			return Style::kDefault;
 		}
 	}
 
@@ -510,13 +510,13 @@ namespace QuickLootRE
 	{
 		if (!view) {
 			_FATALERROR("[FATAL ERROR] LootMenu is missing a view! Dependencies were not loaded!\n");
-			QueueMessage(kMessage_MissingDependencies);
+			QueueMessage(Message::kMissingDependencies);
 			return Result::kResult_NotProcessed;
 		}
 
 		if (!Settings::isApplied) {
-			Register(kScaleform_Setup);
-			Register(kScaleform_SwitchStyle);
+			Register(Scaleform::kSetup);
+			Register(Scaleform::kSwitchStyle);
 		}
 
 		switch (a_message->message) {
@@ -591,9 +591,9 @@ namespace QuickLootRE
 
 		switch (a_event->deviceType) {
 		case kDeviceType_Gamepad:
-			_platform = kPlatform_Other;
-			Register(kScaleform_SetPlatform);
-			Register(kScaleform_UpdateButtons);
+			_platform = Platform::kOther;
+			Register(Scaleform::kSetPlatform);
+			Register(Scaleform::kUpdateButtons);
 			switch (a_event->keyMask) {
 			case Gamepad::kGamepad_Up:
 				ModSelectedIndex(-1);
@@ -605,8 +605,8 @@ namespace QuickLootRE
 			break;
 		case kDeviceType_Mouse:
 			_platform = kPlatform_PC;
-			Register(kScaleform_SetPlatform);
-			Register(kScaleform_UpdateButtons);
+			Register(Scaleform::kSetPlatform);
+			Register(Scaleform::kUpdateButtons);
 			switch (a_event->keyMask) {
 			case Mouse::kMouse_WheelUp:
 				ModSelectedIndex(-1);
@@ -618,8 +618,8 @@ namespace QuickLootRE
 			break;
 		case kDeviceType_Keyboard:
 			_platform = kPlatform_PC;
-			Register(kScaleform_SetPlatform);
-			Register(kScaleform_UpdateButtons);
+			Register(Scaleform::kSetPlatform);
+			Register(Scaleform::kUpdateButtons);
 			if (controlID == strHolder->zoomIn) {
 				ModSelectedIndex(-1);
 			} else if (controlID == strHolder->zoomOut) {
@@ -643,23 +643,23 @@ namespace QuickLootRE
 		RE::BSGamepadDevice* gamepadHandle = RE::InputManager::GetSingleton()->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
-			_platform = kPlatform_Other;
+			_platform = Platform::kOther;
 		} else {
-			_platform = kPlatform_PC;
+			_platform = Platform::kPC;
 		}
 
 		_selectedIndex = 0;
 		_skipInputCount = 0;
 		_isMenuOpen = true;
-		Register(kScaleform_SetKeyMappings);
-		Register(kScaleform_SetPlatform);
-		Register(kScaleform_SetContainer);
-		Register(kScaleform_UpdateButtons);
+		Register(Scaleform::kSetKeyMappings);
+		Register(Scaleform::kSetPlatform);
+		Register(Scaleform::kSetContainer);
+		Register(Scaleform::kUpdateButtons);
 		if (IsValidPickPocketTarget(_containerRef, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
-			Register(kScaleform_HideButtons);
+			Register(Scaleform::kHideButtons);
 		}
-		Register(kScaleform_OpenContainer);
-		Register(kScaleform_SetSelectedIndex);
+		Register(Scaleform::kOpenContainer);
+		Register(Scaleform::kSetSelectedIndex);
 		SetVisible(true);
 		ProcessMessageQueue();
 	}
@@ -670,7 +670,7 @@ namespace QuickLootRE
 		if (IsOpen()) {
 			SetVisible(false);
 			_isMenuOpen = false;
-			Register(kScaleform_CloseContainer);
+			Register(Scaleform::kCloseContainer);
 			PlayAnimationClose();
 		}
 	}
@@ -812,9 +812,9 @@ namespace QuickLootRE
 
 	bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound)
 	{
-		typedef RE::PlayerCharacter::EventType				EventType;
-		typedef RE::TESObjectREFR::RemoveType				RemoveType;
-		typedef RE::EffectSetting::Properties::Archetype	Archetype;
+		typedef RE::PlayerCharacter::EventType		EventType;
+		typedef RE::TESObjectREFR::RemoveType		RemoveType;
+		typedef RE::EffectSetting::Data::Archetype	Archetype;
 
 		bool manualUpdate = false;	// picking up dropped items doesn't disptach a container changed event
 
@@ -875,7 +875,7 @@ namespace QuickLootRE
 			if (a_playSound) {
 				player->PlaySounds(a_item.form(), true, false);
 			}
-			player->DispellEffectsWithArchetype(Archetype::kArchetype_Invisibility, false);
+			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
 			UInt32 droppedHandle = 0;
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}

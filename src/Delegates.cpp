@@ -9,7 +9,7 @@
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget()
+#include "Utility.h"  // IsValidPickPocketTarget(), to_underlying()
 
 #include "RE/GFxMovieDef.h"  // GFxMovieDef
 #include "RE/GFxMovieView.h"  // GFxMovieView
@@ -51,7 +51,7 @@ namespace QuickLootRE
 
 		GFxValue args[2];
 
-		args[0].SetNumber(LootMenu::GetPlatform());
+		args[0].SetNumber(to_underlying(LootMenu::GetPlatform()));
 		args[1].SetBool(false);
 
 		LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetPlatform", 0, args, 2);
@@ -394,7 +394,7 @@ namespace QuickLootRE
 			RE::TESObjectREFR* containerRef = LootMenu::GetContainerRef();
 			if (containerRef) {
 				g_invList.parseInventory(containerRef);
-				LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+				LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
 			}
 		}
 	}

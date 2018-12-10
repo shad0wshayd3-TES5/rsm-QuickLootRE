@@ -79,7 +79,7 @@ namespace Hooks
 
 	// Activate handler needs to account for grabbing items
 	template <typename Op>
-	class PlayerInputHandler<Op, kControlID_Activate>
+	class PlayerInputHandler<Op, ControlID::kActivate>
 	{
 	public:
 		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
@@ -109,17 +109,17 @@ namespace Hooks
 
 
 #define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)														\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		FirstPersonStateHandlerEx;	\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_TogglePOV>		ThirdPersonStateHandlerEx;	\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_None>			FavoritesHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sprint>		SprintHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ReadyWeapon>	ReadyWeaponHandlerEx;		\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_AutoMove>		AutoMoveHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_ToggleRun>		ToggleRunHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Activate>		ActivateHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Jump>			JumpHandlerEx;				\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Shout>			ShoutHandlerEx;				\
-	typedef PlayerInputHandler<##TYPE_NAME##, kControlID_Sneak>			SneakHandlerEx;
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>	FirstPersonStateHandlerEx;	\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>	ThirdPersonStateHandlerEx;	\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kNone>			FavoritesHandlerEx;			\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kSprint>		SprintHandlerEx;			\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kReadyWeapon>	ReadyWeaponHandlerEx;		\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kAutoMove>		AutoMoveHandlerEx;			\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kToggleRun>	ToggleRunHandlerEx;			\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kActivate>		ActivateHandlerEx;			\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kJump>			JumpHandlerEx;				\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kShout>		ShoutHandlerEx;				\
+	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kSneak>		SneakHandlerEx;
 
 
 	class TakeOp
@@ -130,7 +130,7 @@ namespace Hooks
 			using QuickLootRE::LootMenu;
 
 			LootMenu::GetSingleton()->TakeItemStack();
-			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+			LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
 		}
 
 
@@ -146,7 +146,7 @@ namespace Hooks
 			using QuickLootRE::LootMenu;
 
 			LootMenu::GetSingleton()->TakeAllItems();
-			LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+			LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
 		}
 
 
@@ -208,7 +208,7 @@ namespace Hooks
 				if (!processed && a_event->timer >= 2.0) {
 					processed = true;
 					LootMenu::ToggleEnabled();
-					LootMenu::QueueMessage(LootMenu::kMessage_LootMenuToggled);
+					LootMenu::QueueMessage(LootMenu::Message::kLootMenuToggled);
 				}
 			} else {
 				if (!processed) {
@@ -323,7 +323,7 @@ namespace Hooks
 
 				ISetting* setting = Settings::set(name, val);
 				if (setting) {
-					LootMenu::Register(LootMenu::kScaleform_Setup);
+					LootMenu::Register(LootMenu::Scaleform::kSetup);
 
 					if (console && RE::ConsoleManager::IsConsoleMode()) {
 						console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
@@ -373,33 +373,35 @@ namespace Hooks
 		RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
 
 		switch (a_controlID) {
-		case kControlID_Activate:
+		case ControlID::kActivate:
 			return strHolder->activate;
-		case kControlID_ReadyWeapon:
+		case ControlID::kReadyWeapon:
 			return strHolder->readyWeapon;
-		case kControlID_TogglePOV:
+		case ControlID::kTogglePOV:
 			return strHolder->togglePOV;
-		case kControlID_Jump:
+		case ControlID::kJump:
 			return strHolder->jump;
-		case kControlID_Sprint:
+		case ControlID::kSprint:
 			return strHolder->sprint;
-		case kControlID_Sneak:
+		case ControlID::kSneak:
 			return strHolder->sneak;
-		case kControlID_Shout:
+		case ControlID::kShout:
 			switch (LootMenu::GetPlatform()) {
-			case LootMenu::kPlatform_PC:
+			case LootMenu::Platform::kPC:
 				return strHolder->shout;
-			case LootMenu::kPlatform_Other:
+			case LootMenu::Platform::kOther:
 			default:
 				return strHolder->chargeItem;
 			}
-		case kControlID_ToggleRun:
+		case ControlID::kToggleRun:
 			return strHolder->toggleRun;
-		case kControlID_AutoMove:
+		case ControlID::kAutoMove:
 			return strHolder->autoMove;
-		case kControlID_None:
+		case ControlID::kFavorites:
+			return strHolder->favorites;
+		case ControlID::kNone:
 		default:
-			if (a_controlID != kControlID_None) {
+			if (a_controlID != ControlID::kNone) {
 				_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
 			}
 			return emptyStr;
@@ -426,7 +428,7 @@ namespace Hooks
 		for (int i = 0, j = 1; j < settings.size(); ++i, ++j) {
 			if (settings[i] == settings[j]) {
 				_ERROR("[ERROR] %s and %s are mapped to the same key (%s)!", settings[i].key().c_str(), settings[j].key().c_str(), settings[i].c_str());
-				LootMenu::QueueMessage(LootMenu::kMessage_NoInputLoaded);
+				LootMenu::QueueMessage(LootMenu::Message::kNoInputLoaded);
 				return true;
 			}
 		}

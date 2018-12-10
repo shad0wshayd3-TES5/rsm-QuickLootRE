@@ -137,7 +137,7 @@ namespace QuickLootRE
 			if (!LootMenu::IsVisible() && !mm->GameIsPaused()) {
 				LootMenu::SetVisible(true);
 				g_invList.parseInventory(LootMenu::GetContainerRef());
-				LootMenu::Register(LootMenu::kScaleform_OpenContainer);
+				LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
 			}
 		}
 
