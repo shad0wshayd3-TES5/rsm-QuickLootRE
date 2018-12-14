@@ -5,12 +5,6 @@
 #include "RE/BGSPerkEntry.h"  // BGSPerkEntry
 #include "RE/Condition.h"  // Condition
 
-namespace RE
-{
-	class Actor;
-	class TESObjectREFR;
-}
-
 
 namespace QuickLootRE
 {
@@ -25,13 +19,13 @@ namespace QuickLootRE
 					RE::BGSEntryPointFunctionDataActivateChoice* fnDataActivateChoice = static_cast<RE::BGSEntryPointFunctionDataActivateChoice*>(entryPoint->functionData);
 					if (fnDataActivateChoice->ReplacesDefault() && fnDataActivateChoice->RunsImmediately()) {
 						_result = true;
-						return ReturnType::kReturnType_Break;
+						return ReturnType::kBreak;
 					}
 				}
 			}
 		}
 
-		return ReturnType::kReturnType_Continue;
+		return ReturnType::kContinue;
 	}
 
 

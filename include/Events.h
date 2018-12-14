@@ -1,25 +1,14 @@
 #pragma once
 
-#include "skse64/GameEvents.h"  // EventResult, EventDispatcher, MenuOpenCloseEvent, TESContainerChangedEvent
-#include "skse64/GameFormComponents.h"  // TESContainer::Entry
+#include "skse64/GameEvents.h"  // EventResult, EventDispatcher, TESContainerChangedEvent
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
-
-#include <utility>  // pair
-#include <map>  // map
-#include <vector>  // vector
 
 #include "RE/BSTEvent.h"  // BSTEventSink, EventResult, BSTEventSource
 #include "RE/MenuOpenCloseEvent.h"  // MenuOpenCloseEvent
 
-class InputEventDispatcher;
-class InventoryEntryData;
-class TESContainer;
-class TESForm;
-
 
 namespace RE
 {
-	class BaseExtraList;
 	class InputEvent;
 }
 

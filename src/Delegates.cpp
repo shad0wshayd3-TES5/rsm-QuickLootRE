@@ -1,21 +1,18 @@
 #include "Delegates.h"
 
+#include "skse64/GameSettings.h"  // g_gameSettingCollection
+
 #include <exception>  // exception
 #include <string>  // string
 
-#include "Events.h"  // getInventoryList()
 #include "Exceptions.h"  // bad_gfx_value_interface
 #include "Forms.h"
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget(), to_underlying()
+#include "Utility.h"  // IsValidPickPocketTarget
 
 #include "RE/GFxMovieDef.h"  // GFxMovieDef
-#include "RE/GFxMovieView.h"  // GFxMovieView
-#include "RE/InventoryChanges.h"  // InventoryChanges
-#include "RE/MenuControls.h"  // MenuControls
-#include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/ScriptEventSourceHolder.h"  // ScriptEventSourceHolder
 #include "RE/TESObjectREFR.h"  // TESObjectREFR, TESObjectREFRPtr

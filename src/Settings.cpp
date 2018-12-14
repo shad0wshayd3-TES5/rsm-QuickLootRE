@@ -2,7 +2,6 @@
 
 #include <fstream>  // ifstream
 #include <exception>  // exception
-#include <vector>  // vector
 #include <string>  // string
 
 #include "json.hpp"  // json

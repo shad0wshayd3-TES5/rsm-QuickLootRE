@@ -220,7 +220,7 @@ namespace QuickLootRE
 		}
 
 		static RE::BSFixedString emptyStr = "";
-		TESFullName* fullName = 0;
+		RE::TESFullName* fullName = 0;
 		fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
 		if (!fullName || fullName->name == emptyStr) {
 			return false;

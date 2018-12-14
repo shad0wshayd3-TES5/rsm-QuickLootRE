@@ -1,33 +1,23 @@
 #include "Events.h"
 
 #include "skse64/GameEvents.h"  // EventResult, EventDispatcher
-#include "skse64/GameExtraData.h"  // ExtraContainerChanges
-#include "skse64/GameFormComponents.h"  // TESContainer
-#include "skse64/GameMenus.h"  // UIManager
-#include "skse64/GameReferences.h"  // TESObjectREFR
-#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
-
-#include <utility>  // pair
-#include <map>  // map
 
 #include "Delegates.h"  // DelayedUpdater
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
 
-#include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/IMenu.h"  // IMenu
 #include "RE/InputEvent.h"  // InputEvent
 #include "RE/InputStringHolder.h"  // InputStringHolder
-#include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/UIManager.h"  // UIManagerUIStringHolder
+#include "RE/UIManager.h"  // UIManager
 #include "RE/UIStringHolder.h"  // UIStringHolder
 
 

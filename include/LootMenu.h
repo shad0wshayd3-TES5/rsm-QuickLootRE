@@ -4,11 +4,10 @@
 #include <string>  // string
 
 #include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSIInputDevice.h"  // BSIInputDevice
 #include "RE/IMenu.h"  // IMenu
-#include "RE/InputEvent.h"  // InputEvent
+#include "RE/InputEvent.h"  // InputEvent, InputEvent::DeviceType
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/TESObjectREFR.h"  // TESObjectREFR::RemoveType
 
 class UIMessage;
 

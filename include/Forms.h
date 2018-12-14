@@ -3,14 +3,7 @@
 #include "RE/BGSKeyword.h"  // BGSKeyword
 #include "RE/BGSPerk.h"  // BGSPerk
 #include "RE/TESFaction.h"  // TESFaction
-#include "RE/TESForm.h"  // LookupForm
-
-namespace RE
-{
-	class BGSKeyword;
-	class BGSPerk;
-	class TESFaction;
-}
+#include "RE/TESForm.h"  // LookupByID
 
 
 namespace QuickLootRE

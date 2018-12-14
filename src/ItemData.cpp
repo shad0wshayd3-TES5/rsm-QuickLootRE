@@ -3,9 +3,7 @@
 #undef min
 #undef max
 
-#include "skse64/GameAPI.h"  // g_thePlayer
-#include "skse64/GameExtraData.h"  // InventoryEntryData
-#include "skse64/GameFormComponents.h"  // BGSBipedObjectForm, TESEnchantableForm
+#include "skse64/GameFormComponents.h"  // TESEnchantableForm
 #include "skse64/GameObjects.h"  // TESAmmo, AlchemyItem, TESSoulGem
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 

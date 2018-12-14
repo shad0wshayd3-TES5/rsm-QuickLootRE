@@ -5,11 +5,9 @@
 #include <sstream>  // stringstream
 #include <string>  // string, strlen
 
-#include "Forms.h"  // KYWDFormID
+#include "Forms.h"
 
 #include "RE/Actor.h"  // Actor
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 #include "RE/TESRace.h"  // TESRace
 

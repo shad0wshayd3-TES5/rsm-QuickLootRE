@@ -7,15 +7,12 @@
 #include "ItemData.h"  // ItemData
 
 #include "RE/TESContainer.h"  // TESContainer::Entry
-#include "RE/TESObjectREFR.h"  // TESObjectREFR, TESObjectREFRPtr
-
-class TESContainer;
 
 namespace RE
 {
-	class BaseExtraList;
 	class InventoryEntryData;
 	class TESForm;
+	class TESObjectREFR;
 }
 
 

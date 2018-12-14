@@ -1,43 +1,31 @@
 #include "Hooks.h"
 
-#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/SafeWrite.h"  // SafeWrite64
-#include "skse64/GameReferences.h"  // g_thePlayer
 #include "skse64/GameTypes.h"  // BSString
-#include "skse64/ObScript.h"  // ObScriptCommand
 
 #include <string>  // string
 #include <sstream>  // stringstream
 #include <typeinfo>  // typeid
 
-#include "Events.h"  // skipCount
 #include "SetActivateLabelPerkEntryVisitor.h"  // SetActivateLabelPerkEntryVisitor
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
 
 #include "HookShare.h"  // ReturnType, _RegisterHook_t
 
-#include "RE/ActivateHandler.h"  // ActivateHandler
 #include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/CommandTable.h"  // CommandInfo
 #include "RE/ConsoleManager.h"  // ConsoleManager
-#include "RE/FavoritesHandler.h"  // FavoritesHandler
 #include "RE/InputEvent.h"  // InputEvent
-#include "RE/InputManager.h"
+#include "RE/InputManager.h"  // InputManager
 #include "RE/InputStringHolder.h"  // InputStringHolder
 #include "RE/MenuManager.h"  // MenuManager
 #include "RE/MenuOpenHandler.h"  // MenuOpenHandler
 #include "RE/Offsets.h"
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/PlayerControls.h"  // PlayerControls, PlayerControls::Data024
 #include "RE/PlayerInputHandler.h"  // PlayerInputHandler
-#include "RE/ReadyWeaponHandler.h"  // ReadyWeaponHandler
-#include "RE/TESBoundAnimObject.h"  // TESObjectACTI
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/UIManager.h"  // UIManager
-#include "RE/UIStringHolder.h"  // UIStringHolder
 
 
 namespace Hooks

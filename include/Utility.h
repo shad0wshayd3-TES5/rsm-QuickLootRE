@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>  // string
-#include <type_traits>  // underlying_type_t
 
 namespace RE
 {

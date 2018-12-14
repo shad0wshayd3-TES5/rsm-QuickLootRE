@@ -5,7 +5,6 @@
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
 #include <vector>  // vector
-#include <string>  // string
 
 class GFxValue;
 

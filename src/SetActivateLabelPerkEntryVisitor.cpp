@@ -1,18 +1,11 @@
 #include "SetActivateLabelPerkEntryVisitor.h"
 
-#include "LootMenu.h"
+#include "LootMenu.h"  // LootMenu
 
 #include "RE/BGSEntryPointFunctionDataText.h"  // BGSEntryPointFunctionDataText
 #include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
 #include "RE/BGSPerkEntry.h"  // BGSPerkEntry
 #include "RE/Condition.h"  // Condition
-
-namespace RE
-{
-	class Actor;
-	class TESObjectREFR;
-}
-
 
 
 namespace QuickLootRE
@@ -32,6 +25,6 @@ namespace QuickLootRE
 			}
 		}
 
-		return ReturnType::kReturnType_Continue;
+		return ReturnType::kContinue;
 	}
 }

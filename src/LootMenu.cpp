@@ -1,32 +1,27 @@
 #include "LootMenu.h"
 
-#include "skse64/GameAPI.h"  // g_thePlayer
-#include "skse64/GameSettings.h"  // g_gameSettingCollection
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/NiRTTI.h"  // ni_cast
-#include "skse64/PluginAPI.h"  // SKSETaskInterface
 
 #include <queue>  // queue
 #include <string>  // string
 
 #include "ActivatePerkEntryVisitor.h"  // ActivatePerkEntryVisitor
 #include "Delegates.h"
-#include "Forms.h"  // FACTFormID
-#include "Hooks.h"  // SendItemsPickPocketedEvent()
+#include "Forms.h"
+#include "Hooks.h"  // SendItemsPickPocketedEvent
 #include "ItemData.h"  // ItemData
 #include "InventoryList.h"  // g_invList
 #include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget()
+#include "Utility.h"  // IsValidPickPocketTarget
 
 #include "RE/Actor.h"  // Actor
-#include "RE/ActorProcessManager.h"  // ActorProcessManager
 #include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/ExtraDataTypes.h"  // ExtraDataType
-#include "RE/GFxMovieDef.h"  // GFxMovieDef
 #include "RE/GFxMovieView.h"  // GFxMovieView
 #include "RE/GFxLoader.h"  // GFxLoader
 #include "RE/IMenu.h"  // IMenu
@@ -41,7 +36,6 @@
 #include "RE/NiNode.h"  // NiNode
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESBoundObject.h"  // TESBoundObject
-#include "RE/TESFaction.h"  // TESFaction
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
 #include "RE/TESRace.h"  // TESRace
 #include "RE/UIManager.h"  // UIManager
@@ -770,7 +764,7 @@ namespace QuickLootRE
 
 	void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName)
 	{
-		typedef RE::NiControllerManager NiControllerManager;
+		using RE::NiControllerManager;
 
 		if (Settings::disableAnimations) {
 			return;
