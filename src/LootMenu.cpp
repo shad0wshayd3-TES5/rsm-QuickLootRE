@@ -25,6 +25,7 @@
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
+#include "RE/ExtraDataTypes.h"  // ExtraDataType
 #include "RE/GFxMovieDef.h"  // GFxMovieDef
 #include "RE/GFxMovieView.h"  // GFxMovieView
 #include "RE/GFxLoader.h"  // GFxLoader
@@ -838,7 +839,7 @@ namespace QuickLootRE
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
 		// Pickup dropped items
-		if (xList && xList->HasType(kExtraData_ItemDropper)) {
+		if (xList && xList->HasType(RE::ExtraDataType::kItemDropper)) {
 			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
 			player->PickUpItem(refItem, 1, false, true);
 			manualUpdate = true;

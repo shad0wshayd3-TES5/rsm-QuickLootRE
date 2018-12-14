@@ -27,46 +27,46 @@ namespace QuickLootRE
 		InventoryList();
 		~InventoryList();
 
-		void											parseInventory(RE::TESObjectREFR* a_refr);
+		void							parseInventory(RE::TESObjectREFR* a_refr);
 
-		ItemData&										operator[](UInt32 a_pos);
+		ItemData&						operator[](UInt32 a_pos);
 
-		std::vector<ItemData>::iterator					begin() noexcept;
-		std::vector<ItemData>::iterator					end() noexcept;
+		std::vector<ItemData>::iterator	begin() noexcept;
+		std::vector<ItemData>::iterator	end() noexcept;
 
-		bool											empty();
-		UInt32											size();
+		bool							empty();
+		UInt32							size();
 
-		void											clear();
-		std::vector<ItemData>::iterator					erase(std::vector<ItemData>::iterator a_pos);
+		void							clear();
+		std::vector<ItemData>::iterator	erase(std::vector<ItemData>::iterator a_pos);
 
 	private:
-		void											add(RE::InventoryEntryData* a_entryData);
-		void											add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
-		void											add(RE::TESForm* a_form, SInt32 a_count);
-		void											add(RE::TESObjectREFRPtr& a_refPtr, SInt32 a_count);
+		void							add(RE::InventoryEntryData* a_entryData);
+		void							add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
+		void							add(RE::TESForm* a_form, SInt32 a_count);
+		void							add(RE::TESObjectREFRPtr& a_refPtr, SInt32 a_count);
 
-		void											parseInventoryChanges(RE::TESObjectREFR* a_refr);
-		void											parseDroppedList(RE::TESObjectREFR* a_refr);
+		void							parseInventoryChanges(RE::TESObjectREFR* a_refr);
+		void							parseDroppedList(RE::TESObjectREFR* a_refr);
 
-		bool											isValidItem(RE::TESForm* a_item);
+		bool							isValidItem(RE::TESForm* a_item);
 
-		typedef SInt32 Count;
 		typedef UInt32 FormID;
-		std::map<FormID, std::pair<RE::TESForm*, Count>>	_defaultMap;
-		std::vector<ItemData>								_itemList;
-		std::vector<RE::InventoryEntryData*>				_heapList;
+		std::map<FormID, RE::InventoryEntryData*>	_defaultMap;
+		std::vector<ItemData>						_itemList;
+		std::vector<RE::InventoryEntryData*>		_heapList;
 
 
 		class TESContainerVisitor
 		{
 		public:
-			explicit TESContainerVisitor(std::map<FormID, std::pair<RE::TESForm*, Count>>& a_defaultMap);
+			explicit TESContainerVisitor(std::map<FormID, RE::InventoryEntryData*>& a_defaultMap, std::vector<RE::InventoryEntryData*>& a_heapList);
 
 			virtual bool Accept(RE::TESContainer::Entry* a_entry);
 
 		private:
-			std::map<FormID, std::pair<RE::TESForm*, Count>>& _defaultMap;
+			std::map<FormID, RE::InventoryEntryData*>&	_defaultMap;
+			std::vector<RE::InventoryEntryData*>		_heapList;
 		};
 	};
 

@@ -45,7 +45,7 @@ namespace QuickLootRE
 
 	bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
 	{
-		if (!a_refr || a_refr->baseForm->formType != RE::FormType::NPC) {
+		if (!a_refr || a_refr->baseForm->IsNot(RE::FormType::NPC)) {
 			return false;
 		}
 

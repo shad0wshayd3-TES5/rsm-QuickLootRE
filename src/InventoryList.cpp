@@ -6,8 +6,6 @@
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <algorithm>  // sort
-#include <utility>  // pair
-#include <exception>  // exception
 #include <map>  // map
 #include <vector>  // vector
 
@@ -16,6 +14,7 @@
 #include "RE/BaseExtraList.h"  // BaseExtraList
 #include "RE/BSTArray.h"  // BSScrapArray
 #include "RE/ExtraContainerChanges.h"  // ExtraContainerChanges
+#include "RE/ExtraDataTypes.h"  // ExtraDataType
 #include "RE/ExtraDroppedItemList.h"  // ExtraDroppedItemList
 #include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
@@ -52,7 +51,7 @@ namespace QuickLootRE
 		ItemData::setContainer(a_refr);
 
 		// Get default items
-		TESContainerVisitor containerOp(_defaultMap);
+		TESContainerVisitor containerOp(_defaultMap, _heapList);
 		a_refr->GetContainer()->Visit(containerOp);
 
 		parseInventoryChanges(a_refr);
@@ -60,7 +59,7 @@ namespace QuickLootRE
 
 		// Add remaining default items
 		for (auto& it : _defaultMap) {
-			add(it.second.first, it.second.second);
+			add(it.second);
 		}
 
 		std::sort(_itemList.begin(), _itemList.end(), operator>);
@@ -173,7 +172,12 @@ namespace QuickLootRE
 					_defaultMap.erase(entry->type->formID);  // Extra gold overrides the default container's gold. Not sure if this is intentional or a bug
 					add(entry);
 				} else {
-					it->second.second += entry->countDelta;
+					it->second->countDelta += entry->countDelta;
+					if (entry->extraList) {
+						for (auto& extra : *entry->extraList) {
+							it->second->AddEntryList(extra);
+						}
+					}
 				}
 			} else {
 				add(entry);
@@ -184,7 +188,7 @@ namespace QuickLootRE
 
 	void InventoryList::parseDroppedList(RE::TESObjectREFR* a_refr)
 	{
-		RE::ExtraDroppedItemList* droppedList = static_cast<RE::ExtraDroppedItemList*>(a_refr->extraData.GetByType(kExtraData_DroppedItemList));
+		RE::ExtraDroppedItemList* droppedList = static_cast<RE::ExtraDroppedItemList*>(a_refr->extraData.GetByType(RE::ExtraDataType::kDroppedItemList));
 		if (!droppedList) {
 			return;
 		}
@@ -253,14 +257,17 @@ namespace QuickLootRE
 	}
 
 
-	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, std::pair<RE::TESForm*, Count>>& a_defaultMap) :
-		_defaultMap(a_defaultMap)
+	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, RE::InventoryEntryData*>& a_defaultMap, std::vector<RE::InventoryEntryData*>& a_heapList) :
+		_defaultMap(a_defaultMap),
+		_heapList(a_heapList)
 	{}
 
 
 	bool InventoryList::TESContainerVisitor::Accept(RE::TESContainer::Entry* a_entry)
 	{
-		_defaultMap.emplace(a_entry->form->formID, std::make_pair(a_entry->form, a_entry->count));
+		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_entry->form, a_entry->count);
+		_heapList.push_back(entryData);
+		_defaultMap.emplace(a_entry->form->formID, entryData);
 		return true;
 	}
 

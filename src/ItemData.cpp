@@ -20,6 +20,7 @@
 #include "RE/ActorValueOwner.h"  // ActorValueOwner
 #include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
 #include "RE/EffectSetting.h"  // EffectSetting::Properties::ActorValue
+#include "RE/ExtraDataTypes.h"  // ExtraDataType
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESForm.h"  // TESForm
@@ -663,7 +664,7 @@ namespace QuickLootRE
 	{
 		if (_entryData->extraList) {
 			for (auto& xList : *_entryData->extraList) {
-				if (xList->HasType(kExtraData_Enchantment)) {
+				if (xList->HasType(RE::ExtraDataType::kEnchantment)) {
 					return true;
 				}
 			}
@@ -692,8 +693,7 @@ namespace QuickLootRE
 		}
 
 		for (auto& xList : *_entryData->extraList) {
-			if (xList->HasType(kExtraData_Worn) ||
-				xList->HasType(kExtraData_WornLeft)) {
+			if (xList->HasType(RE::ExtraDataType::kWorn) || xList->HasType(RE::ExtraDataType::kWornLeft)) {
 				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 				if (_entryData->type->Is(RE::FormType::Weapon)) {
 					if (!player->HasPerk(Misdirection)) {
