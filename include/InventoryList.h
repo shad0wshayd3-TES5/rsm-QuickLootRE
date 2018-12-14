@@ -43,8 +43,6 @@ namespace QuickLootRE
 	private:
 		void							add(RE::InventoryEntryData* a_entryData);
 		void							add(RE::InventoryEntryData* a_entryData, SInt32 a_count);
-		void							add(RE::TESForm* a_form, SInt32 a_count);
-		void							add(RE::TESObjectREFRPtr& a_refPtr, SInt32 a_count);
 
 		void							parseInventoryChanges(RE::TESObjectREFR* a_refr);
 		void							parseDroppedList(RE::TESObjectREFR* a_refr);

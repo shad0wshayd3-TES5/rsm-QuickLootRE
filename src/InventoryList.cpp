@@ -1,8 +1,5 @@
 #include "InventoryList.h"
 
-#include "skse64/GameBSExtraData.h"  // BSExtraData
-#include "skse64/GameExtraData.h"  // InventoryEntryData
-#include "skse64/GameFormComponents.h"  // TESFullName
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <algorithm>  // sort
@@ -12,6 +9,7 @@
 #include "Forms.h"
 
 #include "RE/BaseExtraList.h"  // BaseExtraList
+#include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSTArray.h"  // BSScrapArray
 #include "RE/ExtraContainerChanges.h"  // ExtraContainerChanges
 #include "RE/ExtraDataTypes.h"  // ExtraDataType
@@ -21,6 +19,7 @@
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESContainer.h"  // TESContainer::Entry
 #include "RE/TESForm.h"  // TESForm
+#include "RE/TESFullName.h"  // TESFullName
 #include "RE/TESLeveledList.h"  // TESLeveledList
 #include "RE/TESLevItem.h"  // TESLevItem
 #include "RE/TESObjectREFR.h"  // TESObjectREFR
@@ -50,14 +49,15 @@ namespace QuickLootRE
 
 		ItemData::setContainer(a_refr);
 
+		// Get extra items
+		parseInventoryChanges(a_refr);
+		parseDroppedList(a_refr);
+
 		// Get default items
 		TESContainerVisitor containerOp(_defaultMap, _heapList);
 		a_refr->GetContainer()->Visit(containerOp);
 
-		parseInventoryChanges(a_refr);
-		parseDroppedList(a_refr);
-
-		// Add remaining default items
+		// Add parsed items
 		for (auto& it : _defaultMap) {
 			add(it.second);
 		}
@@ -130,23 +130,6 @@ namespace QuickLootRE
 	}
 
 
-	void InventoryList::add(RE::TESForm* a_form, SInt32 a_count)
-	{
-		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_form, a_count);
-		_heapList.push_back(entryData);
-		add(entryData);
-	}
-
-
-	void InventoryList::add(RE::TESObjectREFRPtr& a_refPtr, SInt32 a_count)
-	{
-		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_refPtr->baseForm, a_count);
-		entryData->AddEntryList(&a_refPtr->extraData);
-		_heapList.push_back(entryData);
-		add(entryData);
-	}
-
-
 	void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
 	{
 		bool createdChanges = !a_refr->HasInventoryChanges();
@@ -166,22 +149,7 @@ namespace QuickLootRE
 		}
 
 		for (auto& entry : *invChanges->entryList) {
-			auto it = _defaultMap.find(entry->type->formID);
-			if (it != _defaultMap.end()) {
-				if (entry->type->formID == kMISCFormID_Gold) {
-					_defaultMap.erase(entry->type->formID);  // Extra gold overrides the default container's gold. Not sure if this is intentional or a bug
-					add(entry);
-				} else {
-					it->second->countDelta += entry->countDelta;
-					if (entry->extraList) {
-						for (auto& extra : *entry->extraList) {
-							it->second->AddEntryList(extra);
-						}
-					}
-				}
-			} else {
-				add(entry);
-			}
+			_defaultMap.emplace(entry->type->formID, entry);
 		}
 	}
 
@@ -203,13 +171,18 @@ namespace QuickLootRE
 				continue;
 			}
 
-			add(refPtr, 1);
+			RE::InventoryEntryData* entryData = new RE::InventoryEntryData(refPtr->baseForm, 1);
+			entryData->AddEntryList(&refPtr->extraData);
+			_heapList.push_back(entryData);
+			_defaultMap.emplace(entryData->type->formID, entryData);
 		}
 	}
 
 
 	bool InventoryList::isValidItem(RE::TESForm* a_item)
 	{
+		using RE::TESFullName;
+
 		using RE::FormType;
 
 		if (!a_item) {
@@ -246,7 +219,7 @@ namespace QuickLootRE
 			return false;
 		}
 
-		static BSFixedString emptyStr = "";
+		static RE::BSFixedString emptyStr = "";
 		TESFullName* fullName = 0;
 		fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
 		if (!fullName || fullName->name == emptyStr) {
@@ -265,9 +238,14 @@ namespace QuickLootRE
 
 	bool InventoryList::TESContainerVisitor::Accept(RE::TESContainer::Entry* a_entry)
 	{
-		RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_entry->form, a_entry->count);
-		_heapList.push_back(entryData);
-		_defaultMap.emplace(a_entry->form->formID, entryData);
+		auto& it = _defaultMap.find(a_entry->form->formID);
+		if (it != _defaultMap.end()) {
+			it->second->countDelta += a_entry->count;
+		} else {
+			RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_entry->form, a_entry->count);
+			_heapList.push_back(entryData);
+			_defaultMap.emplace(entryData->type->formID, entryData);
+		}
 		return true;
 	}
 
