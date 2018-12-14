@@ -52,8 +52,8 @@ namespace Hooks
 			using HookShare::ReturnType;
 			typedef	RE::InputEvent::EventType EventType;
 
-			if (a_event->eventType != EventType::kEventType_Button) {
-				return ReturnType::kReturnType_Continue;
+			if (a_event->eventType != EventType::kButton) {
+				return ReturnType::kContinue;
 			}
 
 			// If the menu closes while the button is still held, input might process when it shouldn't
@@ -62,17 +62,17 @@ namespace Hooks
 				if (button->IsUp()) {
 					LootMenu::NextInputSkipped();
 				}
-				return ReturnType::kReturnType_False;
+				return ReturnType::kFalse;
 			}
 
 			if (QuickLootRE::LootMenu::IsVisible()) {
 				if (button->IsDown() && button->GetControlID() == GetControlID(controlID)) {  // Must be IsDown, otherwise might process input received from another context
 					Op::Run();
 				}
-				return ReturnType::kReturnType_False;
+				return ReturnType::kFalse;
 			}
 
-			return ReturnType::kReturnType_Continue;
+			return ReturnType::kContinue;
 		}
 	};
 
@@ -90,20 +90,20 @@ namespace Hooks
 
 			if (RE::PlayerCharacter::GetSingleton()->GetGrabbedRef()) {
 				LootMenu::Close();
-				return ReturnType::kReturnType_Continue;
+				return ReturnType::kContinue;
 			}
 
-			if (a_event->eventType == EventType::kEventType_Button && LootMenu::IsVisible()) {
+			if (a_event->eventType == EventType::kButton && LootMenu::IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-				if (button->IsUp() && button->GetControlID() == GetControlID(kControlID_Activate)) {  // This must be IsUp, so as to avoid taking an item when grabbing
+				if (button->IsUp() && button->GetControlID() == GetControlID(ControlID::kActivate)) {  // This must be IsUp, so as to avoid taking an item when grabbing
 					Op::Run();
-					return ReturnType::kReturnType_False;
+					return ReturnType::kFalse;
 				} else if (button->IsDown()) {  // Inventory menu activation will queue up without this
-					return ReturnType::kReturnType_False;
+					return ReturnType::kFalse;
 				}
 			}
 
-			return ReturnType::kReturnType_Continue;
+			return ReturnType::kContinue;
 		}
 	};
 
@@ -191,11 +191,12 @@ namespace Hooks
 		{
 			using QuickLootRE::LootMenu;
 
-			RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+			RE::InputStringHolder* inputStrHolder = RE::InputStringHolder::GetSingleton();
 			RE::InputManager* input = RE::InputManager::GetSingleton();
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 
-			RE::BSFixedString& str = input->IsGamepadEnabled() ? strHolder->journal : strHolder->pause;
-			if (!a_event || a_event->controlID != str) {
+			RE::BSFixedString& str = input->IsGamepadEnabled() ? inputStrHolder->journal : inputStrHolder->pause;
+			if (!a_event || a_event->controlID != str || mm->GameIsPaused()) {
 				return orig_ProcessButton(this, a_event);
 			}
 
@@ -276,9 +277,9 @@ namespace Hooks
 					}
 				}
 
-				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kEntryPoint_Set_Activate_Label)) {
+				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kSet_Activate_Label)) {
 					SetActivateLabelPerkEntryVisitor visitor(player, a_ref);
-					player->VisitEntryPointPerkEntries(EntryPointType::kEntryPoint_Set_Activate_Label, visitor);
+					player->VisitEntryPointPerkEntries(EntryPointType::kSet_Activate_Label, visitor);
 				}
 
 				return false;
@@ -449,42 +450,42 @@ namespace Hooks
 		bool result = false;
 
 		if (a_setting == "activate") {
-			a_register(T::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_Activate);
+			a_register(T::ActivateHandlerEx::Hook_CanProcess, Hook::kActivate);
 			set(strHolder->activate.c_str());
 			activateHandlerHooked = true;
 			result = true;
 		} else if (a_setting == "readyWeapon") {
-			a_register(T::ReadyWeaponHandlerEx::Hook_CanProcess, Hook::kHook_ReadyWeapon);
+			a_register(T::ReadyWeaponHandlerEx::Hook_CanProcess, Hook::kReadyWeapon);
 			set(strHolder->readyWeapon.c_str());
 			result = true;
 		} else if (a_setting == "togglePOV") {
-			a_register(T::FirstPersonStateHandlerEx::Hook_CanProcess, Hook::kHook_FirstPersonState);
-			a_register(T::ThirdPersonStateHandlerEx::Hook_CanProcess, Hook::kHook_ThirdPersonState);
+			a_register(T::FirstPersonStateHandlerEx::Hook_CanProcess, Hook::kFirstPersonState);
+			a_register(T::ThirdPersonStateHandlerEx::Hook_CanProcess, Hook::kThirdPersonState);
 			set(strHolder->togglePOV.c_str());
 			cameraStateHandlerHooked = true;
 			result = true;
 		} else if (a_setting == "jump") {
-			a_register(T::JumpHandlerEx::Hook_CanProcess, Hook::kHook_Jump);
+			a_register(T::JumpHandlerEx::Hook_CanProcess, Hook::kJump);
 			set(strHolder->jump.c_str());
 			result = true;
 		} else if (a_setting == "sprint") {
-			a_register(T::SprintHandlerEx::Hook_CanProcess, Hook::kHook_Sprint);
+			a_register(T::SprintHandlerEx::Hook_CanProcess, Hook::kSprint);
 			set(strHolder->sprint.c_str());
 			result = true;
 		} else if (a_setting == "sneak") {
-			a_register(T::SneakHandlerEx::Hook_CanProcess, Hook::kHook_Sneak);
+			a_register(T::SneakHandlerEx::Hook_CanProcess, Hook::kSneak);
 			set(strHolder->sneak.c_str());
 			result = true;
 		} else if (a_setting == "shout") {
-			a_register(T::ShoutHandlerEx::Hook_CanProcess, Hook::kHook_Shout);
+			a_register(T::ShoutHandlerEx::Hook_CanProcess, Hook::kShout);
 			set(strHolder->shout.c_str());
 			result = true;
 		} else if (a_setting == "toggleRun") {
-			a_register(T::ToggleRunHandlerEx::Hook_CanProcess, Hook::kHook_ToggleRun);
+			a_register(T::ToggleRunHandlerEx::Hook_CanProcess, Hook::kToggleRun);
 			set(strHolder->toggleRun.c_str());
 			result = true;
 		} else if (a_setting == "autoMove") {
-			a_register(T::AutoMoveHandlerEx::Hook_CanProcess, Hook::kHook_AutoMove);
+			a_register(T::AutoMoveHandlerEx::Hook_CanProcess, Hook::kAutoMove);
 			set(strHolder->autoMove.c_str());
 			result = true;
 		} else {
@@ -528,13 +529,13 @@ namespace Hooks
 			}
 
 			if (!activateHandlerHooked) {
-				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_Activate);
+				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kActivate);
 				_DMESSAGE("[DEBUG] Stubbed activate can process handler");
 			}
 
 			if (!cameraStateHandlerHooked) {
-				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_FirstPersonState);
-				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kHook_ThirdPersonState);
+				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kFirstPersonState);
+				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kThirdPersonState);
 				_DMESSAGE("[DEBUG] Stubbed camera state can process handlers");
 			}
 		} else {
@@ -542,7 +543,7 @@ namespace Hooks
 			_ERROR("[ERROR] No input hooks applied!\n");
 		}
 
-		a_register(NullOp::FavoritesHandlerEx::Hook_CanProcess, Hook::kHook_Favorites);
+		a_register(NullOp::FavoritesHandlerEx::Hook_CanProcess, Hook::kFavorites);
 		_DMESSAGE("[DEBUG] Stubbed Favorites can process handler");
 
 		if (!Settings::disableActiTextHook) {

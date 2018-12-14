@@ -6,7 +6,7 @@
 #include "skse64/GameAPI.h"  // g_thePlayer
 #include "skse64/GameExtraData.h"  // InventoryEntryData
 #include "skse64/GameFormComponents.h"  // BGSBipedObjectForm, TESEnchantableForm
-#include "skse64/GameObjects.h"  // TESObjectMISC, TESObjectWEAP, TESAmmo, AlchemyItem, TESSoulGem
+#include "skse64/GameObjects.h"  // TESAmmo, AlchemyItem, TESSoulGem
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <limits>  // numeric_limits
@@ -15,7 +15,7 @@
 #include "Hooks.h"  // GetPickPocketChance()
 #include "Forms.h"  // keywords, FormID
 #include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget(), to_underlying()
+#include "Utility.h"  // IsValidPickPocketTarget()
 
 #include "RE/ActorValueOwner.h"  // ActorValueOwner
 #include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
@@ -311,37 +311,37 @@ namespace QuickLootRE
 	{
 		switch (ITEM_DATA_DEBUG_TYPE) {
 		case kDebugType_Name:
-			_DMESSAGE("[DEBUG] (%u) %s == (%s)", a_index, NAME.c_str(), _name);
+			_DMESSAGE("[DEBUG] (%s) %s == (%s: %u)", _name, NAME.c_str(), _name, a_index);
 			break;
 		case kDebugType_Count:
-			_DMESSAGE("[DEBUG] (%u) %s == (%i)", a_index, COUNT.c_str(), _count);
+			_DMESSAGE("[DEBUG] (%i) %s == (%s: %u)", _count, COUNT.c_str(), _name, a_index);
 			break;
 		case kDebugType_Value:
-			_DMESSAGE("[DEBUG] (%u) %s == (%i)", a_index, VALUE.c_str(), _value);
+			_DMESSAGE("[DEBUG] (%i) %s == (%s: %u)", _value, VALUE.c_str(), _name, a_index);
 			break;
 		case kDebugType_Weight:
-			_DMESSAGE("[DEBUG] (%u) %s == (%F)", a_index, WEIGHT.c_str(), _weight);
+			_DMESSAGE("[DEBUG] (%F) %s == (%s: %u)", _weight, WEIGHT.c_str(), _name, a_index);
 			break;
 		case kDebugType_Type:
-			_DMESSAGE("[DEBUG] (%u) %s == (%u)", a_index, TYPE.c_str(), _type);
+			_DMESSAGE("[DEBUG] (%u) %s == (%s: %u)", _type, TYPE.c_str(), _name, a_index);
 			break;
 		case kDebugType_Read:
-			_DMESSAGE("[DEBUG] (%u) %s == (%s)", a_index, READ.c_str(), boolToString(_isRead).c_str());
+			_DMESSAGE("[DEBUG] (%s) %s == (%s: %u)", boolToString(_isRead).c_str(), READ.c_str(), _name, a_index);
 			break;
 		case kDebugType_Enchanted:
-			_DMESSAGE("[DEBUG] (%u) %s == (%s)", a_index, ENCHANTED.c_str(), boolToString(_isEnchanted).c_str());
+			_DMESSAGE("[DEBUG] (%s) %s == (%s: %u)", boolToString(_isEnchanted).c_str(), ENCHANTED.c_str(), _name, a_index);
 			break;
 		case kDebugType_PickPocketChance:
-			_DMESSAGE("[DEBUG] (%u) %s == (%i)", a_index, PICK_POCKET_CHANCE.c_str(), _pickPocketChance);
+			_DMESSAGE("[DEBUG] (%i) %s == (%s: %u)", _pickPocketChance, PICK_POCKET_CHANCE.c_str(), _name, a_index);
 			break;
 		case kDebugType_ValuePerWeight:
 		{
 			float vpw = _weight ? _value / _weight : std::numeric_limits<float>::infinity();
-			_DMESSAGE("[DEBUG] (%u) %s == (%F)", a_index, VALUE_PER_WEIGHT.c_str(), vpw);
+			_DMESSAGE("[DEBUG] (%F) %s == (%s: %u)", vpw, VALUE_PER_WEIGHT.c_str(), _name, a_index);
 			break;
 		}
 		case kDebugType_Priority:
-			_DMESSAGE("[DEBUG] (%u) %s == (%u)", a_index, PRIORITY.c_str(), _priority);
+			_DMESSAGE("[DEBUG] (%u) %s == (%s: %u)", _priority, PRIORITY.c_str(), _name, a_index);
 			break;
 		}
 	}
@@ -402,6 +402,8 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypeArmor(RE::TESObjectARMO* a_armor)
 	{
+		typedef RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag FirstPersonFlag;
+
 		static Type types[] = {
 			Type::kLightArmorBody,		// 0
 			Type::kLightArmorHead,
@@ -421,7 +423,7 @@ namespace QuickLootRE
 			Type::kArmorShield,
 			Type::kArmorMask,
 
-			Type::kClothingBody,			// 16
+			Type::kClothingBody,		// 16
 			Type::kClothingHead,
 			Type::kClothingHands,
 			Type::kClothingForearms,
@@ -438,7 +440,7 @@ namespace QuickLootRE
 		};
 
 		UInt32 index = 0;
-		RE::BGSBipedObjectForm* bipedObj = reinterpret_cast<RE::BGSBipedObjectForm*>(&a_armor);
+		RE::BGSBipedObjectForm* bipedObj = static_cast<RE::BGSBipedObjectForm*>(a_armor);
 
 		if (bipedObj->IsLightArmor()) {
 			index = 0;
@@ -448,11 +450,11 @@ namespace QuickLootRE
 			if (a_armor->HasKeyword(VendorItemClothing)) {
 				index = 16;
 			} else if (a_armor->HasKeyword(VendorItemJewelry)) {
-				if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Amulet)) {
+				if (bipedObj->HasPartOf(FirstPersonFlag::kAmulet)) {
 					index = 24;
-				} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Ring)) {
+				} else if (bipedObj->HasPartOf(FirstPersonFlag::kRing)) {
 					index = 25;
-				} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Circlet)) {
+				} else if (bipedObj->HasPartOf(FirstPersonFlag::kCirclet)) {
 					index = 26;
 				} else {
 					index = 27;
@@ -466,23 +468,23 @@ namespace QuickLootRE
 			return types[index];
 		}
 
-		if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Body | RE::BGSBipedObjectForm::kPart_Tail)) {
-			index += 0;			// body
-		} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Head | RE::BGSBipedObjectForm::kPart_Hair | RE::BGSBipedObjectForm::kPart_LongHair)) {
-			index += 1;			// head
-			if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Circlet)) {
-				index += 6;		// mask
+		if (bipedObj->HasPartOf(FirstPersonFlag::kBody | FirstPersonFlag::kTail)) {
+			index += 0;
+		} else if (bipedObj->HasPartOf(FirstPersonFlag::kHead | FirstPersonFlag::kHair | FirstPersonFlag::kLongHair)) {
+			index += 1;
+			if (bipedObj->HasPartOf(FirstPersonFlag::kCirclet)) {
+				index += 6;
 			}
-		} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Hands)) {
-			index += 2;			// hands
-		} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Forearms)) {
-			index += 3;			// forearms
-		} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Feet)) {
-			index += 4;			// feet
-		} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Calves)) {
-			index += 5;			// calves
-		} else if (bipedObj->HasPartOf(RE::BGSBipedObjectForm::kPart_Shield)) {
-			index += 6;			// shield
+		} else if (bipedObj->HasPartOf(FirstPersonFlag::kHands)) {
+			index += 2;
+		} else if (bipedObj->HasPartOf(FirstPersonFlag::kForearms)) {
+			index += 3;
+		} else if (bipedObj->HasPartOf(FirstPersonFlag::kFeet)) {
+			index += 4;
+		} else if (bipedObj->HasPartOf(FirstPersonFlag::kCalves)) {
+			index += 5;
+		} else if (bipedObj->HasPartOf(FirstPersonFlag::kShield)) {
+			index += 6;
 		} else {
 			index = 27;
 		}
@@ -493,8 +495,8 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypeBook(RE::TESObjectBOOK* a_book)
 	{
-		typedef RE::TESObjectBOOK::Data Data;
-		if (a_book->data.type == Data::Type::kBookNote || a_book->HasKeyword(VendorItemRecipe)) {
+		typedef RE::TESObjectBOOK::Data::Type BookType;
+		if (a_book->data.type == BookType::kNoteScroll || a_book->HasKeyword(VendorItemRecipe)) {
 			return Type::kBookNote;
 		} else if (a_book->HasKeyword(VendorItemSpellTome)) {
 			return Type::kBookTome;
@@ -551,29 +553,29 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypeWeapon(RE::TESObjectWEAP* a_weap)
 	{
-		typedef RE::TESObjectWEAP::GameData GameData;
+		typedef RE::TESObjectWEAP::GameData::Type WeapType;
 		switch (a_weap->type()) {
-		case GameData::Type::kOneHandSword:
+		case WeapType::kOneHandSword:
 			return Type::kWeaponSword;
-		case GameData::Type::kOneHandDagger:
+		case WeapType::kOneHandDagger:
 			return Type::kWeaponDagger;
-		case GameData::Type::kOneHandAxe:
+		case WeapType::kOneHandAxe:
 			return Type::kWeaponWarAxe;
-		case GameData::Type::kOneHandMace:
+		case WeapType::kOneHandMace:
 			return Type::kWeaponMace;
-		case GameData::Type::kTwoHandSword:
+		case WeapType::kTwoHandSword:
 			return Type::kWeaponGreatSword;
-		case GameData::Type::kTwoHandAxe:
+		case WeapType::kTwoHandAxe:
 			if (a_weap->HasKeyword(WeapTypeWarhammer)) {
 				return Type::kWeaponHammer;
 			} else {
 				return Type::kWeaponBattleAxe;
 			}
-		case GameData::Type::kBow:
+		case WeapType::kBow:
 			return Type::kWeaponBow;
-		case GameData::Type::kStaff:
+		case WeapType::kStaff:
 			return Type::kWeaponStaff;
-		case GameData::Type::kCrossBow:
+		case WeapType::kCrossBow:
 			return Type::kWeaponCrossbow;
 		default:
 			return Type::kDefaultWeapon;
@@ -676,7 +678,7 @@ namespace QuickLootRE
 
 	bool ItemData::getCanPickPocket()
 	{
-		if (_container->baseForm->Is(RE::FormType::NPC)) {
+		if (_container->baseForm->IsNot(RE::FormType::NPC)) {
 			return true;
 		}
 
@@ -837,10 +839,10 @@ namespace QuickLootRE
 	int compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		float result = a_lhs._weight - a_rhs._weight;
-		if (result < -0.001) {
-			return (int)std::floor(result);
-		} else if (result > 0.001) {
-			return (int)std::ceil(result);
+		if (result < -0.0001) {
+			return -1;
+		} else if (result > 0.0001) {
+			return 1;
 		} else {
 			return 0;
 		}
@@ -896,10 +898,10 @@ namespace QuickLootRE
 	int compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
 		float result = a_lhs._pickPocketChance - a_rhs._pickPocketChance;
-		if (result < -0.001) {
-			return (int)std::floor(result);
-		} else if (result > 0.001) {
-			return (int)std::ceil(result);
+		if (result < -0.0001) {
+			return -1;
+		} else if (result > 0.0001) {
+			return 1;
 		} else {
 			return 0;
 		}

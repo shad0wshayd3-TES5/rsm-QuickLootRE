@@ -249,10 +249,12 @@ namespace QuickLootRE
 			if (Settings::disableIfEmpty && displaySize <= 0) {
 				LootMenu::Close();
 			} else {
-				RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-				RE::TESObjectREFRPtr target(LootMenu::GetContainerRef());
-				RE::TESObjectREFRPtr caster(RE::PlayerCharacter::GetSingleton());
-				sourceHolder->SendActivateEvent(target, caster);
+				if (!Settings::disableOnActiDispatch) {
+					RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+					RE::TESObjectREFRPtr target(LootMenu::GetContainerRef());
+					RE::TESObjectREFRPtr caster(RE::PlayerCharacter::GetSingleton());
+					sourceHolder->SendActivateEvent(target, caster);
+				}
 				loot->view->Invoke("_root.Menu_mc.OpenContainer", 0, args, 1);
 			}
 

@@ -46,32 +46,35 @@
 #include "RE/UIManager.h"  // UIManager
 #include "RE/UIStringHolder.h"  // UIStringHolder
 
-class TESObjectREFR;
-
 
 namespace QuickLootRE
 {
 	RE::IMenu* LootMenuCreator::Create()
 	{
-		void* p = ScaleformHeap_Allocate(sizeof(LootMenu));
-		if (p) {
-			LootMenu::_singleton = new (p) LootMenu(LootMenu::GetName().c_str());
-			return LootMenu::_singleton;
+		if (!LootMenu::_singleton) {
+			void* p = ScaleformHeap_Allocate(sizeof(LootMenu));
+			if (p) {
+				LootMenu::_singleton = new (p) LootMenu(LootMenu::GetName().c_str());
+				return LootMenu::_singleton;
+			} else {
+				return 0;
+			}
 		} else {
-			return 0;
+			return LootMenu::_singleton;
 		}
 	}
 
 
 	LootMenu::LootMenu(const char* a_swfPath)
 	{
-		typedef RE::GFxMovieView::ScaleModeType ScaleModeType;
+		typedef RE::GFxMovieView::ScaleModeType		ScaleModeType;
 		typedef RE::InputMappingManager::Context	Context;
+		typedef RE::IMenu::Flag						Flag;
 
 		RE::GFxLoader* loader = RE::GFxLoader::GetSingleton();
-		if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kScaleModeType_ShowAll, 0.0)) {
-			flags = Flag(kFlag_DoNotDeleteOnClose | kFlag_DoNotPreventGameSave | kFlag_Unk10000);
-			context = Context::kContext_Inventory;
+		if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kShowAll, 0.0)) {
+			flags = Flag::kDoNotDeleteOnClose | Flag::kDoNotPreventGameSave;
+			context = Context::kInventory;
 		}
 	}
 
@@ -87,7 +90,7 @@ namespace QuickLootRE
 		_isMenuOpen = false;
 		_inTakeAllMode = false;
 		_isRegistered = false;
-		_platform = kPlatform_PC;
+		_platform = Platform::kPC;
 		_actiText = "";
 	}
 
@@ -511,7 +514,7 @@ namespace QuickLootRE
 		if (!view) {
 			_FATALERROR("[FATAL ERROR] LootMenu is missing a view! Dependencies were not loaded!\n");
 			QueueMessage(Message::kMissingDependencies);
-			return Result::kResult_NotProcessed;
+			return Result::kNotProcessed;
 		}
 
 		if (!Settings::isApplied) {
@@ -528,7 +531,7 @@ namespace QuickLootRE
 			break;
 		}
 
-		return Result::kResult_NotProcessed;
+		return Result::kNotProcessed;
 	}
 
 
@@ -543,10 +546,11 @@ namespace QuickLootRE
 	bool LootMenu::CanProcess(RE::InputEvent* a_event)
 	{
 		typedef RE::InputEvent::DeviceType			DeviceType;
+		typedef RE::InputEvent::EventType			EventType;
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
-		if (IsOpen() && a_event->eventType == InputEvent::kEventType_Button) {
+		if (IsOpen() && a_event->eventType == EventType::kButton) {
 			RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 
 			RE::BSFixedString controlID = a_event->GetControlID();
@@ -556,11 +560,17 @@ namespace QuickLootRE
 			}
 
 			switch (a_event->deviceType) {
-			case DeviceType::kDeviceType_Gamepad:
-				return (button->keyMask == Gamepad::kGamepad_Up || button->keyMask == Gamepad::kGamepad_Down);
-			case DeviceType::kDeviceType_Mouse:
-				return (button->keyMask == Mouse::kMouse_WheelDown || button->keyMask == Mouse::kMouse_WheelUp);
-			case DeviceType::kDeviceType_Keyboard:
+			case DeviceType::kGamepad:
+			{
+				Gamepad keyMask = Gamepad(button->keyMask);
+				return (keyMask == Gamepad::kUp || keyMask == Gamepad::kDown);
+			}
+			case DeviceType::kMouse:
+			{
+				Mouse keyMask = Mouse(button->keyMask);
+				return (keyMask == Mouse::kWheelDown || keyMask == Mouse::kWheelUp);
+			}
+			case DeviceType::kKeyboard:
 				return (controlID == strHolder->zoomIn || controlID == strHolder->zoomOut);
 			}
 		}
@@ -570,6 +580,7 @@ namespace QuickLootRE
 
 	bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 	{
+		typedef RE::InputEvent::DeviceType			DeviceType;
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
@@ -590,34 +601,34 @@ namespace QuickLootRE
 		}
 
 		switch (a_event->deviceType) {
-		case kDeviceType_Gamepad:
+		case DeviceType::kGamepad:
 			_platform = Platform::kOther;
 			Register(Scaleform::kSetPlatform);
 			Register(Scaleform::kUpdateButtons);
-			switch (a_event->keyMask) {
-			case Gamepad::kGamepad_Up:
+			switch (Gamepad(a_event->keyMask)) {
+			case Gamepad::kUp:
 				ModSelectedIndex(-1);
 				break;
-			case Gamepad::kGamepad_Down:
+			case Gamepad::kDown:
 				ModSelectedIndex(1);
 				break;
 			}
 			break;
-		case kDeviceType_Mouse:
-			_platform = kPlatform_PC;
+		case DeviceType::kMouse:
+			_platform = Platform::kPC;
 			Register(Scaleform::kSetPlatform);
 			Register(Scaleform::kUpdateButtons);
-			switch (a_event->keyMask) {
-			case Mouse::kMouse_WheelUp:
+			switch (Mouse(a_event->keyMask)) {
+			case Mouse::kWheelUp:
 				ModSelectedIndex(-1);
 				break;
-			case Mouse::kMouse_WheelDown:
+			case Mouse::kWheelDown:
 				ModSelectedIndex(1);
 				break;
 			}
 			break;
-		case kDeviceType_Keyboard:
-			_platform = kPlatform_PC;
+		case DeviceType::kKeyboard:
+			_platform = Platform::kPC;
 			Register(Scaleform::kSetPlatform);
 			Register(Scaleform::kUpdateButtons);
 			if (controlID == strHolder->zoomIn) {
@@ -736,8 +747,8 @@ namespace QuickLootRE
 		RE::InputManager* inputManager = RE::InputManager::GetSingleton();
 		RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputManager->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
 		if (keyboard && keyboard->IsEnabled()) {
-			UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kDeviceType_Keyboard);
-			if (singleLootKeyboard != RE::InputMappingManager::kInvalid && keyboard->IsPressed(singleLootKeyboard)) {
+			UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kKeyboard);
+			if (singleLootKeyboard != -1 && keyboard->IsPressed(singleLootKeyboard)) {
 				return true;
 			}
 		}
@@ -746,8 +757,8 @@ namespace QuickLootRE
 		gamepadHandle = inputManager->GetGamepad();
 		RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
 		if (gamepad && gamepad->IsEnabled()) {
-			UInt32 singleLootSprint = GetSingleLootKey(DeviceType::kDeviceType_Gamepad);
-			if (singleLootSprint != RE::InputMappingManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
+			UInt32 singleLootSprint = GetSingleLootKey(DeviceType::kGamepad);
+			if (singleLootSprint != -1 && gamepad->IsPressed(singleLootSprint)) {
 				return true;
 			}
 		}
@@ -828,16 +839,16 @@ namespace QuickLootRE
 
 		// Pickup dropped items
 		if (xList && xList->HasType(kExtraData_ItemDropper)) {
-			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((uintptr_t)xList - 0x70);
+			RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
 			player->PickUpItem(refItem, 1, false, true);
 			manualUpdate = true;
 		} else {
-			RemoveType lootMode = RemoveType::kRemoveType_Take;
+			RemoveType lootMode = RemoveType::kTake;
 
 			if (_containerRef->baseForm->Is(RE::FormType::NPC)) {
 				// Dead body
 				if (_containerRef->IsDead(false)) {
-					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_DeadBody);
+					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kDeadBody);
 				// Pickpocket
 				} else {
 					if (!TryToPickPocket(a_item, lootMode)) {
@@ -846,11 +857,11 @@ namespace QuickLootRE
 				}
 			} else {
 				// Container
-				player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kEventType_Container);
+				player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kContainer);
 
 				// Stealing
 				if (_containerRef->IsOffLimits()) {
-					lootMode = RemoveType::kRemoveType_Steal;
+					lootMode = RemoveType::kSteal;
 				}
 			}
 
@@ -894,8 +905,8 @@ namespace QuickLootRE
 		RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
-		player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kEventType_Thief);
-		a_lootMode = RemoveType::kRemoveType_Steal;
+		player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
+		a_lootMode = RemoveType::kSteal;
 		if (!pickSuccess) {
 			return false;
 		} else {
@@ -945,7 +956,7 @@ namespace QuickLootRE
 	bool					LootMenu::_inTakeAllMode = false;
 	bool					LootMenu::_isRegistered = false;
 	bool					LootMenu::_isEnabled = true;
-	LootMenu::Platform		LootMenu::_platform = kPlatform_PC;
+	LootMenu::Platform		LootMenu::_platform = Platform::kPC;
 	std::string				LootMenu::_actiText = "";
 	std::string				LootMenu::_singleLootMapping = "";
 	std::string				LootMenu::_takeMapping = "";

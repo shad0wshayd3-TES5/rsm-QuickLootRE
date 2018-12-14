@@ -16,6 +16,7 @@ Setting | Description
 `disableActiTextHook` | Disables the loot menu from hooking activation text, and instead uses localized search strings. Enable when search text appears garbled, such as when using iActivate.
 `disableAnimations` | Disables playing animations when opening/closing containers.
 `disableForActiOverride` | Prevents the menu from opening when the activation options are overridden from default. Enable for compatibility with mods like Hunterborn.
+`disableOnActiDispatch` | Prevents the mod from dispatching `OnActivate` events to scripts attached to the targeted object reference. Enable for compatibility with mods like Elysium State. Disable for compatibility with mods like Ordinator.
 `itemLimit` | The maximum number of items to display in the loot menu at a given time.
 `scale` | The scale of the loot menu GUI. A negative value will use the default of `25`.
 `positionX` | The X position of the loot menu GUI. A negative value will use the default of `384`.

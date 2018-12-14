@@ -78,7 +78,7 @@ namespace QuickLootRE
 		}
 
 		if (LootMenu::IsOpen()) {
-			if ((*a_event)->eventType == EventType::kEventType_Button && (*a_event)->deviceType == DeviceType::kDeviceType_Keyboard) {
+			if ((*a_event)->eventType == EventType::kButton && (*a_event)->deviceType == DeviceType::kKeyboard) {
 
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
 
