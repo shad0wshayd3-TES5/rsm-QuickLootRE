@@ -3,6 +3,7 @@
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <algorithm>  // sort
+#include <utility>  // pair
 #include <map>  // map
 #include <vector>  // vector
 
@@ -59,7 +60,7 @@ namespace QuickLootRE
 
 		// Add parsed items
 		for (auto& it : _defaultMap) {
-			add(it.second);
+			add(it.second.first, it.second.second);
 		}
 
 		std::sort(_itemList.begin(), _itemList.end(), operator>);
@@ -149,7 +150,7 @@ namespace QuickLootRE
 		}
 
 		for (auto& entry : *invChanges->entryList) {
-			_defaultMap.emplace(entry->type->formID, entry);
+			_defaultMap.emplace(entry->type->formID, std::make_pair(entry, entry->countDelta));
 		}
 	}
 
@@ -174,7 +175,7 @@ namespace QuickLootRE
 			RE::InventoryEntryData* entryData = new RE::InventoryEntryData(refPtr->baseForm, 1);
 			entryData->AddEntryList(&refPtr->extraData);
 			_heapList.push_back(entryData);
-			_defaultMap.emplace(entryData->type->formID, entryData);
+			_defaultMap.emplace(entryData->type->formID, std::make_pair(entryData, entryData->countDelta));
 		}
 	}
 
@@ -230,7 +231,7 @@ namespace QuickLootRE
 	}
 
 
-	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, RE::InventoryEntryData*>& a_defaultMap, std::vector<RE::InventoryEntryData*>& a_heapList) :
+	InventoryList::TESContainerVisitor::TESContainerVisitor(std::map<FormID, std::pair<RE::InventoryEntryData*, Count>>& a_defaultMap, std::vector<RE::InventoryEntryData*>& a_heapList) :
 		_defaultMap(a_defaultMap),
 		_heapList(a_heapList)
 	{}
@@ -240,11 +241,13 @@ namespace QuickLootRE
 	{
 		auto& it = _defaultMap.find(a_entry->form->formID);
 		if (it != _defaultMap.end()) {
-			it->second->countDelta += a_entry->count;
+			if (a_entry->form->formID != kMISCFormID_Gold) {
+				it->second.second += a_entry->count;
+			}
 		} else {
 			RE::InventoryEntryData* entryData = new RE::InventoryEntryData(a_entry->form, a_entry->count);
 			_heapList.push_back(entryData);
-			_defaultMap.emplace(entryData->type->formID, entryData);
+			_defaultMap.emplace(entryData->type->formID, std::make_pair(entryData, entryData->countDelta));
 		}
 		return true;
 	}

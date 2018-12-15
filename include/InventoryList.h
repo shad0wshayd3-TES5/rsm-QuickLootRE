@@ -47,21 +47,22 @@ namespace QuickLootRE
 		bool							isValidItem(RE::TESForm* a_item);
 
 		typedef UInt32 FormID;
-		std::map<FormID, RE::InventoryEntryData*>	_defaultMap;
-		std::vector<ItemData>						_itemList;
-		std::vector<RE::InventoryEntryData*>		_heapList;
+		typedef SInt32 Count;
+		std::map<FormID, std::pair<RE::InventoryEntryData*, Count>>	_defaultMap;
+		std::vector<ItemData>										_itemList;
+		std::vector<RE::InventoryEntryData*>						_heapList;
 
 
 		class TESContainerVisitor
 		{
 		public:
-			explicit TESContainerVisitor(std::map<FormID, RE::InventoryEntryData*>& a_defaultMap, std::vector<RE::InventoryEntryData*>& a_heapList);
+			explicit TESContainerVisitor(std::map<FormID, std::pair<RE::InventoryEntryData*, Count>>& a_defaultMap, std::vector<RE::InventoryEntryData*>& a_heapList);
 
 			virtual bool Accept(RE::TESContainer::Entry* a_entry);
 
 		private:
-			std::map<FormID, RE::InventoryEntryData*>&	_defaultMap;
-			std::vector<RE::InventoryEntryData*>		_heapList;
+			std::map<FormID, std::pair<RE::InventoryEntryData*, Count>>&	_defaultMap;
+			std::vector<RE::InventoryEntryData*>							_heapList;
 		};
 	};
 
