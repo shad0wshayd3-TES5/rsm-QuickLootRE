@@ -23,7 +23,7 @@ namespace QuickLootRE
 		constexpr SetActivateLabelPerkEntryVisitor(RE::TESObjectREFR* a_perkOwner, RE::TESObjectREFR* a_target) :
 			_perkOwner(a_perkOwner),
 			_target(a_target),
-			_priority(-1 * std::numeric_limits<SInt16>::max())
+			_priority(std::numeric_limits<SInt16>::min())
 		{}
 
 		virtual ReturnType Visit(RE::BGSPerkEntry* a_perkEntry) override;

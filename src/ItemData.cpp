@@ -15,7 +15,7 @@
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget()
 
-#include "RE/ActorValueOwner.h"  // ActorValueOwner
+#include "RE/ActorValues.h"  // ActorValue
 #include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
 #include "RE/EffectSetting.h"  // EffectSetting::Properties::ActorValue
 #include "RE/ExtraDataTypes.h"  // ExtraDataType
@@ -552,29 +552,29 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypeWeapon(RE::TESObjectWEAP* a_weap)
 	{
-		typedef RE::TESObjectWEAP::GameData::Type WeapType;
-		switch (a_weap->type()) {
-		case WeapType::kOneHandSword:
+		typedef RE::TESObjectWEAP::Data::AnimationType AnimationType;
+		switch (a_weap->animationType()) {
+		case AnimationType::kOneHandSword:
 			return Type::kWeaponSword;
-		case WeapType::kOneHandDagger:
+		case AnimationType::kOneHandDagger:
 			return Type::kWeaponDagger;
-		case WeapType::kOneHandAxe:
+		case AnimationType::kOneHandAxe:
 			return Type::kWeaponWarAxe;
-		case WeapType::kOneHandMace:
+		case AnimationType::kOneHandMace:
 			return Type::kWeaponMace;
-		case WeapType::kTwoHandSword:
+		case AnimationType::kTwoHandSword:
 			return Type::kWeaponGreatSword;
-		case WeapType::kTwoHandAxe:
+		case AnimationType::kTwoHandAxe:
 			if (a_weap->HasKeyword(WeapTypeWarhammer)) {
 				return Type::kWeaponHammer;
 			} else {
 				return Type::kWeaponBattleAxe;
 			}
-		case WeapType::kBow:
+		case AnimationType::kBow:
 			return Type::kWeaponBow;
-		case WeapType::kStaff:
+		case AnimationType::kStaff:
 			return Type::kWeaponStaff;
-		case WeapType::kCrossBow:
+		case AnimationType::kCrossbow:
 			return Type::kWeaponCrossbow;
 		default:
 			return Type::kDefaultWeapon;
@@ -584,7 +584,7 @@ namespace QuickLootRE
 
 	ItemData::Type ItemData::getTypePotion(AlchemyItem* a_potion)
 	{
-		typedef RE::EffectSetting::Data::ActorValue ActorValue;
+		using RE::ActorValue;
 
 		ItemData::Type type = ItemData::Type::kDefaultPotion;
 
@@ -712,8 +712,7 @@ namespace QuickLootRE
 	SInt32 ItemData::getPickPocketChance()
 	{
 		using RE::_GetPickPocketChance;
-
-		typedef RE::EffectSetting::Data::ActorValue ActorValue;
+		using RE::ActorValue;
 
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		if (IsValidPickPocketTarget(_container, player->IsSneaking())) {

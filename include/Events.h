@@ -25,28 +25,28 @@ namespace QuickLootRE
 	class InputEventHandler : public RE::BSTEventSink<RE::InputEvent*>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_dispatcher) override;
+		virtual RE::EventResult ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override;
 	};
 
 
 	class MenuOpenCloseEventHandler : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher) override;
+		virtual RE::EventResult ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource) override;
 	};
 
 
 	class TESCombatEventHandler : public RE::BSTEventSink<TESCombatEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(TESCombatEvent* a_event, RE::BSTEventSource<TESCombatEvent>* a_dispatcher) override;
+		virtual RE::EventResult ReceiveEvent(TESCombatEvent* a_event, RE::BSTEventSource<TESCombatEvent>* a_eventSource) override;
 	};
 
 
 	class TESContainerChangedEventHandler : public RE::BSTEventSink<TESContainerChangedEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(TESContainerChangedEvent* a_event, RE::BSTEventSource<TESContainerChangedEvent>* a_dispatcher) override;
+		virtual RE::EventResult ReceiveEvent(TESContainerChangedEvent* a_event, RE::BSTEventSource<TESContainerChangedEvent>* a_eventSource) override;
 	};
 
 

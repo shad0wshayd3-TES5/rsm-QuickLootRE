@@ -133,19 +133,9 @@ namespace QuickLootRE
 
 	void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
 	{
-		bool createdChanges = !a_refr->HasInventoryChanges();
 		RE::InventoryChanges* invChanges = a_refr->GetInventoryChanges();
 
-		if (!invChanges) {
-			return;
-		}
-
-		if (createdChanges) {
-			invChanges->InitContainer();
-			invChanges->GenerateLeveledListChanges();
-		}
-
-		if (!invChanges->entryList) {
+		if (!invChanges || !invChanges->entryList) {
 			return;
 		}
 

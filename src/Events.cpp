@@ -55,7 +55,7 @@ namespace QuickLootRE
 	}
 
 
-	RE::EventResult InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_dispatcher)
+	RE::EventResult InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
 	{
 		using RE::EventResult;
 
@@ -64,7 +64,7 @@ namespace QuickLootRE
 		typedef RE::BSWin32KeyboardDevice::Keyboard	Keyboard;
 
 		if (!a_event || !*a_event) {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		if (LootMenu::IsOpen()) {
@@ -94,17 +94,17 @@ namespace QuickLootRE
 				}
 			}
 		}
-		return EventResult::kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 
-	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher)
+	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
 	{
 		using RE::EventResult;
 
 		LootMenu* loot = LootMenu::GetSingleton();
 		if (!a_event || !loot || !LootMenu::IsOpen()) {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		RE::BSFixedString menuName = a_event->menuName;
@@ -131,16 +131,16 @@ namespace QuickLootRE
 			}
 		}
 
-		return EventResult::kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 
-	RE::EventResult TESCombatEventHandler::ReceiveEvent(TESCombatEvent* a_event, RE::BSTEventSource<TESCombatEvent>* a_dispatcher)
+	RE::EventResult TESCombatEventHandler::ReceiveEvent(TESCombatEvent* a_event, RE::BSTEventSource<TESCombatEvent>* a_eventSource)
 	{
 		using RE::EventResult;
 
 		if (!a_event || !LootMenu::IsOpen()) {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
@@ -151,28 +151,28 @@ namespace QuickLootRE
 			}
 		}
 
-		return EventResult::kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 
-	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(TESContainerChangedEvent* a_event, RE::BSTEventSource<TESContainerChangedEvent>* a_dispatcher)
+	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(TESContainerChangedEvent* a_event, RE::BSTEventSource<TESContainerChangedEvent>* a_eventSource)
 	{
 		using RE::EventResult;
 
 		if (!a_event || !LootMenu::IsVisible() || LootMenu::InTakeAllMode()) {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
 		if (!ref) {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
 			DelayedUpdater::Register();  // This event is fired before the item is removed, so we have to wait a bit
 		}
 
-		return EventResult::kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 
