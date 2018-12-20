@@ -722,6 +722,7 @@ namespace QuickLootRE
 		}
 		g_invList.clear();
 		SkipNextInput();
+		_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Trigger traps
 
 		_inTakeAllMode = false;
 	}
@@ -844,7 +845,7 @@ namespace QuickLootRE
 				// Dead body
 				if (_containerRef->IsDead(false)) {
 					player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kDeadBody);
-				// Pickpocket
+					// Pickpocket
 				} else {
 					if (!TryToPickPocket(a_item, lootMode)) {
 						return manualUpdate;

@@ -7,6 +7,7 @@
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
+#include "Utility.h"  // IsValidPickPocketTarget
 
 #include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
@@ -69,11 +70,9 @@ namespace QuickLootRE
 
 		if (LootMenu::IsOpen()) {
 			if ((*a_event)->eventType == EventType::kButton && (*a_event)->deviceType == DeviceType::kKeyboard) {
-
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
 
 				if (button->GetControlID() == RE::InputStringHolder::GetSingleton()->nextFocus) {  // Tab
-
 					RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 					RE::UIStringHolder* uiStrHolder = RE::UIStringHolder::GetSingleton();
 					RE::UIManager* uiManager = RE::UIManager::GetSingleton();
@@ -122,7 +121,6 @@ namespace QuickLootRE
 					LootMenu::SetVisible(false);
 				}
 			}
-
 		} else {
 			if (!LootMenu::IsVisible() && !mm->GameIsPaused()) {
 				LootMenu::SetVisible(true);

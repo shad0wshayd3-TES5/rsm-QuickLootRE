@@ -11,7 +11,7 @@
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
 
-#include "HookShare.h"  // ReturnType, _RegisterHook_t
+#include "HookShare.h"  // ReturnType, _RegisterForCanProcess_t
 
 #include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/ButtonEvent.h"  // ButtonEvent
@@ -271,7 +271,6 @@ namespace Hooks
 				}
 
 				return false;
-
 			} else {
 				return result;
 			}
@@ -296,7 +295,6 @@ namespace Hooks
 
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 	{
-		using QuickLootRE::ISetting;
 		using QuickLootRE::Settings;
 		using QuickLootRE::LootMenu;
 
@@ -401,7 +399,6 @@ namespace Hooks
 	bool CheckForMappingConflicts()
 	{
 		using QuickLootRE::Settings;
-		using QuickLootRE::sSetting;
 		using QuickLootRE::LootMenu;
 
 		std::vector<sSetting> settings;
@@ -428,7 +425,7 @@ namespace Hooks
 
 	typedef void _Set_t(const char* a_str);
 	template <typename T, _Set_t* set>
-	bool ApplySetting(HookShare::_RegisterHook_t* a_register, QuickLootRE::sSetting& a_setting)
+	bool ApplySetting(HookShare::_RegisterForCanProcess_t* a_register, sSetting& a_setting)
 	{
 		using HookShare::Hook;
 		using QuickLootRE::Settings;
@@ -485,7 +482,7 @@ namespace Hooks
 	}
 
 
-	void InstallHooks(HookShare::_RegisterHook_t* a_register)
+	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register)
 	{
 		using QuickLootRE::LootMenu;
 		using QuickLootRE::Settings;

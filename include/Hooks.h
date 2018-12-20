@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HookShare.h"  // _RegisterHook_t
+#include "HookShare.h"  // _RegisterForCanProcess_t
 
 #include "RE/BSFixedString.h"  // BSFixedString
 
@@ -27,7 +27,7 @@ namespace Hooks
 
 	bool CheckForMappingConflicts();
 
-	void InstallHooks(HookShare::_RegisterHook_t* a_register);
+	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register);
 
 
 	static bool activateHandlerHooked = false;
