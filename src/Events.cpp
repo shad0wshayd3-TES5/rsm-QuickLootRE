@@ -61,7 +61,7 @@ namespace QuickLootRE
 		using RE::EventResult;
 
 		typedef RE::InputEvent::EventType			EventType;
-		typedef RE::InputEvent::DeviceType			DeviceType;
+		typedef RE::DeviceType						DeviceType;
 		typedef RE::BSWin32KeyboardDevice::Keyboard	Keyboard;
 
 		if (!a_event || !*a_event) {

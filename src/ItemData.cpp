@@ -17,9 +17,10 @@
 
 #include "RE/ActorValues.h"  // ActorValue
 #include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
-#include "RE/EffectSetting.h"  // EffectSetting::Properties::ActorValue
+#include "RE/Effect.h"  // Effect
 #include "RE/ExtraDataTypes.h"  // ExtraDataType
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
+#include "RE/Misc.h"  // GetPickpocketChance
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
 #include "RE/TESForm.h"  // TESForm
 #include "RE/TESObjectARMO.h"  // TESObjectARMO
@@ -136,18 +137,18 @@ namespace QuickLootRE
 
 	void swap(ItemData& a_lhs, ItemData& a_rhs)
 	{
-		std::swap(a_lhs._entryData,			a_rhs._entryData);
-		std::swap(a_lhs._name,				a_rhs._name);
-		std::swap(a_lhs._count,				a_rhs._count);
-		std::swap(a_lhs._value,				a_rhs._value);
-		std::swap(a_lhs._weight,			a_rhs._weight);
-		std::swap(a_lhs._type,				a_rhs._type);
-		std::swap(a_lhs._isStolen,			a_rhs._isStolen);
-		std::swap(a_lhs._isRead,			a_rhs._isRead);
-		std::swap(a_lhs._isEnchanted,		a_rhs._isEnchanted);
-		std::swap(a_lhs._pickPocketChance,	a_rhs._pickPocketChance);
-		std::swap(a_lhs._priority,			a_rhs._priority);
-		std::swap(a_lhs._canPickPocket,		a_rhs._canPickPocket);
+		std::swap(a_lhs._entryData, a_rhs._entryData);
+		std::swap(a_lhs._name, a_rhs._name);
+		std::swap(a_lhs._count, a_rhs._count);
+		std::swap(a_lhs._value, a_rhs._value);
+		std::swap(a_lhs._weight, a_rhs._weight);
+		std::swap(a_lhs._type, a_rhs._type);
+		std::swap(a_lhs._isStolen, a_rhs._isStolen);
+		std::swap(a_lhs._isRead, a_rhs._isRead);
+		std::swap(a_lhs._isEnchanted, a_rhs._isEnchanted);
+		std::swap(a_lhs._canPickPocket, a_rhs._canPickPocket);
+		std::swap(a_lhs._pickPocketChance, a_rhs._pickPocketChance);
+		std::swap(a_lhs._priority, a_rhs._priority);
 	}
 
 
@@ -334,11 +335,11 @@ namespace QuickLootRE
 			_DMESSAGE("[DEBUG] (%i) %s == (%s: %u)", _pickPocketChance, PICK_POCKET_CHANCE.c_str(), _name, a_index);
 			break;
 		case kDebugType_ValuePerWeight:
-		{
-			float vpw = _weight ? _value / _weight : std::numeric_limits<float>::infinity();
-			_DMESSAGE("[DEBUG] (%F) %s == (%s: %u)", vpw, VALUE_PER_WEIGHT.c_str(), _name, a_index);
-			break;
-		}
+			{
+				float vpw = _weight ? _value / _weight : std::numeric_limits<float>::infinity();
+				_DMESSAGE("[DEBUG] (%F) %s == (%s: %u)", vpw, VALUE_PER_WEIGHT.c_str(), _name, a_index);
+				break;
+			}
 		case kDebugType_Priority:
 			_DMESSAGE("[DEBUG] (%u) %s == (%s: %u)", _priority, PRIORITY.c_str(), _name, a_index);
 			break;
@@ -593,20 +594,20 @@ namespace QuickLootRE
 		} else if (a_potion->IsPoison()) {
 			return Type::kPotionPoison;
 		} else {
-			MagicItem::EffectItem* effectItem = CALL_MEMBER_FN(a_potion, GetCostliestEffectItem)(5, false);
-			if (effectItem && effectItem->mgef) {
-				switch (effectItem->mgef->properties.primaryValue) {
+			RE::Effect* effect = (RE::Effect*)CALL_MEMBER_FN(a_potion, GetCostliestEffectItem)(5, false);
+			if (effect && effect->baseEffect) {
+				switch (effect->baseEffect->data.primaryActorValue) {
 				case ActorValue::kHealth:
 					return Type::kPotionHealth;
 				case ActorValue::kMagicka:
 					return Type::kPotionMagic;
 				case ActorValue::kStamina:
 					return Type::kPotionStam;
-				case ActorValue::kFireResist:
+				case ActorValue::kResistFire:
 					return Type::kPotionFire;
-				case ActorValue::kElectricResist:
+				case ActorValue::kResistShock:
 					return Type::kPotionShock;
-				case ActorValue::kFrostResist:
+				case ActorValue::kResistFrost:
 					return Type::kPotionFrost;
 				}
 			}
@@ -711,20 +712,17 @@ namespace QuickLootRE
 
 	SInt32 ItemData::getPickPocketChance()
 	{
-		using RE::_GetPickPocketChance;
-		using RE::ActorValue;
-
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		if (IsValidPickPocketTarget(_container, player->IsSneaking())) {
 			RE::Actor* targetActor = static_cast<RE::Actor*>(_container);
 
-			float totalWeight = _entryData->GetWeight() * _count;
+			float itemWeight = _entryData->GetWeight();
 			UInt32 totalValue = targetActor->CalcEntryValue(_entryData, _count, true);
 			bool isDetected = targetActor->GetDetectionLevel(player, 3) > 0;
-			float playerSkill = player->GetPlayerActorValueCurrent(ActorValue::kPickpocket);
-			float targetSkill = targetActor->GetActorValueCurrent(ActorValue::kPickpocket);
+			float playerSkill = player->GetPlayerActorValueCurrent(RE::ActorValue::kPickpocket);
+			float targetSkill = targetActor->GetActorValueCurrent(RE::ActorValue::kPickpocket);
 
-			UInt32 chance = _GetPickPocketChance(playerSkill, targetSkill, totalValue, totalWeight, player, targetActor, isDetected, _entryData->type);
+			UInt32 chance = RE::GetPickpocketChance(playerSkill, targetSkill, totalValue, itemWeight, player, targetActor, isDetected, _entryData->type);
 			if (chance > 100) {
 				chance = 100;
 			} else if (chance < 0) {

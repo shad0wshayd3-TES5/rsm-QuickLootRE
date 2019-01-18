@@ -21,6 +21,7 @@
 #include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
 #include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
 #include "RE/ButtonEvent.h"  // ButtonEvent
+#include "RE/DeviceTypes.h"  // DeviceType
 #include "RE/ExtraDataTypes.h"  // ExtraDataType
 #include "RE/GFxMovieView.h"  // GFxMovieView
 #include "RE/GFxLoader.h"  // GFxLoader
@@ -32,6 +33,7 @@
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/MenuControls.h"  // MenuControls
 #include "RE/MenuManager.h"  // MenuManager
+#include "RE/Misc.h"  // DebugNotification, SendItemsPickPocketedEvent
 #include "RE/NiControllerManager.h"  // NiControllerManager
 #include "RE/NiNode.h"  // NiNode
 #include "RE/PlayerCharacter.h"  // PlayerCharacter
@@ -50,6 +52,7 @@ namespace QuickLootRE
 			void* p = ScaleformHeap_Allocate(sizeof(LootMenu));
 			if (p) {
 				LootMenu::_singleton = new (p) LootMenu(LootMenu::GetName().c_str());
+				LootMenu::_singleton->AddRef();	// Force persistence
 				return LootMenu::_singleton;
 			} else {
 				return 0;
@@ -359,16 +362,16 @@ namespace QuickLootRE
 		RE::TESObjectREFR* containerRef = 0;
 		switch (a_ref->baseForm->formType) {
 		case RE::FormType::Activator:
-		{
-			UInt32 refHandle = 0;
-			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
-				RE::TESObjectREFRPtr refPtr;
-				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
-					containerRef = refPtr;
+			{
+				UInt32 refHandle = 0;
+				if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
+					RE::TESObjectREFRPtr refPtr;
+					if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
+						containerRef = refPtr;
+					}
 				}
 			}
 			break;
-		}
 		case RE::FormType::Container:
 			if (!a_ref->IsLocked()) {
 				containerRef = a_ref;
@@ -448,6 +451,7 @@ namespace QuickLootRE
 				break;
 			default:
 				_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
+				break;
 			}
 		} else {
 			_ERROR("[ERROR] The LootMenu has not been constructed!\n");
@@ -459,29 +463,30 @@ namespace QuickLootRE
 	{
 		switch (a_msg) {
 		case Message::kNoInputLoaded:
-			_messageQueue.push("[LootMenu] ERROR: Input mapping conflicts detected! No inputs mapped!");
+			_messageQueue.push("$QuickLootRE_NoInputLoaded");
 			break;
 		case Message::kHookShareMissing:
-			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is not loaded!");
+			_messageQueue.push("$QuickLootRE_HookShareMissing");
 			break;
 		case Message::kHookShareIncompatible:
-			_messageQueue.push("[LootMenu] ERROR: Hook Share SSE is an incompatible version!");
+			_messageQueue.push("$QuickLootRE_HookShareIncompatible");
 			break;
 		case Message::kMissingDependencies:
-			_messageQueue.push("[LootMenu] ERROR: LootMenu is missing a view! Dependencies were not loaded!");
+			_messageQueue.push("$QuickLootRE_MissingDependencies");
 			ProcessMessageQueue();
 			break;
 		case Message::kLootMenuToggled:
-		{
-			static const char* enabled = "[LootMenu] LootMenu enabled";
-			static const char* disabled = "[LootMenu] LootMenu disabled";
-			const char* state = _isEnabled ? enabled : disabled;
-			_messageQueue.push(state);
-			ProcessMessageQueue();
+			{
+				static const char* enabled = "$QuickLootRE_LootMenuToggled_Enabled";
+				static const char* disabled = "$QuickLootRE_LootMenuToggled_Disabled";
+				const char* state = _isEnabled ? enabled : disabled;
+				_messageQueue.push(state);
+				ProcessMessageQueue();
+			}
 			break;
-		}
 		default:
 			_ERROR("[ERROR] Invalid message (%i)", a_msg);
+			break;
 		}
 
 		if (IsOpen()) {
@@ -540,7 +545,7 @@ namespace QuickLootRE
 
 	bool LootMenu::CanProcess(RE::InputEvent* a_event)
 	{
-		typedef RE::InputEvent::DeviceType			DeviceType;
+		typedef RE::DeviceType						DeviceType;
 		typedef RE::InputEvent::EventType			EventType;
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
@@ -556,17 +561,20 @@ namespace QuickLootRE
 
 			switch (a_event->deviceType) {
 			case DeviceType::kGamepad:
-			{
-				Gamepad keyMask = Gamepad(button->keyMask);
-				return (keyMask == Gamepad::kUp || keyMask == Gamepad::kDown);
-			}
+				{
+					Gamepad keyMask = Gamepad(button->keyMask);
+					return (keyMask == Gamepad::kUp || keyMask == Gamepad::kDown);
+				}
+				break;
 			case DeviceType::kMouse:
-			{
-				Mouse keyMask = Mouse(button->keyMask);
-				return (keyMask == Mouse::kWheelDown || keyMask == Mouse::kWheelUp);
-			}
+				{
+					Mouse keyMask = Mouse(button->keyMask);
+					return (keyMask == Mouse::kWheelDown || keyMask == Mouse::kWheelUp);
+				}
+				break;
 			case DeviceType::kKeyboard:
 				return (controlID == strHolder->zoomIn || controlID == strHolder->zoomOut);
+				break;
 			}
 		}
 		return false;
@@ -575,7 +583,7 @@ namespace QuickLootRE
 
 	bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 	{
-		typedef RE::InputEvent::DeviceType			DeviceType;
+		typedef RE::DeviceType						DeviceType;
 		typedef RE::BSWin32GamepadDevice::Gamepad	Gamepad;
 		typedef RE::BSWin32MouseDevice::Mouse		Mouse;
 
@@ -734,7 +742,7 @@ namespace QuickLootRE
 		typedef RE::BSWin32KeyboardDevice	BSWin32KeyboardDevice;
 		typedef RE::BSGamepadDevice			BSGamepadDevice;
 		typedef RE::BSWin32GamepadDevice	BSWin32GamepadDevice;
-		typedef RE::InputEvent::DeviceType	DeviceType;
+		typedef RE::DeviceType				DeviceType;
 
 		if (Settings::disableSingleLoot) {
 			return false;
@@ -882,7 +890,9 @@ namespace QuickLootRE
 			if (a_playSound) {
 				player->PlaySounds(a_item.form(), true, false);
 			}
-			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
+			if (!Settings::disableInvisDispell) {
+				player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
+			}
 			UInt32 droppedHandle = 0;
 			_containerRef->RemoveItem(&droppedHandle, a_item.form(), a_numItems, lootMode, xList, player, 0, 0);
 		}
@@ -893,8 +903,6 @@ namespace QuickLootRE
 
 	bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode)
 	{
-		using RE::_SendItemsPickPocketedEvent;
-
 		typedef RE::PlayerCharacter::EventType	EventType;
 		typedef RE::TESObjectREFR::RemoveType	RemoveType;
 
@@ -906,7 +914,7 @@ namespace QuickLootRE
 		if (!pickSuccess) {
 			return false;
 		} else {
-			_SendItemsPickPocketedEvent(a_item.count());
+			RE::SendItemsPickPocketedEvent(a_item.count());
 			return true;
 		}
 	}
@@ -922,7 +930,7 @@ namespace QuickLootRE
 	}
 
 
-	UInt32 LootMenu::GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType)
+	UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType)
 	{
 		RE::BSFixedString str = _singleLootMapping.c_str();
 		return RE::InputMappingManager::GetSingleton()->GetMappedKey(str, a_deviceType);
@@ -931,13 +939,11 @@ namespace QuickLootRE
 
 	void LootMenu::ProcessMessageQueue()
 	{
-		using RE::_DebugNotification;
-
 		const char* msg = 0;
 		while (!_messageQueue.empty()) {
 			msg = _messageQueue.front();
 			_messageQueue.pop();
-			_DebugNotification(msg, 0, true);
+			RE::DebugNotification(msg);
 		}
 	}
 

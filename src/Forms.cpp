@@ -30,7 +30,6 @@ namespace QuickLootRE
 
 	Form<RE::BGSKeyword*>	WeapTypeWarhammer(kKYWDFormID_WeapTypeWarhammer);
 
-	Form<RE::BGSKeyword*>	ActorTypeCreature(kKYWDFormID_ActorTypeCreature);
 	Form<RE::BGSKeyword*>	ActorTypeAnimal(kKYWDFormID_ActorTypeAnimal);
 
 	// Perks

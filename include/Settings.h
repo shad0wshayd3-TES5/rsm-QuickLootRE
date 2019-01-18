@@ -18,6 +18,7 @@ namespace QuickLootRE
 		static bSetting					disableIfEmpty;
 		static bSetting					disableSingleLoot;
 		static bSetting					disableAnimations;
+		static bSetting					disableInvisDispell;
 		static bSetting					disableForAnimals;
 		static bSetting					disableForActiOverride;
 		static bSetting					disableActiTextHook;

@@ -18,6 +18,7 @@ namespace QuickLootRE
 	bSetting				Settings::disableIfEmpty("disableIfEmpty", true, true);
 	bSetting				Settings::disableSingleLoot("disableSingleLoot", true, false);
 	bSetting				Settings::disableAnimations("disableAnimations", true, false);
+	bSetting				Settings::disableInvisDispell("disableInvisDispell", true, false);
 	bSetting				Settings::disableForAnimals("disableForAnimals", true, false);
 	bSetting				Settings::disableForActiOverride("disableForActiOverride", true, false);
 	bSetting				Settings::disableActiTextHook("disableActiTextHook", true, false);

@@ -4,8 +4,8 @@
 #include <string>  // string
 
 #include "RE/BSFixedString.h"  // BSFixedString
+#include "RE/DeviceTypes.h"  // DeviceType
 #include "RE/IMenu.h"  // IMenu
-#include "RE/InputEvent.h"  // InputEvent, InputEvent::DeviceType
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/TESObjectREFR.h"  // TESObjectREFR::RemoveType
 
@@ -14,6 +14,7 @@ class UIMessage;
 namespace RE
 {
 	class ButtonEvent;
+	class InputEvent;
 }
 
 
@@ -144,7 +145,7 @@ namespace QuickLootRE
 		bool						TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound);
 		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
 		void						DispellWornItemEnchantments();
-		UInt32						GetSingleLootKey(RE::InputEvent::DeviceType a_deviceType);
+		UInt32						GetSingleLootKey(RE::DeviceType a_deviceType);
 		static void					ProcessMessageQueue();
 
 

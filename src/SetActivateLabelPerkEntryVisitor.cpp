@@ -19,7 +19,7 @@ namespace QuickLootRE
 			if (entryPoint->conditions && entryPoint->conditions->Run(_perkOwner, _target)) {
 				RE::BGSEntryPointFunctionDataText* fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
 				if (fnDataText && a_perkEntry->priority > _priority) {
-					LootMenu::SetActiText(fnDataText->text);
+					LootMenu::SetActiText(fnDataText->text.c_str());
 					_priority = a_perkEntry->priority;
 				}
 			}
