@@ -9,6 +9,7 @@
 ## End User Dependencies
 * [SKSE64](https://skse.silverlock.org/)
 * [HookShareSSE](https://github.com/SniffleMan/HookShareSSE)
+* [ScaleformTranslation++](https://github.com/SniffleMan/ScaleformTranslationPP)
 
 ## Settings
 Setting | Description
