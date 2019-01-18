@@ -22,6 +22,7 @@ Setting | Description
 `disableForAnimals` | Disables the loot menu from displaying when looting animals.
 `disableActiTextHook` | Disables the loot menu from hooking activation text, and instead uses localized search strings. Set to `True` when search text appears garbled, such as when using iActivate.
 `disableAnimations` | Disables playing animations when opening/closing containers.
+`disableInvisDispell` | Disables invisibility from being dispelled when looting.
 `disableForActiOverride` | Prevents the menu from opening when the activation options are overridden from default. Set to `True` for compatibility with mods like Hunterborn.
 `disableOnActiDispatch` | Prevents the mod from dispatching `OnActivate` events to scripts attached to the targeted object reference. Set to `True` if the vanilla loot menu constantly pops up when looking at an object.
 `itemLimit` | The maximum number of items to display in the loot menu at a given time.
