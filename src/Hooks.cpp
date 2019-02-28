@@ -6,6 +6,7 @@
 #include <string>  // string
 #include <sstream>  // stringstream
 #include <typeinfo>  // typeid
+#include <vector>  // vector
 
 #include "SetActivateLabelPerkEntryVisitor.h"  // SetActivateLabelPerkEntryVisitor
 #include "LootMenu.h"  // LootMenu
@@ -36,9 +37,8 @@ namespace Hooks
 	public:
 		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
-			using QuickLootRE::LootMenu;
 			using HookShare::ReturnType;
-			typedef	RE::InputEvent::EventType EventType;
+			using EventType = RE::InputEvent::EventType;
 
 			if (a_event->eventType != EventType::kButton) {
 				return ReturnType::kContinue;
@@ -46,14 +46,15 @@ namespace Hooks
 
 			// If the menu closes while the button is still held, input might process when it shouldn't
 			RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-			if (button->IsRepeating() && LootMenu::ShouldSkipNextInput()) {
+			LootMenu* loot = LootMenu::GetSingleton();
+			if (button->IsRepeating() && loot->ShouldSkipNextInput()) {
 				if (button->IsUp()) {
-					LootMenu::NextInputSkipped();
+					loot->NextInputSkipped();
 				}
 				return ReturnType::kFalse;
 			}
 
-			if (QuickLootRE::LootMenu::IsVisible()) {
+			if (loot->IsVisible()) {
 				if (button->IsDown() && button->GetControlID() == GetControlID(controlID)) {  // Must be IsDown, otherwise might process input received from another context
 					Op::Run();
 				}
@@ -72,16 +73,16 @@ namespace Hooks
 	public:
 		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
-			using QuickLootRE::LootMenu;
 			using HookShare::ReturnType;
-			typedef	RE::InputEvent::EventType EventType;
+			using EventType = RE::InputEvent::EventType;
 
+			LootMenu* loot = LootMenu::GetSingleton();
 			if (RE::PlayerCharacter::GetSingleton()->GetGrabbedRef()) {
-				LootMenu::Close();
+				loot->Close();
 				return ReturnType::kContinue;
 			}
 
-			if (a_event->eventType == EventType::kButton && LootMenu::IsVisible()) {
+			if (a_event->eventType == EventType::kButton && loot->IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsUp() && button->GetControlID() == GetControlID(ControlID::kActivate)) {  // This must be IsUp, so as to avoid taking an item when grabbing
 					Op::Run();
@@ -96,18 +97,18 @@ namespace Hooks
 	};
 
 
-#define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)														\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>	FirstPersonStateHandlerEx;	\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>	ThirdPersonStateHandlerEx;	\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kNone>			FavoritesHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kSprint>		SprintHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kReadyWeapon>	ReadyWeaponHandlerEx;		\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kAutoMove>		AutoMoveHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kToggleRun>	ToggleRunHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kActivate>		ActivateHandlerEx;			\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kJump>			JumpHandlerEx;				\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kShout>		ShoutHandlerEx;				\
-	typedef PlayerInputHandler<##TYPE_NAME##, ControlID::kSneak>		SneakHandlerEx;
+#define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)													\
+	using FirstPersonStateHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>;	\
+	using ThirdPersonStateHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>;	\
+	using FavoritesHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kNone>;				\
+	using SprintHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kSprint>;				\
+	using ReadyWeaponHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kReadyWeapon>;	\
+	using AutoMoveHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kAutoMove>;			\
+	using ToggleRunHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kToggleRun>;		\
+	using ActivateHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kActivate>;			\
+	using JumpHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kJump>;					\
+	using ShoutHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kShout>;				\
+	using SneakHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kSneak>;
 
 
 	class TakeOp
@@ -115,10 +116,9 @@ namespace Hooks
 	public:
 		static void Run()
 		{
-			using QuickLootRE::LootMenu;
-
-			LootMenu::GetSingleton()->TakeItemStack();
-			LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
+			LootMenu* loot = LootMenu::GetSingleton();
+			loot->TakeItemStack();
+			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
 
 
@@ -131,10 +131,9 @@ namespace Hooks
 	public:
 		static void Run()
 		{
-			using QuickLootRE::LootMenu;
-
-			LootMenu::GetSingleton()->TakeAllItems();
-			LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
+			LootMenu* loot = LootMenu::GetSingleton();
+			loot->TakeAllItems();
+			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
 
 
@@ -170,15 +169,12 @@ namespace Hooks
 	struct MenuOpenHandlerEx : RE::MenuOpenHandler
 	{
 	public:
-		// MSVC was clobbering ecx when I tried (MenuOpenHandlerEx::*_ProcessButton_t)
-		typedef bool _ProcessButton_t(RE::MenuOpenHandler* a_this, RE::ButtonEvent* a_event);
+		using _ProcessButton_t = bool(RE::MenuOpenHandler* a_this, RE::ButtonEvent* a_event);
 		static _ProcessButton_t* orig_ProcessButton;
 
 
 		bool Hook_ProcessButton(RE::ButtonEvent* a_event)
 		{
-			using QuickLootRE::LootMenu;
-
 			RE::InputStringHolder* inputStrHolder = RE::InputStringHolder::GetSingleton();
 			RE::InputManager* input = RE::InputManager::GetSingleton();
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
@@ -196,8 +192,9 @@ namespace Hooks
 			} else if (a_event->IsHeld()) {
 				if (!processed && a_event->timer >= 2.0) {
 					processed = true;
-					LootMenu::ToggleEnabled();
-					LootMenu::QueueMessage(LootMenu::Message::kLootMenuToggled);
+					LootMenu* loot = LootMenu::GetSingleton();
+					loot->ToggleEnabled();
+					loot->QueueMessage(LootMenu::Message::kLootMenuToggled);
 				}
 			} else {
 				if (!processed) {
@@ -229,25 +226,23 @@ namespace Hooks
 	MenuOpenHandlerEx::_ProcessButton_t* MenuOpenHandlerEx::orig_ProcessButton;
 
 
-	template <uintptr_t offset>
+	template <std::uintptr_t offset>
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
 	public:
-		typedef bool(TESBoundAnimObjectEx::*_GetCrosshairText_t)(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
-		static _GetCrosshairText_t orig_GetCrosshairText;
+		using _GetCrosshairText_t = bool(RE::TESBoundAnimObject* a_this, RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
+		static _GetCrosshairText_t* orig_GetCrosshairText;
 
 
 		bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
 		{
-			typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
+			using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
 
-			using QuickLootRE::LootMenu;
-			using QuickLootRE::SetActivateLabelPerkEntryVisitor;
-
-			bool result = (this->*orig_GetCrosshairText)(a_ref, a_dst, a_unk);
+			bool result = orig_GetCrosshairText(this, a_ref, a_dst, a_unk);
 
 			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-			if (LootMenu::CanOpen(a_ref, player->IsSneaking())) {
+			LootMenu* loot = LootMenu::GetSingleton();
+			if (loot->CanOpen(a_ref, player->IsSneaking())) {
 				std::stringstream ss(a_dst->Get());
 				std::string dispText;
 				if (std::getline(ss, dispText, '\n')) {
@@ -257,17 +252,17 @@ namespace Hooks
 							int end = dispText.find_last_of('<');
 							if (beg != std::string::npos && end != std::string::npos) {
 								std::string subStr = dispText.substr(beg + 1, end - beg - 1);
-								LootMenu::SetActiText(subStr.c_str());
+								loot->SetActiText(subStr.c_str());
 							}
 						} else {
-							LootMenu::SetActiText(dispText.c_str());
+							loot->SetActiText(dispText.c_str());
 						}
 					}
 				}
 
-				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kSet_Activate_Label)) {
+				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kSetActivateLabel)) {
 					SetActivateLabelPerkEntryVisitor visitor(player, a_ref);
-					player->VisitEntryPointPerkEntries(EntryPointType::kSet_Activate_Label, visitor);
+					player->VisitEntryPointPerkEntries(EntryPointType::kSetActivateLabel, visitor);
 				}
 
 				return false;
@@ -279,7 +274,7 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			RelocPtr<_GetCrosshairText_t> vtbl_GetCrosshairText(offset);
+			RelocPtr<_GetCrosshairText_t*> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
 			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&hook_GetCrosshairText));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
@@ -287,17 +282,14 @@ namespace Hooks
 	};
 
 
-	template <uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
-	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL + (0x4C * 0x8)>	TESObjectACTIEx;
-	typedef TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL + (0x4C * 0x8)>	TESObjectCONTEx;
-	typedef TESBoundAnimObjectEx<RE::TES_NPC_VTBL + (0x4C * 0x8)>			TESNPCEx;
+	template <std::uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t* TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
+	using TESObjectACTIEx = TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL + (0x4C * 0x8)>;
+	using TESObjectCONTEx = TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL + (0x4C * 0x8)>;
+	using TESNPCEx = TESBoundAnimObjectEx<RE::TES_NPC_VTBL + (0x4C * 0x8)>;
 
 
-	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
+	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 	{
-		using QuickLootRE::Settings;
-		using QuickLootRE::LootMenu;
-
 		if (a_scriptData->strLen < 60) {
 			RE::CommandInfo::StringChunk* strChunk = (RE::CommandInfo::StringChunk*)a_scriptData->GetChunk();
 			std::string name = strChunk->GetString();
@@ -310,7 +302,7 @@ namespace Hooks
 
 				ISetting* setting = Settings::set(name, val);
 				if (setting) {
-					LootMenu::Register(LootMenu::Scaleform::kSetup);
+					LootMenu::GetSingleton()->Register(LootMenu::Scaleform::kSetup);
 
 					if (console && RE::ConsoleManager::IsConsoleMode()) {
 						console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
@@ -328,13 +320,13 @@ namespace Hooks
 
 	void RegisterConsoleCommands()
 	{
-		typedef RE::SCRIPT_PARAMETER::Type Type;
+		using Type = RE::SCRIPT_PARAMETER::Type;
 
 		RE::CommandInfo* info = RE::CommandInfo::Locate("TestSeenData");  // Unused
 		if (info) {
 			static RE::SCRIPT_PARAMETER params[] = {
-				{ "Name", Type::kType_String, 0 },
-				{ "Value", Type::kType_Integer, 0 }
+				{ "Name", Type::kString, 0 },
+				{ "Value", Type::kInteger, 0 }
 			};
 			info->longName = "SetQuickLootVariable";
 			info->shortName = "sqlv";
@@ -353,8 +345,6 @@ namespace Hooks
 
 	RE::BSFixedString& GetControlID(ControlID a_controlID)
 	{
-		using QuickLootRE::LootMenu;
-
 		static RE::BSFixedString emptyStr = "";
 
 		RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
@@ -373,7 +363,7 @@ namespace Hooks
 		case ControlID::kSneak:
 			return strHolder->sneak;
 		case ControlID::kShout:
-			switch (LootMenu::GetPlatform()) {
+			switch (LootMenu::GetSingleton()->GetPlatform()) {
 			case LootMenu::Platform::kPC:
 				return strHolder->shout;
 			case LootMenu::Platform::kOther:
@@ -398,9 +388,6 @@ namespace Hooks
 
 	bool CheckForMappingConflicts()
 	{
-		using QuickLootRE::Settings;
-		using QuickLootRE::LootMenu;
-
 		std::vector<sSetting> settings;
 		settings.push_back(Settings::singleLootModifier);
 		settings.push_back(Settings::takeMethod);
@@ -423,12 +410,11 @@ namespace Hooks
 	}
 
 
-	typedef void _Set_t(const char* a_str);
+	using _Set_t = void(const char* a_str);
 	template <typename T, _Set_t* set>
 	bool ApplySetting(HookShare::_RegisterForCanProcess_t* a_register, sSetting& a_setting)
 	{
 		using HookShare::Hook;
-		using QuickLootRE::Settings;
 
 		InputStringHolder* strHolder = InputStringHolder::GetSingleton();
 
@@ -484,8 +470,6 @@ namespace Hooks
 
 	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register)
 	{
-		using QuickLootRE::LootMenu;
-		using QuickLootRE::Settings;
 		using HookShare::Hook;
 
 		if (!CheckForMappingConflicts()) {

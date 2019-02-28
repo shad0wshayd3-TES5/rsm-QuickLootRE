@@ -54,6 +54,9 @@
     <ClCompile Include="src\ActivatePerkEntryVisitor.cpp">
       <Filter>src\visitors</Filter>
     </ClCompile>
+    <ClCompile Include="src\ManagedEntryData.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -77,9 +80,6 @@
     <ClInclude Include="include\Settings.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Exceptions.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Delegates.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -94,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="include\ActivatePerkEntryVisitor.h">
       <Filter>include\visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ManagedEntryData.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

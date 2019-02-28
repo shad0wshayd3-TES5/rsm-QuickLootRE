@@ -5,7 +5,7 @@
 #include <ShlObj.h>  // CSIDL_MYDOCUMENTS
 
 #include "Delegates.h"  // g_task
-#include "Events.h"  // g_crosshairRefEventHandler, g_containerChangedEventHandler
+#include "Events.h"  // CrosshairRefEventHandler, InputEventHandler, MenuOpenCloseEventHandler, TESCombatEventHandler, TESContainerChangedEventHandler
 #include "Hooks.h"  // InstallHooks
 #include "ItemData.h"  // SetCompareOrder
 #include "LootMenu.h"  // LootMenuCreator
@@ -27,7 +27,6 @@ static SKSEMessagingInterface* g_messaging = 0;
 void HooksReady(SKSEMessagingInterface::Message* a_msg)
 {
 	using HookShare::_RegisterForCanProcess_t;
-	using QuickLootRE::LootMenu;
 
 	switch (a_msg->type) {
 	case HookShare::kType_CanProcess:
@@ -46,7 +45,11 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 
 void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 {
-	using QuickLootRE::LootMenu;
+	using Events::CrosshairRefEventHandler;
+	using Events::InputEventHandler;
+	using Events::MenuOpenCloseEventHandler;
+	using Events::TESCombatEventHandler;
+	using Events::TESContainerChangedEventHandler;
 
 	switch (a_msg->type) {
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
@@ -58,42 +61,41 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 		}
 		break;
 	case SKSEMessagingInterface::kMessage_InputLoaded:
-	{
-		EventDispatcher<SKSECrosshairRefEvent>* crosshairRefDispatcher = (EventDispatcher<SKSECrosshairRefEvent>*)g_messaging->GetEventDispatcher(SKSEMessagingInterface::kDispatcher_CrosshairEvent);
-		crosshairRefDispatcher->AddEventSink(&QuickLootRE::g_crosshairRefEventHandler);
-		_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
+		{
+			EventDispatcher<SKSECrosshairRefEvent>* crosshairRefDispatcher = (EventDispatcher<SKSECrosshairRefEvent>*)g_messaging->GetEventDispatcher(SKSEMessagingInterface::kDispatcher_CrosshairEvent);
+			crosshairRefDispatcher->AddEventSink(CrosshairRefEventHandler::GetSingleton());
+			_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
 
-		RE::InputManager::GetSingleton()->AddEventSink(&QuickLootRE::g_inputEventHandler);
-		_MESSAGE("[MESSAGE] Input event handler sinked");
+			RE::InputManager::GetSingleton()->AddEventSink(InputEventHandler::GetSingleton());
+			_MESSAGE("[MESSAGE] Input event handler sinked");
 
-		RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(&QuickLootRE::g_menuOpenCloseEventHandler);
-		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
+			RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
+			_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 
-		RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-		sourceHolder->combatEventSource.AddEventSink(&QuickLootRE::g_combatEventHandler);
-		_MESSAGE("[MESSAGE] Combat event handler sinked");
+			RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+			sourceHolder->combatEventSource.AddEventSink(TESCombatEventHandler::GetSingleton());
+			_MESSAGE("[MESSAGE] Combat event handler sinked");
 
-		sourceHolder->containerChangedEventSource.AddEventSink(&QuickLootRE::g_containerChangedEventHandler);
-		_MESSAGE("[MESSAGE] Container changed event handler sinked");
+			sourceHolder->containerChangedEventSource.AddEventSink(TESContainerChangedEventHandler::GetSingleton());
+			_MESSAGE("[MESSAGE] Container changed event handler sinked");
 
-		RE::MenuManager::GetSingleton()->Register("LootMenu", QuickLootRE::LootMenuCreator::Create);
-		_MESSAGE("[MESSAGE] LootMenu registered");
+			RE::MenuManager::GetSingleton()->Register("LootMenu", LootMenuCreator::Create);
+			_MESSAGE("[MESSAGE] LootMenu registered");
 
-		QuickLootRE::ItemData::setCompareOrder();
-		_MESSAGE("[MESSAGE] Settings applied");
-
-		break;
-	}
-	case SKSEMessagingInterface::kMessage_DataLoaded:
-	{
-		RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
-		if (dataHandler->GetLoadedModIndex("SkyUI_SE.esp") != 0xFF) {
-			_MESSAGE("[MESSAGE] SkyUI is loaded");
-		} else {
-			_FATALERROR("[FATAL ERROR] SkyUI is not loaded!\n");
+			ItemData::setCompareOrder();
+			_MESSAGE("[MESSAGE] Settings applied");
 		}
 		break;
-	}
+	case SKSEMessagingInterface::kMessage_DataLoaded:
+		{
+			RE::TESDataHandler* dataHandler = RE::TESDataHandler::GetSingleton();
+			if (dataHandler->GetLoadedModIndex("SkyUI_SE.esp") != 0xFF) {
+				_MESSAGE("[MESSAGE] SkyUI is loaded");
+			} else {
+				_FATALERROR("[FATAL ERROR] SkyUI is not loaded!\n");
+			}
+		}
+		break;
 	}
 }
 
@@ -146,15 +148,15 @@ extern "C" {
 			return false;
 		}
 
-		QuickLootRE::g_task = (SKSETaskInterface*)a_skse->QueryInterface(kInterface_Task);
-		if (QuickLootRE::g_task) {
+		g_task = (SKSETaskInterface*)a_skse->QueryInterface(kInterface_Task);
+		if (g_task) {
 			_MESSAGE("[MESSAGE] Task interface query successful");
 		} else {
 			_FATALERROR("[FATAL ERROR] Task interface query failed!\n");
 			return false;
 		}
 
-		if (QuickLootRE::Settings::loadSettings()) {
+		if (Settings::loadSettings()) {
 			_MESSAGE("[MESSAGE] Settings successfully loaded");
 		} else {
 			_FATALERROR("[FATAL ERROR] Settings failed to load!\n");

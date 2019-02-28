@@ -4,176 +4,173 @@
 #include <string>  // string
 
 #include "RE/BSFixedString.h"  // BSFixedString
+#include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/DeviceTypes.h"  // DeviceType
 #include "RE/IMenu.h"  // IMenu
+#include "RE/InputEvent.h"  // InputEvent
 #include "RE/MenuEventHandler.h"  // MenuEventHandler
 #include "RE/TESObjectREFR.h"  // TESObjectREFR::RemoveType
 
-class UIMessage;
 
-namespace RE
+class ItemData;
+
+
+class LootMenuCreator
 {
-	class ButtonEvent;
-	class InputEvent;
-}
+public:
+	static RE::IMenu* Create();
+
+private:
+	LootMenuCreator();
+};
 
 
-namespace QuickLootRE
+class LootMenu :
+	public RE::IMenu,
+	public RE::MenuEventHandler
 {
-	class ItemData;
+public:
+	using Result = RE::IMenu::Result;
 
 
-	class LootMenuCreator
+	enum class Platform : UInt32
 	{
-	public:
-		static RE::IMenu* Create();
-
-	private:
-		LootMenuCreator();
+		kPC = 0,
+		kOther = 2
 	};
 
 
-	class LootMenu :
-		public RE::IMenu,
-		public RE::MenuEventHandler
+	enum class Scaleform : UInt32
 	{
-	private:
-		friend class LootMenuCreator;
-
-		typedef RE::IMenu::Result Result;
-
-	public:
-		enum class Platform : UInt32
-		{
-			kPC = 0,
-			kOther = 2
-		};
-
-
-		enum class Scaleform : UInt32
-		{
-			kSetKeyMappings,
-			kSetPlatform,
-			kSetSelectedIndex,
-			kSetup,
-			kSetContainer,
-			kOpenContainer,
-			kCloseContainer,
-			kUpdateButtons,
-			kHideButtons,
-			kSwitchStyle
-		};
-
-
-		enum class Message : UInt32
-		{
-			kNoInputLoaded,
-			kHookShareMissing,
-			kHookShareIncompatible,
-			kMissingDependencies,
-			kLootMenuToggled
-		};
-
-
-		enum Style : UInt32
-		{
-			kDefault = 0,
-			kDialogue = 1
-		};
-
-	protected:
-		LootMenu(const char* a_swfPath);
-		virtual ~LootMenu();
-
-	public:
-		static LootMenu*			GetSingleton();
-		static SInt32				GetSelectedIndex();
-		static void					ModSelectedIndex(SInt32 a_indexOffset);
-		static void					SetDisplaySize(SInt32 a_size);
-		static bool					ShouldSkipNextInput();
-		static void					SkipNextInput();
-		static void					NextInputSkipped();
-		static RE::TESObjectREFR*	GetContainerRef();
-		static void					ClearContainerRef();
-		static bool					IsConstructed();
-		static bool					IsOpen();
-		static bool					IsVisible();
-		static bool					InTakeAllMode();
-		static bool					GetEnabled();
-		static void					SetEnabled(bool a_enabled);
-		static void					ToggleEnabled();
-		static Platform				GetPlatform();
-		static RE::BSFixedString	GetName();
-		static const char*			GetActiText();
-		static void					SetActiText(const char* a_actiText);
-		static const char*			GetSingleLootMapping();
-		static void					SetSingleLootMapping(const char* a_singLootMapping);
-		static const char*			GetTakeMapping();
-		static void					SetTakeMapping(const char* a_takeStr);
-		static const char*			GetTakeAllMapping();
-		static void					SetTakeAllMapping(const char* a_takeAllStr);
-		static const char*			GetSearchMapping();
-		static void					SetSearchMapping(const char* a_searchStr);
-
-		static void					Open();
-		static void					Close();
-		static void					SetVisible(bool a_visible);
-		static void					SetContainerRef(RE::TESObjectREFR* a_ref);
-		static bool					CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
-		static void					Register(Scaleform a_reg);
-		static void					QueueMessage(Message a_msg);
-		static Style				GetStyle();
-
-		// IMenu
-		virtual Result				ProcessMessage(UIMessage* a_message) override;
-		virtual void				Render() override;
-
-		// MenuEventHandler
-		virtual bool				CanProcess(RE::InputEvent* a_event) override;
-		virtual bool				ProcessButton(RE::ButtonEvent* a_event) override;
-
-		void						OnMenuOpen();
-		void						OnMenuClose();
-		void						TakeItemStack();
-		void						TakeAllItems();
-
-	private:
-		bool						SingleLootEnabled();
-		void						PlayAnimation(const char* a_fromName, const char* a_toName);
-		void						PlayAnimationOpen();
-		void						PlayAnimationClose();
-		bool						TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound);
-		bool						TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode);
-		void						DispellWornItemEnchantments();
-		UInt32						GetSingleLootKey(RE::DeviceType a_deviceType);
-		static void					ProcessMessageQueue();
-
-
-		static LootMenu*				_singleton;
-		static SInt32					_selectedIndex;
-		static SInt32					_displaySize;
-		static SInt32					_skipInputCount;
-		static RE::TESObjectREFR*		_containerRef;
-		static bool						_isContainerOpen;
-		static bool						_isMenuOpen;
-		static bool						_inTakeAllMode;
-		static bool						_isRegistered;
-		static bool						_isEnabled;
-		static Platform					_platform;
-		static std::string				_actiText;
-		static std::string				_singleLootMapping;
-		static std::string				_takeMapping;
-		static std::string				_takeAllMapping;
-		static std::string				_searchMapping;
-		static std::queue<const char*>	_messageQueue;
+		kSetKeyMappings,
+		kSetPlatform,
+		kSetSelectedIndex,
+		kSetup,
+		kSetContainer,
+		kOpenContainer,
+		kCloseContainer,
+		kUpdateButtons,
+		kHideButtons,
+		kSwitchStyle
 	};
 
 
+	enum class Message : UInt32
+	{
+		kNoInputLoaded,
+		kHookShareMissing,
+		kHookShareIncompatible,
+		kMissingDependencies,
+		kLootMenuToggled
+	};
+
+
+	enum Style : UInt32
+	{
+		kDefault = 0,
+		kDialogue = 1
+	};
+
+
+	// IMenu
+	virtual Result	ProcessMessage(RE::UIMessage* a_message) override;
+	virtual void	Render() override;
+
+	// MenuEventHandler
+	virtual bool	CanProcess(RE::InputEvent* a_event) override;
+	virtual bool	ProcessButton(RE::ButtonEvent* a_event) override;
+
+	static LootMenu*			GetSingleton();
+	static void					Free();
+	static RE::BSFixedString	GetName();
+	static bool					IsConstructed();
+	static const char*			GetSingleLootMapping();
+	static void					SetSingleLootMapping(const char* a_singLootMapping);
+	static const char*			GetTakeMapping();
+	static void					SetTakeMapping(const char* a_takeStr);
+	static const char*			GetTakeAllMapping();
+	static void					SetTakeAllMapping(const char* a_takeAllStr);
+	static const char*			GetSearchMapping();
+	static void					SetSearchMapping(const char* a_searchStr);
+	static void					QueueMessage(Message a_msg);
+
+	SInt32				GetSelectedIndex() const;
+	void				ModSelectedIndex(SInt32 a_indexOffset);
+	void				SetDisplaySize(SInt32 a_size);
+	bool				ShouldSkipNextInput() const;
+	void				SkipNextInput();
+	void				NextInputSkipped();
+	RE::TESObjectREFR*	GetContainerRef() const;
+	void				ClearContainerRef();
+	bool				IsOpen() const;
+	bool				IsVisible() const;
+	bool				CanProcessInventoryChanges() const;
+	bool				GetEnabled() const;
+	void				SetEnabled(bool a_enabled);
+	void				ToggleEnabled();
+	Platform			GetPlatform() const;
+	const char*			GetActiText() const;
+	void				SetActiText(const char* a_actiText);
+	void				Open() const;
+	void				Close() const;
+	void				SetVisible(bool a_visible);
+	void				SetContainerRef(RE::TESObjectREFR* a_ref);
+	bool				CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
+	void				Register(Scaleform a_reg) const;
+	Style				GetStyle() const;
+	void				OnMenuOpen();
+	void				OnMenuClose();
+	void				TakeItemStack();
+	void				TakeAllItems();
+
+private:
+	LootMenu() = delete;
+	LootMenu(const LootMenu&) = delete;
+	LootMenu(LootMenu&&) = delete;
+	explicit LootMenu(const char* a_swfPath);
+	virtual ~LootMenu();
+
+	LootMenu& operator=(const LootMenu&) = delete;
+	LootMenu& operator=(LootMenu&&) = delete;
+
+	static bool	IsEnabled();
+	static void	ProcessMessageQueue();
+
+	bool	SingleLootEnabled() const;
+	void	PlayAnimation(const char* a_fromName, const char* a_toName) const;
+	void	PlayAnimationOpen();
+	void	PlayAnimationClose();
+	bool	TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound);
+	bool	TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode) const;
+	void	DispellWornItemEnchantments() const;
+	UInt32	GetSingleLootKey(RE::DeviceType a_deviceType) const;
+
+
+	static LootMenu*				_singleton;
+	static std::string				_singleLootMapping;
+	static std::string				_takeMapping;
+	static std::string				_takeAllMapping;
+	static std::string				_searchMapping;
+	static std::queue<const char*>	_messageQueue;
+	RE::TESObjectREFR*				_containerRef;
+	std::string						_actiText;
+	Platform						_platform;
+	SInt32							_selectedIndex;
+	SInt32							_displaySize;
+	SInt32							_skipInputCount;
+	bool							_isContainerOpen;
+	bool							_isMenuOpen;
+	bool							_canProcessInvChanges;
+	bool							_isRegistered;
+	bool							_isEnabled;
+};
+
+
+namespace
+{
 	template <typename T>
 	void AllocateAndDispatch()
 	{
-		T* dlgt = (T*)Heap_Allocate(sizeof(T));
-		new (dlgt)T;
-		g_task->AddUITask(dlgt);
+		g_task->AddUITask(new T());
 	}
 }

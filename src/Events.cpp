@@ -22,7 +22,7 @@
 #include "RE/UIStringHolder.h"  // UIStringHolder
 
 
-namespace QuickLootRE
+namespace Events
 {
 	EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, EventDispatcher<SKSECrosshairRefEvent>* a_dispatcher)
 	{
@@ -31,44 +31,72 @@ namespace QuickLootRE
 		}
 
 		// If player is not looking at anything
+		LootMenu* loot = LootMenu::GetSingleton();
 		if (!a_event->crosshairRef) {
-			if (LootMenu::IsOpen()) {
-				LootMenu::Close();
-				LootMenu::ClearContainerRef();
+			if (loot->IsOpen()) {
+				loot->Close();
+				loot->ClearContainerRef();
 			}
 			return kEvent_Continue;
 		}
 
 		// If player went from container -> container
 		RE::TESObjectREFR* ref = reinterpret_cast<RE::TESObjectREFR*>(a_event->crosshairRef);
-		if (LootMenu::IsOpen() && (LootMenu::GetContainerRef() != ref)) {
-			LootMenu::Close();
-			LootMenu::ClearContainerRef();
+		if (loot->IsOpen() && (loot->GetContainerRef() != ref)) {
+			loot->Close();
+			loot->ClearContainerRef();
 		}
 
 		// If player is looking at a container
-		if (LootMenu::CanOpen(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
-			g_invList.parseInventory(LootMenu::GetContainerRef());
-			LootMenu::Open();
+		if (loot->CanOpen(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
+			InventoryList::GetSingleton().parseInventory(loot->GetContainerRef());
+			loot->Open();
 		}
 
 		return kEvent_Continue;
 	}
 
 
+	CrosshairRefEventHandler* CrosshairRefEventHandler::GetSingleton()
+	{
+		if (!_singleton) {
+			_singleton = new CrosshairRefEventHandler();
+		}
+		return _singleton;
+	}
+
+
+	void CrosshairRefEventHandler::Free()
+	{
+		delete _singleton;
+		_singleton = 0;
+	}
+
+
+	CrosshairRefEventHandler::CrosshairRefEventHandler()
+	{}
+
+
+	CrosshairRefEventHandler::~CrosshairRefEventHandler()
+	{}
+
+
+	CrosshairRefEventHandler* CrosshairRefEventHandler::_singleton = 0;
+
+
 	RE::EventResult InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
 	{
 		using RE::EventResult;
-
-		typedef RE::InputEvent::EventType			EventType;
-		typedef RE::DeviceType						DeviceType;
-		typedef RE::BSWin32KeyboardDevice::Keyboard	Keyboard;
+		using EventType = RE::InputEvent::EventType;
+		using DeviceType = RE::DeviceType;
+		using Keyboard = RE::BSWin32KeyboardDevice::Keyboard;
+		using Message = RE::UIMessage::Message;
 
 		if (!a_event || !*a_event) {
 			return EventResult::kContinue;
 		}
 
-		if (LootMenu::IsOpen()) {
+		if (LootMenu::GetSingleton()->IsOpen()) {
 			if ((*a_event)->eventType == EventType::kButton && (*a_event)->deviceType == DeviceType::kKeyboard) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
 
@@ -78,17 +106,17 @@ namespace QuickLootRE
 					RE::UIManager* uiManager = RE::UIManager::GetSingleton();
 
 					if (mm->GetMovieView(uiStrHolder->inventoryMenu)) {
-						uiManager->AddMessage(uiStrHolder->inventoryMenu, UIMessage::kMessage_Close, 0);
+						uiManager->AddMessage(uiStrHolder->inventoryMenu, Message::kClose, 0);
 					} else if (mm->GetMovieView(uiStrHolder->statsMenu) && !mm->GetMovieView(uiStrHolder->levelUpMenu)) {
-						uiManager->AddMessage(uiStrHolder->statsMenu, UIMessage::kMessage_Close, 0);
+						uiManager->AddMessage(uiStrHolder->statsMenu, Message::kClose, 0);
 					} else if (mm->GetMovieView(uiStrHolder->magicMenu)) {
-						uiManager->AddMessage(uiStrHolder->magicMenu, UIMessage::kMessage_Close, 0);
+						uiManager->AddMessage(uiStrHolder->magicMenu, Message::kClose, 0);
 					} else if (mm->GetMovieView(uiStrHolder->mapMenu)) {
-						uiManager->AddMessage(uiStrHolder->mapMenu, UIMessage::kMessage_Close, 0);
+						uiManager->AddMessage(uiStrHolder->mapMenu, Message::kClose, 0);
 					} else if (mm->GetMovieView(uiStrHolder->containerMenu)) {
-						uiManager->AddMessage(uiStrHolder->containerMenu, UIMessage::kMessage_Close, 0);
+						uiManager->AddMessage(uiStrHolder->containerMenu, Message::kClose, 0);
 					} else if (mm->GetMovieView(uiStrHolder->journalMenu)) {
-						uiManager->AddMessage(uiStrHolder->journalMenu, UIMessage::kMessage_Close, 0);
+						uiManager->AddMessage(uiStrHolder->journalMenu, Message::kClose, 0);
 					}
 				}
 			}
@@ -97,12 +125,39 @@ namespace QuickLootRE
 	}
 
 
+	InputEventHandler* InputEventHandler::GetSingleton()
+	{
+		if (!_singleton) {
+			_singleton = new InputEventHandler();
+		}
+		return _singleton;
+	}
+
+
+	void InputEventHandler::Free()
+	{
+		delete _singleton;
+		_singleton = 0;
+	}
+
+
+	InputEventHandler::InputEventHandler()
+	{}
+
+
+	InputEventHandler::~InputEventHandler()
+	{}
+
+
+	InputEventHandler* InputEventHandler::_singleton = 0;
+
+
 	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
 	{
 		using RE::EventResult;
 
 		LootMenu* loot = LootMenu::GetSingleton();
-		if (!a_event || !loot || !LootMenu::IsOpen()) {
+		if (!a_event || !loot || !loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
@@ -116,16 +171,16 @@ namespace QuickLootRE
 				RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
 				if (menuName == strHolder->dialogueMenu || menuName == strHolder->messageBoxMenu) {
-					LootMenu::Close();
+					loot->Close();
 				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) || menu->PausesGame()) {
-					LootMenu::SetVisible(false);
+					loot->SetVisible(false);
 				}
 			}
 		} else {
-			if (!LootMenu::IsVisible() && !mm->GameIsPaused()) {
-				LootMenu::SetVisible(true);
-				g_invList.parseInventory(LootMenu::GetContainerRef());
-				LootMenu::Register(LootMenu::Scaleform::kOpenContainer);
+			if (!loot->IsVisible() && !mm->GameIsPaused()) {
+				loot->SetVisible(true);
+				InventoryList::GetSingleton().parseInventory(loot->GetContainerRef());
+				loot->Register(LootMenu::Scaleform::kOpenContainer);
 			}
 		}
 
@@ -133,19 +188,47 @@ namespace QuickLootRE
 	}
 
 
-	RE::EventResult TESCombatEventHandler::ReceiveEvent(TESCombatEvent* a_event, RE::BSTEventSource<TESCombatEvent>* a_eventSource)
+	MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::GetSingleton()
+	{
+		if (!_singleton) {
+			_singleton = new MenuOpenCloseEventHandler();
+		}
+		return _singleton;
+	}
+
+
+	void MenuOpenCloseEventHandler::Free()
+	{
+		delete _singleton;
+		_singleton = 0;
+	}
+
+
+	MenuOpenCloseEventHandler::MenuOpenCloseEventHandler()
+	{}
+
+
+	MenuOpenCloseEventHandler::~MenuOpenCloseEventHandler()
+	{}
+
+
+	MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::_singleton = 0;
+
+
+	RE::EventResult TESCombatEventHandler::ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
 	{
 		using RE::EventResult;
 
-		if (!a_event || !LootMenu::IsOpen()) {
+		LootMenu* loot = LootMenu::GetSingleton();
+		if (!a_event || !loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		if ((a_event->source && a_event->source->formID == player->formID) || (a_event->target && a_event->target->formID == player->formID)) {
-			if (IsValidPickPocketTarget(LootMenu::GetContainerRef(), player->IsSneaking()) || Settings::disableInCombat) {
-				LootMenu::Close();
-				LootMenu::SkipNextInput();
+		if ((a_event->source && a_event->source->IsPlayerRef()) || (a_event->target && a_event->target->IsPlayerRef())) {
+			if (Settings::disableInCombat || IsValidPickPocketTarget(loot->GetContainerRef(), player->IsSneaking())) {
+				loot->Close();
+				loot->SkipNextInput();
 			}
 		}
 
@@ -153,20 +236,48 @@ namespace QuickLootRE
 	}
 
 
-	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(TESContainerChangedEvent* a_event, RE::BSTEventSource<TESContainerChangedEvent>* a_eventSource)
+	TESCombatEventHandler* TESCombatEventHandler::GetSingleton()
+	{
+		if (!_singleton) {
+			_singleton = new TESCombatEventHandler();
+		}
+		return _singleton;
+	}
+
+
+	void TESCombatEventHandler::Free()
+	{
+		delete _singleton;
+		_singleton = 0;
+	}
+
+
+	TESCombatEventHandler::TESCombatEventHandler()
+	{}
+
+
+	TESCombatEventHandler::~TESCombatEventHandler()
+	{}
+
+
+	TESCombatEventHandler* TESCombatEventHandler::_singleton = 0;
+
+
+	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
 	{
 		using RE::EventResult;
 
-		if (!a_event || !LootMenu::IsVisible() || LootMenu::InTakeAllMode()) {
+		LootMenu* loot = LootMenu::GetSingleton();
+		if (!a_event || !loot->IsVisible() || loot->CanProcessInventoryChanges()) {
 			return EventResult::kContinue;
 		}
 
-		RE::TESObjectREFR* ref = LootMenu::GetContainerRef();
+		RE::TESObjectREFR* ref = loot->GetContainerRef();
 		if (!ref) {
 			return EventResult::kContinue;
 		}
 
-		if (a_event->fromFormId == ref->formID || a_event->toFormId == ref->formID) {
+		if (a_event->fromFormID == ref->formID || a_event->toFormID == ref->formID) {
 			DelayedUpdater::Register();  // This event is fired before the item is removed, so we have to wait a bit
 		}
 
@@ -174,9 +285,29 @@ namespace QuickLootRE
 	}
 
 
-	CrosshairRefEventHandler g_crosshairRefEventHandler;
-	InputEventHandler g_inputEventHandler;
-	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
-	TESCombatEventHandler g_combatEventHandler;
-	TESContainerChangedEventHandler g_containerChangedEventHandler;
+	TESContainerChangedEventHandler* TESContainerChangedEventHandler::GetSingleton()
+	{
+		if (!_singleton) {
+			_singleton = new TESContainerChangedEventHandler();
+		}
+		return _singleton;
+	}
+
+
+	void TESContainerChangedEventHandler::Free()
+	{
+		delete _singleton;
+		_singleton = 0;
+	}
+
+
+	TESContainerChangedEventHandler::TESContainerChangedEventHandler()
+	{}
+
+
+	TESContainerChangedEventHandler::~TESContainerChangedEventHandler()
+	{}
+
+
+	TESContainerChangedEventHandler* TESContainerChangedEventHandler::_singleton = 0;
 }

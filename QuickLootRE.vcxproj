@@ -61,7 +61,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ForcedIncludeFiles>common/IPrefix.h;Util.h;Logging.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>common/IPrefix.h;ForceInclude.h;Logging.h</ForcedIncludeFiles>
       <ExceptionHandling>Sync</ExceptionHandling>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -71,6 +71,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <UseFullPaths>false</UseFullPaths>
+      <UndefinePreprocessorDefinitions>min;max;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
@@ -106,7 +107,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ForcedIncludeFiles>common/IPrefix.h;Util.h;Logging.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>common/IPrefix.h;ForceInclude.h;Logging.h</ForcedIncludeFiles>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <OmitFramePointers>
       </OmitFramePointers>
@@ -116,6 +117,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <UseFullPaths>false</UseFullPaths>
+      <UndefinePreprocessorDefinitions>min;max;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
@@ -164,6 +166,7 @@
     <ClCompile Include="src\LootMenu.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Events.cpp" />
+    <ClCompile Include="src\ManagedEntryData.cpp" />
     <ClCompile Include="src\SetActivateLabelPerkEntryVisitor.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\Utility.cpp" />
@@ -172,12 +175,12 @@
     <ClInclude Include="include\ActivatePerkEntryVisitor.h" />
     <ClInclude Include="include\Delegates.h" />
     <ClInclude Include="include\Events.h" />
-    <ClInclude Include="include\Exceptions.h" />
     <ClInclude Include="include\Hooks.h" />
     <ClInclude Include="include\InventoryList.h" />
     <ClInclude Include="include\ItemData.h" />
     <ClInclude Include="include\Forms.h" />
     <ClInclude Include="include\LootMenu.h" />
+    <ClInclude Include="include\ManagedEntryData.h" />
     <ClInclude Include="include\SetActivateLabelPerkEntryVisitor.h" />
     <ClInclude Include="include\Settings.h" />
     <ClInclude Include="include\Utility.h" />

@@ -1,32 +1,28 @@
 #pragma once
 
+#include "RE/BGSPerkEntry.h"  // BGSPerkEntry
 #include "RE/PerkEntryVisitor.h"  // PerkEntryVisitor
+#include "RE/TESObjectREFR.h"  // TESObjectREFR
 
-namespace RE
+
+class ActivatePerkEntryVisitor : public RE::PerkEntryVisitor
 {
-	class BGSPerkEntry;
-	class TESObjectREFR;
-}
+public:
+	constexpr ActivatePerkEntryVisitor(RE::TESObjectREFR* a_perkOwner, RE::TESObjectREFR* a_target) :
+		_args{ a_perkOwner, a_target },
+		_result(false)
+	{}
 
+	virtual ReturnType	Visit(RE::BGSPerkEntry* a_perkEntry) override;
+	bool				GetResult() const;
 
-namespace QuickLootRE
-{
-	class ActivatePerkEntryVisitor : public RE::PerkEntryVisitor
+private:
+	enum
 	{
-		typedef PerkEntryVisitor::ReturnType ReturnType;
-	public:
-		constexpr ActivatePerkEntryVisitor(RE::TESObjectREFR* a_perkOwner, RE::TESObjectREFR* a_target) :
-			_perkOwner(a_perkOwner),
-			_target(a_target),
-			_result(false)
-		{}
-
-		virtual ReturnType	Visit(RE::BGSPerkEntry* a_perkEntry) override;
-		bool				GetResult() const;
-
-	private:
-		RE::TESObjectREFR*	_perkOwner;
-		RE::TESObjectREFR*	_target;
-		bool				_result;
+		kNumArgs = 2
 	};
-}
+
+
+	void*	_args[kNumArgs];
+	bool	_result;
+};

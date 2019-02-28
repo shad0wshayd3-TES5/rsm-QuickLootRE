@@ -5,26 +5,22 @@
 #include "RE/BGSEntryPointFunctionDataText.h"  // BGSEntryPointFunctionDataText
 #include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
 #include "RE/BGSPerkEntry.h"  // BGSPerkEntry
-#include "RE/Condition.h"  // Condition
 
 
-namespace QuickLootRE
+SetActivateLabelPerkEntryVisitor::ReturnType SetActivateLabelPerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
 {
-	SetActivateLabelPerkEntryVisitor::ReturnType SetActivateLabelPerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
-	{
-		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
+	using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
 
-		RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
-		if (entryPoint && entryPoint->HasType(EntryPointType::kSet_Activate_Label)) {
-			if (entryPoint->conditions && entryPoint->conditions->Run(_perkOwner, _target)) {
-				RE::BGSEntryPointFunctionDataText* fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
-				if (fnDataText && a_perkEntry->priority > _priority) {
-					LootMenu::SetActiText(fnDataText->text.c_str());
-					_priority = a_perkEntry->priority;
-				}
+	RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
+	if (entryPoint && entryPoint->IsType(EntryPointType::kSetActivateLabel)) {
+		if (entryPoint->EvaluateConditions(kNumArgs, _args)) {
+			RE::BGSEntryPointFunctionDataText* fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
+			if (fnDataText && a_perkEntry->priority > _priority) {
+				LootMenu::GetSingleton()->SetActiText(fnDataText->text.c_str());
+				_priority = a_perkEntry->priority;
 			}
 		}
-
-		return ReturnType::kContinue;
 	}
+
+	return ReturnType::kContinue;
 }

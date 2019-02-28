@@ -6,31 +6,28 @@
 #include "RE/Condition.h"  // Condition
 
 
-namespace QuickLootRE
+ActivatePerkEntryVisitor::ReturnType ActivatePerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
 {
-	ActivatePerkEntryVisitor::ReturnType ActivatePerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
-	{
-		typedef RE::BGSEntryPointPerkEntry::EntryPointType EntryPointType;
+	using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
 
-		RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
-		if (entryPoint && entryPoint->HasType(EntryPointType::kActivate)) {
-			if (entryPoint->conditions && entryPoint->conditions->Run(_perkOwner, _target)) {
-				if (entryPoint->functionData) {
-					RE::BGSEntryPointFunctionDataActivateChoice* fnDataActivateChoice = static_cast<RE::BGSEntryPointFunctionDataActivateChoice*>(entryPoint->functionData);
-					if (fnDataActivateChoice->ReplacesDefault() && fnDataActivateChoice->RunsImmediately()) {
-						_result = true;
-						return ReturnType::kBreak;
-					}
+	RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
+	if (entryPoint && entryPoint->IsType(EntryPointType::kActivate)) {
+		if (entryPoint->EvaluateConditions(kNumArgs, _args)) {
+			if (entryPoint->functionData) {
+				RE::BGSEntryPointFunctionDataActivateChoice* fnDataActivateChoice = static_cast<RE::BGSEntryPointFunctionDataActivateChoice*>(entryPoint->functionData);
+				if (fnDataActivateChoice->ReplacesDefault() && fnDataActivateChoice->RunsImmediately()) {
+					_result = true;
+					return ReturnType::kBreak;
 				}
 			}
 		}
-
-		return ReturnType::kContinue;
 	}
 
+	return ReturnType::kContinue;
+}
 
-	bool ActivatePerkEntryVisitor::GetResult() const
-	{
-		return _result;
-	}
+
+bool ActivatePerkEntryVisitor::GetResult() const
+{
+	return _result;
 }
