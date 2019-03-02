@@ -112,19 +112,6 @@ public:
 };
 
 
-class GFxValueDeallocTaskDelegate : public TaskDelegate
-{
-public:
-	virtual void Run() override;
-	virtual void Dispose() override;
-
-	TES_HEAP_REDEFINE_NEW();
-
-
-	std::vector<RE::GFxValue*> heapAllocVals;
-};
-
-
 class DelayedUpdater : public TaskDelegate
 {
 public:

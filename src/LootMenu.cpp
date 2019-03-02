@@ -32,6 +32,7 @@
 #include "RE/InputManager.h"  // InputManager
 #include "RE/InputMappingManager.h"  // InputMappingManager
 #include "RE/InputStringHolder.h"  // InputStringHolder
+#include "RE/InventoryChanges.h"  // InventoryChanges
 #include "RE/InventoryEntryData.h"  // InventoryEntryData
 #include "RE/ItemsPickpocketed.h"  // ItemsPickpocketed
 #include "RE/MenuControls.h"  // MenuControls
@@ -46,12 +47,6 @@
 #include "RE/UIManager.h"  // UIManager
 #include "RE/UIMessage.h"  // UIMessage
 #include "RE/UIStringHolder.h"  // UIStringHolder
-
-
-RE::IMenu* LootMenuCreator::Create()
-{
-	return LootMenu::GetSingleton();
-}
 
 
 RE::IMenu::Result LootMenu::ProcessMessage(RE::UIMessage* a_message)
@@ -110,13 +105,13 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 		switch (a_event->deviceType) {
 		case DeviceType::kGamepad:
 			{
-				Gamepad keyMask = Gamepad(button->keyMask);
+				Gamepad keyMask = static_cast<Gamepad>(button->keyMask);
 				return (keyMask == Gamepad::kUp || keyMask == Gamepad::kDown);
 			}
 			break;
 		case DeviceType::kMouse:
 			{
-				Mouse keyMask = Mouse(button->keyMask);
+				Mouse keyMask = static_cast<Mouse>(button->keyMask);
 				return (keyMask == Mouse::kWheelDown || keyMask == Mouse::kWheelUp);
 			}
 			break;
@@ -458,47 +453,51 @@ void LootMenu::SetContainerRef(RE::TESObjectREFR* a_ref)
 }
 
 
-bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
+RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking) const
 {
 	using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
 
 	static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
 	if (!LootMenu::GetEnabled()) {
-		return false;
+		return 0;
 	}
 
 	if (!a_ref || !a_ref->baseForm) {
-		return false;
+		return 0;
 	}
 
 	RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 	RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 	if (mm->GameIsPaused() || mm->CrosshairIsPaused() || mm->GetMenu(strHolder->dialogueMenu)) {
-		return false;
+		return 0;
 	}
 
 	RE::InputMappingManager* mappingManager = RE::InputMappingManager::GetSingleton();
 	if (!mappingManager->IsMovementControlsEnabled()) {
-		return false;
+		return 0;
 	}
 
 	RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 	if (player->GetGrabbedRef() || player->GetActorInFavorState() || player->IsInKillMove()) {
-		return false;
+		return 0;
 	}
 
 	bool bAnimationDriven;
 	if (player->GetAnimationVariableBool(strAnimationDriven, bAnimationDriven) && bAnimationDriven) {
-		return false;
+		return 0;
 	}
 
 	if (Settings::disableInCombat && player->IsInCombat()) {
-		return false;
+		return 0;
 	}
 
 	if (Settings::disableTheft && a_ref->IsOffLimits()) {
-		return false;
+		return 0;
+	}
+
+	if (a_ref->IsActivationBlocked()) {
+		return 0;
 	}
 
 	RE::TESObjectREFR* containerRef = 0;
@@ -522,7 +521,7 @@ bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	case RE::FormType::NPC:
 		RE::Actor* target = static_cast<RE::Actor*>(a_ref);
 		if (Settings::disableForAnimals && target->GetRace()->HasKeyword(ActorTypeAnimal)) {
-			return false;
+			return 0;
 		} else if (a_ref->IsDead(true) && !target->IsSummoned()) {
 			containerRef = a_ref;
 		} else if (!Settings::disablePickPocketing && IsValidPickPocketTarget(a_ref, a_isSneaking)) {
@@ -534,26 +533,24 @@ bool LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking)
 	}
 
 	if (!containerRef) {
-		return false;
+		return 0;
 	}
 
-	UInt32 numItems = containerRef->GetNumItems(false, false);
+	UInt32 numItems = containerRef->GetNumItems();
 
-	if (Settings::disableIfEmpty && numItems <= 0) {
-		return false;
+	if (Settings::disableIfEmpty && numItems <= 0 && !containerRef->extraData.GetByType(RE::ExtraDataType::kDroppedItemList)) {
+		return 0;
 	}
 
 	if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPointType::kActivate)) {
 		ActivatePerkEntryVisitor visitor(player, containerRef);
 		player->VisitEntryPointPerkEntries(EntryPointType::kActivate, visitor);
 		if (visitor.GetResult()) {
-			return false;
+			return 0;
 		}
 	}
 
-	_containerRef = containerRef;
-
-	return true;
+	return containerRef;
 }
 
 
@@ -666,7 +663,7 @@ void LootMenu::TakeItemStack()
 		return;
 	}
 
-	ItemData itemCopy(InventoryList::GetSingleton()[_selectedIndex]);
+	ItemData itemCopy(_invList[_selectedIndex]);
 
 	SInt32 numItems = itemCopy.count();
 	if (numItems > 1 && SingleLootEnabled()) {
@@ -694,15 +691,14 @@ void LootMenu::TakeAllItems()
 
 	_canProcessInvChanges = true;
 
-	InventoryList& invList = InventoryList::GetSingleton();
 	UInt32 playSound = 5;
-	for (auto& item : invList) {
+	for (auto& item : _invList) {
 		TakeItem(item, item.count(), false, playSound);
 		if (playSound) {
 			--playSound;
 		}
 	}
-	invList.clear();
+	_invList.clear();
 	SkipNextInput();
 	_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Trigger traps
 	RE::ChestsLooted::SendEvent();
@@ -711,8 +707,21 @@ void LootMenu::TakeAllItems()
 }
 
 
+InventoryList& LootMenu::GetInventoryList()
+{
+	return _invList;
+}
+
+
+void LootMenu::ParseInventory()
+{
+	_invList.parseInventory(_containerRef);
+}
+
+
 LootMenu::LootMenu(const char* a_swfPath) :
 	_containerRef(0),
+	_invList(),
 	_actiText(""),
 	_platform(Platform::kPC),
 	_selectedIndex(0),
@@ -824,7 +833,7 @@ void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName) const
 		return;
 	}
 
-	_containerRef->PlayAnimation(manager, toSeq, fromSeq, false);
+	_containerRef->PlayAnimation(manager, toSeq, fromSeq);
 }
 
 

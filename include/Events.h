@@ -1,6 +1,7 @@
 #pragma once
 
 #include "skse64/GameEvents.h"  // EventResult, EventDispatcher
+#include "skse64/gamethreads.h"  // TaskDelegate
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
 
 #include "RE/BSTEvent.h"  // BSTEventSink, EventResult, BSTEventSource

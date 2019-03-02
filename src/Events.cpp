@@ -42,14 +42,16 @@ namespace Events
 
 		// If player went from container -> container
 		RE::TESObjectREFR* ref = reinterpret_cast<RE::TESObjectREFR*>(a_event->crosshairRef);
-		if (loot->IsOpen() && (loot->GetContainerRef() != ref)) {
+		if (loot->IsOpen() && loot->GetContainerRef() != ref) {
 			loot->Close();
 			loot->ClearContainerRef();
 		}
 
 		// If player is looking at a container
-		if (loot->CanOpen(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
-			InventoryList::GetSingleton().parseInventory(loot->GetContainerRef());
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		if (ref = loot->CanOpen(ref, player->IsSneaking())) {
+			loot->SetContainerRef(ref);
+			loot->ParseInventory();
 			loot->Open();
 		}
 
@@ -179,7 +181,7 @@ namespace Events
 		} else {
 			if (!loot->IsVisible() && !mm->GameIsPaused()) {
 				loot->SetVisible(true);
-				InventoryList::GetSingleton().parseInventory(loot->GetContainerRef());
+				loot->ParseInventory();
 				loot->Register(LootMenu::Scaleform::kOpenContainer);
 			}
 		}

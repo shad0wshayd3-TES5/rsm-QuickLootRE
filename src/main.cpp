@@ -5,7 +5,7 @@
 #include <ShlObj.h>  // CSIDL_MYDOCUMENTS
 
 #include "Delegates.h"  // g_task
-#include "Events.h"  // CrosshairRefEventHandler, InputEventHandler, MenuOpenCloseEventHandler, TESCombatEventHandler, TESContainerChangedEventHandler
+#include "Events.h"  // CrosshairRefEventHandler, InputEventHandler, MenuOpenCloseEventHandler, TESCombatEventHandler, TESContainerChangedEventHandler, TESMagicEffectApplyEventHandler
 #include "Hooks.h"  // InstallHooks
 #include "ItemData.h"  // SetCompareOrder
 #include "LootMenu.h"  // LootMenuCreator
@@ -45,12 +45,6 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 
 void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 {
-	using Events::CrosshairRefEventHandler;
-	using Events::InputEventHandler;
-	using Events::MenuOpenCloseEventHandler;
-	using Events::TESCombatEventHandler;
-	using Events::TESContainerChangedEventHandler;
-
 	switch (a_msg->type) {
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
 		if (g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady)) {
@@ -63,23 +57,26 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 	case SKSEMessagingInterface::kMessage_InputLoaded:
 		{
 			EventDispatcher<SKSECrosshairRefEvent>* crosshairRefDispatcher = (EventDispatcher<SKSECrosshairRefEvent>*)g_messaging->GetEventDispatcher(SKSEMessagingInterface::kDispatcher_CrosshairEvent);
-			crosshairRefDispatcher->AddEventSink(CrosshairRefEventHandler::GetSingleton());
+			crosshairRefDispatcher->AddEventSink(Events::CrosshairRefEventHandler::GetSingleton());
 			_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
 
-			RE::InputManager::GetSingleton()->AddEventSink(InputEventHandler::GetSingleton());
+			RE::InputManager::GetSingleton()->AddEventSink(Events::InputEventHandler::GetSingleton());
 			_MESSAGE("[MESSAGE] Input event handler sinked");
 
-			RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(MenuOpenCloseEventHandler::GetSingleton());
+			RE::MenuManager::GetSingleton()->GetMenuOpenCloseEventSource()->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
 			_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 
 			RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-			sourceHolder->combatEventSource.AddEventSink(TESCombatEventHandler::GetSingleton());
+			sourceHolder->combatEventSource.AddEventSink(Events::TESCombatEventHandler::GetSingleton());
 			_MESSAGE("[MESSAGE] Combat event handler sinked");
 
-			sourceHolder->containerChangedEventSource.AddEventSink(TESContainerChangedEventHandler::GetSingleton());
+			sourceHolder->containerChangedEventSource.AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
 			_MESSAGE("[MESSAGE] Container changed event handler sinked");
 
-			RE::MenuManager::GetSingleton()->Register("LootMenu", LootMenuCreator::Create);
+			RE::MenuManager::GetSingleton()->Register("LootMenu", []() -> RE::IMenu*
+			{
+				return LootMenu::GetSingleton();
+			});
 			_MESSAGE("[MESSAGE] LootMenu registered");
 
 			ItemData::setCompareOrder();
@@ -94,6 +91,8 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 			} else {
 				_FATALERROR("[FATAL ERROR] SkyUI is not loaded!\n");
 			}
+
+			LootMenu::GetSingleton();
 		}
 		break;
 	}

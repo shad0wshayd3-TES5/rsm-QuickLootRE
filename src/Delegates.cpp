@@ -179,7 +179,7 @@ void OpenContainerUIDelegate::Run()
 
 	RE::GFxValue args[1];
 	loot->view->CreateArray(&args[0]);
-	InventoryList& invList = InventoryList::GetSingleton();
+	InventoryList& invList = loot->GetInventoryList();
 	SInt32 size = (invList.size() < Settings::itemLimit) ? invList.size() : Settings::itemLimit;
 
 	std::unique_ptr<RE::GFxValue[]> item(new RE::GFxValue[size]);
@@ -250,7 +250,8 @@ void OpenContainerUIDelegate::DebugContents()
 	UInt32 i = 0;
 	bool div = false;
 	_DMESSAGE("");
-	for (auto& item : InventoryList::GetSingleton()) {
+	InventoryList& invList = LootMenu::GetSingleton()->GetInventoryList();
+	for (auto& item : invList) {
 		if (!div && !item.canPickPocket()) {
 			_DMESSAGE("========== HIDDEN ITEMS ==========");
 			div = true;
@@ -326,28 +327,12 @@ void SwitchStyleTaskDelegate::Dispose()
 }
 
 
-void GFxValueDeallocTaskDelegate::Run()
-{
-	for (auto& val : heapAllocVals) {
-		delete val;
-		val = 0;
-	}
-}
-
-
-void GFxValueDeallocTaskDelegate::Dispose()
-{
-	delete this;
-}
-
-
 void DelayedUpdater::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (loot->IsVisible()) {
-		RE::TESObjectREFR* containerRef = loot->GetContainerRef();
-		if (containerRef) {
-			InventoryList::GetSingleton().parseInventory(containerRef);
+		if (loot->GetContainerRef()) {
+			loot->ParseInventory();
 			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
 	}

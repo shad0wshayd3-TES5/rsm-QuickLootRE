@@ -15,6 +15,10 @@
 class InventoryList
 {
 public:
+	InventoryList();
+	~InventoryList();
+
+
 	struct EntryDataCountPair
 	{
 		EntryDataCountPair(ManagedEntryDataPtr a_entryData, SInt32 a_count);
@@ -30,8 +34,6 @@ public:
 	using ItemList = std::vector<ItemData>;
 
 
-	static InventoryList&	GetSingleton();
-
 	void				parseInventory(RE::TESObjectREFR* a_refr);
 	ItemData&			operator[](UInt32 a_pos);
 	ItemList::iterator	begin() noexcept;
@@ -42,9 +44,6 @@ public:
 	ItemList::iterator	erase(ItemList::iterator a_pos);
 
 private:
-	InventoryList();
-	~InventoryList();
-
 	void	add(ManagedEntryDataPtr& a_entryData);
 	void	add(ManagedEntryDataPtr& a_entryData, SInt32 a_count);
 	void	parseInventoryChanges(RE::TESObjectREFR* a_refr);
@@ -52,7 +51,6 @@ private:
 	bool	isValidItem(RE::TESForm* a_item);
 
 
-	static InventoryList	_singleton;
 	DefaultMap				_defaultMap;
 	std::vector<ItemData>	_itemList;
 

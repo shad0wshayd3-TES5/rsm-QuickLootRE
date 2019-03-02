@@ -34,10 +34,12 @@ InventoryList::EntryDataCountPair::EntryDataCountPair(ManagedEntryDataPtr a_entr
 {}
 
 
-InventoryList& InventoryList::GetSingleton()
-{
-	return _singleton;
-}
+InventoryList::InventoryList()
+{}
+
+
+InventoryList::~InventoryList()
+{}
 
 
 void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
@@ -109,16 +111,6 @@ void InventoryList::clear() noexcept
 std::vector<ItemData>::iterator InventoryList::erase(std::vector<ItemData>::iterator a_pos)
 {
 	return _itemList.erase(a_pos);
-}
-
-
-InventoryList::InventoryList()
-{}
-
-
-InventoryList::~InventoryList()
-{
-	clear();
 }
 
 
@@ -258,6 +250,3 @@ bool InventoryList::TESContainerVisitor::Accept(RE::TESContainer::Entry* a_entry
 	}
 	return true;
 }
-
-
-InventoryList InventoryList::_singleton;

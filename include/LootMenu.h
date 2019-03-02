@@ -3,6 +3,8 @@
 #include <queue>  // queue
 #include <string>  // string
 
+#include "InventoryList.h"  // InventoryList
+
 #include "RE/BSFixedString.h"  // BSFixedString
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/DeviceTypes.h"  // DeviceType
@@ -15,22 +17,14 @@
 class ItemData;
 
 
-class LootMenuCreator
-{
-public:
-	static RE::IMenu* Create();
-
-private:
-	LootMenuCreator();
-};
-
-
 class LootMenu :
 	public RE::IMenu,
 	public RE::MenuEventHandler
 {
 public:
 	using Result = RE::IMenu::Result;
+	using GRefCountBaseStatImpl::operator new;
+	using GRefCountBaseStatImpl::operator delete;
 
 
 	enum class Platform : UInt32
@@ -115,15 +109,17 @@ public:
 	void				Close() const;
 	void				SetVisible(bool a_visible);
 	void				SetContainerRef(RE::TESObjectREFR* a_ref);
-	bool				CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking);
+	RE::TESObjectREFR*	CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking) const;
 	void				Register(Scaleform a_reg) const;
 	Style				GetStyle() const;
 	void				OnMenuOpen();
 	void				OnMenuClose();
 	void				TakeItemStack();
 	void				TakeAllItems();
+	InventoryList&		GetInventoryList();
+	void				ParseInventory();
 
-private:
+protected:
 	LootMenu() = delete;
 	LootMenu(const LootMenu&) = delete;
 	LootMenu(LootMenu&&) = delete;
@@ -153,6 +149,7 @@ private:
 	static std::string				_searchMapping;
 	static std::queue<const char*>	_messageQueue;
 	RE::TESObjectREFR*				_containerRef;
+	InventoryList					_invList;
 	std::string						_actiText;
 	Platform						_platform;
 	SInt32							_selectedIndex;

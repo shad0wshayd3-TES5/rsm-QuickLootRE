@@ -1,10 +1,12 @@
 #include "Hooks.h"
 
-#include "skse64_common/SafeWrite.h"  // SafeWrite64
-#include "skse64/GameTypes.h"  // BSString
+#include "skse64_common/BranchTrampoline.h"  // g_localTrampoline, g_branchTrampoline
+#include "skse64_common/SafeWrite.h"  // SafeWrite
+#include "xbyak/xbyak.h"  // xbyak
 
-#include <string>  // string
+#include <cassert>  // assert
 #include <sstream>  // stringstream
+#include <string>  // string
 #include <typeinfo>  // typeid
 #include <vector>  // vector
 
@@ -15,9 +17,11 @@
 #include "HookShare.h"  // ReturnType, _RegisterForCanProcess_t
 
 #include "RE/BSFixedString.h"  // BSFixedString
+#include "RE/BSString.h"  // BSString
 #include "RE/ButtonEvent.h"  // ButtonEvent
 #include "RE/CommandTable.h"  // CommandInfo
 #include "RE/ConsoleManager.h"  // ConsoleManager
+#include "RE/ExtraFlags.h"  // ExtraFlags
 #include "RE/InputEvent.h"  // InputEvent
 #include "RE/InputManager.h"  // InputManager
 #include "RE/InputStringHolder.h"  // InputStringHolder
@@ -230,11 +234,11 @@ namespace Hooks
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
 	public:
-		using _GetCrosshairText_t = bool(RE::TESBoundAnimObject* a_this, RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk);
+		using _GetCrosshairText_t = bool(RE::TESBoundAnimObject* a_this, RE::TESObjectREFR* a_ref, RE::BSString* a_dst, bool a_unk);
 		static _GetCrosshairText_t* orig_GetCrosshairText;
 
 
-		bool hook_GetCrosshairText(RE::TESObjectREFR* a_ref, BSString* a_dst, bool a_unk)
+		bool Hook_GetCrosshairText(RE::TESObjectREFR* a_ref, RE::BSString* a_dst, bool a_unk)
 		{
 			using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
 
@@ -243,7 +247,7 @@ namespace Hooks
 			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 			LootMenu* loot = LootMenu::GetSingleton();
 			if (loot->CanOpen(a_ref, player->IsSneaking())) {
-				std::stringstream ss(a_dst->Get());
+				std::stringstream ss(a_dst->c_str());
 				std::string dispText;
 				if (std::getline(ss, dispText, '\n')) {
 					if (!dispText.empty()) {
@@ -276,7 +280,7 @@ namespace Hooks
 		{
 			RelocPtr<_GetCrosshairText_t*> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
-			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&hook_GetCrosshairText));
+			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&Hook_GetCrosshairText));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
 		}
 	};
@@ -286,6 +290,37 @@ namespace Hooks
 	using TESObjectACTIEx = TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL + (0x4C * 0x8)>;
 	using TESObjectCONTEx = TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL + (0x4C * 0x8)>;
 	using TESNPCEx = TESBoundAnimObjectEx<RE::TES_NPC_VTBL + (0x4C * 0x8)>;
+
+
+	class TESObjectREFREx : public RE::TESObjectREFR
+	{
+	public:
+		void Hook_BlockActivation(RE::ExtraFlags::Flag a_flags, bool a_blocked)
+		{
+			BlockActivation();
+
+			LootMenu* loot = LootMenu::GetSingleton();
+			if (loot->IsVisible() && this == loot->GetContainerRef()) {
+				loot->Close();
+				loot->ClearContainerRef();
+			}
+		}
+
+
+		static void InstallHook()
+		{
+			// 48 89 5C 24 08 57 48 83  EC 20 49 8B 00 BA 00 00
+			constexpr std::uintptr_t BASE_ADDR = 0x00993790;	// 1_5_62
+			constexpr std::uintptr_t LEA_HOOK = 0x1F;
+			constexpr std::uintptr_t JMP_HOOK = 0x36;
+			RelocAddr<std::uintptr_t> funcBase(BASE_ADDR);
+
+			SafeWrite8(funcBase.GetUIntPtr() + LEA_HOOK + 3, 0x00);
+
+			g_branchTrampoline.Write5Branch(funcBase.GetUIntPtr() + JMP_HOOK, GetFnAddr(&Hook_BlockActivation));
+			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESObjectREFREx).name());
+		}
+	};
 
 
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
@@ -522,6 +557,7 @@ namespace Hooks
 		}
 
 		MenuOpenHandlerEx::InstallHook();
+		TESObjectREFREx::InstallHook();
 
 		RegisterConsoleCommands();
 	}
