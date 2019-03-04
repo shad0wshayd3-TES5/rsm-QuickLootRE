@@ -4,6 +4,7 @@
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/NiRTTI.h"  // ni_cast
 
+#include <cstdlib>  // abort
 #include <queue>  // queue
 #include <string>  // string
 
@@ -455,7 +456,7 @@ void LootMenu::SetContainerRef(RE::TESObjectREFR* a_ref)
 
 RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking) const
 {
-	using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
+	using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
 	static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
@@ -542,9 +543,9 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 		return 0;
 	}
 
-	if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPointType::kActivate)) {
+	if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPoint::kActivate)) {
 		ActivatePerkEntryVisitor visitor(player, containerRef);
-		player->VisitEntryPointPerkEntries(EntryPointType::kActivate, visitor);
+		player->VisitEntryPointPerkEntries(EntryPoint::kActivate, visitor);
 		if (visitor.GetResult()) {
 			return 0;
 		}
@@ -741,6 +742,11 @@ LootMenu::LootMenu(const char* a_swfPath) :
 	if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kShowAll, 0.0)) {
 		flags = Flag::kDoNotDeleteOnClose | Flag::kDoNotPreventGameSave;
 		context = Context::kInventory;
+	}
+
+	if (!view) {
+		_FATALERROR("[FATAL ERROR] Lootmenu did not have a view, likely due to missing dependencies! Aborting process!\n");
+		std::abort();
 	}
 
 	SetVisible(false);

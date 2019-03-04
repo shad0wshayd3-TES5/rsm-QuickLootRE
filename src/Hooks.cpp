@@ -240,7 +240,7 @@ namespace Hooks
 
 		bool Hook_GetCrosshairText(RE::TESObjectREFR* a_ref, RE::BSString* a_dst, bool a_unk)
 		{
-			using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
+			using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
 			bool result = orig_GetCrosshairText(this, a_ref, a_dst, a_unk);
 
@@ -264,9 +264,9 @@ namespace Hooks
 					}
 				}
 
-				if (player->CanProcessEntryPointPerkEntry(EntryPointType::kSetActivateLabel)) {
+				if (player->CanProcessEntryPointPerkEntry(EntryPoint::kSetActivateLabel)) {
 					SetActivateLabelPerkEntryVisitor visitor(player, a_ref);
-					player->VisitEntryPointPerkEntries(EntryPointType::kSetActivateLabel, visitor);
+					player->VisitEntryPointPerkEntries(EntryPoint::kSetActivateLabel, visitor);
 				}
 
 				return false;
@@ -297,7 +297,7 @@ namespace Hooks
 	public:
 		void Hook_BlockActivation(RE::ExtraFlags::Flag a_flags, bool a_blocked)
 		{
-			BlockActivation();
+			SetActivationBlocked(a_blocked);
 
 			LootMenu* loot = LootMenu::GetSingleton();
 			if (loot->IsVisible() && this == loot->GetContainerRef()) {

@@ -8,10 +8,10 @@
 
 ActivatePerkEntryVisitor::ReturnType ActivatePerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
 {
-	using EntryPointType = RE::BGSEntryPointPerkEntry::EntryPointType;
+	using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
 	RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
-	if (entryPoint && entryPoint->IsType(EntryPointType::kActivate)) {
+	if (entryPoint && entryPoint->IsEntryPoint(EntryPoint::kActivate)) {
 		if (entryPoint->EvaluateConditions(kNumArgs, _args)) {
 			if (entryPoint->functionData) {
 				RE::BGSEntryPointFunctionDataActivateChoice* fnDataActivateChoice = static_cast<RE::BGSEntryPointFunctionDataActivateChoice*>(entryPoint->functionData);
