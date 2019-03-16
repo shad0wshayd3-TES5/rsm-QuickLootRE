@@ -1,5 +1,6 @@
 #include "LootMenu.h"
 
+#include "skse64_common/SafeWrite.h"  // SafeWrite64
 #include "skse64/GameMenus.h"  // UIMessage
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/NiRTTI.h"  // ni_cast
@@ -17,43 +18,12 @@
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget
 
-#include "RE/Actor.h"  // Actor
-#include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSWin32GamepadDevice.h"  // BSWin32GamepadDevice
-#include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
-#include "RE/BSWin32MouseDevice.h"  // BSWin32MouseDevice
-#include "RE/ButtonEvent.h"  // ButtonEvent
-#include "RE/ChestsLooted.h"  // ChestsLooted
-#include "RE/DeviceTypes.h"  // DeviceType
-#include "RE/ExtraDataTypes.h"  // ExtraDataType
-#include "RE/GFxMovieView.h"  // GFxMovieView
-#include "RE/GFxLoader.h"  // GFxLoader
-#include "RE/IMenu.h"  // IMenu
-#include "RE/InputEvent.h"  // InputEvent
-#include "RE/InputManager.h"  // InputManager
-#include "RE/InputMappingManager.h"  // InputMappingManager
-#include "RE/InputStringHolder.h"  // InputStringHolder
-#include "RE/InventoryChanges.h"  // InventoryChanges
-#include "RE/InventoryEntryData.h"  // InventoryEntryData
-#include "RE/ItemsPickpocketed.h"  // ItemsPickpocketed
-#include "RE/MenuControls.h"  // MenuControls
-#include "RE/MenuManager.h"  // MenuManager
-#include "RE/Misc.h"  // DebugNotification, SendItemsPickPocketedEvent
-#include "RE/NiControllerManager.h"  // NiControllerManager
-#include "RE/NiNode.h"  // NiNode
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/TESBoundObject.h"  // TESBoundObject
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/TESRace.h"  // TESRace
-#include "RE/UIManager.h"  // UIManager
-#include "RE/UIMessage.h"  // UIMessage
-#include "RE/UIStringHolder.h"  // UIStringHolder
+#include "RE/Skyrim.h"
 
 
 RE::IMenu::Result LootMenu::ProcessMessage(RE::UIMessage* a_message)
 {
 	using UIMessage = RE::UIMessage::Message;
-
 
 	if (!view) {
 		_FATALERROR("[FATAL ERROR] LootMenu is missing a view! Dependencies were not loaded!\n");
@@ -200,12 +170,14 @@ LootMenu* LootMenu::GetSingleton()
 
 void LootMenu::Free()
 {
-	delete _singleton;
-	_singleton = 0;
+	if (_singleton) {
+		_singleton->Release();
+		_singleton = 0;
+	}
 }
 
 
-RE::BSFixedString LootMenu::GetName()
+const RE::BSFixedString& LootMenu::GetName()
 {
 	static RE::BSFixedString name = "LootMenu";
 	return name;
@@ -509,7 +481,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
 				RE::TESObjectREFRPtr refPtr;
 				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
-					containerRef = refPtr;
+					containerRef = refPtr.get();
 				}
 			}
 		}
@@ -823,12 +795,12 @@ void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName) const
 		return;
 	}
 
-	NiTimeController* controller = niNode->GetController();
+	RE::NiTimeController* controller = niNode->GetController();
 	if (!controller) {
 		return;
 	}
 
-	RE::NiControllerManager* manager = ni_cast(controller, NiControllerManager);
+	RE::NiControllerManager* manager = ni_cast((NiObject*)controller, NiControllerManager);
 	if (!manager) {
 		return;
 	}

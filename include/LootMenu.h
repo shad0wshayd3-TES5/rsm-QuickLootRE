@@ -5,13 +5,7 @@
 
 #include "InventoryList.h"  // InventoryList
 
-#include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/ButtonEvent.h"  // ButtonEvent
-#include "RE/DeviceTypes.h"  // DeviceType
-#include "RE/IMenu.h"  // IMenu
-#include "RE/InputEvent.h"  // InputEvent
-#include "RE/MenuEventHandler.h"  // MenuEventHandler
-#include "RE/TESObjectREFR.h"  // TESObjectREFR::RemoveType
+#include "RE/Skyrim.h"
 
 
 class ItemData;
@@ -74,19 +68,19 @@ public:
 	virtual bool	CanProcess(RE::InputEvent* a_event) override;
 	virtual bool	ProcessButton(RE::ButtonEvent* a_event) override;
 
-	static LootMenu*			GetSingleton();
-	static void					Free();
-	static RE::BSFixedString	GetName();
-	static bool					IsConstructed();
-	static const char*			GetSingleLootMapping();
-	static void					SetSingleLootMapping(const char* a_singLootMapping);
-	static const char*			GetTakeMapping();
-	static void					SetTakeMapping(const char* a_takeStr);
-	static const char*			GetTakeAllMapping();
-	static void					SetTakeAllMapping(const char* a_takeAllStr);
-	static const char*			GetSearchMapping();
-	static void					SetSearchMapping(const char* a_searchStr);
-	static void					QueueMessage(Message a_msg);
+	static LootMenu*				GetSingleton();
+	static void						Free();
+	static const RE::BSFixedString&	GetName();
+	static bool						IsConstructed();
+	static const char*				GetSingleLootMapping();
+	static void						SetSingleLootMapping(const char* a_singLootMapping);
+	static const char*				GetTakeMapping();
+	static void						SetTakeMapping(const char* a_takeStr);
+	static const char*				GetTakeAllMapping();
+	static void						SetTakeAllMapping(const char* a_takeAllStr);
+	static const char*				GetSearchMapping();
+	static void						SetSearchMapping(const char* a_searchStr);
+	static void						QueueMessage(Message a_msg);
 
 	SInt32				GetSelectedIndex() const;
 	void				ModSelectedIndex(SInt32 a_indexOffset);

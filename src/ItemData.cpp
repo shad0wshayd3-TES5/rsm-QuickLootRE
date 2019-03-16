@@ -654,7 +654,7 @@ bool ItemData::getStolen()
 		owner = _container->GetOwner();
 	}
 	if (owner) {
-		return !_entryData->Get()->IsOwnedBy(player, owner, true);
+		return !_entryData->Get()->IsOwnedBy(player, owner);
 	} else {
 		return player->IsSneaking() && _container->baseForm->Is(RE::FormType::NPC) && !_container->IsDead(true);
 	}
@@ -726,7 +726,7 @@ SInt32 ItemData::getPickPocketChance()
 		float playerSkill = player->GetPlayerActorValueCurrent(RE::ActorValue::kPickpocket);
 		float targetSkill = targetActor->GetActorValueCurrent(RE::ActorValue::kPickpocket);
 
-		UInt32 chance = RE::GetPickpocketChance(playerSkill, targetSkill, totalValue, itemWeight, player, targetActor, isDetected, _entryData->Get()->type);
+		UInt32 chance = RE::PlayerCharacter::GetPickpocketChance(playerSkill, targetSkill, totalValue, itemWeight, player, targetActor, isDetected, _entryData->Get()->type);
 		if (chance > 100) {
 			chance = 100;
 		} else if (chance < 0) {

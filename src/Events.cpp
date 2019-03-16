@@ -32,7 +32,7 @@ namespace Events
 
 		// If player is not looking at anything
 		LootMenu* loot = LootMenu::GetSingleton();
-		if (!a_event->crosshairRef) {
+		if (!a_event->crosshairRef.get()) {
 			if (loot->IsOpen()) {
 				loot->Close();
 				loot->ClearContainerRef();
@@ -41,7 +41,7 @@ namespace Events
 		}
 
 		// If player went from container -> container
-		RE::TESObjectREFR* ref = reinterpret_cast<RE::TESObjectREFR*>(a_event->crosshairRef);
+		RE::TESObjectREFR* ref = reinterpret_cast<RE::TESObjectREFR*>(a_event->crosshairRef.get());
 		if (loot->IsOpen() && loot->GetContainerRef() != ref) {
 			loot->Close();
 			loot->ClearContainerRef();

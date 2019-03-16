@@ -16,21 +16,7 @@
 
 #include "HookShare.h"  // ReturnType, _RegisterForCanProcess_t
 
-#include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSString.h"  // BSString
-#include "RE/ButtonEvent.h"  // ButtonEvent
-#include "RE/CommandTable.h"  // CommandInfo
-#include "RE/ConsoleManager.h"  // ConsoleManager
-#include "RE/ExtraFlags.h"  // ExtraFlags
-#include "RE/InputEvent.h"  // InputEvent
-#include "RE/InputManager.h"  // InputManager
-#include "RE/InputStringHolder.h"  // InputStringHolder
-#include "RE/MenuManager.h"  // MenuManager
-#include "RE/MenuOpenHandler.h"  // MenuOpenHandler
-#include "RE/Offsets.h"
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/PlayerInputHandler.h"  // PlayerInputHandler
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/Skyrim.h"
 
 
 namespace Hooks
@@ -219,7 +205,7 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			RelocPtr<_ProcessButton_t*> vtbl_ProcessButton(RE::MENU_OPEN_HANDLER_VTBL + (0x5 * 0x8));
+			RelocPtr<_ProcessButton_t*> vtbl_ProcessButton(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
 			orig_ProcessButton = *vtbl_ProcessButton;
 			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&Hook_ProcessButton));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
@@ -287,9 +273,9 @@ namespace Hooks
 
 
 	template <std::uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t* TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
-	using TESObjectACTIEx = TESBoundAnimObjectEx<RE::TES_OBJECT_ACTI_VTBL + (0x4C * 0x8)>;
-	using TESObjectCONTEx = TESBoundAnimObjectEx<RE::TES_OBJECT_CONT_VTBL + (0x4C * 0x8)>;
-	using TESNPCEx = TESBoundAnimObjectEx<RE::TES_NPC_VTBL + (0x4C * 0x8)>;
+	using TESObjectACTIEx = TESBoundAnimObjectEx<RE::Offset::TESObjectACTI::Vtbl + (0x4C * 0x8)>;
+	using TESObjectCONTEx = TESBoundAnimObjectEx<RE::Offset::TESObjectCONT::Vtbl + (0x4C * 0x8)>;
+	using TESNPCEx = TESBoundAnimObjectEx<RE::Offset::TESNPC::Vtbl + (0x4C * 0x8)>;
 
 
 	class TESObjectREFREx : public RE::TESObjectREFR
@@ -309,8 +295,8 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			// 48 89 5C 24 08 57 48 83  EC 20 49 8B 00 BA 00 00
-			constexpr std::uintptr_t BASE_ADDR = 0x00993790;	// 1_5_62
+			// 48 89 5C 24 08 57 48 83 EC 20 49 8B 00 BA 00 00 00 80
+			constexpr std::uintptr_t BASE_ADDR = 0x009935A0;	// 1_5_73
 			constexpr std::uintptr_t LEA_HOOK = 0x1F;
 			constexpr std::uintptr_t JMP_HOOK = 0x36;
 			RelocAddr<std::uintptr_t> funcBase(BASE_ADDR);
@@ -321,6 +307,22 @@ namespace Hooks
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESObjectREFREx).name());
 		}
 	};
+
+
+	void InstallGHeapLeakDetectionCrashFix()
+	{
+		// E8 ? ? ? ? 48 8B 07 33 D2 48 8B CF FF 10
+		constexpr std::uintptr_t BASE_ADDR = 0x00FFFA00;	// 1_5_73
+		constexpr std::uintptr_t START = 0x4B;
+		constexpr std::uintptr_t END = 0x5C;
+		constexpr UInt8 NOP = 0x90;
+		RelocAddr<std::uintptr_t> funcBase(BASE_ADDR);
+
+		for (std::uintptr_t i = START; i < END; ++i) {
+			SafeWrite8(funcBase.GetUIntPtr() + i, NOP);
+		}
+		_DMESSAGE("[DEBUG] Installed crash fix for scaleform heap leak detection");
+	}
 
 
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
@@ -560,5 +562,9 @@ namespace Hooks
 		TESObjectREFREx::InstallHook();
 
 		RegisterConsoleCommands();
+
+#if _DEBUG
+		InstallGHeapLeakDetectionCrashFix();
+#endif
 	}
 }
