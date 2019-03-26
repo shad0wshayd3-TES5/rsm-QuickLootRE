@@ -155,13 +155,3 @@ protected:
 	bool							_isRegistered;
 	bool							_isEnabled;
 };
-
-
-namespace
-{
-	template <typename T>
-	void AllocateAndDispatch()
-	{
-		g_task->AddUITask(new T());
-	}
-}

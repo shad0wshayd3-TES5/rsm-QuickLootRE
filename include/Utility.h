@@ -2,7 +2,7 @@
 
 #include <string>  // string
 
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/Skyrim.h"
 
 
 std::string boolToString(bool a_bool);

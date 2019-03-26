@@ -1,11 +1,9 @@
 #pragma once
 
-#include "HookShare.h"  // _RegisterForCanProcess_t
-
-#include "RE/BSFixedString.h"  // BSFixedString
+#include "HookShare.h"  // RegisterForCanProcess_t
 
 
-namespace Hooks
+namespace
 {
 	enum class ControlID
 	{
@@ -23,13 +21,12 @@ namespace Hooks
 	};
 
 
-	RE::BSFixedString& GetControlID(ControlID a_controlID);
-
-	bool CheckForMappingConflicts();
-
-	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register);
+	bool g_activateHandlerHooked = false;
+	bool g_cameraStateHandlerHooked = false;
+}
 
 
-	static bool activateHandlerHooked = false;
-	static bool cameraStateHandlerHooked = false;
+namespace Hooks
+{
+	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register);
 }

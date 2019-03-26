@@ -40,7 +40,7 @@ Setting | Description
 ## Console commands
 <img width=120/> | SetQuickLootVariable
 --- | ---
-**Command** | `[SetQuickLootVariable\|sqlv] [variable name] [new value]`
+**Command** | `<SetQuickLootVariable\|sqlv> <variable-name> <new-value>`
 **Example Usage** | `sqlv itemLimit 25`
 **Description** | Sets the specified variable to the specified value. String and array variables can not be set from the console.
 

@@ -2,9 +2,7 @@
 
 #include "Forms.h"
 
-#include "RE/Actor.h"  // Actor
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/TESRace.h"  // TESRace
+#include "RE/Skyrim.h"
 
 
 std::string boolToString(bool a_bool)

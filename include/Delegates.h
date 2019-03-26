@@ -4,133 +4,134 @@
 #include "skse64/Hooks_UI.h"  // UIDelegate_v1
 #include "skse64/PluginAPI.h"  // SKSETaskInterface
 
-#include <vector>  // vector
 
-#include "RE/GFxValue.h"  // GFxValue
-#include "RE/Memory.h"  // TES_HEAP_REDEFINE_NEW
-
-
-class SetKeyMappingsUIDelegate : public UIDelegate_v1
+class UIDelegateBase : public UIDelegate_v1
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	UIDelegateBase() = default;
+	virtual ~UIDelegateBase() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Dispose() override;
 };
 
 
-class SetPlatformUIDelegate : public UIDelegate_v1
+class TaskDelegateBase : public TaskDelegate
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	TaskDelegateBase() = default;
+	virtual ~TaskDelegateBase() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Dispose() override;
 };
 
 
-class SetSelectedIndexUIDelegate : public UIDelegate_v1
+class SetKeyMappingsUIDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	SetKeyMappingsUIDelegate() = default;
+	virtual ~SetKeyMappingsUIDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class SetupUIDelegate : public UIDelegate_v1
+class SetPlatformUIDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	SetPlatformUIDelegate() = default;
+	virtual ~SetPlatformUIDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class SetContainerUIDelegate : public UIDelegate_v1
+class SetSelectedIndexUIDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	SetSelectedIndexUIDelegate() = default;
+	virtual ~SetSelectedIndexUIDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class OpenContainerUIDelegate : public UIDelegate_v1
+class SetupUIDelegate : public UIDelegateBase
 {
 public:
+	SetupUIDelegate() = default;
+	virtual ~SetupUIDelegate() = default;
+
 	virtual void Run() override;
-	virtual void Dispose() override;
+};
+
+
+class SetContainerUIDelegate : public UIDelegateBase
+{
+public:
+	SetContainerUIDelegate() = default;
+	virtual ~SetContainerUIDelegate() = default;
+
+	virtual void Run() override;
+};
+
+
+class OpenContainerUIDelegate : public UIDelegateBase
+{
+public:
+	OpenContainerUIDelegate() = default;
+	virtual ~OpenContainerUIDelegate() = default;
+
+	virtual void Run() override;
 
 	void DebugContents();
-
-	TES_HEAP_REDEFINE_NEW();
 };
 
 
-class CloseContainerUIDelegate : public UIDelegate_v1
+class CloseContainerUIDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	CloseContainerUIDelegate() = default;
+	virtual ~CloseContainerUIDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class UpdateButtonsUIDelegate : public UIDelegate_v1
+class UpdateButtonsUIDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	UpdateButtonsUIDelegate() = default;
+	virtual ~UpdateButtonsUIDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class HideButtonsUIDelegate : public UIDelegate_v1
+class HideButtonsUIDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	HideButtonsUIDelegate() = default;
+	virtual ~HideButtonsUIDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class SwitchStyleTaskDelegate : public UIDelegate_v1
+class SwitchStyleTaskDelegate : public UIDelegateBase
 {
 public:
-	virtual void Run() override;
-	virtual void Dispose() override;
+	SwitchStyleTaskDelegate() = default;
+	virtual ~SwitchStyleTaskDelegate() = default;
 
-	TES_HEAP_REDEFINE_NEW();
+	virtual void Run() override;
 };
 
 
-class DelayedUpdater : public TaskDelegate
+class DelayedUpdater : public TaskDelegateBase
 {
 public:
+	DelayedUpdater() = default;
+	virtual ~DelayedUpdater() = default;
+
 	virtual void Run() override;
-	virtual void Dispose() override;
-
-	static void Register();
-
-	TES_HEAP_REDEFINE_NEW();
-
-private:
-	DelayedUpdater();
-	DelayedUpdater(const DelayedUpdater&) = delete;
-	DelayedUpdater(DelayedUpdater&&) = delete;
-	~DelayedUpdater();
-
-	DelayedUpdater& operator=(const DelayedUpdater&) = delete;
-	DelayedUpdater& operator=(DelayedUpdater&&) = delete;
 };
-
-
-extern SKSETaskInterface* g_task;

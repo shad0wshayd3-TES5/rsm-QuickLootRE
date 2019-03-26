@@ -1,8 +1,6 @@
 #pragma once
 
-#include "RE/BGSPerkEntry.h"  // BGSPerkEntry
-#include "RE/PerkEntryVisitor.h"  // PerkEntryVisitor
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/Skyrim.h"
 
 
 class ActivatePerkEntryVisitor : public RE::PerkEntryVisitor

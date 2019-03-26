@@ -1,12 +1,10 @@
 #include "ActivatePerkEntryVisitor.h"
 
-#include "RE/BGSEntryPointFunctionDataActivateChoice.h"  // BGSEntryPointFunctionDataActivateChoice
-#include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
-#include "RE/BGSPerkEntry.h"  // BGSPerkEntry
-#include "RE/Condition.h"  // Condition
+#include "RE/Skyrim.h"
 
 
-ActivatePerkEntryVisitor::ReturnType ActivatePerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
+auto ActivatePerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
+-> ReturnType
 {
 	using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 

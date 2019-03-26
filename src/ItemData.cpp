@@ -1,36 +1,15 @@
 #include "ItemData.h"
 
-#undef min
-#undef max
-
 #include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 
 #include <limits>  // numeric_limits
 #include <string>  // string
 
-#include "Hooks.h"  // GetPickPocketChance()
 #include "Forms.h"  // keywords, FormID
 #include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget()
+#include "Utility.h"  // IsValidPickPocketTarget
 
-#include "RE/ActorValues.h"  // ActorValue
-#include "RE/AlchemyItem.h"  // AlchemyItem
-#include "RE/BGSBipedObjectForm.h"  // BGSBipedObjectForm
-#include "RE/BGSSoundDescriptorForm.h"  // BGSSoundDescriptorForm
-#include "RE/Effect.h"  // Effect
-#include "RE/ExtraDataTypes.h"  // ExtraDataType
-#include "RE/InventoryEntryData.h"  // InventoryEntryData
-#include "RE/Misc.h"  // GetPickpocketChance
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/TESAmmo.h"  // TESAmmo
-#include "RE/TESEnchantableForm.h"  // TESEnchantableForm
-#include "RE/TESForm.h"  // TESForm
-#include "RE/TESSoulGem.h"  // TESSoulGem
-#include "RE/TESObjectARMO.h"  // TESObjectARMO
-#include "RE/TESObjectBOOK.h"  // TESObjectBOOK
-#include "RE/TESObjectMISC.h"  // TESObjectMISC
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/TESObjectWEAP.h"  // TESObjectWEAP
+#include "RE/Skyrim.h"
 
 
 ItemData::ItemData() :

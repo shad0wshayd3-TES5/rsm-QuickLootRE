@@ -9,36 +9,12 @@
 #include "Forms.h"
 #include "ManagedEntryData.h"  // ManagedEntryDataPtr
 
-#include "RE/BaseExtraList.h"  // BaseExtraList
-#include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSTArray.h"  // BSScrapArray
-#include "RE/ExtraContainerChanges.h"  // ExtraContainerChanges
-#include "RE/ExtraDataTypes.h"  // ExtraDataType
-#include "RE/ExtraDroppedItemList.h"  // ExtraDroppedItemList
-#include "RE/InventoryChanges.h"  // InventoryChanges
-#include "RE/InventoryEntryData.h"  // InventoryEntryData
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/TESContainer.h"  // TESContainer::Entry
-#include "RE/TESForm.h"  // TESForm
-#include "RE/TESFullName.h"  // TESFullName
-#include "RE/TESLeveledList.h"  // TESLeveledList
-#include "RE/TESLevItem.h"  // TESLevItem
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/TESObjectLIGH.h"  // TESObjectLIGH
-
+#include "RE/Skyrim.h"
 
 
 InventoryList::EntryDataCountPair::EntryDataCountPair(ManagedEntryDataPtr a_entryData, SInt32 a_count) :
 	entryData{ a_entryData },
 	count{ a_count }
-{}
-
-
-InventoryList::InventoryList()
-{}
-
-
-InventoryList::~InventoryList()
 {}
 
 
@@ -49,17 +25,28 @@ void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
 	if (!a_refr) {
 		ItemData::setContainer(0);
 		return;
+	} else {
+		ItemData::setContainer(a_refr);
 	}
-
-	ItemData::setContainer(a_refr);
 
 	// Get extra items
 	parseInventoryChanges(a_refr);
 	parseDroppedList(a_refr);
 
 	// Get default items
-	TESContainerVisitor containerOp(_defaultMap);
-	a_refr->GetContainer()->Visit(containerOp);
+	a_refr->GetContainer()->ForEach([&](auto a_entry)
+	{
+		auto& it = _defaultMap.find(a_entry->form->formID);
+		if (it != _defaultMap.end()) {
+			if (a_entry->form->formID != kMISCFormID_Gold) {
+				it->second.count += a_entry->count;
+			}
+		} else {
+			auto entryData = MakeEntryDataPtr(a_entry->form, a_entry->count);
+			_defaultMap.insert({ entryData->Get()->type->formID, EntryDataCountPair(entryData, entryData->Get()->countDelta) });
+		}
+		return true;
+	});
 
 	// Add parsed items
 	for (auto& it : _defaultMap) {
@@ -132,8 +119,7 @@ void InventoryList::add(ManagedEntryDataPtr& a_entryData, SInt32 a_count)
 
 void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
 {
-	RE::InventoryChanges* invChanges = a_refr->GetInventoryChanges();
-
+	auto invChanges = a_refr->GetInventoryChanges();
 	if (!invChanges || !invChanges->entryList) {
 		return;
 	}
@@ -146,7 +132,7 @@ void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
 
 void InventoryList::parseDroppedList(RE::TESObjectREFR* a_refr)
 {
-	RE::ExtraDroppedItemList* droppedList = a_refr->extraData.GetByType<RE::ExtraDroppedItemList>();
+	auto droppedList = a_refr->extraData.GetByType<RE::ExtraDroppedItemList>();
 	if (!droppedList) {
 		return;
 	}
@@ -161,7 +147,7 @@ void InventoryList::parseDroppedList(RE::TESObjectREFR* a_refr)
 			continue;
 		}
 
-		ManagedEntryDataPtr entryData = MakeEntryDataPtr(refPtr->baseForm, 1);
+		auto entryData = MakeEntryDataPtr(refPtr->baseForm, 1);
 		entryData->Get()->AddEntryList(&refPtr->extraData);
 		auto result = _defaultMap.insert({ entryData->Get()->type->formID, EntryDataCountPair(entryData, entryData->Get()->countDelta) });
 		if (!result.second) {
@@ -206,13 +192,12 @@ bool InventoryList::isValidItem(RE::TESForm* a_item)
 		break;
 	case FormType::Light:
 		{
-			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(a_item);
+			auto light = static_cast<RE::TESObjectLIGH*>(a_item);
 			if (!light->CanBeCarried()) {
 				return false;
-			} else {
-				break;
 			}
 		}
+		break;
 	default:
 		return false;
 	}
@@ -221,32 +206,10 @@ bool InventoryList::isValidItem(RE::TESForm* a_item)
 		return false;
 	}
 
-	static RE::BSFixedString emptyStr = "";
-	RE::TESFullName* fullName = 0;
-	fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
-	if (!fullName || fullName->name == emptyStr) {
+	auto fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
+	if (!fullName || fullName->name.empty()) {
 		return false;
 	}
 
-	return true;
-}
-
-
-InventoryList::TESContainerVisitor::TESContainerVisitor(DefaultMap& a_defaultMap) :
-	_defaultMap(a_defaultMap)
-{}
-
-
-bool InventoryList::TESContainerVisitor::Accept(RE::TESContainer::Entry* a_entry)
-{
-	auto& it = _defaultMap.find(a_entry->form->formID);
-	if (it != _defaultMap.end()) {
-		if (a_entry->form->formID != kMISCFormID_Gold) {
-			it->second.count += a_entry->count;
-		}
-	} else {
-		ManagedEntryDataPtr entryData = MakeEntryDataPtr(a_entry->form, a_entry->count);
-		_defaultMap.insert({ entryData->Get()->type->formID, EntryDataCountPair(entryData, entryData->Get()->countDelta) });
-	}
 	return true;
 }

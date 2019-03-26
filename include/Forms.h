@@ -85,6 +85,7 @@ class Form
 public:
 	Form(UInt32 a_formID) : _formID(a_formID) {}
 
+
 	operator T()
 	{
 		return static_cast<T>(RE::TESForm::LookupByID(_formID));
@@ -95,16 +96,11 @@ private:
 };
 
 
-// Factions
 extern Form<RE::TESFaction*>	CurrentFollowerFaction;
-
-// Keywords
 extern Form<RE::BGSKeyword*>	VendorItemClothing;
 extern Form<RE::BGSKeyword*>	VendorItemJewelry;
-
 extern Form<RE::BGSKeyword*>	VendorItemRecipe;
 extern Form<RE::BGSKeyword*>	VendorItemSpellTome;
-
 extern Form<RE::BGSKeyword*>	VendorItemAnimalHide;
 extern Form<RE::BGSKeyword*>	VendorItemDaedricArtifact;
 extern Form<RE::BGSKeyword*>	VendorItemGem;
@@ -112,11 +108,7 @@ extern Form<RE::BGSKeyword*>	VendorItemAnimalPart;
 extern Form<RE::BGSKeyword*>	VendorItemOreIngot;
 extern Form<RE::BGSKeyword*>	VendorItemClutter;
 extern Form<RE::BGSKeyword*>	VendorItemFireword;
-
 extern Form<RE::BGSKeyword*>	WeapTypeWarhammer;
-
 extern Form<RE::BGSKeyword*>	ActorTypeAnimal;
-
-// Perks
 extern Form<RE::BGSPerk*>		Misdirection;
 extern Form<RE::BGSPerk*>		PerfectTouch;

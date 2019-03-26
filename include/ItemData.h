@@ -5,14 +5,7 @@
 
 #include "ManagedEntryData.h"  // ManagedEntryDataPtr
 
-#include "RE/AlchemyItem.h"  // AlchemyItem
-#include "RE/TESForm.h"  // TESForm
-#include "RE/TESSoulGem.h"  // TESSoulGem
-#include "RE/TESObjectARMO.h"  // TESObjectARMO
-#include "RE/TESObjectBOOK.h"  // TESObjectBOOK
-#include "RE/TESObjectMISC.h"  // TESObjectMISC
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/TESObjectWEAP.h"  // TESObjectWEAP
+#include "RE/Skyrim.h"
 
 
 namespace
@@ -33,11 +26,11 @@ namespace
 }
 
 
-#define ITEM_DATA_DEBUG_ENABLED	false
+#define ITEM_DATA_DEBUG_ENABLED false
 #if ITEM_DATA_DEBUG_ENABLED
 #pragma message("ItemData debugging is enabled! Don't forget to disable it!")
 #endif
-#define ITEM_DATA_DEBUG_TYPE	kDebugType_ValuePerWeight
+#define ITEM_DATA_DEBUG_TYPE kDebugType_ValuePerWeight
 
 
 class ItemData

@@ -12,11 +12,19 @@
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget
 
-#include "RE/GFxMovieDef.h"  // GFxMovieDef
-#include "RE/GFxValue.h"  // GFxValue
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/ScriptEventSourceHolder.h"  // ScriptEventSourceHolder
-#include "RE/TESObjectREFR.h"  // TESObjectREFR, TESObjectREFRPtr
+#include "RE/Skyrim.h"
+
+
+void UIDelegateBase::Dispose()
+{
+	delete this;
+}
+
+
+void TaskDelegateBase::Dispose()
+{
+	delete this;
+}
 
 
 void SetKeyMappingsUIDelegate::Run()
@@ -28,12 +36,6 @@ void SetKeyMappingsUIDelegate::Run()
 	args[2].SetString(LootMenu::GetSearchMapping());
 
 	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetKeyMappings", 0, args, 3);
-}
-
-
-void SetKeyMappingsUIDelegate::Dispose()
-{
-	delete this;
 }
 
 
@@ -53,12 +55,6 @@ void SetPlatformUIDelegate::Run()
 }
 
 
-void SetPlatformUIDelegate::Dispose()
-{
-	delete this;
-}
-
-
 void SetSelectedIndexUIDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
@@ -71,12 +67,6 @@ void SetSelectedIndexUIDelegate::Run()
 	args[0].SetNumber(loot->GetSelectedIndex());
 
 	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetSelectedIndex", 0, args, 1);
-}
-
-
-void SetSelectedIndexUIDelegate::Dispose()
-{
-	delete this;
 }
 
 
@@ -123,12 +113,6 @@ void SetupUIDelegate::Run()
 }
 
 
-void SetupUIDelegate::Dispose()
-{
-	delete this;
-}
-
-
 void SetContainerUIDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
@@ -161,12 +145,6 @@ void SetContainerUIDelegate::Run()
 	args[5].SetNumber(loot->GetSelectedIndex());
 
 	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetContainer", 0, args, 6);
-}
-
-
-void SetContainerUIDelegate::Dispose()
-{
-	delete this;
 }
 
 
@@ -239,12 +217,6 @@ void OpenContainerUIDelegate::Run()
 }
 
 
-void OpenContainerUIDelegate::Dispose()
-{
-	delete this;
-}
-
-
 void OpenContainerUIDelegate::DebugContents()
 {
 	UInt32 i = 0;
@@ -268,24 +240,12 @@ void CloseContainerUIDelegate::Run()
 }
 
 
-void CloseContainerUIDelegate::Dispose()
-{
-	delete this;
-}
-
-
 void UpdateButtonsUIDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (loot->IsOpen()) {
 		loot->view->Invoke("_root.Menu_mc.UpdateButtons", 0, 0, 0);
 	}
-}
-
-
-void UpdateButtonsUIDelegate::Dispose()
-{
-	delete this;
 }
 
 
@@ -304,12 +264,6 @@ void HideButtonsUIDelegate::Run()
 }
 
 
-void HideButtonsUIDelegate::Dispose()
-{
-	delete this;
-}
-
-
 void SwitchStyleTaskDelegate::Run()
 {
 	RE::GFxValue args[1];
@@ -318,12 +272,6 @@ void SwitchStyleTaskDelegate::Run()
 	args[0].SetNumber(loot->GetStyle());
 
 	loot->view->Invoke("_root.Menu_mc.SwitchStyle", 0, args, 1);
-}
-
-
-void SwitchStyleTaskDelegate::Dispose()
-{
-	delete this;
 }
 
 
@@ -337,25 +285,6 @@ void DelayedUpdater::Run()
 		}
 	}
 }
-
-
-void DelayedUpdater::Dispose()
-{}
-
-
-void DelayedUpdater::Register()
-{
-	static DelayedUpdater dlgt;
-	g_task->AddTask(&dlgt);
-}
-
-
-DelayedUpdater::DelayedUpdater()
-{}
-
-
-DelayedUpdater::~DelayedUpdater()
-{}
 
 
 SKSETaskInterface* g_task = 0;

@@ -6,17 +6,14 @@
 #include "ItemData.h"  // ItemData
 #include "ManagedEntryData.h"  // ManagedEntryDataPtr
 
-#include "RE/InventoryEntryData.h"  // InventoryEntryData
-#include "RE/TESContainer.h"  // TESContainer::Entry
-#include "RE/TESForm.h"  // TESForm
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
+#include "RE/Skyrim.h"
 
 
 class InventoryList
 {
 public:
-	InventoryList();
-	~InventoryList();
+	InventoryList() = default;
+	~InventoryList() = default;
 
 
 	struct EntryDataCountPair
@@ -53,17 +50,4 @@ private:
 
 	DefaultMap				_defaultMap;
 	std::vector<ItemData>	_itemList;
-
-
-	class TESContainerVisitor
-	{
-	public:
-		TESContainerVisitor() = delete;
-		explicit TESContainerVisitor(DefaultMap& a_defaultMap);
-
-		virtual bool Accept(RE::TESContainer::Entry* a_entry);
-
-	private:
-		DefaultMap& _defaultMap;
-	};
 };

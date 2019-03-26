@@ -2,8 +2,7 @@
 
 #include <memory>  // shared_ptr
 
-#include "RE/InventoryEntryData.h"  // InventoryEntryData
-#include "RE/TESForm.h"  // TESForm
+#include "RE/Skyrim.h"
 
 
 class ManagedEntryData

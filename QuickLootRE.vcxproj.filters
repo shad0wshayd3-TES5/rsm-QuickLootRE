@@ -57,6 +57,9 @@
     <ClCompile Include="src\ManagedEntryData.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\SKSEInterface.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -96,6 +99,9 @@
       <Filter>include\visitors</Filter>
     </ClInclude>
     <ClInclude Include="include\ManagedEntryData.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SKSEInterface.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

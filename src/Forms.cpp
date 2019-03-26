@@ -1,28 +1,19 @@
 #include "Forms.h"
 
 
-// Factions
-Form<RE::TESFaction*>	CurrentFollowerFaction(kFACTFormID_CurrentFollowerFaction);
-
-// Keywords
-Form<RE::BGSKeyword*>	VendorItemClothing(kKYWDFormID_VendorItemClothing);
-Form<RE::BGSKeyword*>	VendorItemJewelry(kKYWDFormID_VendorItemJewelry);
-
-Form<RE::BGSKeyword*>	VendorItemRecipe(kKYWDFormID_VendorItemRecipe);
-Form<RE::BGSKeyword*>	VendorItemSpellTome(kKYWDFormID_VendorItemSpellTome);
-
-Form<RE::BGSKeyword*>	VendorItemAnimalHide(kKYWDFormID_VendorItemAnimalHide);
-Form<RE::BGSKeyword*>	VendorItemDaedricArtifact(kKYWDFormID_VendorItemDaedricArtifact);
-Form<RE::BGSKeyword*>	VendorItemGem(kKYWDFormID_VendorItemGem);
-Form<RE::BGSKeyword*>	VendorItemAnimalPart(kKYWDFormID_VendorItemAnimalPart);
-Form<RE::BGSKeyword*>	VendorItemOreIngot(kKYWDFormID_VendorItemOreIngot);
-Form<RE::BGSKeyword*>	VendorItemClutter(kKYWDFormID_VendorItemClutter);
-Form<RE::BGSKeyword*>	VendorItemFireword(kKYWDFormID_VendorItemFireword);
-
-Form<RE::BGSKeyword*>	WeapTypeWarhammer(kKYWDFormID_WeapTypeWarhammer);
-
-Form<RE::BGSKeyword*>	ActorTypeAnimal(kKYWDFormID_ActorTypeAnimal);
-
-// Perks
-Form<RE::BGSPerk*>		Misdirection(kPERKFormID_Misdirection);
-Form<RE::BGSPerk*>		PerfectTouch(kPERKFormID_PerfectTouch);
+decltype(CurrentFollowerFaction)	CurrentFollowerFaction(kFACTFormID_CurrentFollowerFaction);
+decltype(VendorItemClothing)		VendorItemClothing(kKYWDFormID_VendorItemClothing);
+decltype(VendorItemJewelry)			VendorItemJewelry(kKYWDFormID_VendorItemJewelry);
+decltype(VendorItemRecipe)			VendorItemRecipe(kKYWDFormID_VendorItemRecipe);
+decltype(VendorItemSpellTome)		VendorItemSpellTome(kKYWDFormID_VendorItemSpellTome);
+decltype(VendorItemAnimalHide)		VendorItemAnimalHide(kKYWDFormID_VendorItemAnimalHide);
+decltype(VendorItemDaedricArtifact)	VendorItemDaedricArtifact(kKYWDFormID_VendorItemDaedricArtifact);
+decltype(VendorItemGem)				VendorItemGem(kKYWDFormID_VendorItemGem);
+decltype(VendorItemAnimalPart)		VendorItemAnimalPart(kKYWDFormID_VendorItemAnimalPart);
+decltype(VendorItemOreIngot)		VendorItemOreIngot(kKYWDFormID_VendorItemOreIngot);
+decltype(VendorItemClutter)			VendorItemClutter(kKYWDFormID_VendorItemClutter);
+decltype(VendorItemFireword)		VendorItemFireword(kKYWDFormID_VendorItemFireword);
+decltype(WeapTypeWarhammer)			WeapTypeWarhammer(kKYWDFormID_WeapTypeWarhammer);
+decltype(ActorTypeAnimal)			ActorTypeAnimal(kKYWDFormID_ActorTypeAnimal);
+decltype(Misdirection)				Misdirection(kPERKFormID_Misdirection);
+decltype(PerfectTouch)				PerfectTouch(kPERKFormID_PerfectTouch);

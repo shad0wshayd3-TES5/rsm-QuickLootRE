@@ -2,12 +2,11 @@
 
 #include "LootMenu.h"  // LootMenu
 
-#include "RE/BGSEntryPointFunctionDataText.h"  // BGSEntryPointFunctionDataText
-#include "RE/BGSEntryPointPerkEntry.h"  // BGSEntryPointPerkEntry
-#include "RE/BGSPerkEntry.h"  // BGSPerkEntry
+#include "RE/Skyrim.h"
 
 
-SetActivateLabelPerkEntryVisitor::ReturnType SetActivateLabelPerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
+auto SetActivateLabelPerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
+-> ReturnType
 {
 	using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 

@@ -33,8 +33,8 @@ public:
 	static sSetting					interfaceStyle;
 	static aSetting<std::string>	sortOrder;
 
-	static bool						isApplied;
+	static inline bool				isApplied = false;
 
 private:
-	static constexpr char*			FILE_NAME = "Data\\SKSE\\Plugins\\QuickLootRE.json";
+	static inline constexpr char	FILE_NAME[] = "Data\\SKSE\\Plugins\\QuickLootRE.json";
 };

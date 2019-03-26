@@ -7,27 +7,20 @@
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
+#include "SKSEInterface.h"  // SKSE
 #include "Utility.h"  // IsValidPickPocketTarget
 
-#include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSWin32KeyboardDevice.h"  // BSWin32KeyboardDevice
-#include "RE/ButtonEvent.h"  // ButtonEvent
-#include "RE/IMenu.h"  // IMenu
-#include "RE/InputEvent.h"  // InputEvent
-#include "RE/InputStringHolder.h"  // InputStringHolder
-#include "RE/MenuManager.h"  // MenuManager
-#include "RE/PlayerCharacter.h"  // PlayerCharacter
-#include "RE/TESObjectREFR.h"  // TESObjectREFR
-#include "RE/UIManager.h"  // UIManager
-#include "RE/UIStringHolder.h"  // UIStringHolder
+#include "RE/Skyrim.h"
 
 
 namespace Events
 {
-	EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, EventDispatcher<SKSECrosshairRefEvent>* a_dispatcher)
+	RE::EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, RE::BSTEventSource<SKSECrosshairRefEvent>* a_dispatcher)
 	{
+		using RE::EventResult;
+
 		if (!a_event) {
-			return kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		// If player is not looking at anything
@@ -37,7 +30,7 @@ namespace Events
 				loot->Close();
 				loot->ClearContainerRef();
 			}
-			return kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		// If player went from container -> container
@@ -55,35 +48,15 @@ namespace Events
 			loot->Open();
 		}
 
-		return kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 
 	CrosshairRefEventHandler* CrosshairRefEventHandler::GetSingleton()
 	{
-		if (!_singleton) {
-			_singleton = new CrosshairRefEventHandler();
-		}
-		return _singleton;
+		static CrosshairRefEventHandler singleton;
+		return &singleton;
 	}
-
-
-	void CrosshairRefEventHandler::Free()
-	{
-		delete _singleton;
-		_singleton = 0;
-	}
-
-
-	CrosshairRefEventHandler::CrosshairRefEventHandler()
-	{}
-
-
-	CrosshairRefEventHandler::~CrosshairRefEventHandler()
-	{}
-
-
-	CrosshairRefEventHandler* CrosshairRefEventHandler::_singleton = 0;
 
 
 	RE::EventResult InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
@@ -129,29 +102,9 @@ namespace Events
 
 	InputEventHandler* InputEventHandler::GetSingleton()
 	{
-		if (!_singleton) {
-			_singleton = new InputEventHandler();
-		}
-		return _singleton;
+		static InputEventHandler singleton;
+		return &singleton;
 	}
-
-
-	void InputEventHandler::Free()
-	{
-		delete _singleton;
-		_singleton = 0;
-	}
-
-
-	InputEventHandler::InputEventHandler()
-	{}
-
-
-	InputEventHandler::~InputEventHandler()
-	{}
-
-
-	InputEventHandler* InputEventHandler::_singleton = 0;
 
 
 	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
@@ -192,29 +145,9 @@ namespace Events
 
 	MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::GetSingleton()
 	{
-		if (!_singleton) {
-			_singleton = new MenuOpenCloseEventHandler();
-		}
-		return _singleton;
+		static MenuOpenCloseEventHandler singleton;
+		return &singleton;
 	}
-
-
-	void MenuOpenCloseEventHandler::Free()
-	{
-		delete _singleton;
-		_singleton = 0;
-	}
-
-
-	MenuOpenCloseEventHandler::MenuOpenCloseEventHandler()
-	{}
-
-
-	MenuOpenCloseEventHandler::~MenuOpenCloseEventHandler()
-	{}
-
-
-	MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::_singleton = 0;
 
 
 	RE::EventResult TESCombatEventHandler::ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
@@ -240,29 +173,9 @@ namespace Events
 
 	TESCombatEventHandler* TESCombatEventHandler::GetSingleton()
 	{
-		if (!_singleton) {
-			_singleton = new TESCombatEventHandler();
-		}
-		return _singleton;
+		static TESCombatEventHandler singleton;
+		return &singleton;
 	}
-
-
-	void TESCombatEventHandler::Free()
-	{
-		delete _singleton;
-		_singleton = 0;
-	}
-
-
-	TESCombatEventHandler::TESCombatEventHandler()
-	{}
-
-
-	TESCombatEventHandler::~TESCombatEventHandler()
-	{}
-
-
-	TESCombatEventHandler* TESCombatEventHandler::_singleton = 0;
 
 
 	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
@@ -280,7 +193,7 @@ namespace Events
 		}
 
 		if (a_event->fromFormID == ref->formID || a_event->toFormID == ref->formID) {
-			DelayedUpdater::Register();  // This event is fired before the item is removed, so we have to wait a bit
+			SKSE::AddTask(new DelayedUpdater());	// This event is fired before the item is removed, so we have to wait a bit
 		}
 
 		return EventResult::kContinue;
@@ -289,27 +202,7 @@ namespace Events
 
 	TESContainerChangedEventHandler* TESContainerChangedEventHandler::GetSingleton()
 	{
-		if (!_singleton) {
-			_singleton = new TESContainerChangedEventHandler();
-		}
-		return _singleton;
+		static TESContainerChangedEventHandler singleton;
+		return &singleton;
 	}
-
-
-	void TESContainerChangedEventHandler::Free()
-	{
-		delete _singleton;
-		_singleton = 0;
-	}
-
-
-	TESContainerChangedEventHandler::TESContainerChangedEventHandler()
-	{}
-
-
-	TESContainerChangedEventHandler::~TESContainerChangedEventHandler()
-	{}
-
-
-	TESContainerChangedEventHandler* TESContainerChangedEventHandler::_singleton = 0;
 }

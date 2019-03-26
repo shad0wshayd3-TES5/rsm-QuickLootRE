@@ -19,19 +19,19 @@
 #include "RE/Skyrim.h"
 
 
-namespace Hooks
+namespace
 {
-	template <typename Op, ControlID controlID>
+	template <ControlID controlID, class Op>
 	class PlayerInputHandler
 	{
 	public:
-		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+		static HookShare::result_type Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
-			using HookShare::ReturnType;
+			using HookShare::result_type;
 			using EventType = RE::InputEvent::EventType;
 
 			if (a_event->eventType != EventType::kButton) {
-				return ReturnType::kContinue;
+				return result_type::kContinue;
 			}
 
 			// If the menu closes while the button is still held, input might process when it shouldn't
@@ -41,106 +41,102 @@ namespace Hooks
 				if (button->IsUp()) {
 					loot->NextInputSkipped();
 				}
-				return ReturnType::kFalse;
+				return result_type::kFalse;
 			}
 
 			if (loot->IsVisible()) {
 				if (button->IsDown() && button->GetControlID() == GetControlID(controlID)) {  // Must be IsDown, otherwise might process input received from another context
-					Op::Run();
+					_op();
 				}
-				return ReturnType::kFalse;
+				return result_type::kFalse;
 			}
 
-			return ReturnType::kContinue;
+			return result_type::kContinue;
 		}
+
+	private:
+		static inline Op _op;
 	};
 
 
 	// Activate handler needs to account for grabbing items
-	template <typename Op>
-	class PlayerInputHandler<Op, ControlID::kActivate>
+	template <class Op>
+	class PlayerInputHandler<ControlID::kActivate, Op>
 	{
 	public:
-		static HookShare::ReturnType Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+		static HookShare::result_type Hook_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 		{
-			using HookShare::ReturnType;
+			using HookShare::result_type;
 			using EventType = RE::InputEvent::EventType;
 
 			LootMenu* loot = LootMenu::GetSingleton();
 			if (RE::PlayerCharacter::GetSingleton()->GetGrabbedRef()) {
 				loot->Close();
-				return ReturnType::kContinue;
+				return result_type::kContinue;
 			}
 
 			if (a_event->eventType == EventType::kButton && loot->IsVisible()) {
 				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsUp() && button->GetControlID() == GetControlID(ControlID::kActivate)) {  // This must be IsUp, so as to avoid taking an item when grabbing
-					Op::Run();
-					return ReturnType::kFalse;
+					_op();
+					return result_type::kFalse;
 				} else if (button->IsDown()) {  // Inventory menu activation will queue up without this
-					return ReturnType::kFalse;
+					return result_type::kFalse;
 				}
 			}
 
-			return ReturnType::kContinue;
+			return result_type::kContinue;
 		}
+
+	private:
+		static inline Op _op;
 	};
 
 
-#define MAKE_PLAYER_INPUT_HANDLER_EX(TYPE_NAME)													\
-	using FirstPersonStateHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>;	\
-	using ThirdPersonStateHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kTogglePOV>;	\
-	using FavoritesHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kNone>;				\
-	using SprintHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kSprint>;				\
-	using ReadyWeaponHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kReadyWeapon>;	\
-	using AutoMoveHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kAutoMove>;			\
-	using ToggleRunHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kToggleRun>;		\
-	using ActivateHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kActivate>;			\
-	using JumpHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kJump>;					\
-	using ShoutHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kShout>;				\
-	using SneakHandlerEx = PlayerInputHandler<##TYPE_NAME##, ControlID::kSneak>;
+	template <class Op> using FirstPersonStateHandlerEx = PlayerInputHandler<ControlID::kTogglePOV, Op>;
+	template <class Op> using ThirdPersonStateHandlerEx = PlayerInputHandler<ControlID::kTogglePOV, Op>;
+	template <class Op> using FavoritesHandlerEx = PlayerInputHandler<ControlID::kNone, Op>;
+	template <class Op> using SprintHandlerEx = PlayerInputHandler<ControlID::kSprint, Op>;
+	template <class Op> using ReadyWeaponHandlerEx = PlayerInputHandler<ControlID::kReadyWeapon, Op>;
+	template <class Op> using AutoMoveHandlerEx = PlayerInputHandler<ControlID::kAutoMove, Op>;
+	template <class Op> using ToggleRunHandlerEx = PlayerInputHandler<ControlID::kToggleRun, Op>;
+	template <class Op> using ActivateHandlerEx = PlayerInputHandler<ControlID::kActivate, Op>;
+	template <class Op> using JumpHandlerEx = PlayerInputHandler<ControlID::kJump, Op>;
+	template <class Op> using ShoutHandlerEx = PlayerInputHandler<ControlID::kShout, Op>;
+	template <class Op> using SneakHandlerEx = PlayerInputHandler<ControlID::kSneak, Op>;
 
 
 	class TakeOp
 	{
 	public:
-		static void Run()
+		void operator()()
 		{
 			LootMenu* loot = LootMenu::GetSingleton();
 			loot->TakeItemStack();
 			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
-
-
-		MAKE_PLAYER_INPUT_HANDLER_EX(TakeOp);
 	};
 
 
 	class TakeAllOp
 	{
 	public:
-		static void Run()
+		void operator()()
 		{
 			LootMenu* loot = LootMenu::GetSingleton();
 			loot->TakeAllItems();
 			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
-
-
-		MAKE_PLAYER_INPUT_HANDLER_EX(TakeAllOp);
 	};
 
 
 	class SearchOp
 	{
 	public:
-		static void Run()
+		void operator()()
 		{
 			RE::PlayerCharacter::GetSingleton()->StartActivation();
 		}
-
-
-		MAKE_PLAYER_INPUT_HANDLER_EX(SearchOp);
 	};
 
 
@@ -148,19 +144,16 @@ namespace Hooks
 	class NullOp
 	{
 	public:
-		static void Run()
+		void operator()()
 		{}
-
-
-		MAKE_PLAYER_INPUT_HANDLER_EX(NullOp);
 	};
 
 
 	struct MenuOpenHandlerEx : RE::MenuOpenHandler
 	{
 	public:
-		using _ProcessButton_t = bool(RE::MenuOpenHandler* a_this, RE::ButtonEvent* a_event);
-		static _ProcessButton_t* orig_ProcessButton;
+		using ProcessButton_t = function_type_t<decltype(&RE::MenuOpenHandler::ProcessButton)>;
+		inline static ProcessButton_t* orig_ProcessButton;
 
 
 		bool Hook_ProcessButton(RE::ButtonEvent* a_event)
@@ -205,7 +198,7 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			RelocPtr<_ProcessButton_t*> vtbl_ProcessButton(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
+			RelocPtr<ProcessButton_t*> vtbl_ProcessButton(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
 			orig_ProcessButton = *vtbl_ProcessButton;
 			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&Hook_ProcessButton));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
@@ -213,22 +206,19 @@ namespace Hooks
 	};
 
 
-	MenuOpenHandlerEx::_ProcessButton_t* MenuOpenHandlerEx::orig_ProcessButton;
-
-
 	template <std::uintptr_t offset>
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
 	public:
-		using _GetCrosshairText_t = bool(RE::TESBoundAnimObject* a_this, RE::TESObjectREFR* a_ref, RE::BSString* a_dst, bool a_unk);
-		static _GetCrosshairText_t* orig_GetCrosshairText;
+		using GetCrosshairText_t = function_type_t<decltype(&RE::TESBoundAnimObject::GetCrosshairText)>;
+		inline static GetCrosshairText_t* orig_GetCrosshairText;
 
 
-		bool Hook_GetCrosshairText(RE::TESObjectREFR* a_ref, RE::BSString* a_dst, bool a_unk)
+		bool Hook_GetCrosshairText(RE::TESObjectREFR* a_ref, RE::BSString* a_dst)
 		{
 			using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
-			bool result = orig_GetCrosshairText(this, a_ref, a_dst, a_unk);
+			bool result = orig_GetCrosshairText(this, a_ref, a_dst);
 
 			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 			LootMenu* loot = LootMenu::GetSingleton();
@@ -264,7 +254,7 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			RelocPtr<_GetCrosshairText_t*> vtbl_GetCrosshairText(offset);
+			RelocPtr<GetCrosshairText_t*> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
 			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&Hook_GetCrosshairText));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
@@ -272,7 +262,6 @@ namespace Hooks
 	};
 
 
-	template <std::uintptr_t offset> typename TESBoundAnimObjectEx<offset>::_GetCrosshairText_t* TESBoundAnimObjectEx<offset>::orig_GetCrosshairText;
 	using TESObjectACTIEx = TESBoundAnimObjectEx<RE::Offset::TESObjectACTI::Vtbl + (0x4C * 0x8)>;
 	using TESObjectCONTEx = TESBoundAnimObjectEx<RE::Offset::TESObjectCONT::Vtbl + (0x4C * 0x8)>;
 	using TESNPCEx = TESBoundAnimObjectEx<RE::Offset::TESNPC::Vtbl + (0x4C * 0x8)>;
@@ -447,54 +436,52 @@ namespace Hooks
 	}
 
 
-	using _Set_t = void(const char* a_str);
-	template <typename T, _Set_t* set>
-	bool ApplySetting(HookShare::_RegisterForCanProcess_t* a_register, sSetting& a_setting)
+	using Set_t = void(const char* a_str);
+	template <class Op>
+	bool ApplySetting(HookShare::RegisterForCanProcess_t* a_register, Set_t* a_set, sSetting& a_setting)
 	{
 		using HookShare::Hook;
 
 		InputStringHolder* strHolder = InputStringHolder::GetSingleton();
-
 		bool result = false;
 
 		if (a_setting == "activate") {
-			a_register(T::ActivateHandlerEx::Hook_CanProcess, Hook::kActivate);
-			set(strHolder->activate.c_str());
-			activateHandlerHooked = true;
+			a_register(Hook::kActivate, &ActivateHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->activate.c_str());
 			result = true;
 		} else if (a_setting == "readyWeapon") {
-			a_register(T::ReadyWeaponHandlerEx::Hook_CanProcess, Hook::kReadyWeapon);
-			set(strHolder->readyWeapon.c_str());
+			a_register(Hook::kReadyWeapon, &ReadyWeaponHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->readyWeapon.c_str());
 			result = true;
 		} else if (a_setting == "togglePOV") {
-			a_register(T::FirstPersonStateHandlerEx::Hook_CanProcess, Hook::kFirstPersonState);
-			a_register(T::ThirdPersonStateHandlerEx::Hook_CanProcess, Hook::kThirdPersonState);
-			set(strHolder->togglePOV.c_str());
-			cameraStateHandlerHooked = true;
+			a_register(Hook::kFirstPersonState, &FirstPersonStateHandlerEx<Op>::Hook_CanProcess);
+			a_register(Hook::kThirdPersonState, &ThirdPersonStateHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->togglePOV.c_str());
+			g_cameraStateHandlerHooked = true;
 			result = true;
 		} else if (a_setting == "jump") {
-			a_register(T::JumpHandlerEx::Hook_CanProcess, Hook::kJump);
-			set(strHolder->jump.c_str());
+			a_register(Hook::kJump, &JumpHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->jump.c_str());
 			result = true;
 		} else if (a_setting == "sprint") {
-			a_register(T::SprintHandlerEx::Hook_CanProcess, Hook::kSprint);
-			set(strHolder->sprint.c_str());
+			a_register(Hook::kSprint, &SprintHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->sprint.c_str());
 			result = true;
 		} else if (a_setting == "sneak") {
-			a_register(T::SneakHandlerEx::Hook_CanProcess, Hook::kSneak);
-			set(strHolder->sneak.c_str());
+			a_register(Hook::kSneak, &SneakHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->sneak.c_str());
 			result = true;
 		} else if (a_setting == "shout") {
-			a_register(T::ShoutHandlerEx::Hook_CanProcess, Hook::kShout);
-			set(strHolder->shout.c_str());
+			a_register(Hook::kShout, &ShoutHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->shout.c_str());
 			result = true;
 		} else if (a_setting == "toggleRun") {
-			a_register(T::ToggleRunHandlerEx::Hook_CanProcess, Hook::kToggleRun);
-			set(strHolder->toggleRun.c_str());
+			a_register(Hook::kToggleRun, &ToggleRunHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->toggleRun.c_str());
 			result = true;
 		} else if (a_setting == "autoMove") {
-			a_register(T::AutoMoveHandlerEx::Hook_CanProcess, Hook::kAutoMove);
-			set(strHolder->autoMove.c_str());
+			a_register(Hook::kAutoMove, &AutoMoveHandlerEx<Op>::Hook_CanProcess);
+			a_set(strHolder->autoMove.c_str());
 			result = true;
 		} else {
 			_ERROR("[ERROR] Unrecognized mapping (%s)!", a_setting.c_str());
@@ -503,45 +490,48 @@ namespace Hooks
 
 		return result;
 	}
+}
 
 
-	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register)
+namespace Hooks
+{
+	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
 
 		if (!CheckForMappingConflicts()) {
-			if (ApplySetting<NullOp, &LootMenu::SetSingleLootMapping>(a_register, Settings::singleLootModifier)) {
+			if (ApplySetting<NullOp>(a_register, &LootMenu::SetSingleLootMapping, Settings::singleLootModifier)) {
 				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::singleLootModifier.key().c_str(), Settings::singleLootModifier.c_str());
 			} else {
 				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::singleLootModifier.key().c_str(), Settings::singleLootModifier.c_str());
 			}
 
-			if (ApplySetting<TakeOp, &LootMenu::SetTakeMapping>(a_register, Settings::takeMethod)) {
+			if (ApplySetting<TakeOp>(a_register, &LootMenu::SetTakeMapping, Settings::takeMethod)) {
 				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::takeMethod.key().c_str(), Settings::takeMethod.c_str());
 			} else {
 				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::takeMethod.key().c_str(), Settings::takeMethod.c_str());
 			}
 
-			if (ApplySetting<TakeAllOp, &LootMenu::SetTakeAllMapping>(a_register, Settings::takeAllMethod)) {
+			if (ApplySetting<TakeAllOp>(a_register, &LootMenu::SetTakeAllMapping, Settings::takeAllMethod)) {
 				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::takeAllMethod.key().c_str(), Settings::takeAllMethod.c_str());
 			} else {
 				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::takeAllMethod.key().c_str(), Settings::takeAllMethod.c_str());
 			}
 
-			if (ApplySetting<SearchOp, &LootMenu::SetSearchMapping>(a_register, Settings::searchMethod)) {
+			if (ApplySetting<SearchOp>(a_register, &LootMenu::SetSearchMapping, Settings::searchMethod)) {
 				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::searchMethod.key().c_str(), Settings::searchMethod.c_str());
 			} else {
 				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::searchMethod.key().c_str(), Settings::searchMethod.c_str());
 			}
 
-			if (!activateHandlerHooked) {
-				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kActivate);
+			if (!g_activateHandlerHooked) {
+				a_register(Hook::kActivate, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
 				_DMESSAGE("[DEBUG] Stubbed activate can process handler");
 			}
 
-			if (!cameraStateHandlerHooked) {
-				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kFirstPersonState);
-				a_register(NullOp::ActivateHandlerEx::Hook_CanProcess, Hook::kThirdPersonState);
+			if (!g_cameraStateHandlerHooked) {
+				a_register(Hook::kFirstPersonState, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
+				a_register(Hook::kThirdPersonState, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
 				_DMESSAGE("[DEBUG] Stubbed camera state can process handlers");
 			}
 		} else {
@@ -549,7 +539,7 @@ namespace Hooks
 			_ERROR("[ERROR] No input hooks applied!\n");
 		}
 
-		a_register(NullOp::FavoritesHandlerEx::Hook_CanProcess, Hook::kFavorites);
+		a_register(Hook::kFavorites, &FavoritesHandlerEx<NullOp>::Hook_CanProcess);
 		_DMESSAGE("[DEBUG] Stubbed Favorites can process handler");
 
 		if (!Settings::disableActiTextHook) {

@@ -10,27 +10,25 @@ bool Settings::loadSettings(bool a_dumpParse)
 }
 
 
-bSetting				Settings::disableInCombat("disableInCombat", true, true);
-bSetting				Settings::disableTheft("disableTheft", true, false);
-bSetting				Settings::disablePickPocketing("disablePickpocketing", true, false);
-bSetting				Settings::disableIfEmpty("disableIfEmpty", true, true);
-bSetting				Settings::disableSingleLoot("disableSingleLoot", true, false);
-bSetting				Settings::disableAnimations("disableAnimations", true, false);
-bSetting				Settings::disableInvisDispell("disableInvisDispell", true, false);
-bSetting				Settings::disableForAnimals("disableForAnimals", true, false);
-bSetting				Settings::disableForActiOverride("disableForActiOverride", true, false);
-bSetting				Settings::disableActiTextHook("disableActiTextHook", true, false);
-bSetting				Settings::disableOnActiDispatch("disableOnActiDispatch", true, false);
-iSetting				Settings::itemLimit("itemLimit", true, 100);
-fSetting				Settings::scale("scale", true, -1.0);
-fSetting				Settings::positionX("positionX", true, -1.0);
-fSetting				Settings::positionY("positionY", true, -1.0);
-fSetting				Settings::opacity("opacity", true, -1.0);
-sSetting				Settings::singleLootModifier("singleLootModifier", false, "sprint");
-sSetting				Settings::takeMethod("takeMethod", false, "activate");
-sSetting				Settings::takeAllMethod("takeAllMethod", false, "togglePOV");
-sSetting				Settings::searchMethod("searchMethod", false, "readyWeapon");
-sSetting				Settings::interfaceStyle("interfaceStyle", false, "default");
-aSetting<std::string>	Settings::sortOrder("sortOrder", false, { "stolen", "type", "name", "value", "count" });
-
-bool					Settings::isApplied = false;
+decltype(Settings::disableInCombat)			Settings::disableInCombat("disableInCombat", true, true);
+decltype(Settings::disableTheft)			Settings::disableTheft("disableTheft", true, false);
+decltype(Settings::disablePickPocketing)	Settings::disablePickPocketing("disablePickpocketing", true, false);
+decltype(Settings::disableIfEmpty)			Settings::disableIfEmpty("disableIfEmpty", true, true);
+decltype(Settings::disableSingleLoot)		Settings::disableSingleLoot("disableSingleLoot", true, false);
+decltype(Settings::disableAnimations)		Settings::disableAnimations("disableAnimations", true, false);
+decltype(Settings::disableInvisDispell)		Settings::disableInvisDispell("disableInvisDispell", true, false);
+decltype(Settings::disableForAnimals)		Settings::disableForAnimals("disableForAnimals", true, false);
+decltype(Settings::disableForActiOverride)	Settings::disableForActiOverride("disableForActiOverride", true, false);
+decltype(Settings::disableActiTextHook)		Settings::disableActiTextHook("disableActiTextHook", true, false);
+decltype(Settings::disableOnActiDispatch)	Settings::disableOnActiDispatch("disableOnActiDispatch", true, false);
+decltype(Settings::itemLimit)				Settings::itemLimit("itemLimit", true, 100);
+decltype(Settings::scale)					Settings::scale("scale", true, -1.0);
+decltype(Settings::positionX)				Settings::positionX("positionX", true, -1.0);
+decltype(Settings::positionY)				Settings::positionY("positionY", true, -1.0);
+decltype(Settings::opacity)					Settings::opacity("opacity", true, -1.0);
+decltype(Settings::singleLootModifier)		Settings::singleLootModifier("singleLootModifier", false, "sprint");
+decltype(Settings::takeMethod)				Settings::takeMethod("takeMethod", false, "activate");
+decltype(Settings::takeAllMethod)			Settings::takeAllMethod("takeAllMethod", false, "togglePOV");
+decltype(Settings::searchMethod)			Settings::searchMethod("searchMethod", false, "readyWeapon");
+decltype(Settings::interfaceStyle)			Settings::interfaceStyle("interfaceStyle", false, "default");
+decltype(Settings::sortOrder)				Settings::sortOrder("sortOrder", false, { "stolen", "type", "name", "value", "count" });

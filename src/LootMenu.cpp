@@ -16,6 +16,7 @@
 #include "ItemData.h"  // ItemData
 #include "InventoryList.h"  // g_invList
 #include "Settings.h"  // Settings
+#include "SKSEInterface.h"  // SKSE
 #include "Utility.h"  // IsValidPickPocketTarget
 
 #include "RE/Skyrim.h"
@@ -532,34 +533,34 @@ void LootMenu::Register(Scaleform a_reg) const
 	if (LootMenu::IsConstructed()) {
 		switch (a_reg) {
 		case Scaleform::kSetKeyMappings:
-			AllocateAndDispatch<SetKeyMappingsUIDelegate>();
+			SKSE::AddTask(new SetKeyMappingsUIDelegate());
 			break;
 		case Scaleform::kSetPlatform:
-			AllocateAndDispatch<SetPlatformUIDelegate>();
+			SKSE::AddTask(new SetPlatformUIDelegate());
 			break;
 		case Scaleform::kSetSelectedIndex:
-			AllocateAndDispatch<SetSelectedIndexUIDelegate>();
+			SKSE::AddTask(new SetSelectedIndexUIDelegate());
 			break;
 		case Scaleform::kSetup:
-			AllocateAndDispatch<SetupUIDelegate>();
+			SKSE::AddTask(new SetupUIDelegate());
 			break;
 		case Scaleform::kSetContainer:
-			AllocateAndDispatch<SetContainerUIDelegate>();
+			SKSE::AddTask(new SetContainerUIDelegate());
 			break;
 		case Scaleform::kOpenContainer:
-			AllocateAndDispatch<OpenContainerUIDelegate>();
+			SKSE::AddTask(new OpenContainerUIDelegate());
 			break;
 		case Scaleform::kCloseContainer:
-			AllocateAndDispatch<CloseContainerUIDelegate>();
+			SKSE::AddTask(new CloseContainerUIDelegate());
 			break;
 		case Scaleform::kUpdateButtons:
-			AllocateAndDispatch<UpdateButtonsUIDelegate>();
+			SKSE::AddTask(new UpdateButtonsUIDelegate());
 			break;
 		case Scaleform::kHideButtons:
-			AllocateAndDispatch<HideButtonsUIDelegate>();
+			SKSE::AddTask(new HideButtonsUIDelegate());
 			break;
 		case Scaleform::kSwitchStyle:
-			AllocateAndDispatch<SwitchStyleTaskDelegate>();
+			SKSE::AddTask(new SwitchStyleTaskDelegate());
 			break;
 		default:
 			_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
