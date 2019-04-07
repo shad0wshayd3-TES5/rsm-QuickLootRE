@@ -22,7 +22,7 @@ namespace Events
 
 		// If player is not looking at anything
 		LootMenu* loot = LootMenu::GetSingleton();
-		if (a_event->crosshairRef) {
+		if (!a_event->crosshairRef) {
 			if (loot->IsOpen()) {
 				loot->Close();
 				loot->ClearContainerRef();
