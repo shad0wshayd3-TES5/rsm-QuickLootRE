@@ -1,21 +1,18 @@
 #include "Events.h"
 
-#include "skse64/GameEvents.h"  // EventResult, EventDispatcher
-#include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
-
 #include "Delegates.h"  // DelayedUpdater
 #include "InventoryList.h"  // g_invList
 #include "LootMenu.h"  // LootMenu
 #include "Settings.h"  // Settings
-#include "SKSEInterface.h"  // SKSE
 #include "Utility.h"  // IsValidPickPocketTarget
 
+#include "SKSE/Interface.h"
 #include "RE/Skyrim.h"
 
 
 namespace Events
 {
-	RE::EventResult CrosshairRefEventHandler::ReceiveEvent(SKSECrosshairRefEvent* a_event, RE::BSTEventSource<SKSECrosshairRefEvent>* a_dispatcher)
+	RE::EventResult CrosshairRefEventHandler::ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher)
 	{
 		using RE::EventResult;
 
@@ -25,7 +22,7 @@ namespace Events
 
 		// If player is not looking at anything
 		LootMenu* loot = LootMenu::GetSingleton();
-		if (!a_event->crosshairRef.get()) {
+		if (a_event->crosshairRef) {
 			if (loot->IsOpen()) {
 				loot->Close();
 				loot->ClearContainerRef();
@@ -34,7 +31,7 @@ namespace Events
 		}
 
 		// If player went from container -> container
-		RE::TESObjectREFR* ref = reinterpret_cast<RE::TESObjectREFR*>(a_event->crosshairRef.get());
+		RE::TESObjectREFR* ref = a_event->crosshairRef.get();
 		if (loot->IsOpen() && loot->GetContainerRef() != ref) {
 			loot->Close();
 			loot->ClearContainerRef();

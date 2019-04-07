@@ -2,6 +2,7 @@
 
 #include "skse64_common/BranchTrampoline.h"  // g_localTrampoline, g_branchTrampoline
 #include "skse64_common/SafeWrite.h"  // SafeWrite
+#include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
 #include "xbyak/xbyak.h"  // xbyak
 
 #include <cassert>  // assert
@@ -16,6 +17,8 @@
 
 #include "HookShare.h"  // ReturnType, _RegisterForCanProcess_t
 
+#include "SKSE/Events.h"
+#include "SKSE/Interface.h"
 #include "RE/Skyrim.h"
 
 
@@ -314,6 +317,34 @@ namespace
 	}
 
 
+	// TEMPORARY
+	bool Hook_LookupCrosshairRefByHandle(RE::RefHandle& a_handle, RE::TESObjectREFRPtr& a_refrOut)
+	{
+		bool result = RE::TESObjectREFR::LookupByHandle(a_handle, a_refrOut);
+
+		g_crosshairRef = a_refrOut;
+		SKSE::CrosshairRefEvent event(a_refrOut);
+		SKSE::GetCrosshairRefEventSource()->SendEvent(&event);
+
+		return result;
+	}
+
+
+	RE::TESObjectREFR* GetCurrentCrosshairRef_Hook(RE::StaticFunctionTag*)
+	{
+		return g_crosshairRef.get();
+	}
+
+
+	void InstallCrosshairDispatchFix()
+	{
+		RelocAddr<std::uintptr_t> target(0x006B0570 + 0x90);
+		g_branchTrampoline.Write5Call(target.GetUIntPtr(), GetFnAddr(Hook_LookupCrosshairRefByHandle));
+		_DMESSAGE("[DEBUG] Installed fix for crosshair ref dispatch");
+	}
+	// TEMPORARY
+
+
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 	{
 		if (a_scriptData->strLen < 60) {
@@ -495,6 +526,15 @@ namespace
 
 namespace Hooks
 {
+	// TEMPORARY
+	bool Register_GetCurrentCrosshairRef_Hook(RE::BSScript::Internal::VirtualMachine* a_vm)
+	{
+		a_vm->RegisterFunction("GetCurrentCrosshairRef", "Game", GetCurrentCrosshairRef_Hook);
+		return true;
+	}
+	// TEMPORARY
+
+
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
@@ -552,9 +592,10 @@ namespace Hooks
 		TESObjectREFREx::InstallHook();
 
 		RegisterConsoleCommands();
-
-#if _DEBUG
 		InstallGHeapLeakDetectionCrashFix();
-#endif
+
+		// TEMPORARY
+		InstallCrosshairDispatchFix();
+		// TEMPORARY
 	}
 }

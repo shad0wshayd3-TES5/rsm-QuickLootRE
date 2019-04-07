@@ -2,6 +2,8 @@
 
 #include "HookShare.h"  // RegisterForCanProcess_t
 
+#include "RE/Skyrim.h"
+
 
 namespace
 {
@@ -21,6 +23,11 @@ namespace
 	};
 
 
+	// TEMPORARY
+	RE::TESObjectREFRPtr g_crosshairRef;
+	// TEMPORARY
+
+
 	bool g_activateHandlerHooked = false;
 	bool g_cameraStateHandlerHooked = false;
 }
@@ -28,5 +35,9 @@ namespace
 
 namespace Hooks
 {
+	// TEMPORARY
+	bool Register_GetCurrentCrosshairRef_Hook(RE::BSScript::Internal::VirtualMachine* a_vm);
+	// TEMPORARY
+
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register);
 }

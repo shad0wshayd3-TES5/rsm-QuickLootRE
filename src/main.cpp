@@ -1,6 +1,8 @@
-﻿#include "skse64/PluginAPI.h"  // SKSEMessagingInterface, SKSEInterface, PluginInfo
+﻿#include "skse64/PluginAPI.h"  // SKSESerializationInterface, SKSEMessagingInterface, SKSEInterface, PluginInfo
 #include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/skse_version.h"  // RUNTIME_VERSION
+
+#include <string>  // string
 
 #include <ShlObj.h>  // CSIDL_MYDOCUMENTS
 
@@ -8,17 +10,96 @@
 #include "Hooks.h"  // InstallHooks
 #include "ItemData.h"  // SetCompareOrder
 #include "LootMenu.h"  // LootMenuCreator
+#include "Registration.h"  // OnContainerOpenAnim, OnContainerCloseAnim, QuickLoot::RegisterFuncs
 #include "Settings.h"  // Settings
-#include "SKSEInterface.h"  // SKSE
 #include "version.h"  // HOOK_SHARE_API_VERSION_MAJOR
 
 #include "HookShare.h"  // RegisterForCanProcess_t
 
+#include "SKSE/Interface.h"
 #include "RE/Skyrim.h"
 
 
 namespace
 {
+	enum : UInt32
+	{
+		kSerializationVersion = 1,
+
+		kQuickLoot = 'QKLT',
+		kOnOpenAnimStart = 'OOAS',
+		kOnCloseAnimStart = 'OCAS'
+	};
+
+
+	std::string DecodeTypeCode(UInt32 a_typeCode)
+	{
+		constexpr std::size_t SIZE = sizeof(UInt32);
+
+		std::string sig;
+		sig.resize(SIZE);
+		char* iter = reinterpret_cast<char*>(&a_typeCode);
+		for (std::size_t i = 0, j = SIZE - 2; i < SIZE - 1; ++i, --j) {
+			sig[j] = iter[i];
+		}
+		return sig;
+	}
+
+
+	void SaveCallback(SKSESerializationInterface* a_intfc)
+	{
+		if (!OnContainerOpenAnim::GetSingleton()->Save(a_intfc, kOnOpenAnimStart, kSerializationVersion)) {
+			_ERROR("[ERROR] Failed to save OnContainerOpenAnim regs!\n");
+		}
+
+		if (!OnContainerCloseAnim::GetSingleton()->Save(a_intfc, kOnCloseAnimStart, kSerializationVersion)) {
+			_ERROR("[ERROR] Failed to save OnContainerCloseAnim regs!\n");
+		}
+
+		_MESSAGE("[MESSAGE] Finished saving data");
+	}
+
+
+	void LoadCallback(SKSESerializationInterface* a_intfc)
+	{
+		UInt32 type;
+		UInt32 version;
+		UInt32 length;
+		while (a_intfc->GetNextRecordInfo(&type, &version, &length)) {
+			if (version != kSerializationVersion) {
+				_ERROR("[ERROR] Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, kSerializationVersion, DecodeTypeCode(type).c_str());
+				continue;
+			}
+
+			switch (type) {
+			case kOnOpenAnimStart:
+				{
+					auto regs = OnContainerOpenAnim::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						_ERROR("[ERROR] Failed to load OnContainerOpenAnim regs!\n");
+					}
+				}
+				break;
+			case kOnCloseAnimStart:
+				{
+					auto regs = OnContainerCloseAnim::GetSingleton();
+					regs->Clear();
+					if (!regs->Load(a_intfc)) {
+						_ERROR("[ERROR] Failed to load OnContainerCloseAnim regs!\n");
+					}
+				}
+				break;
+			default:
+				_ERROR("[ERROR] Unrecognized record type (%s)!", DecodeTypeCode(type).c_str());
+				break;
+			}
+		}
+
+		_MESSAGE("[MESSAGE] Finished loading data");
+	}
+
+
 	void HooksReady(SKSEMessagingInterface::Message* a_msg)
 	{
 		using HookShare::RegisterForCanProcess_t;
@@ -93,7 +174,7 @@ namespace
 					_FATALERROR("[FATAL ERROR] SkyUI is not installed!\n");
 				}
 
-				LootMenu::GetSingleton();
+				LootMenu::GetSingleton();	// instantiate menu
 			}
 			break;
 		}
@@ -104,6 +185,8 @@ namespace
 extern "C" {
 	bool SKSEPlugin_Query(const SKSEInterface* a_skse, PluginInfo* a_info)
 	{
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
 		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
 		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
@@ -112,11 +195,7 @@ extern "C" {
 
 		a_info->infoVersion = PluginInfo::kInfoVersion;
 		a_info->name = "QuickLootRE";
-		a_info->version = 1;
-
-		if (!SKSE::Init(a_skse)) {
-			return false;
-		}
+		a_info->version = QUICKLOOTRE_VERSION_MAJOR;
 
 		if (a_skse->isEditor) {
 			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
@@ -134,6 +213,17 @@ extern "C" {
 	{
 		_MESSAGE("[MESSAGE] QuickLootRE loaded");
 
+		if (!SKSE::Init(a_skse)) {
+			return false;
+		}
+
+		if (Settings::loadSettings()) {
+			_MESSAGE("[MESSAGE] Settings successfully loaded");
+		} else {
+			_FATALERROR("[FATAL ERROR] Settings failed to load!\n");
+			return false;
+		}
+
 		if (g_branchTrampoline.Create(1024 * 8)) {
 			_MESSAGE("[MESSAGE] Branch trampoline creation successful");
 		} else {
@@ -149,12 +239,18 @@ extern "C" {
 			return false;
 		}
 
-		if (Settings::loadSettings()) {
-			_MESSAGE("[MESSAGE] Settings successfully loaded");
-		} else {
-			_FATALERROR("[FATAL ERROR] Settings failed to load!\n");
-			return false;
+		if (!SKSE::RegisterPapyrusCallback(QuickLoot::RegisterFuncs)) {
+			_FATALERROR("[FATAL ERROR] Failed to register papyrus reg callback!\n");
 		}
+
+		auto serialization = SKSE::GetSerializationInterface();
+		serialization->SetUniqueID(SKSE::GetPluginHandle(), kQuickLoot);
+		serialization->SetSaveCallback(SKSE::GetPluginHandle(), SaveCallback);
+		serialization->SetLoadCallback(SKSE::GetPluginHandle(), LoadCallback);
+
+		// TEMPORARY
+		SKSE::RegisterPapyrusCallback(Hooks::Register_GetCurrentCrosshairRef_Hook);
+		// TEMPORARY
 
 		return true;
 	}

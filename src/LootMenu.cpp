@@ -15,10 +15,11 @@
 #include "Hooks.h"  // SendItemsPickPocketedEvent
 #include "ItemData.h"  // ItemData
 #include "InventoryList.h"  // g_invList
+#include "Registration.h"  // OnContainerOpenAnim, OnContainerCloseAnim
 #include "Settings.h"  // Settings
-#include "SKSEInterface.h"  // SKSE
 #include "Utility.h"  // IsValidPickPocketTarget
 
+#include "SKSE/Interface.h"
 #include "RE/Skyrim.h"
 
 
@@ -820,9 +821,15 @@ void LootMenu::PlayAnimationOpen()
 {
 	if (_containerRef && !_isContainerOpen) {
 		PlayAnimation("Close", "Open");
+
+		if (!Settings::disableAnimations) {
+			OnContainerOpenAnim::GetSingleton()->QueueEvent();
+		}
+
 		if (_containerRef->formType != RE::FormType::ActorCharacter) {
 			_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Triggers traps
 		}
+
 		_isContainerOpen = true;
 	}
 }
@@ -832,6 +839,11 @@ void LootMenu::PlayAnimationClose()
 {
 	if (_containerRef && _isContainerOpen) {
 		PlayAnimation("Open", "Close");
+
+		if (!Settings::disableAnimations) {
+			OnContainerCloseAnim::GetSingleton()->QueueEvent();
+		}
+
 		_isContainerOpen = false;
 	}
 }
@@ -855,7 +867,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 
 	// Pickup dropped items
 	if (xList && xList->HasType(RE::ExtraDataType::kItemDropper)) {
-		RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
+		RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((std::uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
 		player->PickUpItem(refItem, 1, false, true);
 		manualUpdate = true;
 	} else {
@@ -949,9 +961,9 @@ UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType) const
 }
 
 
-LootMenu*				LootMenu::_singleton = 0;
-std::string				LootMenu::_singleLootMapping = "";
-std::string				LootMenu::_takeMapping = "";
-std::string				LootMenu::_takeAllMapping = "";
-std::string				LootMenu::_searchMapping = "";
-std::queue<const char*>	LootMenu::_messageQueue;
+decltype(LootMenu::_singleton)			LootMenu::_singleton = 0;
+decltype(LootMenu::_singleLootMapping)	LootMenu::_singleLootMapping = "";
+decltype(LootMenu::_takeMapping)		LootMenu::_takeMapping = "";
+decltype(LootMenu::_takeAllMapping)		LootMenu::_takeAllMapping = "";
+decltype(LootMenu::_searchMapping)		LootMenu::_searchMapping = "";
+decltype(LootMenu::_messageQueue)		LootMenu::_messageQueue;

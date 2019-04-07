@@ -1,16 +1,15 @@
 #pragma once
 
-#include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
-
+#include "SKSE/Events.h"  // CrosshairRefEvent
 #include "RE/Skyrim.h"
 
 
 namespace Events
 {
-	class CrosshairRefEventHandler : public RE::BSTEventSink<SKSECrosshairRefEvent>
+	class CrosshairRefEventHandler : public RE::BSTEventSink<SKSE::CrosshairRefEvent>
 	{
 	public:
-		virtual	RE::EventResult ReceiveEvent(SKSECrosshairRefEvent* a_event, RE::BSTEventSource<SKSECrosshairRefEvent>* a_dispatcher) override;
+		virtual	RE::EventResult ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher) override;
 
 		static CrosshairRefEventHandler* GetSingleton();
 

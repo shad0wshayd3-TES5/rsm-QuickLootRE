@@ -57,7 +57,7 @@
     <ClCompile Include="src\ManagedEntryData.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\SKSEInterface.cpp">
+    <ClCompile Include="src\Registration.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,7 +101,7 @@
     <ClInclude Include="include\ManagedEntryData.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\SKSEInterface.h">
+    <ClInclude Include="include\Registration.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

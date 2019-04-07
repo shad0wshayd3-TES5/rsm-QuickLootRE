@@ -167,9 +167,9 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\ManagedEntryData.cpp" />
+    <ClCompile Include="src\Registration.cpp" />
     <ClCompile Include="src\SetActivateLabelPerkEntryVisitor.cpp" />
     <ClCompile Include="src\Settings.cpp" />
-    <ClCompile Include="src\SKSEInterface.cpp" />
     <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -182,9 +182,9 @@
     <ClInclude Include="include\Forms.h" />
     <ClInclude Include="include\LootMenu.h" />
     <ClInclude Include="include\ManagedEntryData.h" />
+    <ClInclude Include="include\Registration.h" />
     <ClInclude Include="include\SetActivateLabelPerkEntryVisitor.h" />
     <ClInclude Include="include\Settings.h" />
-    <ClInclude Include="include\SKSEInterface.h" />
     <ClInclude Include="include\Utility.h" />
     <ClInclude Include="include\version.h" />
   </ItemGroup>
