@@ -1,6 +1,5 @@
 #include "Registration.h"
 
-#include "SKSE/Interface.h"
 #include "RE/Skyrim.h"
 
 

@@ -19,7 +19,7 @@
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget
 
-#include "SKSE/Interface.h"
+#include "SKSE/API.h"
 #include "RE/Skyrim.h"
 
 
@@ -532,36 +532,37 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 void LootMenu::Register(Scaleform a_reg) const
 {
 	if (LootMenu::IsConstructed()) {
+		auto task = SKSE::GetTaskInterface();
 		switch (a_reg) {
 		case Scaleform::kSetKeyMappings:
-			SKSE::AddTask(new SetKeyMappingsUIDelegate());
+			task->AddTask(new SetKeyMappingsUIDelegate());
 			break;
 		case Scaleform::kSetPlatform:
-			SKSE::AddTask(new SetPlatformUIDelegate());
+			task->AddTask(new SetPlatformUIDelegate());
 			break;
 		case Scaleform::kSetSelectedIndex:
-			SKSE::AddTask(new SetSelectedIndexUIDelegate());
+			task->AddTask(new SetSelectedIndexUIDelegate());
 			break;
 		case Scaleform::kSetup:
-			SKSE::AddTask(new SetupUIDelegate());
+			task->AddTask(new SetupUIDelegate());
 			break;
 		case Scaleform::kSetContainer:
-			SKSE::AddTask(new SetContainerUIDelegate());
+			task->AddTask(new SetContainerUIDelegate());
 			break;
 		case Scaleform::kOpenContainer:
-			SKSE::AddTask(new OpenContainerUIDelegate());
+			task->AddTask(new OpenContainerUIDelegate());
 			break;
 		case Scaleform::kCloseContainer:
-			SKSE::AddTask(new CloseContainerUIDelegate());
+			task->AddTask(new CloseContainerUIDelegate());
 			break;
 		case Scaleform::kUpdateButtons:
-			SKSE::AddTask(new UpdateButtonsUIDelegate());
+			task->AddTask(new UpdateButtonsUIDelegate());
 			break;
 		case Scaleform::kHideButtons:
-			SKSE::AddTask(new HideButtonsUIDelegate());
+			task->AddTask(new HideButtonsUIDelegate());
 			break;
 		case Scaleform::kSwitchStyle:
-			SKSE::AddTask(new SwitchStyleTaskDelegate());
+			task->AddTask(new SwitchStyleTaskDelegate());
 			break;
 		default:
 			_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);

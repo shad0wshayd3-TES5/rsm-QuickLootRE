@@ -6,7 +6,7 @@
 #include "Settings.h"  // Settings
 #include "Utility.h"  // IsValidPickPocketTarget
 
-#include "SKSE/Interface.h"
+#include "SKSE/API.h"
 #include "RE/Skyrim.h"
 
 
@@ -190,7 +190,8 @@ namespace Events
 		}
 
 		if (a_event->fromFormID == ref->formID || a_event->toFormID == ref->formID) {
-			SKSE::AddTask(new DelayedUpdater());	// This event is fired before the item is removed, so we have to wait a bit
+			auto task = SKSE::GetTaskInterface();
+			task->AddTask(new DelayedUpdater());	// This event is fired before the item is removed, so we have to wait a bit
 		}
 
 		return EventResult::kContinue;

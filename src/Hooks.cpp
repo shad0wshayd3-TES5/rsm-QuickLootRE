@@ -17,8 +17,8 @@
 
 #include "HookShare.h"  // ReturnType, _RegisterForCanProcess_t
 
-#include "SKSE/Events.h"
-#include "SKSE/Interface.h"
+#include "SKSE/API.h"  // GetCrosshairRefEventSource
+#include "SKSE/Events.h"  // CrosshairRefEvent
 #include "RE/Skyrim.h"
 
 

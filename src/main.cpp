@@ -1,5 +1,4 @@
-﻿#include "skse64/PluginAPI.h"  // SKSESerializationInterface, SKSEMessagingInterface, SKSEInterface, PluginInfo
-#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
+﻿#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/skse_version.h"  // RUNTIME_VERSION
 
 #include <string>  // string
@@ -12,11 +11,11 @@
 #include "LootMenu.h"  // LootMenuCreator
 #include "Registration.h"  // OnContainerOpenAnim, OnContainerCloseAnim, QuickLoot::RegisterFuncs
 #include "Settings.h"  // Settings
-#include "version.h"  // HOOK_SHARE_API_VERSION_MAJOR
+#include "version.h"  // kAPIVersionMajor
 
 #include "HookShare.h"  // RegisterForCanProcess_t
 
-#include "SKSE/Interface.h"
+#include "SKSE/API.h"
 #include "RE/Skyrim.h"
 
 
@@ -46,7 +45,7 @@ namespace
 	}
 
 
-	void SaveCallback(SKSESerializationInterface* a_intfc)
+	void SaveCallback(SKSE::SerializationInterface* a_intfc)
 	{
 		if (!OnContainerOpenAnim::GetSingleton()->Save(a_intfc, kOnOpenAnimStart, kSerializationVersion)) {
 			_ERROR("[ERROR] Failed to save OnContainerOpenAnim regs!\n");
@@ -60,12 +59,12 @@ namespace
 	}
 
 
-	void LoadCallback(SKSESerializationInterface* a_intfc)
+	void LoadCallback(SKSE::SerializationInterface* a_intfc)
 	{
 		UInt32 type;
 		UInt32 version;
 		UInt32 length;
-		while (a_intfc->GetNextRecordInfo(&type, &version, &length)) {
+		while (a_intfc->GetNextRecordInfo(type, version, length)) {
 			if (version != kSerializationVersion) {
 				_ERROR("[ERROR] Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, kSerializationVersion, DecodeTypeCode(type).c_str());
 				continue;
@@ -100,18 +99,18 @@ namespace
 	}
 
 
-	void HooksReady(SKSEMessagingInterface::Message* a_msg)
+	void HooksReady(SKSE::MessagingInterface::Message* a_msg)
 	{
 		using HookShare::RegisterForCanProcess_t;
 
 		switch (a_msg->type) {
 		case HookShare::kType_CanProcess:
-			if (a_msg->dataLen == HOOK_SHARE_API_VERSION_MAJOR) {
+			if (a_msg->dataLen == HookShare::kAPIVersionMajor) {
 				auto _RegisterForCanProcess = static_cast<RegisterForCanProcess_t*>(a_msg->data);
 				Hooks::InstallHooks(_RegisterForCanProcess);
 				_MESSAGE("[MESSAGE] Hooks registered");
 			} else {
-				_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
+				_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
 				LootMenu::QueueMessage(LootMenu::Message::kHookShareIncompatible);
 			}
 			break;
@@ -119,13 +118,13 @@ namespace
 	}
 
 
-	void MessageHandler(SKSEMessagingInterface::Message* a_msg)
+	void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	{
 		switch (a_msg->type) {
-		case SKSEMessagingInterface::kMessage_PostPostLoad:
+		case SKSE::MessagingInterface::kPostPostLoad:
 			{
 				auto messaging = SKSE::GetMessagingInterface();
-				if (messaging->RegisterListener(SKSE::GetPluginHandle(), "HookShareSSE", HooksReady)) {
+				if (messaging->RegisterListener("HookShareSSE", HooksReady)) {
 					_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
 				} else {
 					_FATALERROR("[FATAL ERROR] Failed to register HookShareSSE listener!\n");
@@ -133,7 +132,7 @@ namespace
 				}
 			}
 			break;
-		case SKSEMessagingInterface::kMessage_InputLoaded:
+		case SKSE::MessagingInterface::kInputLoaded:
 			{
 				auto messaging = SKSE::GetMessagingInterface();
 				auto crosshairRefDispatcher = SKSE::GetCrosshairRefEventSource();
@@ -165,7 +164,7 @@ namespace
 				_MESSAGE("[MESSAGE] Settings applied");
 			}
 			break;
-		case SKSEMessagingInterface::kMessage_DataLoaded:
+		case SKSE::MessagingInterface::kDataLoaded:
 			{
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
 				if (dataHandler->LookupModByName("SkyUI_SE.esp")) {
@@ -183,7 +182,7 @@ namespace
 
 
 extern "C" {
-	bool SKSEPlugin_Query(const SKSEInterface* a_skse, PluginInfo* a_info)
+	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, PluginInfo* a_info)
 	{
 		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
@@ -209,7 +208,7 @@ extern "C" {
 	}
 
 
-	bool SKSEPlugin_Load(const SKSEInterface* a_skse)
+	bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	{
 		_MESSAGE("[MESSAGE] QuickLootRE loaded");
 
@@ -232,24 +231,25 @@ extern "C" {
 		}
 
 		auto messaging = SKSE::GetMessagingInterface();
-		if (messaging->RegisterListener(SKSE::GetPluginHandle(), "SKSE", MessageHandler)) {
+		if (messaging->RegisterListener("SKSE", MessageHandler)) {
 			_MESSAGE("[MESSAGE] Registered SKSE listener");
 		} else {
 			_FATALERROR("[FATAL ERROR] Failed to register SKSE listener!\n");
 			return false;
 		}
 
-		if (!SKSE::RegisterPapyrusCallback(QuickLoot::RegisterFuncs)) {
+		auto papyrus = SKSE::GetPapyrusInterface();
+		if (!papyrus->Register(QuickLoot::RegisterFuncs)) {
 			_FATALERROR("[FATAL ERROR] Failed to register papyrus reg callback!\n");
 		}
 
 		auto serialization = SKSE::GetSerializationInterface();
-		serialization->SetUniqueID(SKSE::GetPluginHandle(), kQuickLoot);
-		serialization->SetSaveCallback(SKSE::GetPluginHandle(), SaveCallback);
-		serialization->SetLoadCallback(SKSE::GetPluginHandle(), LoadCallback);
+		serialization->SetUniqueID(kQuickLoot);
+		serialization->SetSaveCallback(SaveCallback);
+		serialization->SetLoadCallback(LoadCallback);
 
 		// TEMPORARY
-		SKSE::RegisterPapyrusCallback(Hooks::Register_GetCurrentCrosshairRef_Hook);
+		papyrus->Register(Hooks::Register_GetCurrentCrosshairRef_Hook);
 		// TEMPORARY
 
 		return true;
