@@ -38,8 +38,8 @@ namespace
 			}
 
 			// If the menu closes while the button is still held, input might process when it shouldn't
-			RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
-			LootMenu* loot = LootMenu::GetSingleton();
+			auto button = static_cast<RE::ButtonEvent*>(a_event);
+			auto loot = LootMenu::GetSingleton();
 			if (button->IsRepeating() && loot->ShouldSkipNextInput()) {
 				if (button->IsUp()) {
 					loot->NextInputSkipped();
@@ -58,7 +58,7 @@ namespace
 		}
 
 	private:
-		static inline Op _op;
+		inline static Op _op;
 	};
 
 
@@ -72,14 +72,14 @@ namespace
 			using HookShare::result_type;
 			using EventType = RE::InputEvent::EventType;
 
-			LootMenu* loot = LootMenu::GetSingleton();
+			auto loot = LootMenu::GetSingleton();
 			if (RE::PlayerCharacter::GetSingleton()->GetGrabbedRef()) {
 				loot->Close();
 				return result_type::kContinue;
 			}
 
 			if (a_event->eventType == EventType::kButton && loot->IsVisible()) {
-				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
+				auto button = static_cast<RE::ButtonEvent*>(a_event);
 				if (button->IsUp() && button->GetControlID() == GetControlID(ControlID::kActivate)) {  // This must be IsUp, so as to avoid taking an item when grabbing
 					_op();
 					return result_type::kFalse;
@@ -92,7 +92,7 @@ namespace
 		}
 
 	private:
-		static inline Op _op;
+		inline static Op _op;
 	};
 
 

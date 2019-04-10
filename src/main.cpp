@@ -174,6 +174,7 @@ namespace
 				}
 
 				LootMenu::GetSingleton();	// instantiate menu
+				_MESSAGE("[MESSAGE] LootMenu initialized");
 			}
 			break;
 		}
@@ -184,23 +185,21 @@ namespace
 extern "C" {
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, PluginInfo* a_info)
 	{
-		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
 		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
 		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
 
 		_MESSAGE("QuickLootRE v%s", QUICKLOOTRE_VERSION_VERSTRING);
 
-		a_info->infoVersion = PluginInfo::kInfoVersion;
+		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "QuickLootRE";
 		a_info->version = QUICKLOOTRE_VERSION_MAJOR;
 
-		if (a_skse->isEditor) {
+		if (a_skse->IsEditor()) {
 			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
 			return false;
-		} else  if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_73) {
-			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
+		} else  if (a_skse->RuntimeVersion() != RUNTIME_VERSION_1_5_73) {
+			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
 			return false;
 		}
 
