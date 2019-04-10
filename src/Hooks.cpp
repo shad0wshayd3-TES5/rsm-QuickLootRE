@@ -155,8 +155,8 @@ namespace
 	struct MenuOpenHandlerEx : RE::MenuOpenHandler
 	{
 	public:
-		using ProcessButton_t = function_type_t<decltype(&RE::MenuOpenHandler::ProcessButton)>;
-		inline static ProcessButton_t* orig_ProcessButton;
+		using func_t = function_type_t<decltype(&RE::MenuOpenHandler::ProcessButton)>;
+		inline static func_t* orig_ProcessButton;
 
 
 		bool Hook_ProcessButton(RE::ButtonEvent* a_event)
@@ -201,7 +201,7 @@ namespace
 
 		static void InstallHook()
 		{
-			RelocPtr<ProcessButton_t*> vtbl_ProcessButton(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
+			RelocPtr<func_t*> vtbl_ProcessButton(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
 			orig_ProcessButton = *vtbl_ProcessButton;
 			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&Hook_ProcessButton));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
@@ -213,8 +213,8 @@ namespace
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
 	public:
-		using GetCrosshairText_t = function_type_t<decltype(&RE::TESBoundAnimObject::GetCrosshairText)>;
-		inline static GetCrosshairText_t* orig_GetCrosshairText;
+		using func_t = function_type_t<decltype(&RE::TESBoundAnimObject::GetCrosshairText)>;
+		inline static func_t* orig_GetCrosshairText;
 
 
 		bool Hook_GetCrosshairText(RE::TESObjectREFR* a_ref, RE::BSString* a_dst)
@@ -257,7 +257,7 @@ namespace
 
 		static void InstallHook()
 		{
-			RelocPtr<GetCrosshairText_t*> vtbl_GetCrosshairText(offset);
+			RelocPtr<func_t*> vtbl_GetCrosshairText(offset);
 			orig_GetCrosshairText = *vtbl_GetCrosshairText;
 			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&Hook_GetCrosshairText));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
@@ -347,27 +347,24 @@ namespace
 
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 	{
-		if (a_scriptData->strLen < 60) {
-			RE::CommandInfo::StringChunk* strChunk = (RE::CommandInfo::StringChunk*)a_scriptData->GetChunk();
-			std::string name = strChunk->GetString();
+		auto strChunk = static_cast<RE::CommandInfo::StringChunk*>(a_scriptData->GetChunk());
+		std::string name = strChunk->GetString();
 
-			RE::ConsoleManager* console = RE::ConsoleManager::GetSingleton();
+		if (name.length() > 1) {
+			RE::CommandInfo::IntegerChunk* intChunk = (RE::CommandInfo::IntegerChunk*)strChunk->GetNext();
+			int val = intChunk->GetInteger();
 
-			if (name.length() > 1) {
-				RE::CommandInfo::IntegerChunk* intChunk = (RE::CommandInfo::IntegerChunk*)strChunk->GetNext();
-				int val = intChunk->GetInteger();
+			auto console = RE::ConsoleManager::GetSingleton();
+			auto setting = Settings::set(name, val);
+			if (setting) {
+				LootMenu::GetSingleton()->Register(LootMenu::Scaleform::kSetup);
 
-				ISetting* setting = Settings::set(name, val);
-				if (setting) {
-					LootMenu::GetSingleton()->Register(LootMenu::Scaleform::kSetup);
-
-					if (console && RE::ConsoleManager::IsConsoleMode()) {
-						console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
-					}
-				} else {
-					if (console && RE::ConsoleManager::IsConsoleMode()) {
-						console->Print("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
-					}
+				if (console && RE::ConsoleManager::IsConsoleMode()) {
+					console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
+				}
+			} else {
+				if (console && RE::ConsoleManager::IsConsoleMode()) {
+					console->Print("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
 				}
 			}
 		}
@@ -379,7 +376,7 @@ namespace
 	{
 		using Type = RE::SCRIPT_PARAMETER::Type;
 
-		RE::CommandInfo* info = RE::CommandInfo::Locate("TestSeenData");  // Unused
+		auto info = RE::CommandInfo::Locate("TestSeenData");  // Unused
 		if (info) {
 			static RE::SCRIPT_PARAMETER params[] = {
 				{ "Name", Type::kString, 0 },
@@ -404,7 +401,7 @@ namespace
 	{
 		static RE::BSFixedString emptyStr = "";
 
-		RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+		auto strHolder = RE::InputStringHolder::GetSingleton();
 
 		switch (a_controlID) {
 		case ControlID::kActivate:
@@ -473,7 +470,7 @@ namespace
 	{
 		using HookShare::Hook;
 
-		InputStringHolder* strHolder = InputStringHolder::GetSingleton();
+		auto strHolder = InputStringHolder::GetSingleton();
 		bool result = false;
 
 		if (a_setting == "activate") {
