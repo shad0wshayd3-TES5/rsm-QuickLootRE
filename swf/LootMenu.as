@@ -58,7 +58,7 @@ class LootMenu extends MovieClip
 
 
 	// @API
-	public function SetPlatform(a_platform:Number, a_bPS3Switch:Boolean): Void
+	public function SetPlatform(a_platform:Number, a_ps3Switch:Boolean): Void
 	{
 		_platform = a_platform;
 
@@ -75,9 +75,9 @@ class LootMenu extends MovieClip
 	}
 	
 	
-	public function SetSelectedIndex(idx: Number): Void
+	public function SetSelectedIndex(a_idx: Number): Void
 	{
-		itemList.selectedIndex = idx;
+		itemList.selectedIndex = a_idx;
 	}
 	
 
@@ -110,25 +110,25 @@ class LootMenu extends MovieClip
 	}
 	
 
-	public function SetContainer(a_refID:Number, a_title:String, a_sTake:String, a_sTakeAll:String, a_sSearch:String, selectedIndex:Number): Void
+	public function SetContainer(a_refID:Number, a_title:String, a_take:String, a_takeAll:String, a_search:String, selectedIndex:Number): Void
 	{
 		itemList.selectedIndex = selectedIndex;
 		
 		_refID = a_refID;
 		titleText.htmlText = a_title;
 		
-		buttonTake.SetButton(_takeKey, a_sTake);
-		buttonTakeAll.SetButton(_takeAllKey, a_sTakeAll);
-		buttonSearch.SetButton(_searchKey, a_sSearch);
+		buttonTake.SetButton(_takeKey, a_take);
+		buttonTakeAll.SetButton(_takeAllKey, a_takeAll);
+		buttonSearch.SetButton(_searchKey, a_search);
 	}
 	
 	
-	public function OpenContainer(items:Array): Void
+	public function OpenContainer(a_items:Array): Void
 	{
 		itemList.clearList();
 		itemList.listEnumeration = new BasicEnumeration(itemList.entryList);
-		for (var i=0; i<items.length; i++) {
-			var entry = items[i]
+		for (var i = 0; i < a_items.length; i++) {
+			var entry = a_items[i]
 			itemList.entryList.push(entry)
 		}
 		itemList.InvalidateData();

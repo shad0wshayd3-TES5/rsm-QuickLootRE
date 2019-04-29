@@ -1,7 +1,5 @@
 #include "ItemData.h"
 
-#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
-
 #include <limits>  // numeric_limits
 #include <string>  // string
 
@@ -337,9 +335,7 @@ void ItemData::constructCommon()
 
 float ItemData::getWeight()
 {
-	using RE::TESWeightForm;
-
-	RE::TESWeightForm* weightForm = DYNAMIC_CAST(_entryData->Get()->type, TESForm, TESWeightForm);
+	auto weightForm = skyrim_cast<RE::TESWeightForm*>(_entryData->Get()->type);
 	return weightForm ? weightForm->weight : 0.0;
 }
 
@@ -415,7 +411,7 @@ ItemData::Type ItemData::getTypeArmor(RE::TESObjectARMO* a_armor)
 	};
 
 	UInt32 index = 0;
-	RE::BGSBipedObjectForm* bipedObj = static_cast<RE::BGSBipedObjectForm*>(a_armor);
+	auto bipedObj = static_cast<RE::BGSBipedObjectForm*>(a_armor);
 
 	if (bipedObj->IsLightArmor()) {
 		index = 0;
@@ -569,7 +565,7 @@ ItemData::Type ItemData::getTypePotion(RE::AlchemyItem* a_potion)
 	} else if (a_potion->IsPoison()) {
 		return Type::kPotionPoison;
 	} else {
-		RE::Effect* effect = a_potion->GetCostliestEffectItem();
+		auto effect = a_potion->GetCostliestEffectItem();
 		if (effect && effect->baseEffect) {
 			switch (effect->baseEffect->data.primaryActorValue) {
 			case ActorValue::kHealth:
@@ -601,7 +597,7 @@ ItemData::Type ItemData::getTypeSoulGem(RE::TESSoulGem* a_gem)
 		return Type::kSoulGemAzura;
 	default:
 		{
-			SoulLevel soulSize = _entryData->Get()->GetSoulLevel();
+			auto soulSize = _entryData->Get()->GetSoulLevel();
 			if (a_gem->GetMaximumCapacity() < SoulLevel::kGreater) {
 				if (soulSize >= a_gem->GetMaximumCapacity()) {
 					return Type::kSoulGemFull;
@@ -626,9 +622,9 @@ ItemData::Type ItemData::getTypeSoulGem(RE::TESSoulGem* a_gem)
 
 bool ItemData::getStolen()
 {
-	RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+	auto player = RE::PlayerCharacter::GetSingleton();
 
-	RE::TESForm* owner = _entryData->Get()->GetOwner();
+	auto owner = _entryData->Get()->GetOwner();
 	if (!owner) {
 		owner = _container->GetOwner();
 	}
@@ -642,8 +638,6 @@ bool ItemData::getStolen()
 
 bool ItemData::getEnchanted()
 {
-	using RE::TESEnchantableForm;
-
 	if (_entryData->Get()->extraList) {
 		for (auto& xList : *_entryData->Get()->extraList) {
 			if (xList->HasType(RE::ExtraDataType::kEnchantment)) {
@@ -651,7 +645,7 @@ bool ItemData::getEnchanted()
 			}
 		}
 	}
-	RE::TESEnchantableForm* enchantForm = DYNAMIC_CAST(_entryData->Get()->type, TESForm, TESEnchantableForm);
+	auto enchantForm = skyrim_cast<RE::TESEnchantableForm*>(_entryData->Get()->type);
 	if (enchantForm && enchantForm->objectEffect) {
 		return true;
 	}
@@ -665,7 +659,7 @@ bool ItemData::getCanPickPocket()
 		return true;
 	}
 
-	RE::Actor* actor = static_cast<RE::Actor*>(_container);
+	auto actor = static_cast<RE::Actor*>(_container);
 	if (actor->IsDead(true)) {
 		return true;
 	}
@@ -695,9 +689,9 @@ bool ItemData::getCanPickPocket()
 
 SInt32 ItemData::getPickPocketChance()
 {
-	RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+	auto player = RE::PlayerCharacter::GetSingleton();
 	if (IsValidPickPocketTarget(_container, player->IsSneaking())) {
-		RE::Actor* targetActor = static_cast<RE::Actor*>(_container);
+		auto targetActor = static_cast<RE::Actor*>(_container);
 
 		float itemWeight = _entryData->Get()->GetWeight();
 		UInt32 totalValue = targetActor->CalcEntryValue(_entryData->Get(), _count, true);
@@ -721,7 +715,7 @@ SInt32 ItemData::getPickPocketChance()
 bool ItemData::getRead()
 {
 	if (_entryData->Get()->type->Is(RE::FormType::Book)) {
-		RE::TESObjectBOOK* book = static_cast<RE::TESObjectBOOK*>(_entryData->Get()->type);
+		auto book = static_cast<RE::TESObjectBOOK*>(_entryData->Get()->type);
 		return book->IsRead();
 	} else {
 		return false;
@@ -925,115 +919,14 @@ int r_compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs)
 }
 
 
-std::vector<ItemData::FnCompare*>	ItemData::_compares;
-RE::TESObjectREFR*					ItemData::_container = 0;
-const std::string					ItemData::NAME = "name";
-const std::string					ItemData::COUNT = "count";
-const std::string					ItemData::VALUE = "value";
-const std::string					ItemData::WEIGHT = "weight";
-const std::string					ItemData::TYPE = "type";
-const std::string					ItemData::READ = "read";
-const std::string					ItemData::ENCHANTED = "enchanted";
-const std::string					ItemData::PICK_POCKET_CHANCE = "pickPocketChance";
-const std::string					ItemData::VALUE_PER_WEIGHT = "valuePerWeight";
-const std::string					ItemData::PRIORITY = "priority";
-
-const char* ItemData::_strIcons[] = {
-	"none",					// 00
-	"default_weapon",
-	"weapon_sword",
-	"weapon_greatsword",
-	"weapon_daedra",
-	"weapon_dagger",
-	"weapon_waraxe",
-	"weapon_battleaxe",
-	"weapon_mace",
-	"weapon_hammer",
-	"weapon_staff",			// 10
-	"weapon_bow",
-	"weapon_arrow",
-	"weapon_pickaxe",
-	"weapon_woodaxe",
-	"weapon_crossbow",
-	"weapon_bolt",
-	"default_armor",
-	"lightarmor_body",
-	"lightarmor_head",
-	"lightarmor_hands",		// 20
-	"lightarmor_forearms",
-	"lightarmor_feet",
-	"lightarmor_calves",
-	"lightarmor_shield",
-	"lightarmor_mask",
-	"armor_body",
-	"armor_head",
-	"armor_hands",
-	"armor_forearms",
-	"armor_feet",			// 30
-	"armor_calves",
-	"armor_shield",
-	"armor_mask",
-	"armor_bracer",
-	"armor_daedra",
-	"clothing_body",
-	"clothing_robe",
-	"clothing_head",
-	"clothing_pants",
-	"clothing_hands",		// 40
-	"clothing_forearms",
-	"clothing_feet",
-	"clothing_calves",
-	"clothing_shoes",
-	"clothing_shield",
-	"clothing_mask",
-	"armor_amulet",
-	"armor_ring",
-	"armor_circlet",
-	"default_scroll",		// 50
-	"default_book",
-	"default_book_read",
-	"book_tome",
-	"book_tome_read",
-	"book_journal",
-	"book_note",
-	"book_map",
-	"default_food",
-	"food_wine",
-	"food_beer",			// 60
-	"default_ingredient",
-	"default_key",
-	"key_house",
-	"default_potion",
-	"potion_health",
-	"potion_stam",
-	"potion_magic",
-	"potion_poison",
-	"potion_frost",
-	"potion_fire",			// 70
-	"potion_shock",
-	"default_misc",
-	"misc_artifact",
-	"misc_clutter",
-	"misc_lockpick",
-	"misc_soulgem",
-	"soulgem_empty",
-	"soulgem_partial",
-	"soulgem_full",
-	"soulgem_grandempty",	// 80
-	"soulgem_grandpartial",
-	"soulgem_grandfull",
-	"soulgem_azura",
-	"misc_gem",
-	"misc_ore",
-	"misc_ingot",
-	"misc_hide",
-	"misc_strips",
-	"misc_leather",
-	"misc_wood",			// 90
-	"misc_remains",
-	"misc_trollskull",
-	"misc_torch",
-	"misc_goldsack",
-	"misc_gold",
-	"misc_dragonclaw"
-};
+decltype(ItemData::NAME)				ItemData::NAME = "name";
+decltype(ItemData::COUNT)				ItemData::COUNT = "count";
+decltype(ItemData::VALUE)				ItemData::VALUE = "value";
+decltype(ItemData::WEIGHT)				ItemData::WEIGHT = "weight";
+decltype(ItemData::TYPE)				ItemData::TYPE = "type";
+decltype(ItemData::READ)				ItemData::READ = "read";
+decltype(ItemData::ENCHANTED)			ItemData::ENCHANTED = "enchanted";
+decltype(ItemData::PICK_POCKET_CHANCE)	ItemData::PICK_POCKET_CHANCE = "pickPocketChance";
+decltype(ItemData::VALUE_PER_WEIGHT)	ItemData::VALUE_PER_WEIGHT = "valuePerWeight";
+decltype(ItemData::PRIORITY)			ItemData::PRIORITY = "priority";
+decltype(ItemData::_compares)			ItemData::_compares;

@@ -20,6 +20,7 @@
 #include "SKSE/API.h"  // GetCrosshairRefEventSource
 #include "SKSE/Events.h"  // CrosshairRefEvent
 #include "RE/Skyrim.h"
+#include "REL/Relocation.h"
 
 
 namespace
@@ -156,18 +157,18 @@ namespace
 	{
 	public:
 		using func_t = function_type_t<decltype(&RE::MenuOpenHandler::ProcessButton)>;
-		inline static func_t* orig_ProcessButton;
+		inline static func_t* func = 0;
 
 
 		bool Hook_ProcessButton(RE::ButtonEvent* a_event)
 		{
-			RE::InputStringHolder* inputStrHolder = RE::InputStringHolder::GetSingleton();
-			RE::InputManager* input = RE::InputManager::GetSingleton();
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			auto inputStrHolder = RE::InputStringHolder::GetSingleton();
+			auto input = RE::InputManager::GetSingleton();
+			auto mm = RE::MenuManager::GetSingleton();
 
 			RE::BSFixedString& str = input->IsGamepadEnabled() ? inputStrHolder->journal : inputStrHolder->pause;
 			if (!a_event || a_event->controlID != str || mm->GameIsPaused()) {
-				return orig_ProcessButton(this, a_event);
+				return func(this, a_event);
 			}
 
 			static bool processed = true;
@@ -178,7 +179,7 @@ namespace
 			} else if (a_event->IsHeld()) {
 				if (!processed && a_event->timer >= 2.0) {
 					processed = true;
-					LootMenu* loot = LootMenu::GetSingleton();
+					auto loot = LootMenu::GetSingleton();
 					loot->ToggleEnabled();
 					loot->QueueMessage(LootMenu::Message::kLootMenuToggled);
 				}
@@ -188,7 +189,7 @@ namespace
 					float timer = a_event->timer;
 					a_event->pressure = 1.0;
 					a_event->timer = 0.0;
-					result = orig_ProcessButton(this, a_event);
+					result = func(this, a_event);
 					a_event->pressure = pressure;
 					a_event->timer = timer;
 					processed = true;
@@ -201,27 +202,27 @@ namespace
 
 		static void InstallHook()
 		{
-			RelocPtr<func_t*> vtbl_ProcessButton(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
-			orig_ProcessButton = *vtbl_ProcessButton;
-			SafeWrite64(vtbl_ProcessButton.GetUIntPtr(), GetFnAddr(&Hook_ProcessButton));
+			REL::Offset<func_t**> vFunc(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
+			func = *vFunc;
+			SafeWrite64(vFunc.GetAddress(), GetFnAddr(&Hook_ProcessButton));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
 		}
 	};
 
 
-	template <std::uintptr_t offset>
+	template <std::uintptr_t OFFSET>
 	class TESBoundAnimObjectEx : public RE::TESBoundAnimObject
 	{
 	public:
 		using func_t = function_type_t<decltype(&RE::TESBoundAnimObject::GetCrosshairText)>;
-		inline static func_t* orig_GetCrosshairText;
+		inline static func_t* func = 0;
 
 
 		bool Hook_GetCrosshairText(RE::TESObjectREFR* a_ref, RE::BSString* a_dst)
 		{
 			using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
-			bool result = orig_GetCrosshairText(this, a_ref, a_dst);
+			bool result = func(this, a_ref, a_dst);
 
 			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 			LootMenu* loot = LootMenu::GetSingleton();
@@ -257,9 +258,9 @@ namespace
 
 		static void InstallHook()
 		{
-			RelocPtr<func_t*> vtbl_GetCrosshairText(offset);
-			orig_GetCrosshairText = *vtbl_GetCrosshairText;
-			SafeWrite64(vtbl_GetCrosshairText.GetUIntPtr(), GetFnAddr(&Hook_GetCrosshairText));
+			REL::Offset<func_t**> vFunc(OFFSET);
+			func = *vFunc;
+			SafeWrite64(vFunc.GetAddress(), GetFnAddr(&Hook_GetCrosshairText));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
 		}
 	};
@@ -277,7 +278,7 @@ namespace
 		{
 			SetActivationBlocked(a_blocked);
 
-			LootMenu* loot = LootMenu::GetSingleton();
+			auto loot = LootMenu::GetSingleton();
 			if (loot->IsVisible() && this == loot->GetContainerRef()) {
 				loot->Close();
 				loot->ClearContainerRef();
@@ -291,11 +292,11 @@ namespace
 			constexpr std::uintptr_t BASE_ADDR = 0x009935A0;	// 1_5_73
 			constexpr std::uintptr_t LEA_HOOK = 0x1F;
 			constexpr std::uintptr_t JMP_HOOK = 0x36;
-			RelocAddr<std::uintptr_t> funcBase(BASE_ADDR);
+			REL::Offset<std::uintptr_t> funcBase(BASE_ADDR);
 
-			SafeWrite8(funcBase.GetUIntPtr() + LEA_HOOK + 3, 0x00);
+			SafeWrite8(funcBase.GetAddress() + LEA_HOOK + 3, 0x00);
 
-			g_branchTrampoline.Write5Branch(funcBase.GetUIntPtr() + JMP_HOOK, GetFnAddr(&Hook_BlockActivation));
+			g_branchTrampoline.Write5Branch(funcBase.GetAddress() + JMP_HOOK, GetFnAddr(&Hook_BlockActivation));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESObjectREFREx).name());
 		}
 	};
@@ -308,10 +309,10 @@ namespace
 		constexpr std::uintptr_t START = 0x4B;
 		constexpr std::uintptr_t END = 0x5C;
 		constexpr UInt8 NOP = 0x90;
-		RelocAddr<std::uintptr_t> funcBase(BASE_ADDR);
+		REL::Offset<std::uintptr_t> funcBase(BASE_ADDR);
 
 		for (std::uintptr_t i = START; i < END; ++i) {
-			SafeWrite8(funcBase.GetUIntPtr() + i, NOP);
+			SafeWrite8(funcBase.GetAddress() + i, NOP);
 		}
 		_DMESSAGE("[DEBUG] Installed crash fix for scaleform heap leak detection");
 	}
@@ -338,8 +339,8 @@ namespace
 
 	void InstallCrosshairDispatchFix()
 	{
-		RelocAddr<std::uintptr_t> target(0x006B0570 + 0x90);
-		g_branchTrampoline.Write5Call(target.GetUIntPtr(), GetFnAddr(Hook_LookupCrosshairRefByHandle));
+		REL::Offset<std::uintptr_t> target(0x006B0570 + 0x90);
+		g_branchTrampoline.Write5Call(target.GetAddress(), GetFnAddr(Hook_LookupCrosshairRefByHandle));
 		_DMESSAGE("[DEBUG] Installed fix for crosshair ref dispatch");
 	}
 	// TEMPORARY
@@ -402,7 +403,6 @@ namespace
 		static RE::BSFixedString emptyStr = "";
 
 		auto strHolder = RE::InputStringHolder::GetSingleton();
-
 		switch (a_controlID) {
 		case ControlID::kActivate:
 			return strHolder->activate;

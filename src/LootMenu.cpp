@@ -2,7 +2,6 @@
 
 #include "skse64_common/SafeWrite.h"  // SafeWrite64
 #include "skse64/GameMenus.h"  // UIMessage
-#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
 #include "skse64/NiRTTI.h"  // ni_cast
 
 #include <cstdlib>  // abort
@@ -590,15 +589,12 @@ LootMenu::Style LootMenu::GetStyle() const
 
 void LootMenu::OnMenuOpen()
 {
-	using BSGamepadDevice = RE::BSGamepadDevice;
-	using BSWin32GamepadDevice = RE::BSWin32GamepadDevice;
-
 	if (!_containerRef) {
 		return;
 	}
 
-	RE::BSGamepadDevice* gamepadHandle = RE::InputManager::GetSingleton()->GetGamepad();
-	RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
+	auto gamepadHandle = RE::InputManager::GetSingleton()->GetGamepad();
+	auto gamepad = skyrim_cast<RE::BSWin32GamepadDevice*>(gamepadHandle);
 	if (gamepad && gamepad->IsEnabled()) {
 		_platform = Platform::kOther;
 	} else {
@@ -752,18 +748,14 @@ void LootMenu::ProcessMessageQueue()
 
 bool LootMenu::SingleLootEnabled() const
 {
-	using BSKeyboardDevice = RE::BSKeyboardDevice;
-	using BSWin32KeyboardDevice = RE::BSWin32KeyboardDevice;
-	using BSGamepadDevice = RE::BSGamepadDevice;
-	using BSWin32GamepadDevice = RE::BSWin32GamepadDevice;
 	using DeviceType = RE::DeviceType;
 
 	if (Settings::disableSingleLoot) {
 		return false;
 	}
 
-	RE::InputManager* inputManager = RE::InputManager::GetSingleton();
-	RE::BSWin32KeyboardDevice* keyboard = DYNAMIC_CAST(inputManager->keyboard, BSKeyboardDevice, BSWin32KeyboardDevice);
+	auto inputManager = RE::InputManager::GetSingleton();
+	auto keyboard = skyrim_cast<RE::BSWin32KeyboardDevice*>(inputManager->keyboard);
 	if (keyboard && keyboard->IsEnabled()) {
 		UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kKeyboard);
 		if (singleLootKeyboard != -1 && keyboard->IsPressed(singleLootKeyboard)) {
@@ -773,7 +765,7 @@ bool LootMenu::SingleLootEnabled() const
 
 	RE::BSGamepadDevice* gamepadHandle = 0;
 	gamepadHandle = inputManager->GetGamepad();
-	RE::BSWin32GamepadDevice* gamepad = DYNAMIC_CAST(gamepadHandle, BSGamepadDevice, BSWin32GamepadDevice);
+	auto gamepad = skyrim_cast<RE::BSWin32GamepadDevice*>(gamepadHandle);
 	if (gamepad && gamepad->IsEnabled()) {
 		UInt32 singleLootSprint = GetSingleLootKey(DeviceType::kGamepad);
 		if (singleLootSprint != -1 && gamepad->IsPressed(singleLootSprint)) {

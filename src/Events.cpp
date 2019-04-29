@@ -12,16 +12,21 @@
 
 namespace Events
 {
+	CrosshairRefEventHandler* CrosshairRefEventHandler::GetSingleton()
+	{
+		static CrosshairRefEventHandler singleton;
+		return &singleton;
+	}
+
+
 	RE::EventResult CrosshairRefEventHandler::ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher)
 	{
-		using RE::EventResult;
-
 		if (!a_event) {
 			return EventResult::kContinue;
 		}
 
 		// If player is not looking at anything
-		LootMenu* loot = LootMenu::GetSingleton();
+		auto loot = LootMenu::GetSingleton();
 		if (!a_event->crosshairRef) {
 			if (loot->IsOpen()) {
 				loot->Close();
@@ -38,7 +43,7 @@ namespace Events
 		}
 
 		// If player is looking at a container
-		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		auto player = RE::PlayerCharacter::GetSingleton();
 		if (ref = loot->CanOpen(ref, player->IsSneaking())) {
 			loot->SetContainerRef(ref);
 			loot->ParseInventory();
@@ -49,19 +54,17 @@ namespace Events
 	}
 
 
-	CrosshairRefEventHandler* CrosshairRefEventHandler::GetSingleton()
+	InputEventHandler* InputEventHandler::GetSingleton()
 	{
-		static CrosshairRefEventHandler singleton;
+		static InputEventHandler singleton;
 		return &singleton;
 	}
 
 
 	RE::EventResult InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
 	{
-		using RE::EventResult;
 		using EventType = RE::InputEvent::EventType;
 		using DeviceType = RE::DeviceType;
-		using Keyboard = RE::BSWin32KeyboardDevice::Keyboard;
 		using Message = RE::UIMessage::Message;
 
 		if (!a_event || !*a_event) {
@@ -70,12 +73,12 @@ namespace Events
 
 		if (LootMenu::GetSingleton()->IsOpen()) {
 			if ((*a_event)->eventType == EventType::kButton && (*a_event)->deviceType == DeviceType::kKeyboard) {
-				RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(*a_event);
+				auto button = static_cast<RE::ButtonEvent*>(*a_event);
 
 				if (button->GetControlID() == RE::InputStringHolder::GetSingleton()->nextFocus) {  // Tab
-					RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-					RE::UIStringHolder* uiStrHolder = RE::UIStringHolder::GetSingleton();
-					RE::UIManager* uiManager = RE::UIManager::GetSingleton();
+					auto mm = RE::MenuManager::GetSingleton();
+					auto uiStrHolder = RE::UIStringHolder::GetSingleton();
+					auto uiManager = RE::UIManager::GetSingleton();
 
 					if (mm->GetMovieView(uiStrHolder->inventoryMenu)) {
 						uiManager->AddMessage(uiStrHolder->inventoryMenu, Message::kClose, 0);
@@ -97,34 +100,32 @@ namespace Events
 	}
 
 
-	InputEventHandler* InputEventHandler::GetSingleton()
+	MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::GetSingleton()
 	{
-		static InputEventHandler singleton;
+		static MenuOpenCloseEventHandler singleton;
 		return &singleton;
 	}
 
 
 	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
 	{
-		using RE::EventResult;
-
-		LootMenu* loot = LootMenu::GetSingleton();
+		auto loot = LootMenu::GetSingleton();
 		if (!a_event || !loot || !loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
 		RE::BSFixedString menuName = a_event->menuName;
-		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+		auto mm = RE::MenuManager::GetSingleton();
 
 		if (a_event->isOpening) {
-			RE::IMenu* menu = mm->GetMenu(a_event->menuName);
+			auto menu = mm->GetMenu(a_event->menuName);
 
 			if (menu) {
-				RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+				auto uiStrHolder = RE::UIStringHolder::GetSingleton();
 
-				if (menuName == strHolder->dialogueMenu || menuName == strHolder->messageBoxMenu) {
+				if (menuName == uiStrHolder->dialogueMenu || menuName == uiStrHolder->messageBoxMenu) {
 					loot->Close();
-				} else if ((menu->StopsCrosshairUpdates() && menuName != strHolder->tweenMenu) || menu->PausesGame()) {
+				} else if ((menu->StopsCrosshairUpdates() && menuName != uiStrHolder->tweenMenu) || menu->PausesGame()) {
 					loot->SetVisible(false);
 				}
 			}
@@ -140,23 +141,21 @@ namespace Events
 	}
 
 
-	MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::GetSingleton()
+	TESCombatEventHandler* TESCombatEventHandler::GetSingleton()
 	{
-		static MenuOpenCloseEventHandler singleton;
+		static TESCombatEventHandler singleton;
 		return &singleton;
 	}
 
 
 	RE::EventResult TESCombatEventHandler::ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
 	{
-		using RE::EventResult;
-
-		LootMenu* loot = LootMenu::GetSingleton();
+		auto loot = LootMenu::GetSingleton();
 		if (!a_event || !loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
-		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		auto player = RE::PlayerCharacter::GetSingleton();
 		if ((a_event->source && a_event->source->IsPlayerRef()) || (a_event->target && a_event->target->IsPlayerRef())) {
 			if (Settings::disableInCombat || IsValidPickPocketTarget(loot->GetContainerRef(), player->IsSneaking())) {
 				loot->Close();
@@ -168,18 +167,16 @@ namespace Events
 	}
 
 
-	TESCombatEventHandler* TESCombatEventHandler::GetSingleton()
+	TESContainerChangedEventHandler* TESContainerChangedEventHandler::GetSingleton()
 	{
-		static TESCombatEventHandler singleton;
+		static TESContainerChangedEventHandler singleton;
 		return &singleton;
 	}
 
 
 	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
 	{
-		using RE::EventResult;
-
-		LootMenu* loot = LootMenu::GetSingleton();
+		auto loot = LootMenu::GetSingleton();
 		if (!a_event || !loot->IsVisible() || loot->CanProcessInventoryChanges()) {
 			return EventResult::kContinue;
 		}
@@ -195,12 +192,5 @@ namespace Events
 		}
 
 		return EventResult::kContinue;
-	}
-
-
-	TESContainerChangedEventHandler* TESContainerChangedEventHandler::GetSingleton()
-	{
-		static TESContainerChangedEventHandler singleton;
-		return &singleton;
 	}
 }

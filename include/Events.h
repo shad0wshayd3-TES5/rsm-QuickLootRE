@@ -9,6 +9,9 @@ namespace Events
 	class CrosshairRefEventHandler : public RE::BSTEventSink<SKSE::CrosshairRefEvent>
 	{
 	public:
+		using EventResult = RE::EventResult;
+
+
 		virtual	RE::EventResult ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher) override;
 
 		static CrosshairRefEventHandler* GetSingleton();
@@ -27,9 +30,12 @@ namespace Events
 	class InputEventHandler : public RE::BSTEventSink<RE::InputEvent*>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override;
+		using EventResult = RE::EventResult;
+
 
 		static InputEventHandler* GetSingleton();
+
+		virtual RE::EventResult ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override;
 
 	protected:
 		InputEventHandler() = default;
@@ -45,9 +51,12 @@ namespace Events
 	class MenuOpenCloseEventHandler : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource) override;
+		using EventResult = RE::EventResult;
+
 
 		static MenuOpenCloseEventHandler* GetSingleton();
+
+		virtual RE::EventResult ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource) override;
 
 	protected:
 		MenuOpenCloseEventHandler() = default;
@@ -63,9 +72,12 @@ namespace Events
 	class TESCombatEventHandler : public RE::BSTEventSink<RE::TESCombatEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) override;
+		using EventResult = RE::EventResult;
+
 
 		static TESCombatEventHandler* GetSingleton();
+
+		virtual RE::EventResult ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource) override;
 
 	protected:
 		TESCombatEventHandler() = default;
@@ -81,9 +93,12 @@ namespace Events
 	class TESContainerChangedEventHandler : public RE::BSTEventSink<RE::TESContainerChangedEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource) override;
+		using EventResult = RE::EventResult;
+
 
 		static TESContainerChangedEventHandler* GetSingleton();
+
+		virtual RE::EventResult ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource) override;
 
 	protected:
 		TESContainerChangedEventHandler() = default;

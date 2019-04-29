@@ -132,38 +132,6 @@ namespace
 				}
 			}
 			break;
-		case SKSE::MessagingInterface::kInputLoaded:
-			{
-				auto messaging = SKSE::GetMessagingInterface();
-				auto crosshairRefDispatcher = SKSE::GetCrosshairRefEventSource();
-				crosshairRefDispatcher->AddEventSink(Events::CrosshairRefEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
-
-				auto inputManager = RE::InputManager::GetSingleton();
-				inputManager->AddEventSink(Events::InputEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Input event handler sinked");
-
-				auto mm = RE::MenuManager::GetSingleton();
-				mm->GetMenuOpenCloseEventSource()->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
-
-				auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-				sourceHolder->combatEventSource.AddEventSink(Events::TESCombatEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Combat event handler sinked");
-
-				sourceHolder->containerChangedEventSource.AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Container changed event handler sinked");
-
-				mm->Register("LootMenu", []() -> RE::IMenu*
-				{
-					return LootMenu::GetSingleton();
-				});
-				_MESSAGE("[MESSAGE] LootMenu registered");
-
-				ItemData::setCompareOrder();
-				_MESSAGE("[MESSAGE] Settings applied");
-			}
-			break;
 		case SKSE::MessagingInterface::kDataLoaded:
 			{
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -173,8 +141,36 @@ namespace
 					_FATALERROR("[FATAL ERROR] SkyUI is not installed!\n");
 				}
 
+				auto mm = RE::MenuManager::GetSingleton();
+				mm->Register("LootMenu", []() -> RE::IMenu*
+				{
+					return LootMenu::GetSingleton();
+				});
+				_MESSAGE("[MESSAGE] LootMenu registered");
+
 				LootMenu::GetSingleton();	// instantiate menu
 				_MESSAGE("[MESSAGE] LootMenu initialized");
+
+				ItemData::setCompareOrder();
+				_MESSAGE("[MESSAGE] Settings applied");
+
+				auto crosshairRefDispatcher = SKSE::GetCrosshairRefEventSource();
+				crosshairRefDispatcher->AddEventSink(Events::CrosshairRefEventHandler::GetSingleton());
+				_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
+
+				auto inputManager = RE::InputManager::GetSingleton();
+				inputManager->AddEventSink(Events::InputEventHandler::GetSingleton());
+				_MESSAGE("[MESSAGE] Input event handler sinked");
+
+				mm->GetMenuOpenCloseEventSource()->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
+				_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
+
+				auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+				sourceHolder->combatEventSource.AddEventSink(Events::TESCombatEventHandler::GetSingleton());
+				_MESSAGE("[MESSAGE] Combat event handler sinked");
+
+				sourceHolder->containerChangedEventSource.AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
+				_MESSAGE("[MESSAGE] Container changed event handler sinked");
 			}
 			break;
 		}
@@ -198,7 +194,7 @@ extern "C" {
 		if (a_skse->IsEditor()) {
 			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
 			return false;
-		} else  if (a_skse->RuntimeVersion() != RUNTIME_VERSION_1_5_73) {
+		} else if (a_skse->RuntimeVersion() != RUNTIME_VERSION_1_5_73) {
 			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
 			return false;
 		}

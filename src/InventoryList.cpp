@@ -1,7 +1,5 @@
 #include "InventoryList.h"
 
-#include "skse64/GameRTTI.h"  // DYNAMIC_CAST
-
 #include <algorithm>  // sort
 #include <map>  // map
 #include <vector>  // vector
@@ -170,7 +168,6 @@ void InventoryList::parseDroppedList(RE::TESObjectREFR* a_refr)
 
 bool InventoryList::isValidItem(RE::TESForm* a_item)
 {
-	using RE::TESFullName;
 	using RE::FormType;
 
 	if (!a_item) {
@@ -206,7 +203,7 @@ bool InventoryList::isValidItem(RE::TESForm* a_item)
 		return false;
 	}
 
-	auto fullName = DYNAMIC_CAST(a_item, TESForm, TESFullName);
+	auto fullName = skyrim_cast<RE::TESFullName*>(a_item);
 	if (!fullName || fullName->name.empty()) {
 		return false;
 	}
