@@ -1,7 +1,5 @@
 #include "Delegates.h"
 
-#include "skse64/GameSettings.h"  // g_gameSettingCollection
-
 #include <exception>  // exception
 #include <memory>  // unique_ptr
 #include <string>  // string
@@ -15,9 +13,35 @@
 #include "RE/Skyrim.h"
 
 
-void UIDelegateBase::Dispose()
+namespace
 {
-	delete this;
+	LocalizationStrings::LocalizationStrings() :
+		take(""),
+		steal(""),
+		takeAll(""),
+		search("")
+	{
+		auto collection = RE::GameSettingCollection::GetSingleton();
+		auto setting = collection->GetSetting("sTake");
+		if (setting) {
+			take = setting->GetString();
+		}
+
+		setting = collection->GetSetting("sSteal");
+		if (setting) {
+			steal = setting->GetString();
+		}
+
+		setting = collection->GetSetting("sTakeAll");
+		if (setting) {
+			takeAll = setting->GetString();
+		}
+
+		setting = collection->GetSetting("sSearch");
+		if (setting) {
+			search = setting->GetString();
+		}
+	}
 }
 
 
@@ -27,7 +51,7 @@ void TaskDelegateBase::Dispose()
 }
 
 
-void SetKeyMappingsUIDelegate::Run()
+void SetKeyMappingsDelegate::Run()
 {
 	RE::GFxValue args[3];
 
@@ -39,7 +63,7 @@ void SetKeyMappingsUIDelegate::Run()
 }
 
 
-void SetPlatformUIDelegate::Run()
+void SetPlatformDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (!loot->IsOpen()) {
@@ -55,7 +79,7 @@ void SetPlatformUIDelegate::Run()
 }
 
 
-void SetSelectedIndexUIDelegate::Run()
+void SetSelectedIndexDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (!loot->IsOpen()) {
@@ -70,7 +94,7 @@ void SetSelectedIndexUIDelegate::Run()
 }
 
 
-void SetupUIDelegate::Run()
+void SetupDelegate::Run()
 {
 	if (!LootMenu::IsConstructed()) {
 		return;
@@ -113,34 +137,31 @@ void SetupUIDelegate::Run()
 }
 
 
-void SetContainerUIDelegate::Run()
+void SetContainerDelegate::Run()
 {
+	static LocalizationStrings locStrings;
+
 	LootMenu* loot = LootMenu::GetSingleton();
 	RE::TESObjectREFR* ref = loot->GetContainerRef();
 	if (!ref) {
 		return;
 	}
 
-	static std::string	sTake = (*g_gameSettingCollection)->Get("sTake")->data.s;
-	static std::string	sSteal = (*g_gameSettingCollection)->Get("sSteal")->data.s;
-	static std::string	sTakeAll = (*g_gameSettingCollection)->Get("sTakeAll")->data.s;
-	static std::string	sSearch = (*g_gameSettingCollection)->Get("sSearch")->data.s;
-
 	RE::GFxValue args[6];
 
 	const char* takeText;
 	if (IsValidPickPocketTarget(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking()) || ref->IsOffLimits()) {
-		takeText = sSteal.c_str();
+		takeText = locStrings.steal.c_str();
 	} else {
-		takeText = sTake.c_str();
+		takeText = locStrings.take.c_str();
 	}
 
-	const char* searchText = Settings::disableActiTextHook ? sSearch.c_str() : loot->GetActiText();
+	const char* searchText = Settings::disableActiTextHook ? locStrings.search.c_str() : loot->GetActiText();
 
 	args[0].SetNumber(ref->formID);
 	args[1].SetString(ref->GetReferenceName());
 	args[2].SetString(takeText);
-	args[3].SetString(sTakeAll.c_str());
+	args[3].SetString(locStrings.takeAll.c_str());
 	args[4].SetString(searchText);
 	args[5].SetNumber(loot->GetSelectedIndex());
 
@@ -148,7 +169,7 @@ void SetContainerUIDelegate::Run()
 }
 
 
-void OpenContainerUIDelegate::Run()
+void OpenContainerDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (!loot) {
@@ -217,7 +238,7 @@ void OpenContainerUIDelegate::Run()
 }
 
 
-void OpenContainerUIDelegate::DebugContents()
+void OpenContainerDelegate::DebugContents()
 {
 	UInt32 i = 0;
 	bool div = false;
@@ -234,13 +255,13 @@ void OpenContainerUIDelegate::DebugContents()
 }
 
 
-void CloseContainerUIDelegate::Run()
+void CloseContainerDelegate::Run()
 {
 	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.CloseContainer", 0, 0, 0);
 }
 
 
-void UpdateButtonsUIDelegate::Run()
+void UpdateButtonsDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (loot->IsOpen()) {
@@ -249,7 +270,7 @@ void UpdateButtonsUIDelegate::Run()
 }
 
 
-void HideButtonsUIDelegate::Run()
+void HideButtonsDelegate::Run()
 {
 	LootMenu* loot = LootMenu::GetSingleton();
 	if (loot->IsOpen()) {
@@ -264,7 +285,7 @@ void HideButtonsUIDelegate::Run()
 }
 
 
-void SwitchStyleTaskDelegate::Run()
+void SwitchStyleDelegate::Run()
 {
 	RE::GFxValue args[1];
 
@@ -285,6 +306,3 @@ void DelayedUpdater::Run()
 		}
 	}
 }
-
-
-SKSETaskInterface* g_task = 0;

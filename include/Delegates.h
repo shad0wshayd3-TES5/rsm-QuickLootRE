@@ -1,128 +1,101 @@
 #pragma once
 
 #include "skse64/gamethreads.h"  // TaskDelegate
-#include "skse64/Hooks_UI.h"  // UIDelegate_v1
-#include "skse64/PluginAPI.h"  // SKSETaskInterface
+
+#include <string>  // string
 
 
-class UIDelegateBase : public UIDelegate_v1
+namespace
 {
-public:
-	UIDelegateBase() = default;
-	virtual ~UIDelegateBase() = default;
+	struct LocalizationStrings
+	{
+		LocalizationStrings();
 
-	virtual void Dispose() override;
-};
+		std::string take;
+		std::string steal;
+		std::string takeAll;
+		std::string search;
+	};
+}
 
 
 class TaskDelegateBase : public TaskDelegate
 {
 public:
-	TaskDelegateBase() = default;
 	virtual ~TaskDelegateBase() = default;
 
 	virtual void Dispose() override;
 };
 
 
-class SetKeyMappingsUIDelegate : public UIDelegateBase
+class SetKeyMappingsDelegate : public TaskDelegateBase
 {
 public:
-	SetKeyMappingsUIDelegate() = default;
-	virtual ~SetKeyMappingsUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class SetPlatformUIDelegate : public UIDelegateBase
+class SetPlatformDelegate : public TaskDelegateBase
 {
 public:
-	SetPlatformUIDelegate() = default;
-	virtual ~SetPlatformUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class SetSelectedIndexUIDelegate : public UIDelegateBase
+class SetSelectedIndexDelegate : public TaskDelegateBase
 {
 public:
-	SetSelectedIndexUIDelegate() = default;
-	virtual ~SetSelectedIndexUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class SetupUIDelegate : public UIDelegateBase
+class SetupDelegate : public TaskDelegateBase
 {
 public:
-	SetupUIDelegate() = default;
-	virtual ~SetupUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class SetContainerUIDelegate : public UIDelegateBase
+class SetContainerDelegate : public TaskDelegateBase
 {
 public:
-	SetContainerUIDelegate() = default;
-	virtual ~SetContainerUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class OpenContainerUIDelegate : public UIDelegateBase
+class OpenContainerDelegate : public TaskDelegateBase
 {
 public:
-	OpenContainerUIDelegate() = default;
-	virtual ~OpenContainerUIDelegate() = default;
-
 	virtual void Run() override;
 
 	void DebugContents();
 };
 
 
-class CloseContainerUIDelegate : public UIDelegateBase
+class CloseContainerDelegate : public TaskDelegateBase
 {
 public:
-	CloseContainerUIDelegate() = default;
-	virtual ~CloseContainerUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class UpdateButtonsUIDelegate : public UIDelegateBase
+class UpdateButtonsDelegate : public TaskDelegateBase
 {
 public:
-	UpdateButtonsUIDelegate() = default;
-	virtual ~UpdateButtonsUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class HideButtonsUIDelegate : public UIDelegateBase
+class HideButtonsDelegate : public TaskDelegateBase
 {
 public:
-	HideButtonsUIDelegate() = default;
-	virtual ~HideButtonsUIDelegate() = default;
-
 	virtual void Run() override;
 };
 
 
-class SwitchStyleTaskDelegate : public UIDelegateBase
+class SwitchStyleDelegate : public TaskDelegateBase
 {
 public:
-	SwitchStyleTaskDelegate() = default;
-	virtual ~SwitchStyleTaskDelegate() = default;
-
 	virtual void Run() override;
 };
 
@@ -130,8 +103,5 @@ public:
 class DelayedUpdater : public TaskDelegateBase
 {
 public:
-	DelayedUpdater() = default;
-	virtual ~DelayedUpdater() = default;
-
 	virtual void Run() override;
 };

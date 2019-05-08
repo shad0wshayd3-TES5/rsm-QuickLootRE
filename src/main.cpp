@@ -11,7 +11,7 @@
 #include "LootMenu.h"  // LootMenuCreator
 #include "Registration.h"  // OnContainerOpenAnim, OnContainerCloseAnim, QuickLoot::RegisterFuncs
 #include "Settings.h"  // Settings
-#include "version.h"  // kAPIVersionMajor
+#include "version.h"
 
 #include "HookShare.h"  // RegisterForCanProcess_t
 
@@ -179,17 +179,17 @@ namespace
 
 
 extern "C" {
-	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, PluginInfo* a_info)
+	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
 		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
 		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
 
-		_MESSAGE("QuickLootRE v%s", QUICKLOOTRE_VERSION_VERSTRING);
+		_MESSAGE("QuickLootRE v%s", QKLT_VERSION_VERSTRING);
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "QuickLootRE";
-		a_info->version = QUICKLOOTRE_VERSION_MAJOR;
+		a_info->version = QKLT_VERSION_MAJOR;
 
 		if (a_skse->IsEditor()) {
 			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");

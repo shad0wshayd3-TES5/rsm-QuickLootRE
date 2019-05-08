@@ -62,8 +62,8 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 {
 	using DeviceType = RE::DeviceType;
 	using EventType = RE::InputEvent::EventType;
-	using Gamepad = RE::BSWin32GamepadDevice::Gamepad;
-	using Mouse = RE::BSWin32MouseDevice::Mouse;
+	using Gamepad = RE::BSWin32GamepadDevice::Key;
+	using Mouse = RE::BSWin32MouseDevice::Key;
 
 	if (IsOpen() && a_event->eventType == EventType::kButton) {
 		RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
@@ -99,8 +99,8 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 {
 	using DeviceType = RE::DeviceType;
-	using Gamepad = RE::BSWin32GamepadDevice::Gamepad;
-	using Mouse = RE::BSWin32MouseDevice::Mouse;
+	using Gamepad = RE::BSWin32GamepadDevice::Key;
+	using Mouse = RE::BSWin32MouseDevice::Key;
 
 	if (!a_event->IsDown()) {
 		return true;
@@ -123,7 +123,7 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		_platform = Platform::kOther;
 		Register(Scaleform::kSetPlatform);
 		Register(Scaleform::kUpdateButtons);
-		switch (Gamepad(a_event->keyMask)) {
+		switch (static_cast<Gamepad>(a_event->keyMask)) {
 		case Gamepad::kUp:
 			ModSelectedIndex(-1);
 			break;
@@ -407,7 +407,7 @@ void LootMenu::Close() const
 
 void LootMenu::SetVisible(bool a_visible)
 {
-	using Context = RE::InputMappingManager::Contexts;
+	using Context = RE::InputMappingManager::Context;
 
 	RE::MenuControls* mc = RE::MenuControls::GetSingleton();
 	view->SetVisible(a_visible);
@@ -534,34 +534,34 @@ void LootMenu::Register(Scaleform a_reg) const
 		auto task = SKSE::GetTaskInterface();
 		switch (a_reg) {
 		case Scaleform::kSetKeyMappings:
-			task->AddTask(new SetKeyMappingsUIDelegate());
+			task->AddTask(new SetKeyMappingsDelegate());
 			break;
 		case Scaleform::kSetPlatform:
-			task->AddTask(new SetPlatformUIDelegate());
+			task->AddTask(new SetPlatformDelegate());
 			break;
 		case Scaleform::kSetSelectedIndex:
-			task->AddTask(new SetSelectedIndexUIDelegate());
+			task->AddTask(new SetSelectedIndexDelegate());
 			break;
 		case Scaleform::kSetup:
-			task->AddTask(new SetupUIDelegate());
+			task->AddTask(new SetupDelegate());
 			break;
 		case Scaleform::kSetContainer:
-			task->AddTask(new SetContainerUIDelegate());
+			task->AddTask(new SetContainerDelegate());
 			break;
 		case Scaleform::kOpenContainer:
-			task->AddTask(new OpenContainerUIDelegate());
+			task->AddTask(new OpenContainerDelegate());
 			break;
 		case Scaleform::kCloseContainer:
-			task->AddTask(new CloseContainerUIDelegate());
+			task->AddTask(new CloseContainerDelegate());
 			break;
 		case Scaleform::kUpdateButtons:
-			task->AddTask(new UpdateButtonsUIDelegate());
+			task->AddTask(new UpdateButtonsDelegate());
 			break;
 		case Scaleform::kHideButtons:
-			task->AddTask(new HideButtonsUIDelegate());
+			task->AddTask(new HideButtonsDelegate());
 			break;
 		case Scaleform::kSwitchStyle:
-			task->AddTask(new SwitchStyleTaskDelegate());
+			task->AddTask(new SwitchStyleDelegate());
 			break;
 		default:
 			_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
@@ -706,7 +706,7 @@ LootMenu::LootMenu(const char* a_swfPath) :
 	_isEnabled(true)
 {
 	using ScaleModeType = RE::GFxMovieView::ScaleModeType;
-	using Context = RE::InputMappingManager::Contexts;
+	using Context = RE::InputMappingManager::Context;
 	using Flag = RE::IMenu::Flag;
 
 	RE::GFxLoader* loader = RE::GFxLoader::GetSingleton();
