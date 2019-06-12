@@ -3,7 +3,6 @@
 #include "skse64_common/BranchTrampoline.h"  // g_localTrampoline, g_branchTrampoline
 #include "skse64_common/SafeWrite.h"  // SafeWrite
 #include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
-#include "xbyak/xbyak.h"  // xbyak
 
 #include <cassert>  // assert
 #include <sstream>  // stringstream
@@ -377,7 +376,7 @@ namespace
 	{
 		using Type = RE::SCRIPT_PARAMETER::Type;
 
-		auto info = RE::CommandInfo::Locate("TestSeenData");  // Unused
+		auto info = RE::CommandInfo::LocateConsoleCommand("TestSeenData");  // Unused
 		if (info) {
 			static RE::SCRIPT_PARAMETER params[] = {
 				{ "Name", Type::kString, 0 },
