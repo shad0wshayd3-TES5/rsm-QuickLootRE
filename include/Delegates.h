@@ -1,6 +1,7 @@
 #pragma once
 
 #include "skse64/gamethreads.h"  // TaskDelegate
+#include "skse64/Hooks_UI.h"  // UIDelegate_v1
 
 #include <string>  // string
 
@@ -28,42 +29,51 @@ public:
 };
 
 
-class SetKeyMappingsDelegate : public TaskDelegateBase
+class UITaskDelegateBase : public UIDelegate_v1
+{
+public:
+	virtual ~UITaskDelegateBase() = default;
+
+	virtual void Dispose() override;
+};
+
+
+class SetKeyMappingsDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class SetPlatformDelegate : public TaskDelegateBase
+class SetPlatformDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class SetSelectedIndexDelegate : public TaskDelegateBase
+class SetSelectedIndexDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class SetupDelegate : public TaskDelegateBase
+class SetupDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class SetContainerDelegate : public TaskDelegateBase
+class SetContainerDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class OpenContainerDelegate : public TaskDelegateBase
+class OpenContainerDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
@@ -72,28 +82,28 @@ public:
 };
 
 
-class CloseContainerDelegate : public TaskDelegateBase
+class CloseContainerDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class UpdateButtonsDelegate : public TaskDelegateBase
+class UpdateButtonsDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class HideButtonsDelegate : public TaskDelegateBase
+class HideButtonsDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;
 };
 
 
-class SwitchStyleDelegate : public TaskDelegateBase
+class SwitchStyleDelegate : public UITaskDelegateBase
 {
 public:
 	virtual void Run() override;

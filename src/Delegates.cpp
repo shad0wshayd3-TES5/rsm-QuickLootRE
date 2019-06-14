@@ -51,6 +51,12 @@ void TaskDelegateBase::Dispose()
 }
 
 
+void UITaskDelegateBase::Dispose()
+{
+	delete this;
+}
+
+
 void SetKeyMappingsDelegate::Run()
 {
 	RE::GFxValue args[3];
@@ -75,7 +81,7 @@ void SetPlatformDelegate::Run()
 	args[0].SetNumber(to_underlying(loot->GetPlatform()));
 	args[1].SetBoolean(false);
 
-	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetPlatform", 0, args, 2);
+	loot->view->Invoke("_root.Menu_mc.SetPlatform", 0, args, 2);
 }
 
 
@@ -90,16 +96,12 @@ void SetSelectedIndexDelegate::Run()
 
 	args[0].SetNumber(loot->GetSelectedIndex());
 
-	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetSelectedIndex", 0, args, 1);
+	loot->view->Invoke("_root.Menu_mc.SetSelectedIndex", 0, args, 1);
 }
 
 
 void SetupDelegate::Run()
 {
-	if (!LootMenu::IsConstructed()) {
-		return;
-	}
-
 	LootMenu* loot = LootMenu::GetSingleton();
 
 	RE::GFxValue args[4];
@@ -165,7 +167,7 @@ void SetContainerDelegate::Run()
 	args[4].SetString(searchText);
 	args[5].SetNumber(loot->GetSelectedIndex());
 
-	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetContainer", 0, args, 6);
+	loot->view->Invoke("_root.Menu_mc.SetContainer", 0, args, 6);
 }
 
 

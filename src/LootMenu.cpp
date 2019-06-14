@@ -26,12 +26,6 @@ RE::IMenu::Result LootMenu::ProcessMessage(RE::UIMessage* a_message)
 {
 	using UIMessage = RE::UIMessage::Message;
 
-	if (!view) {
-		_FATALERROR("[FATAL ERROR] LootMenu is missing a view! Dependencies were not loaded!\n");
-		QueueMessage(Message::kMissingDependencies);
-		return Result::kNotProcessed;
-	}
-
 	if (!Settings::isApplied) {
 		Register(Scaleform::kSetup);
 		Register(Scaleform::kSwitchStyle);
@@ -185,12 +179,6 @@ const RE::BSFixedString& LootMenu::GetName()
 }
 
 
-bool LootMenu::IsConstructed()
-{
-	return _singleton && _singleton->view;
-}
-
-
 const char* LootMenu::GetSingleLootMapping()
 {
 	return _singleLootMapping.c_str();
@@ -259,7 +247,8 @@ void LootMenu::QueueMessage(Message a_msg)
 		{
 			static const char* enabled = "$QuickLootRE_LootMenuToggled_Enabled";
 			static const char* disabled = "$QuickLootRE_LootMenuToggled_Disabled";
-			const char* state = LootMenu::IsEnabled() ? enabled : disabled;
+			auto loot = LootMenu::GetSingleton();
+			const char* state = loot->IsEnabled() ? enabled : disabled;
 			_messageQueue.push(state);
 			ProcessMessageQueue();
 		}
@@ -269,7 +258,7 @@ void LootMenu::QueueMessage(Message a_msg)
 		break;
 	}
 
-	if (IsConstructed() && LootMenu::GetSingleton()->IsOpen()) {
+	if (LootMenu::GetSingleton()->IsOpen()) {
 		ProcessMessageQueue();
 	}
 }
@@ -530,45 +519,41 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 
 void LootMenu::Register(Scaleform a_reg) const
 {
-	if (LootMenu::IsConstructed()) {
-		auto task = SKSE::GetTaskInterface();
-		switch (a_reg) {
-		case Scaleform::kSetKeyMappings:
-			task->AddTask(new SetKeyMappingsDelegate());
-			break;
-		case Scaleform::kSetPlatform:
-			task->AddTask(new SetPlatformDelegate());
-			break;
-		case Scaleform::kSetSelectedIndex:
-			task->AddTask(new SetSelectedIndexDelegate());
-			break;
-		case Scaleform::kSetup:
-			task->AddTask(new SetupDelegate());
-			break;
-		case Scaleform::kSetContainer:
-			task->AddTask(new SetContainerDelegate());
-			break;
-		case Scaleform::kOpenContainer:
-			task->AddTask(new OpenContainerDelegate());
-			break;
-		case Scaleform::kCloseContainer:
-			task->AddTask(new CloseContainerDelegate());
-			break;
-		case Scaleform::kUpdateButtons:
-			task->AddTask(new UpdateButtonsDelegate());
-			break;
-		case Scaleform::kHideButtons:
-			task->AddTask(new HideButtonsDelegate());
-			break;
-		case Scaleform::kSwitchStyle:
-			task->AddTask(new SwitchStyleDelegate());
-			break;
-		default:
-			_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
-			break;
-		}
-	} else {
-		_ERROR("[ERROR] The LootMenu has not been constructed!\n");
+	auto task = SKSE::GetTaskInterface();
+	switch (a_reg) {
+	case Scaleform::kSetKeyMappings:
+		task->AddUITask(new SetKeyMappingsDelegate());
+		break;
+	case Scaleform::kSetPlatform:
+		task->AddUITask(new SetPlatformDelegate());
+		break;
+	case Scaleform::kSetSelectedIndex:
+		task->AddUITask(new SetSelectedIndexDelegate());
+		break;
+	case Scaleform::kSetup:
+		task->AddUITask(new SetupDelegate());
+		break;
+	case Scaleform::kSetContainer:
+		task->AddUITask(new SetContainerDelegate());
+		break;
+	case Scaleform::kOpenContainer:
+		task->AddUITask(new OpenContainerDelegate());
+		break;
+	case Scaleform::kCloseContainer:
+		task->AddUITask(new CloseContainerDelegate());
+		break;
+	case Scaleform::kUpdateButtons:
+		task->AddUITask(new UpdateButtonsDelegate());
+		break;
+	case Scaleform::kHideButtons:
+		task->AddUITask(new HideButtonsDelegate());
+		break;
+	case Scaleform::kSwitchStyle:
+		task->AddUITask(new SwitchStyleDelegate());
+		break;
+	default:
+		_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
+		break;
 	}
 }
 
@@ -727,12 +712,6 @@ LootMenu::LootMenu(const char* a_swfPath) :
 
 LootMenu::~LootMenu()
 {}
-
-
-bool LootMenu::IsEnabled()
-{
-	return LootMenu::IsConstructed() && LootMenu::GetSingleton()->_isEnabled;
-}
 
 
 void LootMenu::ProcessMessageQueue()
@@ -951,6 +930,12 @@ UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType) const
 {
 	RE::BSFixedString str = _singleLootMapping.c_str();
 	return RE::InputMappingManager::GetSingleton()->GetMappedKey(str, a_deviceType);
+}
+
+
+bool LootMenu::IsEnabled() const
+{
+	return _isEnabled;
 }
 
 

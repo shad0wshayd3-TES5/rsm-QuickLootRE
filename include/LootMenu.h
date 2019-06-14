@@ -71,7 +71,6 @@ public:
 	static LootMenu*				GetSingleton();
 	static void						Free();
 	static const RE::BSFixedString&	GetName();
-	static bool						IsConstructed();
 	static const char*				GetSingleLootMapping();
 	static void						SetSingleLootMapping(const char* a_singLootMapping);
 	static const char*				GetTakeMapping();
@@ -123,8 +122,7 @@ protected:
 	LootMenu& operator=(const LootMenu&) = delete;
 	LootMenu& operator=(LootMenu&&) = delete;
 
-	static bool	IsEnabled();
-	static void	ProcessMessageQueue();
+	static void ProcessMessageQueue();
 
 	bool	SingleLootEnabled() const;
 	void	PlayAnimation(const char* a_fromName, const char* a_toName) const;
@@ -134,6 +132,7 @@ protected:
 	bool	TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode) const;
 	void	DispellWornItemEnchantments() const;
 	UInt32	GetSingleLootKey(RE::DeviceType a_deviceType) const;
+	bool	IsEnabled() const;
 
 
 	static LootMenu*				_singleton;
