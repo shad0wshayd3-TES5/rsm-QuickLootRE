@@ -10,12 +10,13 @@ auto SetActivateLabelPerkEntryVisitor::Visit(RE::BGSPerkEntry* a_perkEntry)
 {
 	using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
-	RE::BGSEntryPointPerkEntry* entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
+	auto entryPoint = static_cast<RE::BGSEntryPointPerkEntry*>(a_perkEntry);
 	if (entryPoint && entryPoint->IsEntryPoint(EntryPoint::kSetActivateLabel)) {
 		if (entryPoint->EvaluateConditions(kNumArgs, _args)) {
-			RE::BGSEntryPointFunctionDataText* fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
+			auto fnDataText = static_cast<RE::BGSEntryPointFunctionDataText*>(entryPoint->functionData);
 			if (fnDataText && a_perkEntry->GetPriority() > _priority) {
-				LootMenu::GetSingleton()->SetActiText(fnDataText->text.c_str());
+				auto loot = LootMenu::GetSingleton();
+				loot->SetActiText(fnDataText->text.c_str());
 				_priority = a_perkEntry->GetPriority();
 			}
 		}

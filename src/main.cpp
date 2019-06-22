@@ -3,8 +3,6 @@
 
 #include <string>  // string
 
-#include <ShlObj.h>  // CSIDL_MYDOCUMENTS
-
 #include "Events.h"  // CrosshairRefEventHandler, InputEventHandler, MenuOpenCloseEventHandler, TESCombatEventHandler, TESContainerChangedEventHandler, TESMagicEffectApplyEventHandler
 #include "Hooks.h"  // InstallHooks
 #include "ItemData.h"  // SetCompareOrder
@@ -15,8 +13,8 @@
 
 #include "HookShare.h"  // RegisterForCanProcess_t
 
-#include "SKSE/API.h"
 #include "RE/Skyrim.h"
+#include "SKSE/API.h"
 
 
 namespace
@@ -142,7 +140,7 @@ namespace
 				}
 
 				auto mm = RE::MenuManager::GetSingleton();
-				mm->Register("LootMenu", []() -> RE::IMenu*
+				mm->Register("LootMenu", []() -> RE::IMenu *
 				{
 					return LootMenu::GetSingleton();
 				});
@@ -181,9 +179,9 @@ namespace
 extern "C" {
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
-		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
-		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
-		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
+		SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
+		SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
+		SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
 
 		_MESSAGE("QuickLootRE v%s", QKLT_VERSION_VERSTRING);
 

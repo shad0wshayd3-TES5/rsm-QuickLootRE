@@ -71,11 +71,13 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
-		if (LootMenu::GetSingleton()->IsOpen()) {
+		auto loot = LootMenu::GetSingleton();
+		if (loot->IsOpen()) {
 			if ((*a_event)->eventType == EventType::kButton && (*a_event)->deviceType == DeviceType::kKeyboard) {
 				auto button = static_cast<RE::ButtonEvent*>(*a_event);
 
-				if (button->GetControlID() == RE::InputStringHolder::GetSingleton()->nextFocus) {  // Tab
+				auto inputStrHolder = RE::InputStringHolder::GetSingleton();
+				if (button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
 					auto mm = RE::MenuManager::GetSingleton();
 					auto uiStrHolder = RE::UIStringHolder::GetSingleton();
 					auto uiManager = RE::UIManager::GetSingleton();
@@ -107,22 +109,20 @@ namespace Events
 	}
 
 
-	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
+	auto MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
+		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
 		if (!a_event || !loot || !loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
-		RE::BSFixedString menuName = a_event->menuName;
 		auto mm = RE::MenuManager::GetSingleton();
-
 		if (a_event->isOpening) {
 			auto menu = mm->GetMenu(a_event->menuName);
-
 			if (menu) {
 				auto uiStrHolder = RE::UIStringHolder::GetSingleton();
-
+				auto& menuName = a_event->menuName;
 				if (menuName == uiStrHolder->dialogueMenu || menuName == uiStrHolder->messageBoxMenu) {
 					loot->Close();
 				} else if ((menu->StopsCrosshairUpdates() && menuName != uiStrHolder->tweenMenu) || menu->PausesGame()) {
@@ -181,7 +181,7 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
-		RE::TESObjectREFR* ref = loot->GetContainerRef();
+		auto ref = loot->GetContainerRef();
 		if (!ref) {
 			return EventResult::kContinue;
 		}

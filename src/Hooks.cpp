@@ -114,7 +114,7 @@ namespace
 	public:
 		void operator()()
 		{
-			LootMenu* loot = LootMenu::GetSingleton();
+			auto loot = LootMenu::GetSingleton();
 			loot->TakeItemStack();
 			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
@@ -126,7 +126,7 @@ namespace
 	public:
 		void operator()()
 		{
-			LootMenu* loot = LootMenu::GetSingleton();
+			auto loot = LootMenu::GetSingleton();
 			loot->TakeAllItems();
 			loot->Register(LootMenu::Scaleform::kOpenContainer);
 		}
@@ -138,7 +138,8 @@ namespace
 	public:
 		void operator()()
 		{
-			RE::PlayerCharacter::GetSingleton()->StartActivation();
+			auto player = RE::PlayerCharacter::GetSingleton();
+			player->StartActivation();
 		}
 	};
 
@@ -221,37 +222,36 @@ namespace
 		{
 			using EntryPoint = RE::BGSEntryPointPerkEntry::EntryPoint;
 
-			bool result = func(this, a_ref, a_dst);
-
-			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-			LootMenu* loot = LootMenu::GetSingleton();
-			if (loot->CanOpen(a_ref, player->IsSneaking())) {
-				std::stringstream ss(a_dst->c_str());
-				std::string dispText;
-				if (std::getline(ss, dispText, '\n')) {
-					if (!dispText.empty()) {
-						if (dispText[0] == '<') {
-							int beg = dispText.find_first_of('>');
-							int end = dispText.find_last_of('<');
-							if (beg != std::string::npos && end != std::string::npos) {
-								std::string subStr = dispText.substr(beg + 1, end - beg - 1);
-								loot->SetActiText(subStr.c_str());
-							}
-						} else {
-							loot->SetActiText(dispText.c_str());
-						}
-					}
-				}
-
-				if (player->CanProcessEntryPointPerkEntry(EntryPoint::kSetActivateLabel)) {
-					SetActivateLabelPerkEntryVisitor visitor(player, a_ref);
-					player->VisitEntryPointPerkEntries(EntryPoint::kSetActivateLabel, visitor);
-				}
-
-				return false;
-			} else {
+			auto result = func(this, a_ref, a_dst);
+			auto player = RE::PlayerCharacter::GetSingleton();
+			auto loot = LootMenu::GetSingleton();
+			if (!loot->CanOpen(a_ref, player->IsSneaking())) {
 				return result;
 			}
+
+			std::stringstream ss(a_dst->c_str());
+			std::string dispText;
+			if (std::getline(ss, dispText, '\n')) {
+				if (!dispText.empty()) {
+					if (dispText[0] == '<') {
+						int beg = dispText.find_first_of('>');
+						int end = dispText.find_last_of('<');
+						if (beg != std::string::npos && end != std::string::npos) {
+							std::string subStr = dispText.substr(beg + 1, end - beg - 1);
+							loot->SetActiText(subStr.c_str());
+						}
+					} else {
+						loot->SetActiText(dispText.c_str());
+					}
+				}
+			}
+
+			if (player->CanProcessEntryPointPerkEntry(EntryPoint::kSetActivateLabel)) {
+				SetActivateLabelPerkEntryVisitor visitor(player, a_ref);
+				player->VisitEntryPointPerkEntries(EntryPoint::kSetActivateLabel, visitor);
+			}
+
+			return false;
 		}
 
 
