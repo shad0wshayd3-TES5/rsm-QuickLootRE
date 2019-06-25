@@ -140,7 +140,7 @@ namespace
 				}
 
 				auto mm = RE::MenuManager::GetSingleton();
-				mm->Register("LootMenu", []() -> RE::IMenu *
+				mm->Register("LootMenu", []() -> RE::IMenu*
 				{
 					return LootMenu::GetSingleton();
 				});
