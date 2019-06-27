@@ -36,7 +36,8 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!OnContainerOpenAnim::GetSingleton()->Register(a_form)) {
+		auto dispatcher = OnContainerOpenAnim::GetSingleton();
+		if (!dispatcher->Register(a_form)) {
 			_ERROR("[ERROR] Failed to register for OnContainerOpenAnim event!\n");
 		}
 	}
@@ -49,7 +50,8 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!OnContainerOpenAnim::GetSingleton()->Unregister(a_form)) {
+		auto dispatcher = OnContainerOpenAnim::GetSingleton();
+		if (!dispatcher->Unregister(a_form)) {
 			_ERROR("[ERROR] Failed to unregister for OnContainerOpenAnim event!\n");
 		}
 	}
@@ -62,7 +64,8 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!OnContainerCloseAnim::GetSingleton()->Register(a_form)) {
+		auto dispatcher = OnContainerCloseAnim::GetSingleton();
+		if (!dispatcher->Register(a_form)) {
 			_ERROR("[ERROR] Failed to register for OnContainerOpenAnim event!\n");
 		}
 	}
@@ -75,7 +78,8 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!OnContainerCloseAnim::GetSingleton()->Unregister(a_form)) {
+		auto dispatcher = OnContainerCloseAnim::GetSingleton();
+		if (!dispatcher->Unregister(a_form)) {
 			_ERROR("[ERROR] Failed to unregister for OnContainerOpenAnim event!\n");
 		}
 	}

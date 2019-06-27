@@ -11,7 +11,7 @@ public:
 	ManagedEntryData() = delete;
 	ManagedEntryData(const ManagedEntryData&) = delete;
 	ManagedEntryData(ManagedEntryData&& a_rhs);
-	explicit ManagedEntryData(RE::TESForm* a_item, SInt32 a_count);
+	explicit ManagedEntryData(RE::TESBoundObject* a_item, SInt32 a_count);
 	explicit ManagedEntryData(RE::InventoryEntryData* a_entryData, bool a_manage);
 	~ManagedEntryData();
 
@@ -30,5 +30,5 @@ protected:
 using ManagedEntryDataPtr = std::shared_ptr<ManagedEntryData>;
 
 
-ManagedEntryDataPtr MakeEntryDataPtr(RE::TESForm* a_item, SInt32 a_count);
+ManagedEntryDataPtr MakeEntryDataPtr(RE::TESBoundObject* a_item, SInt32 a_count);
 ManagedEntryDataPtr MakeEntryDataPtr(RE::InventoryEntryData* a_entryData, bool a_manage);

@@ -65,13 +65,14 @@ void SetKeyMappingsDelegate::Run()
 	args[1].SetString(LootMenu::GetTakeAllMapping());
 	args[2].SetString(LootMenu::GetSearchMapping());
 
-	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.SetKeyMappings", 0, args, 3);
+	auto loot = LootMenu::GetSingleton();
+	loot->view->Invoke("_root.Menu_mc.SetKeyMappings", 0, args, 3);
 }
 
 
 void SetPlatformDelegate::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
+	auto loot = LootMenu::GetSingleton();
 	if (!loot->IsOpen()) {
 		return;
 	}
@@ -87,7 +88,7 @@ void SetPlatformDelegate::Run()
 
 void SetSelectedIndexDelegate::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
+	auto loot = LootMenu::GetSingleton();
 	if (!loot->IsOpen()) {
 		return;
 	}
@@ -102,11 +103,10 @@ void SetSelectedIndexDelegate::Run()
 
 void SetupDelegate::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
-
 	RE::GFxValue args[4];
 
-	RE::GFxMovieDef* def = loot->view->GetMovieDef();
+	auto loot = LootMenu::GetSingleton();
+	auto def = loot->view->GetMovieDef();
 
 	double x = Settings::positionX;
 	double y = Settings::positionY;
@@ -143,22 +143,23 @@ void SetContainerDelegate::Run()
 {
 	static LocalizationStrings locStrings;
 
-	LootMenu* loot = LootMenu::GetSingleton();
-	RE::TESObjectREFR* ref = loot->GetContainerRef();
+	auto loot = LootMenu::GetSingleton();
+	auto ref = loot->GetContainerRef();
 	if (!ref) {
 		return;
 	}
 
 	RE::GFxValue args[6];
 
+	auto player = RE::PlayerCharacter::GetSingleton();
 	const char* takeText;
-	if (IsValidPickPocketTarget(ref, RE::PlayerCharacter::GetSingleton()->IsSneaking()) || ref->IsOffLimits()) {
+	if (IsValidPickPocketTarget(ref, player->IsSneaking()) || ref->IsOffLimits()) {
 		takeText = locStrings.steal.c_str();
 	} else {
 		takeText = locStrings.take.c_str();
 	}
 
-	const char* searchText = Settings::disableActiTextHook ? locStrings.search.c_str() : loot->GetActiText();
+	auto searchText = Settings::disableActiTextHook ? locStrings.search.c_str() : loot->GetActiText();
 
 	args[0].SetNumber(ref->formID);
 	args[1].SetString(ref->GetReferenceName());
@@ -173,15 +174,15 @@ void SetContainerDelegate::Run()
 
 void OpenContainerDelegate::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
+	auto loot = LootMenu::GetSingleton();
 	if (!loot) {
 		return;
 	}
 
 	RE::GFxValue args[1];
 	loot->view->CreateArray(&args[0]);
-	InventoryList& invList = loot->GetInventoryList();
-	SInt32 size = (invList.size() < Settings::itemLimit) ? invList.size() : Settings::itemLimit;
+	auto& invList = loot->GetInventoryList();
+	std::size_t size = (invList.size() < Settings::itemLimit) ? invList.size() : Settings::itemLimit;
 
 	std::unique_ptr<RE::GFxValue[]> item(new RE::GFxValue[size]);
 	std::unique_ptr<RE::GFxValue[]> text(new RE::GFxValue[size]);
@@ -193,7 +194,7 @@ void OpenContainerDelegate::Run()
 	std::unique_ptr<RE::GFxValue[]> iconLabel(new RE::GFxValue[size]);
 
 	SInt32 displaySize = 0;
-	for (SInt32 i = 0; i < size; ++i) {
+	for (std::size_t i = 0; i < size; ++i) {
 		if (!invList[i].canPickPocket()) {
 			continue;
 		}
@@ -224,9 +225,9 @@ void OpenContainerDelegate::Run()
 
 	if (Settings::disableIfEmpty && displaySize <= 0) {
 		loot->Close();
-	} else {
+} else {
 		if (!Settings::disableOnActiDispatch) {
-			RE::ScriptEventSourceHolder* sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
+			auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
 			RE::TESObjectREFRPtr target(loot->GetContainerRef());
 			RE::TESObjectREFRPtr caster(RE::PlayerCharacter::GetSingleton());
 			sourceHolder->SendActivateEvent(target, caster);
@@ -242,10 +243,10 @@ void OpenContainerDelegate::Run()
 
 void OpenContainerDelegate::DebugContents()
 {
-	UInt32 i = 0;
+	std::size_t i = 0;
 	bool div = false;
 	_DMESSAGE("");
-	InventoryList& invList = LootMenu::GetSingleton()->GetInventoryList();
+	auto& invList = LootMenu::GetSingleton()->GetInventoryList();
 	for (auto& item : invList) {
 		if (!div && !item.canPickPocket()) {
 			_DMESSAGE("========== HIDDEN ITEMS ==========");
@@ -259,13 +260,14 @@ void OpenContainerDelegate::DebugContents()
 
 void CloseContainerDelegate::Run()
 {
-	LootMenu::GetSingleton()->view->Invoke("_root.Menu_mc.CloseContainer", 0, 0, 0);
+	auto loot = LootMenu::GetSingleton();
+	loot->view->Invoke("_root.Menu_mc.CloseContainer", 0, 0, 0);
 }
 
 
 void UpdateButtonsDelegate::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
+	auto loot = LootMenu::GetSingleton();
 	if (loot->IsOpen()) {
 		loot->view->Invoke("_root.Menu_mc.UpdateButtons", 0, 0, 0);
 	}
@@ -274,16 +276,18 @@ void UpdateButtonsDelegate::Run()
 
 void HideButtonsDelegate::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
-	if (loot->IsOpen()) {
-		RE::GFxValue args[3];
-
-		args[0].SetBoolean(false);
-		args[1].SetBoolean(true);
-		args[2].SetBoolean(false);
-
-		loot->view->Invoke("_root.Menu_mc.HideButtons", 0, args, 3);
+	auto loot = LootMenu::GetSingleton();
+	if (!loot->IsOpen()) {
+		return;
 	}
+
+	RE::GFxValue args[3];
+
+	args[0].SetBoolean(false);
+	args[1].SetBoolean(true);
+	args[2].SetBoolean(false);
+
+	loot->view->Invoke("_root.Menu_mc.HideButtons", 0, args, 3);
 }
 
 
@@ -291,7 +295,7 @@ void SwitchStyleDelegate::Run()
 {
 	RE::GFxValue args[1];
 
-	LootMenu* loot = LootMenu::GetSingleton();
+	auto loot = LootMenu::GetSingleton();
 	args[0].SetNumber(loot->GetStyle());
 
 	loot->view->Invoke("_root.Menu_mc.SwitchStyle", 0, args, 1);
@@ -300,11 +304,13 @@ void SwitchStyleDelegate::Run()
 
 void DelayedUpdater::Run()
 {
-	LootMenu* loot = LootMenu::GetSingleton();
-	if (loot->IsVisible()) {
-		if (loot->GetContainerRef()) {
-			loot->ParseInventory();
-			loot->Register(LootMenu::Scaleform::kOpenContainer);
-		}
+	auto loot = LootMenu::GetSingleton();
+	if (!loot->IsVisible()) {
+		return;
+	}
+
+	if (loot->GetContainerRef()) {
+		loot->ParseInventory();
+		loot->Register(LootMenu::Scaleform::kOpenContainer);
 	}
 }

@@ -79,7 +79,7 @@ bool InventoryList::empty() const noexcept
 }
 
 
-UInt32 InventoryList::size() const noexcept
+std::size_t InventoryList::size() const noexcept
 {
 	return _itemList.size();
 }

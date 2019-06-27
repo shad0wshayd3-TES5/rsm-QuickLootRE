@@ -36,7 +36,7 @@ public:
 	ItemList::iterator	begin() noexcept;
 	ItemList::iterator	end() noexcept;
 	bool				empty() const noexcept;
-	UInt32				size() const noexcept;
+	std::size_t			size() const noexcept;
 	void				clear() noexcept;
 	ItemList::iterator	erase(ItemList::iterator a_pos);
 
@@ -48,6 +48,6 @@ private:
 	bool	isValidItem(RE::TESForm* a_item);
 
 
-	DefaultMap				_defaultMap;
-	std::vector<ItemData>	_itemList;
+	DefaultMap	_defaultMap;
+	ItemList	_itemList;
 };

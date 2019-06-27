@@ -19,12 +19,9 @@ namespace Events
 	}
 
 
-	RE::EventResult CrosshairRefEventHandler::ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher)
+	auto CrosshairRefEventHandler::ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher)
+		-> EventResult
 	{
-		if (!a_event) {
-			return EventResult::kContinue;
-		}
-
 		// If player is not looking at anything
 		auto loot = LootMenu::GetSingleton();
 		if (!a_event->crosshairRef) {
@@ -61,20 +58,22 @@ namespace Events
 	}
 
 
-	RE::EventResult InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
+	auto InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
+		-> EventResult
 	{
 		using EventType = RE::InputEvent::EventType;
 		using DeviceType = RE::DeviceType;
 		using Message = RE::UIMessage::Message;
 
-		if (!a_event || !*a_event) {
+		auto event = *a_event;
+		if (!event) {
 			return EventResult::kContinue;
 		}
 
 		auto loot = LootMenu::GetSingleton();
 		if (loot->IsOpen()) {
-			if ((*a_event)->eventType == EventType::kButton && (*a_event)->deviceType == DeviceType::kKeyboard) {
-				auto button = static_cast<RE::ButtonEvent*>(*a_event);
+			if (event->eventType == EventType::kButton && event->deviceType == DeviceType::kKeyboard) {
+				auto button = static_cast<RE::ButtonEvent*>(event);
 
 				auto inputStrHolder = RE::InputStringHolder::GetSingleton();
 				if (button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
@@ -113,7 +112,7 @@ namespace Events
 		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
-		if (!a_event || !loot || !loot->IsOpen()) {
+		if (!loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
@@ -148,10 +147,11 @@ namespace Events
 	}
 
 
-	RE::EventResult TESCombatEventHandler::ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
+	auto TESCombatEventHandler::ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
+		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
-		if (!a_event || !loot->IsOpen()) {
+		if (!loot->IsOpen()) {
 			return EventResult::kContinue;
 		}
 
@@ -174,10 +174,11 @@ namespace Events
 	}
 
 
-	RE::EventResult TESContainerChangedEventHandler::ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
+	auto TESContainerChangedEventHandler::ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
+		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
-		if (!a_event || !loot->IsVisible() || loot->CanProcessInventoryChanges()) {
+		if (!loot->IsVisible() || loot->CanProcessInventoryChanges()) {
 			return EventResult::kContinue;
 		}
 

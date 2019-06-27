@@ -72,8 +72,9 @@ namespace
 			using HookShare::result_type;
 			using EventType = RE::InputEvent::EventType;
 
+			auto player = RE::PlayerCharacter::GetSingleton();
 			auto loot = LootMenu::GetSingleton();
-			if (RE::PlayerCharacter::GetSingleton()->GetGrabbedRef()) {
+			if (player->GetGrabbedRef()) {
 				loot->Close();
 				return result_type::kContinue;
 			}
@@ -166,8 +167,8 @@ namespace
 			auto input = RE::InputManager::GetSingleton();
 			auto mm = RE::MenuManager::GetSingleton();
 
-			RE::BSFixedString& str = input->IsGamepadEnabled() ? inputStrHolder->journal : inputStrHolder->pause;
-			if (!a_event || a_event->controlID != str || mm->GameIsPaused()) {
+			auto& str = input->IsGamepadEnabled() ? inputStrHolder->journal : inputStrHolder->pause;
+			if (a_event->controlID != str || mm->GameIsPaused()) {
 				return func(this, a_event);
 			}
 
@@ -185,8 +186,8 @@ namespace
 				}
 			} else {
 				if (!processed) {
-					float pressure = a_event->pressure;
-					float timer = a_event->timer;
+					auto pressure = a_event->pressure;
+					auto timer = a_event->timer;
 					a_event->pressure = 1.0;
 					a_event->timer = 0.0;
 					result = func(this, a_event);
@@ -237,7 +238,7 @@ namespace
 						int beg = dispText.find_first_of('>');
 						int end = dispText.find_last_of('<');
 						if (beg != std::string::npos && end != std::string::npos) {
-							std::string subStr = dispText.substr(beg + 1, end - beg - 1);
+							auto subStr = dispText.substr(beg + 1, end - beg - 1);
 							loot->SetActiText(subStr.c_str());
 						}
 					} else {
@@ -320,7 +321,7 @@ namespace
 	// TEMPORARY
 	bool Hook_LookupCrosshairRefByHandle(RE::RefHandle& a_handle, RE::TESObjectREFRPtr& a_refrOut)
 	{
-		bool result = RE::TESObjectREFR::LookupByHandle(a_handle, a_refrOut);
+		auto result = RE::TESObjectREFR::LookupByHandle(a_handle, a_refrOut);
 
 		g_crosshairRef = a_refrOut;
 		SKSE::CrosshairRefEvent event(a_refrOut);
@@ -348,24 +349,22 @@ namespace
 	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 	{
 		auto strChunk = static_cast<RE::CommandInfo::StringChunk*>(a_scriptData->GetChunk());
-		std::string name = strChunk->GetString();
+		auto name = strChunk->GetString();
 
-		if (name.length() > 1) {
-			RE::CommandInfo::IntegerChunk* intChunk = (RE::CommandInfo::IntegerChunk*)strChunk->GetNext();
-			int val = intChunk->GetInteger();
+		auto intChunk = static_cast<RE::CommandInfo::IntegerChunk*>(strChunk->GetNext());
+		auto val = intChunk->GetInteger();
 
-			auto console = RE::ConsoleManager::GetSingleton();
-			auto setting = Settings::set(name, val);
-			if (setting) {
-				LootMenu::GetSingleton()->Register(LootMenu::Scaleform::kSetup);
-
-				if (console && RE::ConsoleManager::IsConsoleMode()) {
-					console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
-				}
-			} else {
-				if (console && RE::ConsoleManager::IsConsoleMode()) {
-					console->Print("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
-				}
+		auto console = RE::ConsoleManager::GetSingleton();
+		auto setting = Settings::set(name, val);
+		if (setting) {
+			auto loot = LootMenu::GetSingleton();
+			loot->Register(LootMenu::Scaleform::kSetup);
+			if (console && RE::ConsoleManager::IsConsoleMode()) {
+				console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
+			}
+		} else {
+			if (console && RE::ConsoleManager::IsConsoleMode()) {
+				console->Print("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
 			}
 		}
 		return true;

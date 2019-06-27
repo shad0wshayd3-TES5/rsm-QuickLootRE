@@ -222,7 +222,7 @@ extern "C" {
 			return false;
 		}
 
-		if (g_branchTrampoline.Create(1024 * 8)) {
+		if (g_branchTrampoline.Create(1024 * 1)) {
 			_MESSAGE("[MESSAGE] Branch trampoline creation successful");
 		} else {
 			_FATALERROR("[FATAL ERROR] Branch trampoline creation failed!\n");

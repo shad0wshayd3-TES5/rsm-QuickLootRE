@@ -17,12 +17,12 @@ bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
 		return false;
 	}
 
-	RE::Actor* actor = static_cast<RE::Actor*>(a_refr);
+	auto actor = static_cast<RE::Actor*>(a_refr);
 	if (!actor) {
 		return false;
 	}
 
-	RE::TESRace* race = actor->GetRace();
+	auto race = actor->GetRace();
 	if (!race) {
 		return false;
 	}

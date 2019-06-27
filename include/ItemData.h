@@ -2,10 +2,14 @@
 
 #include <vector>  // vector
 #include <string>  // string
+#include <unordered_map>  // unordered_map
 
 #include "ManagedEntryData.h"  // ManagedEntryDataPtr
 
 #include "RE/Skyrim.h"
+
+
+class ItemData;
 
 
 namespace
@@ -23,6 +27,37 @@ namespace
 		kDebugType_ValuePerWeight,
 		kDebugType_Priority
 	};
+
+
+	using FnCompare = int(const ItemData& a_lhs, const ItemData& a_rhs);
+
+
+	class CompareMap : public std::unordered_map<std::string, FnCompare*>
+	{
+	public:
+		CompareMap();
+
+		static int compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+		static int r_compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
+	};
 }
 
 
@@ -35,8 +70,44 @@ namespace
 
 class ItemData
 {
+public:
+	ItemData();
+	ItemData(const ItemData&) = default;
+	ItemData(ItemData&&) = default;
+	explicit ItemData(ManagedEntryDataPtr a_entryData);
+	explicit ItemData(ManagedEntryDataPtr a_entryData, SInt32 a_count);
+	~ItemData();
+
+	static void setCompareOrder();
+	static void setContainer(RE::TESObjectREFR* a_container);
+
+	ItemData& operator=(const ItemData&) = default;
+	ItemData& operator=(ItemData&&) = default;
+	friend bool operator==(const ItemData& a_lhs, const ItemData& a_rhs);
+	friend bool operator!=(const ItemData& a_lhs, const ItemData& a_rhs);
+	friend bool operator< (const ItemData& a_lhs, const ItemData& a_rhs);
+	friend bool operator> (const ItemData& a_lhs, const ItemData& a_rhs);
+	friend bool operator<=(const ItemData& a_lhs, const ItemData& a_rhs);
+	friend bool operator>=(const ItemData& a_lhs, const ItemData& a_rhs);
+
+	RE::InventoryEntryData* entryData() const;
+	const char* name() const;
+	SInt32 count() const;
+	SInt32 value() const;
+	float weight() const;
+	const char* icon() const;
+	bool isStolen() const;
+	bool isRead() const;
+	bool isEnchanted() const;
+	bool canPickPocket() const;
+	SInt32 pickPocketChance() const;
+	RE::TESForm* form() const;
+
+	void modCount(SInt32 a_mod);
+	void dbgDumpType(std::size_t a_index);
+
 private:
-	using FnCompare = int(const ItemData& a_lhs, const ItemData& a_rhs);
+	friend class CompareMap;
 
 
 	enum class Priority : UInt32
@@ -175,107 +246,41 @@ private:
 		kMiscDragonClaw
 	};
 
-public:
-	ItemData();
-	ItemData(const ItemData&) = default;
-	ItemData(ItemData&&) = default;
-	explicit ItemData(ManagedEntryDataPtr a_entryData);
-	explicit ItemData(ManagedEntryDataPtr a_entryData, SInt32 a_count);
-	~ItemData();
 
-	static void	setCompareOrder();
-	static void	setContainer(RE::TESObjectREFR* a_container);
+	void constructCommon();
 
-	ItemData& operator=(const ItemData&) = default;
-	ItemData& operator=(ItemData&&) = default;
-	friend bool	operator==(const ItemData& a_lhs, const ItemData& a_rhs);
-	friend bool	operator!=(const ItemData& a_lhs, const ItemData& a_rhs);
-	friend bool	operator< (const ItemData& a_lhs, const ItemData& a_rhs);
-	friend bool	operator> (const ItemData& a_lhs, const ItemData& a_rhs);
-	friend bool	operator<=(const ItemData& a_lhs, const ItemData& a_rhs);
-	friend bool	operator>=(const ItemData& a_lhs, const ItemData& a_rhs);
+	float getWeight();
+	Type getType();
+	Type getTypeArmor(RE::TESObjectARMO* a_armor);
+	Type getTypeBook(RE::TESObjectBOOK* a_book);
+	Type getTypeMisc(RE::TESObjectMISC* a_misc);
+	Type getTypeWeapon(RE::TESObjectWEAP* a_weap);
+	Type getTypePotion(RE::AlchemyItem* a_potion);
+	Type getTypeSoulGem(RE::TESSoulGem* a_gem);
+	bool getStolen();
+	bool getRead();
+	bool getEnchanted();
+	bool getCanPickPocket();
+	SInt32 getPickPocketChance();
+	Priority getPriority();
 
-	RE::InventoryEntryData*	entryData() const;
-	const char*				name() const;
-	SInt32					count() const;
-	SInt32					value() const;
-	float					weight() const;
-	const char*				icon() const;
-	bool					isStolen() const;
-	bool					isRead() const;
-	bool					isEnchanted() const;
-	bool					canPickPocket() const;
-	SInt32					pickPocketChance() const;
-	RE::TESForm*			form() const;
+	ManagedEntryDataPtr _entryData;
+	const char* _name;
+	SInt32 _count;
+	SInt32 _value;
+	float _weight;
+	Type _type;
+	bool _isStolen;
+	bool _isRead;
+	bool _isEnchanted;
+	bool _canPickPocket;
+	SInt32 _pickPocketChance;
+	Priority _priority;
 
-	void	modCount(SInt32 a_mod);
-	void	dbgDumpType(UInt32 a_index);
+	static std::vector<FnCompare*> _compares;
+	inline static RE::TESObjectREFR* _container = 0;
 
-private:
-	void	constructCommon();
-
-	float		getWeight();
-	Type		getType();
-	Type		getTypeArmor(RE::TESObjectARMO* a_armor);
-	Type		getTypeBook(RE::TESObjectBOOK* a_book);
-	Type		getTypeMisc(RE::TESObjectMISC* a_misc);
-	Type		getTypeWeapon(RE::TESObjectWEAP* a_weap);
-	Type		getTypePotion(RE::AlchemyItem* a_potion);
-	Type		getTypeSoulGem(RE::TESSoulGem* a_gem);
-	bool		getStolen();
-	bool		getRead();
-	bool		getEnchanted();
-	bool		getCanPickPocket();
-	SInt32		getPickPocketChance();
-	Priority	getPriority();
-
-	static friend int	compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByName(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByCount(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByValue(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByWeight(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByType(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByRead(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByEnchanted(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByPickPocketChance(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByPriority(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
-	static friend int	r_compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs);
-
-	ManagedEntryDataPtr	_entryData;
-	const char*			_name;
-	SInt32				_count;
-	SInt32				_value;
-	float				_weight;
-	Type				_type;
-	bool				_isStolen;
-	bool				_isRead;
-	bool				_isEnchanted;
-	bool				_canPickPocket;
-	SInt32				_pickPocketChance;
-	Priority			_priority;
-
-	static const std::string			NAME;
-	static const std::string			COUNT;
-	static const std::string			VALUE;
-	static const std::string			WEIGHT;
-	static const std::string			TYPE;
-	static const std::string			READ;
-	static const std::string			ENCHANTED;
-	static const std::string			PICK_POCKET_CHANCE;
-	static const std::string			VALUE_PER_WEIGHT;
-	static const std::string			PRIORITY;
-	static std::vector<FnCompare*>		_compares;
-	inline static RE::TESObjectREFR*	_container = 0;
-	static constexpr char*				_strIcons[] = {
+	static constexpr char* _strIcons[] = {
 	"none",					// 00
 	"default_weapon",
 	"weapon_sword",

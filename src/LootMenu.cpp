@@ -60,10 +60,10 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 	using Mouse = RE::BSWin32MouseDevice::Key;
 
 	if (IsOpen() && a_event->eventType == EventType::kButton) {
-		RE::ButtonEvent* button = static_cast<RE::ButtonEvent*>(a_event);
+		auto button = static_cast<RE::ButtonEvent*>(a_event);
 
-		RE::BSFixedString controlID = a_event->GetControlID();
-		RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+		auto& controlID = a_event->GetControlID();
+		auto strHolder = RE::InputStringHolder::GetSingleton();
 		if (controlID == strHolder->sneak) {
 			return true;
 		}
@@ -71,13 +71,13 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 		switch (a_event->deviceType) {
 		case DeviceType::kGamepad:
 			{
-				Gamepad keyMask = static_cast<Gamepad>(button->keyMask);
+				auto keyMask = static_cast<Gamepad>(button->keyMask);
 				return (keyMask == Gamepad::kUp || keyMask == Gamepad::kDown);
 			}
 			break;
 		case DeviceType::kMouse:
 			{
-				Mouse keyMask = static_cast<Mouse>(button->keyMask);
+				auto keyMask = static_cast<Mouse>(button->keyMask);
 				return (keyMask == Mouse::kWheelDown || keyMask == Mouse::kWheelUp);
 			}
 			break;
@@ -100,13 +100,13 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		return true;
 	}
 
-	RE::BSFixedString controlID = a_event->GetControlID();
-	RE::InputStringHolder* strHolder = RE::InputStringHolder::GetSingleton();
+	auto& controlID = a_event->GetControlID();
+	auto strHolder = RE::InputStringHolder::GetSingleton();
 	if (controlID == strHolder->sneak) {
-		RE::TESObjectREFR* ref = _containerRef;
 		Close();
 		SkipNextInput();
-		if (CanOpen(ref, !RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
+		auto player = RE::PlayerCharacter::GetSingleton();
+		if (CanOpen(_containerRef, !player->IsSneaking())) {
 			Open();
 		}
 		return true;
@@ -229,6 +229,8 @@ void LootMenu::SetSearchMapping(const char* a_searchStr)
 
 void LootMenu::QueueMessage(Message a_msg)
 {
+	auto loot = LootMenu::GetSingleton();
+
 	switch (a_msg) {
 	case Message::kNoInputLoaded:
 		_messageQueue.push("$QuickLootRE_NoInputLoaded");
@@ -247,8 +249,7 @@ void LootMenu::QueueMessage(Message a_msg)
 		{
 			static const char* enabled = "$QuickLootRE_LootMenuToggled_Enabled";
 			static const char* disabled = "$QuickLootRE_LootMenuToggled_Disabled";
-			auto loot = LootMenu::GetSingleton();
-			const char* state = loot->IsEnabled() ? enabled : disabled;
+			auto state = loot->IsEnabled() ? enabled : disabled;
 			_messageQueue.push(state);
 			ProcessMessageQueue();
 		}
@@ -258,7 +259,7 @@ void LootMenu::QueueMessage(Message a_msg)
 		break;
 	}
 
-	if (LootMenu::GetSingleton()->IsOpen()) {
+	if (loot->IsOpen()) {
 		ProcessMessageQueue();
 	}
 }
@@ -383,22 +384,22 @@ void LootMenu::SetActiText(const char* a_actiText)
 void LootMenu::Open() const
 {
 	if (_isEnabled) {
-		RE::UIManager::GetSingleton()->AddMessage(GetName(), RE::UIMessage::Message::kOpen, 0);
+		auto uiManager = RE::UIManager::GetSingleton();
+		uiManager->AddMessage(GetName(), RE::UIMessage::Message::kOpen, 0);
 	}
 }
 
 
 void LootMenu::Close() const
 {
-	RE::UIManager::GetSingleton()->AddMessage(GetName(), RE::UIMessage::Message::kClose, 0);
+	auto uiManager = RE::UIManager::GetSingleton();
+	uiManager->AddMessage(GetName(), RE::UIMessage::Message::kClose, 0);
 }
 
 
 void LootMenu::SetVisible(bool a_visible)
 {
-	using Context = RE::InputMappingManager::Context;
-
-	RE::MenuControls* mc = RE::MenuControls::GetSingleton();
+	auto mc = RE::MenuControls::GetSingleton();
 	view->SetVisible(a_visible);
 	if (a_visible && !_isRegistered) {
 		mc->RegisterHandler(this);
@@ -422,7 +423,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 
 	static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
-	if (!LootMenu::GetEnabled()) {
+	if (!GetEnabled()) {
 		return 0;
 	}
 
@@ -430,18 +431,18 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 		return 0;
 	}
 
-	RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-	RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-	if (mm->GameIsPaused() || mm->CrosshairIsPaused() || mm->GetMenu(strHolder->dialogueMenu)) {
+	auto mm = RE::MenuManager::GetSingleton();
+	auto uiStrHolder = RE::UIStringHolder::GetSingleton();
+	if (mm->GameIsPaused() || mm->CrosshairIsPaused() || mm->GetMenu(uiStrHolder->dialogueMenu)) {
 		return 0;
 	}
 
-	RE::InputMappingManager* mappingManager = RE::InputMappingManager::GetSingleton();
+	auto mappingManager = RE::InputMappingManager::GetSingleton();
 	if (!mappingManager->IsMovementControlsEnabled()) {
 		return 0;
 	}
 
-	RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+	auto player = RE::PlayerCharacter::GetSingleton();
 	if (player->GetGrabbedRef() || player->GetActorInFavorState() || player->IsInKillMove()) {
 		return 0;
 	}
@@ -467,7 +468,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 	switch (a_ref->baseForm->formType) {
 	case RE::FormType::Activator:
 		{
-			UInt32 refHandle = 0;
+			RE::RefHandle refHandle = 0;
 			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
 				RE::TESObjectREFRPtr refPtr;
 				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
@@ -482,7 +483,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 		}
 		break;
 	case RE::FormType::NPC:
-		RE::Actor* target = static_cast<RE::Actor*>(a_ref);
+		auto target = static_cast<RE::Actor*>(a_ref);
 		if (Settings::disableForAnimals && target->GetRace()->HasKeyword(ActorTypeAnimal)) {
 			return 0;
 		} else if (a_ref->IsDead(true) && !target->IsSummoned()) {
@@ -499,7 +500,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 		return 0;
 	}
 
-	UInt32 numItems = containerRef->GetNumItems();
+	auto numItems = containerRef->GetNumItems();
 
 	if (Settings::disableIfEmpty && numItems <= 0 && !containerRef->extraData.GetByType(RE::ExtraDataType::kDroppedItemList)) {
 		return 0;
@@ -593,9 +594,12 @@ void LootMenu::OnMenuOpen()
 	Register(Scaleform::kSetPlatform);
 	Register(Scaleform::kSetContainer);
 	Register(Scaleform::kUpdateButtons);
-	if (IsValidPickPocketTarget(_containerRef, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
+
+	auto player = RE::PlayerCharacter::GetSingleton();
+	if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
 		Register(Scaleform::kHideButtons);
 	}
+
 	Register(Scaleform::kOpenContainer);
 	Register(Scaleform::kSetSelectedIndex);
 	SetVisible(true);
@@ -622,14 +626,15 @@ void LootMenu::TakeItemStack()
 
 	ItemData itemCopy(_invList[_selectedIndex]);
 
-	SInt32 numItems = itemCopy.count();
+	auto numItems = itemCopy.count();
 	if (numItems > 1 && SingleLootEnabled()) {
 		numItems = 1;
 	}
 
 	if (TakeItem(itemCopy, numItems, true, true)) {
-		RE::InventoryChanges* invChanges = RE::PlayerCharacter::GetSingleton()->GetInventoryChanges();
-		RE::BaseExtraList* extraList = itemCopy.entryData()->extraList ? itemCopy.entryData()->extraList->front() : 0;
+		auto player = RE::PlayerCharacter::GetSingleton();
+		auto invChanges = player->GetInventoryChanges();
+		auto extraList = itemCopy.entryData()->extraList ? itemCopy.entryData()->extraList->front() : 0;
 		invChanges->SendContainerChangedEvent(extraList, _containerRef, itemCopy.form(), itemCopy.count());
 	}
 	RE::ChestsLooted::SendEvent();
@@ -642,7 +647,8 @@ void LootMenu::TakeAllItems()
 		return;
 	}
 
-	if (IsValidPickPocketTarget(_containerRef, RE::PlayerCharacter::GetSingleton()->IsSneaking())) {
+	auto player = RE::PlayerCharacter::GetSingleton();
+	if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
 		return;
 	}
 
@@ -657,7 +663,7 @@ void LootMenu::TakeAllItems()
 	}
 	_invList.clear();
 	SkipNextInput();
-	_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Trigger traps
+	_containerRef->ActivateRefChildren(player);  // Trigger traps
 	RE::ChestsLooted::SendEvent();
 
 	_canProcessInvChanges = false;
@@ -694,7 +700,7 @@ LootMenu::LootMenu(const char* a_swfPath) :
 	using Context = RE::InputMappingManager::Context;
 	using Flag = RE::IMenu::Flag;
 
-	RE::GFxLoader* loader = RE::GFxLoader::GetSingleton();
+	auto loader = RE::GFxLoader::GetSingleton();
 	if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kShowAll, 0.0)) {
 		flags = Flag::kDoNotDeleteOnClose | Flag::kDoNotPreventGameSave;
 		context = Context::kInventory;
@@ -746,8 +752,8 @@ bool LootMenu::SingleLootEnabled() const
 	gamepadHandle = inputManager->GetGamepad();
 	auto gamepad = skyrim_cast<RE::BSWin32GamepadDevice*>(gamepadHandle);
 	if (gamepad && gamepad->IsEnabled()) {
-		UInt32 singleLootSprint = GetSingleLootKey(DeviceType::kGamepad);
-		if (singleLootSprint != -1 && gamepad->IsPressed(singleLootSprint)) {
+		auto singleLootSprint = GetSingleLootKey(DeviceType::kGamepad);
+		if (singleLootSprint != RE::InputMappingManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
 			return true;
 		}
 	}
@@ -758,29 +764,27 @@ bool LootMenu::SingleLootEnabled() const
 
 void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName) const
 {
-	using RE::NiControllerManager;
-
 	if (Settings::disableAnimations) {
 		return;
 	}
 
-	RE::NiNode* niNode = _containerRef->GetNiNode();
+	auto niNode = _containerRef->GetNiNode();
 	if (!niNode) {
 		return;
 	}
 
-	RE::NiTimeController* controller = niNode->GetController();
+	auto controller = niNode->GetController();
 	if (!controller) {
 		return;
 	}
 
-	RE::NiControllerManager* manager = ni_cast((NiObject*)controller, NiControllerManager);
+	auto manager = skyrim_cast<RE::NiControllerManager*>(controller);
 	if (!manager) {
 		return;
 	}
 
-	RE::NiControllerSequence* fromSeq = manager->GetSequenceByName(a_fromName);
-	RE::NiControllerSequence* toSeq = manager->GetSequenceByName(a_toName);
+	auto fromSeq = manager->GetSequenceByName(a_fromName);
+	auto toSeq = manager->GetSequenceByName(a_toName);
 	if (!fromSeq || !toSeq) {
 		return;
 	}
@@ -799,7 +803,8 @@ void LootMenu::PlayAnimationOpen()
 		}
 
 		if (_containerRef->formType != RE::FormType::ActorCharacter) {
-			_containerRef->ActivateRefChildren(RE::PlayerCharacter::GetSingleton());  // Triggers traps
+			auto player = RE::PlayerCharacter::GetSingleton();
+			_containerRef->ActivateRefChildren(player);  // Triggers traps
 		}
 
 		_isContainerOpen = true;
@@ -813,7 +818,8 @@ void LootMenu::PlayAnimationClose()
 		PlayAnimation("Open", "Close");
 
 		if (!Settings::disableAnimations) {
-			OnContainerCloseAnim::GetSingleton()->QueueEvent();
+			auto dispatcher = OnContainerCloseAnim::GetSingleton();
+			dispatcher->QueueEvent();
 		}
 
 		_isContainerOpen = false;
@@ -835,15 +841,15 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 		xList = a_item.entryData()->extraList->front();
 	}
 
-	RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+	auto player = RE::PlayerCharacter::GetSingleton();
 
 	// Pickup dropped items
 	if (xList && xList->HasType(RE::ExtraDataType::kItemDropper)) {
-		RE::TESObjectREFR* refItem = reinterpret_cast<RE::TESObjectREFR*>((std::uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
+		auto refItem = reinterpret_cast<RE::TESObjectREFR*>((std::uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
 		player->PickUpItem(refItem, 1, false, true);
 		manualUpdate = true;
 	} else {
-		RemoveType lootMode = RemoveType::kTake;
+		auto lootMode = RemoveType::kTake;
 
 		if (_containerRef->baseForm->Is(RE::FormType::NPC)) {
 			// Dead body
@@ -866,7 +872,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 		}
 
 		// Remove projectile 3D
-		RE::TESBoundObject* bound = static_cast<RE::TESBoundObject*>(a_item.form());
+		auto bound = static_cast<RE::TESBoundObject*>(a_item.form());
 		if (bound) {
 			bound->OnRemovedFrom(_containerRef);
 		}
@@ -889,7 +895,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 		if (!Settings::disableInvisDispell) {
 			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
 		}
-		UInt32 droppedHandle = 0;
+		RE::RefHandle droppedHandle = 0;
 		_containerRef->RemoveItem(droppedHandle, a_item.form(), a_numItems, lootMode, xList, player);
 	}
 
@@ -902,9 +908,9 @@ bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& 
 	using EventType = RE::PlayerCharacter::EventType;
 	using RemoveType = RE::TESObjectREFR::RemoveType;
 
-	RE::Actor* target = static_cast<RE::Actor*>(_containerRef);
-	RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-	bool pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
+	auto target = static_cast<RE::Actor*>(_containerRef);
+	auto player = RE::PlayerCharacter::GetSingleton();
+	auto pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
 	player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
 	a_lootMode = RemoveType::kSteal;
 	if (!pickSuccess) {
@@ -918,7 +924,7 @@ bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& 
 
 void LootMenu::DispellWornItemEnchantments() const
 {
-	RE::Actor* actor = static_cast<RE::Actor*>(_containerRef);
+	auto actor = static_cast<RE::Actor*>(_containerRef);
 	if (actor->processManager) {
 		actor->DispelWornItemEnchantments();
 		actor->processManager->UpdateEquipment_Hooked(actor);
@@ -929,7 +935,8 @@ void LootMenu::DispellWornItemEnchantments() const
 UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType) const
 {
 	RE::BSFixedString str = _singleLootMapping.c_str();
-	return RE::InputMappingManager::GetSingleton()->GetMappedKey(str, a_deviceType);
+	auto mm = RE::InputMappingManager::GetSingleton();
+	return mm->GetMappedKey(str, a_deviceType);
 }
 
 
