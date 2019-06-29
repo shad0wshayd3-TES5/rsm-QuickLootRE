@@ -60,6 +60,12 @@
     <ClCompile Include="src\Registration.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\SetQuickLootVariable.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CrosshairHook.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
@@ -102,6 +108,12 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Registration.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SetQuickLootVariable.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CrosshairHook.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

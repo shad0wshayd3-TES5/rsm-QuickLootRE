@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>  // shared_ptr
+#include <memory>
 
 #include "RE/Skyrim.h"
 

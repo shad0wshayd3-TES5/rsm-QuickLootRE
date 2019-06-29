@@ -155,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ActivatePerkEntryVisitor.cpp" />
+    <ClCompile Include="src\CrosshairHook.cpp" />
     <ClCompile Include="src\Delegates.cpp" />
     <ClCompile Include="src\Hooks.cpp" />
     <ClCompile Include="src\InventoryList.cpp" />
@@ -166,11 +167,13 @@
     <ClCompile Include="src\ManagedEntryData.cpp" />
     <ClCompile Include="src\Registration.cpp" />
     <ClCompile Include="src\SetActivateLabelPerkEntryVisitor.cpp" />
+    <ClCompile Include="src\SetQuickLootVariable.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ActivatePerkEntryVisitor.h" />
+    <ClInclude Include="include\CrosshairHook.h" />
     <ClInclude Include="include\Delegates.h" />
     <ClInclude Include="include\Events.h" />
     <ClInclude Include="include\Hooks.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="include\ManagedEntryData.h" />
     <ClInclude Include="include\Registration.h" />
     <ClInclude Include="include\SetActivateLabelPerkEntryVisitor.h" />
+    <ClInclude Include="include\SetQuickLootVariable.h" />
     <ClInclude Include="include\Settings.h" />
     <ClInclude Include="include\Utility.h" />
     <ClInclude Include="include\version.h" />

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Json2Settings.h"  // Json2Settings
+#include "Json2Settings.h"
 
 
 class Settings : public Json2Settings::Settings
@@ -32,8 +32,6 @@ public:
 	static sSetting					searchMethod;
 	static sSetting					interfaceStyle;
 	static aSetting<std::string>	sortOrder;
-
-	static inline bool				isApplied = false;
 
 private:
 	static inline constexpr char	FILE_NAME[] = "Data\\SKSE\\Plugins\\QuickLootRE.json";

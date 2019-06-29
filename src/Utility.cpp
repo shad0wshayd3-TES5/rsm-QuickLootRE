@@ -5,12 +5,6 @@
 #include "RE/Skyrim.h"
 
 
-std::string boolToString(bool a_bool)
-{
-	return a_bool ? "True" : "False";
-}
-
-
 bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking)
 {
 	if (!a_refr || a_refr->baseForm->IsNot(RE::FormType::NPC)) {

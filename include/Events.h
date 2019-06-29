@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SKSE/Events.h"  // CrosshairRefEvent
 #include "RE/Skyrim.h"
+#include "SKSE/Events.h"
 
 
 namespace Events

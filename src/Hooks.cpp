@@ -1,23 +1,22 @@
 #include "Hooks.h"
 
-#include "skse64_common/BranchTrampoline.h"  // g_localTrampoline, g_branchTrampoline
-#include "skse64_common/SafeWrite.h"  // SafeWrite
-#include "skse64/PapyrusEvents.h"  // SKSECrosshairRefEvent
+#include "skse64_common/BranchTrampoline.h"
+#include "skse64_common/SafeWrite.h"
 
-#include <cassert>  // assert
-#include <sstream>  // stringstream
-#include <string>  // string
-#include <typeinfo>  // typeid
-#include <vector>  // vector
+#include <cassert>
+#include <sstream>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
-#include "SetActivateLabelPerkEntryVisitor.h"  // SetActivateLabelPerkEntryVisitor
-#include "LootMenu.h"  // LootMenu
-#include "Settings.h"  // Settings
+#include "CrosshairHook.h"
+#include "LootMenu.h"
+#include "SetActivateLabelPerkEntryVisitor.h"
+#include "SetQuickLootVariable.h"
+#include "Settings.h"
 
-#include "HookShare.h"  // ReturnType, _RegisterForCanProcess_t
+#include "HookShare.h"
 
-#include "SKSE/API.h"  // GetCrosshairRefEventSource
-#include "SKSE/Events.h"  // CrosshairRefEvent
 #include "RE/Skyrim.h"
 #include "REL/Relocation.h"
 
@@ -117,7 +116,7 @@ namespace
 		{
 			auto loot = LootMenu::GetSingleton();
 			loot->TakeItemStack();
-			loot->Register(LootMenu::Scaleform::kOpenContainer);
+			Dispatch<OpenContainerDelegate>();
 		}
 	};
 
@@ -129,7 +128,7 @@ namespace
 		{
 			auto loot = LootMenu::GetSingleton();
 			loot->TakeAllItems();
-			loot->Register(LootMenu::Scaleform::kOpenContainer);
+			Dispatch<OpenContainerDelegate>();
 		}
 	};
 
@@ -205,7 +204,7 @@ namespace
 		{
 			REL::Offset<func_t**> vFunc(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
 			func = *vFunc;
-			SafeWrite64(vFunc.GetAddress(), GetFnAddr(&Hook_ProcessButton));
+			SafeWrite64(vFunc.GetAddress(), unrestricted_cast<std::uintptr_t>(&Hook_ProcessButton));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
 		}
 	};
@@ -260,7 +259,7 @@ namespace
 		{
 			REL::Offset<func_t**> vFunc(OFFSET);
 			func = *vFunc;
-			SafeWrite64(vFunc.GetAddress(), GetFnAddr(&Hook_GetCrosshairText));
+			SafeWrite64(vFunc.GetAddress(), unrestricted_cast<std::uintptr_t>(&Hook_GetCrosshairText));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
 		}
 	};
@@ -289,14 +288,14 @@ namespace
 		static void InstallHook()
 		{
 			// 48 89 5C 24 08 57 48 83 EC 20 49 8B 00 BA 00 00 00 80
-			constexpr std::uintptr_t BASE_ADDR = 0x009935A0;	// 1_5_73
+			constexpr std::uintptr_t BASE_ADDR = 0x009935A0;	// 1_5_80
 			constexpr std::uintptr_t LEA_HOOK = 0x1F;
 			constexpr std::uintptr_t JMP_HOOK = 0x36;
 			REL::Offset<std::uintptr_t> funcBase(BASE_ADDR);
 
 			SafeWrite8(funcBase.GetAddress() + LEA_HOOK + 3, 0x00);
 
-			g_branchTrampoline.Write5Branch(funcBase.GetAddress() + JMP_HOOK, GetFnAddr(&Hook_BlockActivation));
+			g_branchTrampoline.Write5Branch(funcBase.GetAddress() + JMP_HOOK, unrestricted_cast<std::uintptr_t>(&Hook_BlockActivation));
 			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESObjectREFREx).name());
 		}
 	};
@@ -305,7 +304,7 @@ namespace
 	void InstallGHeapLeakDetectionCrashFix()
 	{
 		// E8 ? ? ? ? 48 8B 07 33 D2 48 8B CF FF 10
-		constexpr std::uintptr_t BASE_ADDR = 0x00FFFA00;	// 1_5_73
+		constexpr std::uintptr_t BASE_ADDR = 0x00FFFA00;	// 1_5_80
 		constexpr std::uintptr_t START = 0x4B;
 		constexpr std::uintptr_t END = 0x5C;
 		constexpr UInt8 NOP = 0x90;
@@ -315,84 +314,6 @@ namespace
 			SafeWrite8(funcBase.GetAddress() + i, NOP);
 		}
 		_DMESSAGE("[DEBUG] Installed crash fix for scaleform heap leak detection");
-	}
-
-
-	// TEMPORARY
-	bool Hook_LookupCrosshairRefByHandle(RE::RefHandle& a_handle, RE::TESObjectREFRPtr& a_refrOut)
-	{
-		auto result = RE::TESObjectREFR::LookupByHandle(a_handle, a_refrOut);
-
-		g_crosshairRef = a_refrOut;
-		SKSE::CrosshairRefEvent event(a_refrOut);
-		SKSE::GetCrosshairRefEventSource()->SendEvent(&event);
-
-		return result;
-	}
-
-
-	RE::TESObjectREFR* GetCurrentCrosshairRef_Hook(RE::StaticFunctionTag*)
-	{
-		return g_crosshairRef.get();
-	}
-
-
-	void InstallCrosshairDispatchFix()
-	{
-		REL::Offset<std::uintptr_t> target(0x006B0570 + 0x90);
-		g_branchTrampoline.Write5Call(target.GetAddress(), GetFnAddr(Hook_LookupCrosshairRefByHandle));
-		_DMESSAGE("[DEBUG] Installed fix for crosshair ref dispatch");
-	}
-	// TEMPORARY
-
-
-	bool Cmd_SetQuickLootVariable_Execute(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
-	{
-		auto strChunk = static_cast<RE::CommandInfo::StringChunk*>(a_scriptData->GetChunk());
-		auto name = strChunk->GetString();
-
-		auto intChunk = static_cast<RE::CommandInfo::IntegerChunk*>(strChunk->GetNext());
-		auto val = intChunk->GetInteger();
-
-		auto console = RE::ConsoleManager::GetSingleton();
-		auto setting = Settings::set(name, val);
-		if (setting) {
-			auto loot = LootMenu::GetSingleton();
-			loot->Register(LootMenu::Scaleform::kSetup);
-			if (console && RE::ConsoleManager::IsConsoleMode()) {
-				console->Print("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
-			}
-		} else {
-			if (console && RE::ConsoleManager::IsConsoleMode()) {
-				console->Print("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
-			}
-		}
-		return true;
-	}
-
-
-	void RegisterConsoleCommands()
-	{
-		using Type = RE::SCRIPT_PARAMETER::Type;
-
-		auto info = RE::CommandInfo::LocateConsoleCommand("TestSeenData");  // Unused
-		if (info) {
-			static RE::SCRIPT_PARAMETER params[] = {
-				{ "Name", Type::kString, 0 },
-				{ "Value", Type::kInteger, 0 }
-			};
-			info->longName = "SetQuickLootVariable";
-			info->shortName = "sqlv";
-			info->helpText = "Set QuickLoot variables \"sqlv [variable name] [new value]\"";
-			info->isRefRequired = false;
-			info->SetParameters(params);
-			info->execute = &Cmd_SetQuickLootVariable_Execute;
-			info->eval = 0;
-
-			_DMESSAGE("[DEBUG] Registered console command: %s (%s)", info->longName, info->shortName);
-		} else {
-			_ERROR("[ERROR] Failed to register console command!\n");
-		}
 	}
 
 
@@ -415,12 +336,9 @@ namespace
 		case ControlID::kSneak:
 			return strHolder->sneak;
 		case ControlID::kShout:
-			switch (LootMenu::GetSingleton()->GetPlatform()) {
-			case LootMenu::Platform::kPC:
-				return strHolder->shout;
-			case LootMenu::Platform::kOther:
-			default:
-				return strHolder->chargeItem;
+			{
+				auto inputManager = RE::InputManager::GetSingleton();
+				return inputManager->IsGamepadEnabled() ? strHolder->chargeItem : strHolder->shout;
 			}
 		case ControlID::kToggleRun:
 			return strHolder->toggleRun;
@@ -428,11 +346,10 @@ namespace
 			return strHolder->autoMove;
 		case ControlID::kFavorites:
 			return strHolder->favorites;
-		case ControlID::kNone:
 		default:
-			if (a_controlID != ControlID::kNone) {
-				_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
-			}
+			_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
+			[[fallthrough]] ;
+		case ControlID::kNone:
 			return emptyStr;
 		}
 	}
@@ -450,7 +367,7 @@ namespace
 		}
 
 		std::sort(settings.begin(), settings.end());
-		for (int i = 0, j = 1; j < settings.size(); ++i, ++j) {
+		for (std::size_t i = 0, j = 1; j < settings.size(); ++i, ++j) {
 			if (settings[i] == settings[j]) {
 				_ERROR("[ERROR] %s and %s are mapped to the same key (%s)!", settings[i].key().c_str(), settings[j].key().c_str(), settings[i].c_str());
 				LootMenu::QueueMessage(LootMenu::Message::kNoInputLoaded);
@@ -462,102 +379,35 @@ namespace
 	}
 
 
-	using Set_t = void(const char* a_str);
 	template <class Op>
-	bool ApplySetting(HookShare::RegisterForCanProcess_t* a_register, Set_t* a_set, sSetting& a_setting)
+	bool ApplySetting(HookShare::RegisterForCanProcess_t* a_register, llvm::function_ref<void(const char*)> a_set, sSetting& a_setting)
 	{
-		using HookShare::Hook;
-
-		auto strHolder = InputStringHolder::GetSingleton();
-		bool result = false;
-
-		if (a_setting == "activate") {
-			a_register(Hook::kActivate, &ActivateHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->activate.c_str());
-			result = true;
-		} else if (a_setting == "readyWeapon") {
-			a_register(Hook::kReadyWeapon, &ReadyWeaponHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->readyWeapon.c_str());
-			result = true;
-		} else if (a_setting == "togglePOV") {
-			a_register(Hook::kFirstPersonState, &FirstPersonStateHandlerEx<Op>::Hook_CanProcess);
-			a_register(Hook::kThirdPersonState, &ThirdPersonStateHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->togglePOV.c_str());
-			g_cameraStateHandlerHooked = true;
-			result = true;
-		} else if (a_setting == "jump") {
-			a_register(Hook::kJump, &JumpHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->jump.c_str());
-			result = true;
-		} else if (a_setting == "sprint") {
-			a_register(Hook::kSprint, &SprintHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->sprint.c_str());
-			result = true;
-		} else if (a_setting == "sneak") {
-			a_register(Hook::kSneak, &SneakHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->sneak.c_str());
-			result = true;
-		} else if (a_setting == "shout") {
-			a_register(Hook::kShout, &ShoutHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->shout.c_str());
-			result = true;
-		} else if (a_setting == "toggleRun") {
-			a_register(Hook::kToggleRun, &ToggleRunHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->toggleRun.c_str());
-			result = true;
-		} else if (a_setting == "autoMove") {
-			a_register(Hook::kAutoMove, &AutoMoveHandlerEx<Op>::Hook_CanProcess);
-			a_set(strHolder->autoMove.c_str());
-			result = true;
+		SettingMap<Op> settingMap;
+		auto it = settingMap.find(a_setting);
+		if (it != settingMap.end()) {
+			it->second(a_register, a_set);
+			_DMESSAGE("[DEBUG] Applied %s hook to (%s)", a_setting.key().c_str(), a_setting.c_str());
+			return true;
 		} else {
 			_ERROR("[ERROR] Unrecognized mapping (%s)!", a_setting.c_str());
-			result = false;
+			_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", a_setting.key().c_str(), a_setting.c_str());
+			return false;
 		}
-
-		return result;
 	}
 }
 
 
 namespace Hooks
 {
-	// TEMPORARY
-	bool Register_GetCurrentCrosshairRef_Hook(RE::BSScript::Internal::VirtualMachine* a_vm)
-	{
-		a_vm->RegisterFunction("GetCurrentCrosshairRef", "Game", GetCurrentCrosshairRef_Hook);
-		return true;
-	}
-	// TEMPORARY
-
-
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
 
 		if (!CheckForMappingConflicts()) {
-			if (ApplySetting<NullOp>(a_register, &LootMenu::SetSingleLootMapping, Settings::singleLootModifier)) {
-				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::singleLootModifier.key().c_str(), Settings::singleLootModifier.c_str());
-			} else {
-				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::singleLootModifier.key().c_str(), Settings::singleLootModifier.c_str());
-			}
-
-			if (ApplySetting<TakeOp>(a_register, &LootMenu::SetTakeMapping, Settings::takeMethod)) {
-				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::takeMethod.key().c_str(), Settings::takeMethod.c_str());
-			} else {
-				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::takeMethod.key().c_str(), Settings::takeMethod.c_str());
-			}
-
-			if (ApplySetting<TakeAllOp>(a_register, &LootMenu::SetTakeAllMapping, Settings::takeAllMethod)) {
-				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::takeAllMethod.key().c_str(), Settings::takeAllMethod.c_str());
-			} else {
-				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::takeAllMethod.key().c_str(), Settings::takeAllMethod.c_str());
-			}
-
-			if (ApplySetting<SearchOp>(a_register, &LootMenu::SetSearchMapping, Settings::searchMethod)) {
-				_DMESSAGE("[DEBUG] Applied %s hook to (%s)", Settings::searchMethod.key().c_str(), Settings::searchMethod.c_str());
-			} else {
-				_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", Settings::searchMethod.key().c_str(), Settings::searchMethod.c_str());
-			}
+			ApplySetting<NullOp>(a_register, &LootMenu::SetSingleLootMapping, Settings::singleLootModifier);
+			ApplySetting<TakeOp>(a_register, &LootMenu::SetTakeMapping, Settings::takeMethod);
+			ApplySetting<TakeAllOp>(a_register, &LootMenu::SetTakeAllMapping, Settings::takeAllMethod);
+			ApplySetting<SearchOp>(a_register, &LootMenu::SetSearchMapping, Settings::searchMethod);
 
 			if (!g_activateHandlerHooked) {
 				a_register(Hook::kActivate, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
@@ -586,11 +436,9 @@ namespace Hooks
 		MenuOpenHandlerEx::InstallHook();
 		TESObjectREFREx::InstallHook();
 
-		RegisterConsoleCommands();
+		SetQuickLootVariable::Register();
 		InstallGHeapLeakDetectionCrashFix();
 
-		// TEMPORARY
-		InstallCrosshairDispatchFix();
-		// TEMPORARY
+		Temporary::CrosshairHook::InstallHooks();
 	}
 }

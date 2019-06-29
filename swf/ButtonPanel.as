@@ -10,23 +10,23 @@
 	}
 
 
-	public function SetButton(a_key:Number, a_name:String): Void
+	public function SetButtonText(a_name:String): Void
 	{
-		icon.gotoAndStop(a_key);
 		name.textAutoSize = "shrink";
 		name.autoSize = "left";
 		name.htmlText = a_name;
 	}
 
 
-	public function UpdateButton(a_key:Number): Void
+	public function UpdateButtonIcon(a_key:Number): Void
 	{
 		icon.gotoAndStop(a_key);
 	}
-	
-	
-	public function HideButton(): Void
+
+
+	public function SetVisible(a_visible:Boolean): Void
 	{
-		icon.gotoAndStop("Hidden");
+		icon._visible = a_visible;
+		name._visible = a_visible;
 	}
 }

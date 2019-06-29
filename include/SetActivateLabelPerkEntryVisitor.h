@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limits>  // numeric_limits
+#include <limits>
 
 #include "RE/Skyrim.h"
 

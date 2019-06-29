@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>  // vector
-#include <string>  // string
-#include <unordered_map>  // unordered_map
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#include "ManagedEntryData.h"  // ManagedEntryDataPtr
+#include "ManagedEntryData.h"
 
 #include "RE/Skyrim.h"
 

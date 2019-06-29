@@ -1,17 +1,17 @@
-﻿#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
-#include "skse64_common/skse_version.h"  // RUNTIME_VERSION
+﻿#include "skse64_common/BranchTrampoline.h"
+#include "skse64_common/skse_version.h"
 
-#include <string>  // string
+#include <string>
 
-#include "Events.h"  // CrosshairRefEventHandler, InputEventHandler, MenuOpenCloseEventHandler, TESCombatEventHandler, TESContainerChangedEventHandler, TESMagicEffectApplyEventHandler
-#include "Hooks.h"  // InstallHooks
-#include "ItemData.h"  // SetCompareOrder
-#include "LootMenu.h"  // LootMenuCreator
-#include "Registration.h"  // OnContainerOpenAnim, OnContainerCloseAnim, QuickLoot::RegisterFuncs
-#include "Settings.h"  // Settings
+#include "Events.h"
+#include "Hooks.h"
+#include "ItemData.h"
+#include "LootMenu.h"
+#include "Registration.h"
+#include "Settings.h"
 #include "version.h"
 
-#include "HookShare.h"  // RegisterForCanProcess_t
+#include "HookShare.h"
 
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
@@ -246,10 +246,6 @@ extern "C" {
 		serialization->SetUniqueID(kQuickLoot);
 		serialization->SetSaveCallback(SaveCallback);
 		serialization->SetLoadCallback(LoadCallback);
-
-		// TEMPORARY
-		papyrus->Register(Hooks::Register_GetCurrentCrosshairRef_Hook);
-		// TEMPORARY
 
 		return true;
 	}

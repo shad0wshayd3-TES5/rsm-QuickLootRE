@@ -1,11 +1,11 @@
 #include "InventoryList.h"
 
 #include <algorithm>  // sort
-#include <map>  // map
-#include <vector>  // vector
+#include <map>
+#include <vector>
 
 #include "Forms.h"
-#include "ManagedEntryData.h"  // ManagedEntryDataPtr
+#include "ManagedEntryData.h"
 
 #include "RE/Skyrim.h"
 

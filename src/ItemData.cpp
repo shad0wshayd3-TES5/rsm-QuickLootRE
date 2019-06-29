@@ -1,11 +1,11 @@
 #include "ItemData.h"
 
-#include <limits>  // numeric_limits
-#include <string>  // string
+#include <limits>
+#include <string>
 
-#include "Forms.h"  // keywords, FormID
-#include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget
+#include "Forms.h"
+#include "Settings.h"
+#include "Utility.h"
 
 #include "RE/Skyrim.h"
 
@@ -438,10 +438,10 @@ void ItemData::dbgDumpType(std::size_t a_index)
 		_DMESSAGE("[DEBUG] (%u) type == (%s: %zu)", _type, _name, a_index);
 		break;
 	case kDebugType_Read:
-		_DMESSAGE("[DEBUG] (%s) read == (%s: %zu)", boolToString(_isRead).c_str(), _name, a_index);
+		_DMESSAGE("[DEBUG] (%s) read == (%s: %zu)", boolToString(_isRead), _name, a_index);
 		break;
 	case kDebugType_Enchanted:
-		_DMESSAGE("[DEBUG] (%s) enchanted == (%s: %zu)", boolToString(_isEnchanted).c_str(), _name, a_index);
+		_DMESSAGE("[DEBUG] (%s) enchanted == (%s: %zu)", boolToString(_isEnchanted), _name, a_index);
 		break;
 	case kDebugType_PickPocketChance:
 		_DMESSAGE("[DEBUG] (%i) pickPocketChance == (%s: %zu)", _pickPocketChance, _name, a_index);

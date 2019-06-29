@@ -39,13 +39,12 @@ class ItemListEntry extends BasicListEntry
 	private function onLoadInit(a_icon:MovieClip): Void
 	{
 		a_icon.gotoAndStop(_iconLabel);
-		//changeIconColor(a_icon, _iconColor);
 	}
 	
 	
 	// @override BasicListEntry
 	public function setEntry(a_entryObject:Object, a_state:ListState): Void
-	{		
+	{
 		var isAssigned = a_entryObject == a_state.assignedEntry;
 		var isSelected = a_entryObject == a_state.list.selectedEntry || isAssigned;
 		
@@ -90,7 +89,7 @@ class ItemListEntry extends BasicListEntry
 			enchantIcon._x = iconPosX;
 			iconPosX += enchantIcon._width + 2;
 		}
-
+		
 		readIcon._visible = (a_entryObject.isRead != undefined && a_entryObject.isRead);
 		if (readIcon._visible) {
 			readIcon._x = iconPosX;

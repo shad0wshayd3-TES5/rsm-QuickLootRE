@@ -1,10 +1,10 @@
 #include "Events.h"
 
-#include "Delegates.h"  // DelayedUpdater
-#include "InventoryList.h"  // g_invList
-#include "LootMenu.h"  // LootMenu
-#include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget
+#include "Delegates.h"
+#include "InventoryList.h"
+#include "LootMenu.h"
+#include "Settings.h"
+#include "Utility.h"
 
 #include "SKSE/API.h"
 #include "RE/Skyrim.h"
@@ -132,7 +132,7 @@ namespace Events
 			if (!loot->IsVisible() && !mm->GameIsPaused()) {
 				loot->SetVisible(true);
 				loot->ParseInventory();
-				loot->Register(LootMenu::Scaleform::kOpenContainer);
+				Dispatch<OpenContainerDelegate>();
 			}
 		}
 
@@ -187,7 +187,7 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
-		if (a_event->fromFormID == ref->formID || a_event->toFormID == ref->formID) {
+		if (a_event->from == ref->formID || a_event->to == ref->formID) {
 			auto task = SKSE::GetTaskInterface();
 			task->AddTask(new DelayedUpdater());	// This event is fired before the item is removed, so we have to wait a bit
 		}

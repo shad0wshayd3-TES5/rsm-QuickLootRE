@@ -1,6 +1,6 @@
 #include "SetActivateLabelPerkEntryVisitor.h"
 
-#include "LootMenu.h"  // LootMenu
+#include "LootMenu.h"
 
 #include "RE/Skyrim.h"
 

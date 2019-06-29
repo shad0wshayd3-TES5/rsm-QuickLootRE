@@ -1,9 +1,19 @@
 #pragma once
 
-#include <string>  // string
-
 #include "RE/Skyrim.h"
 
 
-std::string boolToString(bool a_bool);
-bool		IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking);
+enum Style : UInt32
+{
+	kDefault = 0,
+	kDialogue = 1
+};
+
+
+constexpr const char* boolToString(bool a_bool)
+{
+	return a_bool ? "True" : "False";
+}
+
+
+bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking);

@@ -1,18 +1,15 @@
 #pragma once
 
-#include "RE/BGSKeyword.h"  // BGSKeyword
-#include "RE/BGSPerk.h"  // BGSPerk
-#include "RE/TESFaction.h"  // TESFaction
-#include "RE/TESForm.h"  // LookupByID
+#include "RE/Skyrim.h"
 
 
-enum FACTFormID : UInt32
+enum FACTFormID : RE::FormID
 {
 	kFACTFormID_CurrentFollowerFaction = 0x0005C84E
 };
 
 
-enum KYWDFormID : UInt32
+enum KYWDFormID : RE::FormID
 {
 	kKYWDFormID_VendorItemClothing = 0x0008F95B,
 	kKYWDFormID_VendorItemJewelry = 0x0008F95A,
@@ -35,7 +32,7 @@ enum KYWDFormID : UInt32
 };
 
 
-enum MISCFormID : UInt32
+enum MISCFormID : RE::FormID
 {
 	kMISCFormID_LockPick = 0x0000000A,
 	kMISCFormID_Gold = 0x0000000F,
@@ -56,7 +53,7 @@ enum MISCFormID : UInt32
 };
 
 
-enum PERKFormID : UInt32
+enum PERKFormID : RE::FormID
 {
 	kPERKFormID_VampireFeed = 0x000CF02C,
 	kPERKFormID_Cannibalism = 0x000EE5C3,
@@ -66,25 +63,26 @@ enum PERKFormID : UInt32
 };
 
 
-enum SLGMFormID : UInt32
+enum SLGMFormID : RE::FormID
 {
 	kSLGMFormID_DA01SoulGemAzurasStar = 0x00063B27,
 	kSLGMFormID_DA01SoulGemBlackStar = 0x00063B29
 };
 
 
-enum SNDRFormID : UInt32
+enum SNDRFormID : RE::FormID
 {
 	kSNDRFormID_ITMPotionUse = 0x000B6435
 };
 
 
-template <typename T>
+template <class T >
 class Form
 {
 public:
-	Form(UInt32 a_formID) : _formID(a_formID) {}
-
+	Form(RE::FormID a_formID) :
+		_formID(a_formID)
+	{}
 
 	operator T()
 	{
@@ -92,7 +90,7 @@ public:
 	}
 
 private:
-	UInt32 _formID;
+	RE::FormID _formID;
 };
 
 

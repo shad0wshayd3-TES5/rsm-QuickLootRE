@@ -1,35 +1,42 @@
 #include "LootMenu.h"
 
-#include "skse64_common/SafeWrite.h"  // SafeWrite64
-#include "skse64/GameMenus.h"  // UIMessage
-#include "skse64/NiRTTI.h"  // ni_cast
+#include "skse64_common/SafeWrite.h"
 
 #include <cstdlib>  // abort
-#include <queue>  // queue
-#include <string>  // string
+#include <queue>
+#include <string>
 
-#include "ActivatePerkEntryVisitor.h"  // ActivatePerkEntryVisitor
-#include "Delegates.h"
+#include "ActivatePerkEntryVisitor.h"
 #include "Forms.h"
-#include "Hooks.h"  // SendItemsPickPocketedEvent
-#include "ItemData.h"  // ItemData
-#include "InventoryList.h"  // g_invList
-#include "Registration.h"  // OnContainerOpenAnim, OnContainerCloseAnim
-#include "Settings.h"  // Settings
-#include "Utility.h"  // IsValidPickPocketTarget
+#include "Hooks.h"
+#include "ItemData.h"
+#include "InventoryList.h"
+#include "Registration.h"
+#include "Settings.h"
+#include "Utility.h"
 
 #include "SKSE/API.h"
 #include "RE/Skyrim.h"
 
 
+namespace
+{
+	StyleMap::StyleMap()
+	{
+		std::string key;
+
+		key = "dialogue";
+		insert({ key, Style::kDialogue });
+
+		key = "default";
+		insert({ key, Style::kDefault });
+	}
+}
+
+
 RE::IMenu::Result LootMenu::ProcessMessage(RE::UIMessage* a_message)
 {
 	using UIMessage = RE::UIMessage::Message;
-
-	if (!Settings::isApplied) {
-		Register(Scaleform::kSetup);
-		Register(Scaleform::kSwitchStyle);
-	}
 
 	switch (a_message->message) {
 	case UIMessage::kOpen:
@@ -112,11 +119,10 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		return true;
 	}
 
+	ControlMethod inputMethod;
 	switch (a_event->deviceType) {
 	case DeviceType::kGamepad:
-		_platform = Platform::kOther;
-		Register(Scaleform::kSetPlatform);
-		Register(Scaleform::kUpdateButtons);
+		inputMethod = ControlMethod::kController;
 		switch (static_cast<Gamepad>(a_event->keyMask)) {
 		case Gamepad::kUp:
 			ModSelectedIndex(-1);
@@ -127,9 +133,7 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		}
 		break;
 	case DeviceType::kMouse:
-		_platform = Platform::kPC;
-		Register(Scaleform::kSetPlatform);
-		Register(Scaleform::kUpdateButtons);
+		inputMethod = ControlMethod::kPC;
 		switch (Mouse(a_event->keyMask)) {
 		case Mouse::kWheelUp:
 			ModSelectedIndex(-1);
@@ -140,9 +144,7 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		}
 		break;
 	case DeviceType::kKeyboard:
-		_platform = Platform::kPC;
-		Register(Scaleform::kSetPlatform);
-		Register(Scaleform::kUpdateButtons);
+		inputMethod = ControlMethod::kPC;
 		if (controlID == strHolder->zoomIn) {
 			ModSelectedIndex(-1);
 		} else if (controlID == strHolder->zoomOut) {
@@ -150,6 +152,12 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		}
 		break;
 	}
+
+	if (_controlMethod != inputMethod) {
+		_controlMethod = inputMethod;
+		UpdateButtonIcons(_controlMethod == ControlMethod::kController);
+	}
+
 	return true;
 }
 
@@ -265,12 +273,6 @@ void LootMenu::QueueMessage(Message a_msg)
 }
 
 
-SInt32 LootMenu::GetSelectedIndex() const
-{
-	return _selectedIndex;
-}
-
-
 void LootMenu::ModSelectedIndex(SInt32 a_indexOffset)
 {
 	if (IsOpen()) {
@@ -280,7 +282,7 @@ void LootMenu::ModSelectedIndex(SInt32 a_indexOffset)
 		} else if (_selectedIndex > _displaySize - 1) {
 			_selectedIndex = _displaySize - 1;
 		}
-		Register(Scaleform::kSetSelectedIndex);
+		Dispatch<SetSelectedIndexDelegate>(_selectedIndex);
 	}
 }
 
@@ -342,12 +344,6 @@ bool LootMenu::CanProcessInventoryChanges() const
 }
 
 
-bool LootMenu::GetEnabled() const
-{
-	return _isEnabled;
-}
-
-
 void LootMenu::SetEnabled(bool a_enable)
 {
 	_isEnabled = a_enable;
@@ -360,12 +356,6 @@ void LootMenu::SetEnabled(bool a_enable)
 void LootMenu::ToggleEnabled()
 {
 	SetEnabled(!_isEnabled);
-}
-
-
-LootMenu::Platform LootMenu::GetPlatform() const
-{
-	return _platform;
 }
 
 
@@ -423,7 +413,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 
 	static RE::BSFixedString strAnimationDriven = "bAnimationDriven";
 
-	if (!GetEnabled()) {
+	if (!_isEnabled) {
 		return 0;
 	}
 
@@ -501,8 +491,8 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 	}
 
 	auto numItems = containerRef->GetNumItems();
-
-	if (Settings::disableIfEmpty && numItems <= 0 && !containerRef->extraData.GetByType(RE::ExtraDataType::kDroppedItemList)) {
+	auto droppedList = containerRef->extraData.GetByType<RE::ExtraDroppedItemList>();
+	if (Settings::disableIfEmpty && numItems <= 0 && (!droppedList || droppedList->handles.empty())) {
 		return 0;
 	}
 
@@ -518,106 +508,6 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 }
 
 
-void LootMenu::Register(Scaleform a_reg) const
-{
-	auto task = SKSE::GetTaskInterface();
-	switch (a_reg) {
-	case Scaleform::kSetKeyMappings:
-		task->AddUITask(new SetKeyMappingsDelegate());
-		break;
-	case Scaleform::kSetPlatform:
-		task->AddUITask(new SetPlatformDelegate());
-		break;
-	case Scaleform::kSetSelectedIndex:
-		task->AddUITask(new SetSelectedIndexDelegate());
-		break;
-	case Scaleform::kSetup:
-		task->AddUITask(new SetupDelegate());
-		break;
-	case Scaleform::kSetContainer:
-		task->AddUITask(new SetContainerDelegate());
-		break;
-	case Scaleform::kOpenContainer:
-		task->AddUITask(new OpenContainerDelegate());
-		break;
-	case Scaleform::kCloseContainer:
-		task->AddUITask(new CloseContainerDelegate());
-		break;
-	case Scaleform::kUpdateButtons:
-		task->AddUITask(new UpdateButtonsDelegate());
-		break;
-	case Scaleform::kHideButtons:
-		task->AddUITask(new HideButtonsDelegate());
-		break;
-	case Scaleform::kSwitchStyle:
-		task->AddUITask(new SwitchStyleDelegate());
-		break;
-	default:
-		_ERROR("[ERROR] Invalid registration (%i)!\n", a_reg);
-		break;
-	}
-}
-
-
-LootMenu::Style LootMenu::GetStyle() const
-{
-	if (Settings::interfaceStyle == "dialogue") {
-		return Style::kDialogue;
-	} else {
-		if (Settings::interfaceStyle != "default") {
-			_ERROR("Invalid style (%s)!", Settings::interfaceStyle.c_str());
-			_ERROR("Using default!\n");
-		}
-		return Style::kDefault;
-	}
-}
-
-
-void LootMenu::OnMenuOpen()
-{
-	if (!_containerRef) {
-		return;
-	}
-
-	auto gamepadHandle = RE::InputManager::GetSingleton()->GetGamepad();
-	auto gamepad = skyrim_cast<RE::BSWin32GamepadDevice*>(gamepadHandle);
-	if (gamepad && gamepad->IsEnabled()) {
-		_platform = Platform::kOther;
-	} else {
-		_platform = Platform::kPC;
-	}
-
-	_selectedIndex = 0;
-	_skipInputCount = 0;
-	_isMenuOpen = true;
-	Register(Scaleform::kSetKeyMappings);
-	Register(Scaleform::kSetPlatform);
-	Register(Scaleform::kSetContainer);
-	Register(Scaleform::kUpdateButtons);
-
-	auto player = RE::PlayerCharacter::GetSingleton();
-	if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
-		Register(Scaleform::kHideButtons);
-	}
-
-	Register(Scaleform::kOpenContainer);
-	Register(Scaleform::kSetSelectedIndex);
-	SetVisible(true);
-	ProcessMessageQueue();
-}
-
-
-void LootMenu::OnMenuClose()
-{
-	if (IsOpen()) {
-		SetVisible(false);
-		_isMenuOpen = false;
-		Register(Scaleform::kCloseContainer);
-		PlayAnimationClose();
-	}
-}
-
-
 void LootMenu::TakeItemStack()
 {
 	if (!IsOpen() || !_containerRef || _displaySize <= 0) {
@@ -627,7 +517,7 @@ void LootMenu::TakeItemStack()
 	ItemData itemCopy(_invList[_selectedIndex]);
 
 	auto numItems = itemCopy.count();
-	if (numItems > 1 && SingleLootEnabled()) {
+	if (numItems > 1 && IsSingleLootEnabled()) {
 		numItems = 1;
 	}
 
@@ -686,7 +576,7 @@ LootMenu::LootMenu(const char* a_swfPath) :
 	_containerRef(0),
 	_invList(),
 	_actiText(""),
-	_platform(Platform::kPC),
+	_controlMethod(ControlMethod::kPC),
 	_selectedIndex(0),
 	_displaySize(0),
 	_skipInputCount(0),
@@ -713,6 +603,8 @@ LootMenu::LootMenu(const char* a_swfPath) :
 
 	SetVisible(false);
 	AddRef();	// Force persistence
+	Dispatch<SetupDelegate>();
+	Dispatch<SwitchStyleDelegate>(GetStyle());
 }
 
 
@@ -731,7 +623,168 @@ void LootMenu::ProcessMessageQueue()
 }
 
 
-bool LootMenu::SingleLootEnabled() const
+void LootMenu::OnMenuOpen()
+{
+	if (!_containerRef) {
+		return;
+	}
+
+	auto inputManager = RE::InputManager::GetSingleton();
+	if (inputManager->IsGamepadEnabled()) {
+		_controlMethod = ControlMethod::kController;
+		UpdateButtonIcons(true);
+	} else {
+		_controlMethod = ControlMethod::kPC;
+		UpdateButtonIcons(false);
+	}
+
+	_selectedIndex = 0;
+	_skipInputCount = 0;
+	_isMenuOpen = true;
+	Dispatch<SetContainerDelegate>(_selectedIndex);
+
+	auto player = RE::PlayerCharacter::GetSingleton();
+	if (IsValidPickPocketTarget(_containerRef, player->IsSneaking())) {
+		Dispatch<SetVisibleButtonsDelegate>(true, false, true);
+	} else {
+		Dispatch<SetVisibleButtonsDelegate>(true, true, true);
+	}
+
+	Dispatch<OpenContainerDelegate>();
+	SetVisible(true);
+	ProcessMessageQueue();
+}
+
+
+void LootMenu::OnMenuClose()
+{
+	if (IsOpen()) {
+		SetVisible(false);
+		_isMenuOpen = false;
+		Dispatch<CloseContainerDelegate>();
+		PlayAnimationClose();
+	}
+}
+
+
+Style LootMenu::GetStyle() const
+{
+	static StyleMap styleMap;
+	auto it = styleMap.find(Settings::interfaceStyle);
+	if (it != styleMap.end()) {
+		return it->second;
+	} else {
+		_ERROR("Invalid style (%s)!", Settings::interfaceStyle.c_str());
+		_ERROR("Using default!\n");
+		return Style::kDefault;
+	}
+}
+
+
+void LootMenu::UpdateButtonIcons(bool a_controller) const
+{
+	UInt32 take;
+	UInt32 takeAll;
+	UInt32 search;
+	if (a_controller) {
+		GetGamepadButtonID(take, _takeMapping);
+		GetGamepadButtonID(takeAll, _takeAllMapping);
+		GetGamepadButtonID(search, _searchMapping);
+	} else {
+		GetPCButtonID(take, _takeMapping);
+		GetPCButtonID(takeAll, _takeAllMapping);
+		GetPCButtonID(search, _searchMapping);
+	}
+	Dispatch<UpdateButtonIconsDelegate>(take, takeAll, search);
+}
+
+
+void LootMenu::GetGamepadButtonID(UInt32& a_key, const std::string_view& a_mapping) const
+{
+	using Key = RE::BSWin32GamepadDevice::Key;
+
+	auto input = RE::InputMappingManager::GetSingleton();
+	a_key = input->GetMappedKey(a_mapping, RE::DeviceType::kGamepad);
+	switch (a_key) {
+	case Key::kUp:
+		a_key = 0;
+		break;
+	case Key::kDown:
+		a_key = 1;
+		break;
+	case Key::kLeft:
+		break;
+		a_key = 2;
+	case Key::kRight:
+		a_key = 3;
+		break;
+	case Key::kStart:
+		a_key = 4;
+		break;
+	case Key::kBack:
+		a_key = 5;
+		break;
+	case Key::kLeftThumb:
+		a_key = 6;
+		break;
+	case Key::kRightThumb:
+		a_key = 7;
+		break;
+	case Key::kLeftShoulder:
+		a_key = 8;
+		break;
+	case Key::kRightShoulder:
+		a_key = 9;
+		break;
+	case Key::kA:
+		a_key = 10;
+		break;
+	case Key::kB:
+		a_key = 11;
+		break;
+	case Key::kX:
+		a_key = 12;
+		break;
+	case Key::kY:
+		a_key = 13;
+		break;
+	case Key::kLeftTrigger:
+		a_key = 14;
+		break;
+	case Key::kRightTrigger:
+		a_key = 15;
+		break;
+	default:
+		a_key = kInvalidButton;
+		break;
+	}
+
+	if (a_key == kInvalidButton) {
+		a_key = kESC;
+	} else {
+		a_key += kGamepadOffset;
+	}
+}
+
+
+void LootMenu::GetPCButtonID(UInt32& a_key, const std::string_view& a_mapping) const
+{
+	auto input = RE::InputMappingManager::GetSingleton();
+	a_key = input->GetMappedKey(a_mapping, RE::DeviceType::kKeyboard);
+	if (a_key == kInvalidButton) {
+		a_key = input->GetMappedKey(a_mapping, RE::DeviceType::kMouse);
+		if (a_key == kInvalidButton) {
+			a_key = kESC;
+		} else {
+			a_key += kMouseOffset;
+		}
+	} else {
+		a_key += kKeyboardOffset;
+	}
+}
+
+
+bool LootMenu::IsSingleLootEnabled() const
 {
 	using DeviceType = RE::DeviceType;
 
@@ -753,7 +806,7 @@ bool LootMenu::SingleLootEnabled() const
 	auto gamepad = skyrim_cast<RE::BSWin32GamepadDevice*>(gamepadHandle);
 	if (gamepad && gamepad->IsEnabled()) {
 		auto singleLootSprint = GetSingleLootKey(DeviceType::kGamepad);
-		if (singleLootSprint != RE::InputMappingManager::kInvalid && gamepad->IsPressed(singleLootSprint)) {
+		if (singleLootSprint != kInvalidButton && gamepad->IsPressed(singleLootSprint)) {
 			return true;
 		}
 	}
@@ -934,9 +987,8 @@ void LootMenu::DispellWornItemEnchantments() const
 
 UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType) const
 {
-	RE::BSFixedString str = _singleLootMapping.c_str();
 	auto mm = RE::InputMappingManager::GetSingleton();
-	return mm->GetMappedKey(str, a_deviceType);
+	return mm->GetMappedKey(_singleLootMapping, a_deviceType);
 }
 
 
