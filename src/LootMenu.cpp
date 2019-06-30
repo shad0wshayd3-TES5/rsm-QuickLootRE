@@ -943,7 +943,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 			PlayAnimationOpen();
 		}
 		if (a_playSound) {
-			player->PlaySounds(a_item.form(), true, false);
+			player->PlaySounds(a_item.form(), true);
 		}
 		if (!Settings::disableInvisDispell) {
 			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
