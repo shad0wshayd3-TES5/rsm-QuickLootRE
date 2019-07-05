@@ -149,7 +149,7 @@ namespace
 				LootMenu::GetSingleton();	// instantiate menu
 				_MESSAGE("[MESSAGE] LootMenu initialized");
 
-				ItemData::setCompareOrder();
+				ItemData::SetCompareOrder();
 				_MESSAGE("[MESSAGE] Settings applied");
 
 				auto crosshairRefDispatcher = SKSE::GetCrosshairRefEventSource();

@@ -21,10 +21,10 @@ void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
 	clear();
 
 	if (!a_refr) {
-		ItemData::setContainer(0);
+		ItemData::SetContainer(0);
 		return;
 	} else {
-		ItemData::setContainer(a_refr);
+		ItemData::SetContainer(a_refr);
 	}
 
 	// Get extra items
@@ -36,7 +36,7 @@ void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
 	{
 		auto& it = _defaultMap.find(a_entry->form->formID);
 		if (it != _defaultMap.end()) {
-			if (a_entry->form->formID != kMISCFormID_Gold) {
+			if (a_entry->form->formID != kGold) {
 				it->second.count += a_entry->count;
 			}
 		} else {
@@ -87,7 +87,7 @@ std::size_t InventoryList::size() const noexcept
 
 void InventoryList::clear() noexcept
 {
-	ItemData::setContainer(0);
+	ItemData::SetContainer(0);
 	_defaultMap.clear();
 	_itemList.clear();
 }

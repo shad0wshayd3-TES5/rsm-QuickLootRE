@@ -237,7 +237,7 @@ ItemData::ItemData(ManagedEntryDataPtr a_entryData) :
 	_priority(Priority::kKey)
 {
 	_count = _entryData->Get()->countDelta;
-	constructCommon();
+	ConstructCommon();
 }
 
 
@@ -255,7 +255,7 @@ ItemData::ItemData(ManagedEntryDataPtr a_entryData, SInt32 a_count) :
 	_pickPocketChance(-1),
 	_priority(Priority::kKey)
 {
-	constructCommon();
+	ConstructCommon();
 }
 
 
@@ -263,7 +263,7 @@ ItemData::~ItemData()
 {}
 
 
-void ItemData::setCompareOrder()
+void ItemData::SetCompareOrder()
 {
 	_compares.clear();
 	CompareMap compMap;
@@ -279,7 +279,7 @@ void ItemData::setCompareOrder()
 }
 
 
-void ItemData::setContainer(RE::TESObjectREFR* a_container)
+void ItemData::SetContainer(RE::TESObjectREFR* a_container)
 {
 	_container = a_container;
 }
@@ -341,85 +341,85 @@ bool operator>=(const ItemData& a_lhs, const ItemData& a_rhs)
 }
 
 
-RE::InventoryEntryData* ItemData::entryData() const
+RE::InventoryEntryData* ItemData::GetEntryData() const
 {
 	return _entryData->Get();
 }
 
 
-const char* ItemData::name() const
+const char* ItemData::GetName() const
 {
 	return _name;
 }
 
 
-SInt32 ItemData::count() const
+SInt32 ItemData::GetCount() const
 {
 	return _count;
 }
 
 
-SInt32 ItemData::value() const
+SInt32 ItemData::GetValue() const
 {
 	return _value;
 }
 
 
-float ItemData::weight() const
+float ItemData::GetWeight() const
 {
 	return _weight;
 }
 
 
-const char* ItemData::icon() const
+const char* ItemData::GetIcon() const
 {
 	return _strIcons[to_underlying(_type)];
 }
 
 
-bool ItemData::isStolen() const
+bool ItemData::GetIsStolen() const
 {
 	return _isStolen;
 }
 
 
-bool ItemData::isRead() const
+bool ItemData::GetIsRead() const
 {
 	return _isRead;
 }
 
 
-bool ItemData::isEnchanted() const
+bool ItemData::GetIsEnchanted() const
 {
 	return _isEnchanted;
 }
 
 
-SInt32 ItemData::pickPocketChance() const
+SInt32 ItemData::GetPickPocketChance() const
 {
 	return _pickPocketChance;
 }
 
 
-RE::TESForm* ItemData::form() const
+RE::TESForm* ItemData::GetForm() const
 {
 	return _entryData->Get()->type;
 }
 
 
-bool ItemData::canPickPocket() const
+bool ItemData::GetCanPickPocket() const
 {
 	return _canPickPocket;
 }
 
 
-void ItemData::modCount(SInt32 a_mod)
+void ItemData::ModCount(SInt32 a_mod)
 {
 	_count += a_mod;
 }
 
 
-void ItemData::dbgDumpType(std::size_t a_index)
+void ItemData::DBGDumpType(std::size_t a_index)
 {
 	switch (ITEM_DATA_DEBUG_TYPE) {
 	case kDebugType_Name:
@@ -459,62 +459,65 @@ void ItemData::dbgDumpType(std::size_t a_index)
 }
 
 
-void ItemData::constructCommon()
+void ItemData::ConstructCommon()
 {
 	_name = _entryData->Get()->GenerateName();
 	_value = _entryData->Get()->GetValue();
-	_weight = getWeight();
-	_type = getType();
-	_isStolen = getStolen();
-	_isRead = getRead();
-	_isEnchanted = getEnchanted();
-	_canPickPocket = getCanPickPocket();
-	_pickPocketChance = getPickPocketChance();
-	_priority = getPriority();
+	_weight = CalcWeight();
+	_isRead = CalcRead();	// important this comes before type
+	_type = CalcType();
+	_isStolen = CalcStolen();
+	_isEnchanted = CalcEnchanted();
+	_canPickPocket = CalcCanPickPocket();
+	_pickPocketChance = CalcPickPocketChance();
+	_priority = CalcPriority();
 }
 
 
-float ItemData::getWeight()
+float ItemData::CalcWeight()
 {
-	auto weightForm = skyrim_cast<RE::TESWeightForm*>(_entryData->Get()->type);
+	auto weightForm = skyrim_cast<RE::TESWeightForm*>(GetForm());
 	return weightForm ? weightForm->weight : 0.0;
 }
 
 
-ItemData::Type ItemData::getType()
+auto ItemData::CalcType()
+-> Type
 {
-	switch (_entryData->Get()->type->formType) {
+	switch (GetForm()->formType) {
 	case RE::FormType::Scroll:
 		return Type::kDefaultScroll;
 	case RE::FormType::Armor:
-		return getTypeArmor(static_cast<RE::TESObjectARMO*>(_entryData->Get()->type));
+		return CalcTypeArmor(GetForm<RE::TESObjectARMO*>());
 	case RE::FormType::Book:
-		return getTypeBook(static_cast<RE::TESObjectBOOK*>(_entryData->Get()->type));
+		return CalcTypeBook(GetForm<RE::TESObjectBOOK*>());
 	case RE::FormType::Ingredient:
 		return Type::kDefaultIngredient;
 	case RE::FormType::Light:
 		return Type::kMiscTorch;
 	case RE::FormType::Misc:
-		return getTypeMisc(static_cast<RE::TESObjectMISC*>(_entryData->Get()->type));
+		return CalcTypeMisc(GetForm<RE::TESObjectMISC*>());
 	case RE::FormType::Weapon:
-		return getTypeWeapon(static_cast<RE::TESObjectWEAP*>(_entryData->Get()->type));
+		return CalcTypeWeapon(GetForm<RE::TESObjectWEAP*>());
 	case RE::FormType::Ammo:
-		return (static_cast<RE::TESAmmo*>(_entryData->Get()->type)->IsBolt()) ? Type::kWeaponBolt : Type::kWeaponArrow;
+		return (GetForm<RE::TESAmmo*>()->IsBolt()) ? Type::kWeaponBolt : Type::kWeaponArrow;
 	case RE::FormType::KeyMaster:
-		return Type::kDefaultKey;
+		return CalcTypeKey(GetForm<RE::TESKey*>());
 	case RE::FormType::AlchemyItem:
-		return getTypePotion(static_cast<RE::AlchemyItem*>(_entryData->Get()->type));
+		return CalcTypePotion(GetForm<RE::AlchemyItem*>());
 	case RE::FormType::SoulGem:
-		return getTypeSoulGem(static_cast<RE::TESSoulGem*>(_entryData->Get()->type));
+		return CalcTypeSoulGem(GetForm<RE::TESSoulGem*>());
 	default:
 		return Type::kNone;
 	}
 }
 
 
-ItemData::Type ItemData::getTypeArmor(RE::TESObjectARMO* a_armor)
+auto ItemData::CalcTypeArmor(RE::TESObjectARMO* a_armor)
+-> Type
 {
-	using FirstPersonFlag = RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag;
+	using ArmorType = RE::BGSBipedObjectForm::ArmorType;
+	using Flag = RE::BGSBipedObjectForm::BipedBodyTemplate::FirstPersonFlag;
 
 	static Type types[] = {
 		Type::kLightArmorBody,		// 0
@@ -542,167 +545,771 @@ ItemData::Type ItemData::getTypeArmor(RE::TESObjectARMO* a_armor)
 		Type::kClothingFeet,
 		Type::kClothingCalves,
 		Type::kClothingShield,
-		Type::kClothingMask,
-
-		Type::kArmorAmulet,			// 24
-		Type::kArmorRing,
-		Type::kCirclet,
-
-		Type::kDefaultArmor			// 27
+		Type::kClothingMask
 	};
+
+	auto special = CalcSpecialArmor(a_armor->formID);
+	if (special != Type::kInvalid) {
+		return special;
+	}
 
 	std::size_t index = 0;
 	auto bipedObj = static_cast<RE::BGSBipedObjectForm*>(a_armor);
 
-	if (bipedObj->IsLightArmor()) {
+	switch (bipedObj->bipedBodyTemplate.armorType) {
+	case ArmorType::kLightArmor:
 		index = 0;
-	} else if (bipedObj->IsHeavyArmor()) {
+		break;
+	case ArmorType::kHeavyArmor:
 		index = 8;
-	} else {
-		if (a_armor->HasKeyword(VendorItemClothing)) {
-			index = 16;
-		} else if (a_armor->HasKeyword(VendorItemJewelry)) {
-			if (bipedObj->HasPartOf(FirstPersonFlag::kAmulet)) {
-				index = 24;
-			} else if (bipedObj->HasPartOf(FirstPersonFlag::kRing)) {
-				index = 25;
-			} else if (bipedObj->HasPartOf(FirstPersonFlag::kCirclet)) {
-				index = 26;
-			} else {
-				index = 27;
-			}
+		break;
+	default:
+		index = 16;
+		break;
+	}
+
+	if (a_armor->HasKeyword(VendorItemJewelry)) {
+		if (bipedObj->HasPartOf(Flag::kAmulet)) {
+			return Type::kArmorAmulet;
+		} else if (bipedObj->HasPartOf(Flag::kRing)) {
+			return Type::kArmorRing;
+		} else if (bipedObj->HasPartOf(Flag::kCirclet)) {
+			return Type::kCirclet;
 		} else {
-			index = 27;
+			return Type::kDefaultArmor;
 		}
 	}
 
-	if (index >= 24) {
-		return types[index];
-	}
-
-	if (bipedObj->HasPartOf(FirstPersonFlag::kBody | FirstPersonFlag::kTail)) {
+	if (bipedObj->HasPartOf(Flag::kBody | Flag::kTail)) {
 		index += 0;
-	} else if (bipedObj->HasPartOf(FirstPersonFlag::kHead | FirstPersonFlag::kHair | FirstPersonFlag::kLongHair)) {
+	} else if (bipedObj->HasPartOf(Flag::kHead | Flag::kHair | Flag::kLongHair)) {
 		index += 1;
-		if (bipedObj->HasPartOf(FirstPersonFlag::kCirclet)) {
+	} else if (bipedObj->HasPartOf(Flag::kHands)) {
+		index += 2;
+	} else if (bipedObj->HasPartOf(Flag::kForearms)) {
+		index += 3;
+	} else if (bipedObj->HasPartOf(Flag::kFeet)) {
+		index += 4;
+	} else if (bipedObj->HasPartOf(Flag::kCalves)) {
+		index += 5;
+	} else if (bipedObj->HasPartOf(Flag::kShield)) {
+		if (a_armor->HasKeyword(ArmorMaterialDaedric)) {
+			return Type::kArmorDaedra;
+		} else {
 			index += 6;
 		}
-	} else if (bipedObj->HasPartOf(FirstPersonFlag::kHands)) {
-		index += 2;
-	} else if (bipedObj->HasPartOf(FirstPersonFlag::kForearms)) {
-		index += 3;
-	} else if (bipedObj->HasPartOf(FirstPersonFlag::kFeet)) {
-		index += 4;
-	} else if (bipedObj->HasPartOf(FirstPersonFlag::kCalves)) {
-		index += 5;
-	} else if (bipedObj->HasPartOf(FirstPersonFlag::kShield)) {
-		index += 6;
 	} else {
-		index = 27;
+		return Type::kDefaultArmor;
 	}
 
 	return types[index];
 }
 
 
-ItemData::Type ItemData::getTypeBook(RE::TESObjectBOOK* a_book)
+auto ItemData::CalcSpecialArmor(RE::FormID a_formID)
+-> Type
 {
-	using BookType = RE::TESObjectBOOK::Data::Type;
-
-	if (a_book->data.type == BookType::kNoteScroll || a_book->HasKeyword(VendorItemRecipe)) {
-		return Type::kBookNote;
-	} else if (a_book->HasKeyword(VendorItemSpellTome)) {
-		return Type::kBookTome;
-	} else {
-		return Type::kDefaultBook;
+	switch (a_formID) {
+	case kArmorBanditGauntlets:
+	case kArmorHideGauntlets:
+	case kArmorImperialGauntlets:
+	case kArmorImperialLightGauntlets:
+	case kArmorLeatherGauntlets:
+	case kArmorPenitusGauntlets:
+	case kArmorScaledGauntlets:
+	case kArmorStormcloakBearGauntlets:
+	case kClothesUlfricGauntlets:
+	case kEnchArmorDwarvenGauntletsAlchemy02:
+	case kEnchArmorDwarvenGauntletsAlchemy03:
+	case kEnchArmorDwarvenGauntletsAlchemy04:
+	case kEnchArmorDwarvenGauntletsMarksman02:
+	case kEnchArmorDwarvenGauntletsMarksman03:
+	case kEnchArmorDwarvenGauntletsMarksman04:
+	case kEnchArmorDwarvenGauntletsOneHanded02:
+	case kEnchArmorDwarvenGauntletsOneHanded03:
+	case kEnchArmorDwarvenGauntletsOneHanded04:
+	case kEnchArmorDwarvenGauntletsSmithing02:
+	case kEnchArmorDwarvenGauntletsSmithing03:
+	case kEnchArmorDwarvenGauntletsSmithing04:
+	case kEnchArmorDwarvenGauntletsTwoHanded02:
+	case kEnchArmorDwarvenGauntletsTwoHanded03:
+	case kEnchArmorDwarvenGauntletsTwoHanded04:
+	case kEnchArmorElvenGauntletsAlchemy02:
+	case kEnchArmorElvenGauntletsAlchemy03:
+	case kEnchArmorElvenGauntletsAlchemy04:
+	case kEnchArmorElvenGauntletsLockpicking02:
+	case kEnchArmorElvenGauntletsLockpicking03:
+	case kEnchArmorElvenGauntletsLockpicking04:
+	case kEnchArmorElvenGauntletsMarksman02:
+	case kEnchArmorElvenGauntletsMarksman03:
+	case kEnchArmorElvenGauntletsMarksman04:
+	case kEnchArmorElvenGauntletsOneHanded02:
+	case kEnchArmorElvenGauntletsOneHanded03:
+	case kEnchArmorElvenGauntletsOneHanded04:
+	case kEnchArmorElvenGauntletsPickpocket02:
+	case kEnchArmorElvenGauntletsPickpocket03:
+	case kEnchArmorElvenGauntletsPickpocket04:
+	case kEnchArmorElvenGauntletsSmithing02:
+	case kEnchArmorElvenGauntletsSmithing03:
+	case kEnchArmorElvenGauntletsSmithing04:
+	case kEnchArmorElvenGauntletsTwoHanded02:
+	case kEnchArmorElvenGauntletsTwoHanded03:
+	case kEnchArmorElvenGauntletsTwoHanded04:
+	case kEnchArmorHideGauntletsAlchemy01:
+	case kEnchArmorHideGauntletsAlchemy02:
+	case kEnchArmorHideGauntletsAlchemy03:
+	case kEnchArmorHideGauntletsLockpicking01:
+	case kEnchArmorHideGauntletsLockpicking02:
+	case kEnchArmorHideGauntletsLockpicking03:
+	case kEnchArmorHideGauntletsMarksman01:
+	case kEnchArmorHideGauntletsMarksman02:
+	case kEnchArmorHideGauntletsMarksman03:
+	case kEnchArmorHideGauntletsOneHanded01:
+	case kEnchArmorHideGauntletsOneHanded02:
+	case kEnchArmorHideGauntletsOneHanded03:
+	case kEnchArmorHideGauntletsPickpocket01:
+	case kEnchArmorHideGauntletsPickpocket02:
+	case kEnchArmorHideGauntletsPickpocket03:
+	case kEnchArmorHideGauntletsSmithing01:
+	case kEnchArmorHideGauntletsSmithing02:
+	case kEnchArmorHideGauntletsSmithing03:
+	case kEnchArmorHideGauntletsTwoHanded01:
+	case kEnchArmorHideGauntletsTwoHanded02:
+	case kEnchArmorHideGauntletsTwoHanded03:
+	case kEnchArmorImperialGauntletsAlchemy01:
+	case kEnchArmorImperialGauntletsAlchemy02:
+	case kEnchArmorImperialGauntletsAlchemy03:
+	case kEnchArmorImperialGauntletsAlteration01:
+	case kEnchArmorImperialGauntletsAlteration02:
+	case kEnchArmorImperialGauntletsAlteration03:
+	case kEnchArmorImperialGauntletsConjuration01:
+	case kEnchArmorImperialGauntletsConjuration02:
+	case kEnchArmorImperialGauntletsConjuration03:
+	case kEnchArmorImperialGauntletsDestruction01:
+	case kEnchArmorImperialGauntletsDestruction02:
+	case kEnchArmorImperialGauntletsDestruction03:
+	case kEnchArmorImperialGauntletsMarksman01:
+	case kEnchArmorImperialGauntletsMarksman02:
+	case kEnchArmorImperialGauntletsMarksman03:
+	case kEnchArmorImperialGauntletsOneHanded01:
+	case kEnchArmorImperialGauntletsOneHanded02:
+	case kEnchArmorImperialGauntletsOneHanded03:
+	case kEnchArmorImperialGauntletsSmithing01:
+	case kEnchArmorImperialGauntletsSmithing02:
+	case kEnchArmorImperialGauntletsSmithing03:
+	case kEnchArmorImperialGauntletsTwoHanded01:
+	case kEnchArmorImperialGauntletsTwoHanded02:
+	case kEnchArmorImperialGauntletsTwoHanded03:
+	case kEnchArmorImperialLightGauntletsAlchemy01:
+	case kEnchArmorImperialLightGauntletsAlchemy02:
+	case kEnchArmorImperialLightGauntletsAlchemy03:
+	case kEnchArmorImperialLightGauntletsAlteration01:
+	case kEnchArmorImperialLightGauntletsAlteration02:
+	case kEnchArmorImperialLightGauntletsAlteration03:
+	case kEnchArmorImperialLightGauntletsConjuration01:
+	case kEnchArmorImperialLightGauntletsConjuration02:
+	case kEnchArmorImperialLightGauntletsConjuration03:
+	case kEnchArmorImperialLightGauntletsDestruction01:
+	case kEnchArmorImperialLightGauntletsDestruction02:
+	case kEnchArmorImperialLightGauntletsDestruction03:
+	case kEnchArmorImperialLightGauntletsLockpicking01:
+	case kEnchArmorImperialLightGauntletsLockpicking02:
+	case kEnchArmorImperialLightGauntletsLockpicking03:
+	case kEnchArmorImperialLightGauntletsMarksman01:
+	case kEnchArmorImperialLightGauntletsMarksman02:
+	case kEnchArmorImperialLightGauntletsMarksman03:
+	case kEnchArmorImperialLightGauntletsOneHanded01:
+	case kEnchArmorImperialLightGauntletsOneHanded02:
+	case kEnchArmorImperialLightGauntletsOneHanded03:
+	case kEnchArmorImperialLightGauntletsPickpocket01:
+	case kEnchArmorImperialLightGauntletsPickpocket02:
+	case kEnchArmorImperialLightGauntletsPickpocket03:
+	case kEnchArmorImperialLightGauntletsSmithing01:
+	case kEnchArmorImperialLightGauntletsSmithing02:
+	case kEnchArmorImperialLightGauntletsSmithing03:
+	case kEnchArmorImperialLightGauntletsTwoHanded01:
+	case kEnchArmorImperialLightGauntletsTwoHanded02:
+	case kEnchArmorImperialLightGauntletsTwoHanded03:
+	case kEnchArmorLeatherGauntletsAlchemy01:
+	case kEnchArmorLeatherGauntletsAlchemy02:
+	case kEnchArmorLeatherGauntletsAlchemy03:
+	case kEnchArmorLeatherGauntletsLockpicking01:
+	case kEnchArmorLeatherGauntletsLockpicking02:
+	case kEnchArmorLeatherGauntletsLockpicking03:
+	case kEnchArmorLeatherGauntletsMarksman01:
+	case kEnchArmorLeatherGauntletsMarksman02:
+	case kEnchArmorLeatherGauntletsMarksman03:
+	case kEnchArmorLeatherGauntletsOneHanded01:
+	case kEnchArmorLeatherGauntletsOneHanded02:
+	case kEnchArmorLeatherGauntletsOneHanded03:
+	case kEnchArmorLeatherGauntletsPickpocket01:
+	case kEnchArmorLeatherGauntletsPickpocket02:
+	case kEnchArmorLeatherGauntletsPickpocket03:
+	case kEnchArmorLeatherGauntletsSmithing01:
+	case kEnchArmorLeatherGauntletsSmithing02:
+	case kEnchArmorLeatherGauntletsSmithing03:
+	case kEnchArmorLeatherGauntletsTwoHanded01:
+	case kEnchArmorLeatherGauntletsTwoHanded02:
+	case kEnchArmorLeatherGauntletsTwoHanded03:
+	case kEnchArmorScaledGauntletsAlchemy02:
+	case kEnchArmorScaledGauntletsAlchemy03:
+	case kEnchArmorScaledGauntletsAlchemy04:
+	case kEnchArmorScaledGauntletsLockpicking02:
+	case kEnchArmorScaledGauntletsLockpicking03:
+	case kEnchArmorScaledGauntletsLockpicking04:
+	case kEnchArmorScaledGauntletsMarksman02:
+	case kEnchArmorScaledGauntletsMarksman03:
+	case kEnchArmorScaledGauntletsMarksman04:
+	case kEnchArmorScaledGauntletsOneHanded02:
+	case kEnchArmorScaledGauntletsOneHanded03:
+	case kEnchArmorScaledGauntletsOneHanded04:
+	case kEnchArmorScaledGauntletsPickpocket02:
+	case kEnchArmorScaledGauntletsPickpocket03:
+	case kEnchArmorScaledGauntletsPickpocket04:
+	case kEnchArmorScaledGauntletsSmithing02:
+	case kEnchArmorScaledGauntletsSmithing03:
+	case kEnchArmorScaledGauntletsSmithing04:
+	case kEnchArmorScaledGauntletsTwoHanded02:
+	case kEnchArmorScaledGauntletsTwoHanded03:
+	case kEnchArmorScaledGauntletsTwoHanded04:
+	case kEnchArmorSteelPlateGauntletsAlchemy02:
+	case kEnchArmorSteelPlateGauntletsAlchemy03:
+	case kEnchArmorSteelPlateGauntletsAlchemy04:
+	case kEnchArmorSteelPlateGauntletsMarksman02:
+	case kEnchArmorSteelPlateGauntletsMarksman03:
+	case kEnchArmorSteelPlateGauntletsMarksman04:
+	case kEnchArmorSteelPlateGauntletsOneHanded02:
+	case kEnchArmorSteelPlateGauntletsOneHanded03:
+	case kEnchArmorSteelPlateGauntletsOneHanded04:
+	case kEnchArmorSteelPlateGauntletsSmithing02:
+	case kEnchArmorSteelPlateGauntletsSmithing03:
+	case kEnchArmorSteelPlateGauntletsSmithing04:
+	case kEnchArmorSteelPlateGauntletsTwoHanded02:
+	case kEnchArmorSteelPlateGauntletsTwoHanded03:
+	case kEnchArmorSteelPlateGauntletsTwoHanded04:
+		return Type::kArmorBracer;
+	case kClothesBeggarRobes:
+	case kClothesCollegeRobesApprentice:
+	case kClothesCollegeRobesApprenticeVariant1:
+	case kClothesCollegeRobesApprenticeVariant2:
+	case kClothesCollegeRobesCommon:
+	case kClothesCollegeRobesCommonVariant1:
+	case kClothesEmperor:
+	case kClothesExecutionerRobes:
+	case kClothesJarl_var1:
+	case kClothesMGRobesArchmage:
+	case kClothesMGRobesArchmage1Hooded:
+	case kClothesMonkRobes:
+	case kClothesMonkRobesColorBrown:
+	case kClothesMonkRobesColorBrownHooded:
+	case kClothesMonkRobesColorGreen:
+	case kClothesMonkRobesColorGreenHooded:
+	case kClothesMonkRobesColorGrey:
+	case kClothesMonkRobesColorGreyHooded:
+	case kClothesMonkRobesColorRed:
+	case kClothesMonkRobesColorRedHooded:
+	case kClothesMonkRobesHooded:
+	case kClothesMythicDawnRobes:
+	case kClothesMythicDawnRobesNoHood:
+	case kClothesNecromancerRobes:
+	case kClothesNecromancerRobesHooded:
+	case kClothesPsiijicRobes:
+	case kClothesRobesBlack:
+	case kClothesRobesBlackHooded:
+	case kClothesRobesBlue:
+	case kClothesRobesBlueHooded:
+	case kClothesRobesGreybeardTunic:
+	case kClothesRobesMageNoviceTemplate:
+	case kClothesThalmorRobesHooded:
+	case kClothesThalmorrobes:
+	case kClothesWarlockRobes:
+	case kClothesWarlockRobesHooded:
+	case kDA16VaerminaRobes:
+	case kDBClothesRobes:
+	case kDremoraRobesBlack:
+	case kEnchClothesMageRobesAppMagickaRate01:
+	case kEnchClothesNecroRobesAlteration01:
+	case kEnchClothesNecroRobesAlteration02:
+	case kEnchClothesNecroRobesAlteration03:
+	case kEnchClothesNecroRobesAlteration04:
+	case kEnchClothesNecroRobesAlteration05:
+	case kEnchClothesNecroRobesAlteration06:
+	case kEnchClothesNecroRobesConjuration01:
+	case kEnchClothesNecroRobesConjuration02:
+	case kEnchClothesNecroRobesConjuration03:
+	case kEnchClothesNecroRobesConjuration04:
+	case kEnchClothesNecroRobesConjuration05:
+	case kEnchClothesNecroRobesConjuration06:
+	case kEnchClothesNecroRobesDestruction01:
+	case kEnchClothesNecroRobesDestruction02:
+	case kEnchClothesNecroRobesDestruction03:
+	case kEnchClothesNecroRobesDestruction04:
+	case kEnchClothesNecroRobesDestruction05:
+	case kEnchClothesNecroRobesDestruction06:
+	case kEnchClothesNecroRobesHoodedAlteration01:
+	case kEnchClothesNecroRobesHoodedAlteration02:
+	case kEnchClothesNecroRobesHoodedAlteration03:
+	case kEnchClothesNecroRobesHoodedAlteration04:
+	case kEnchClothesNecroRobesHoodedAlteration05:
+	case kEnchClothesNecroRobesHoodedAlteration06:
+	case kEnchClothesNecroRobesHoodedConjuration01:
+	case kEnchClothesNecroRobesHoodedConjuration02:
+	case kEnchClothesNecroRobesHoodedConjuration03:
+	case kEnchClothesNecroRobesHoodedConjuration04:
+	case kEnchClothesNecroRobesHoodedConjuration05:
+	case kEnchClothesNecroRobesHoodedConjuration06:
+	case kEnchClothesNecroRobesHoodedDestruction01:
+	case kEnchClothesNecroRobesHoodedDestruction02:
+	case kEnchClothesNecroRobesHoodedDestruction03:
+	case kEnchClothesNecroRobesHoodedDestruction04:
+	case kEnchClothesNecroRobesHoodedDestruction05:
+	case kEnchClothesNecroRobesHoodedDestruction06:
+	case kEnchClothesNecroRobesHoodedIllusion01:
+	case kEnchClothesNecroRobesHoodedIllusion02:
+	case kEnchClothesNecroRobesHoodedIllusion03:
+	case kEnchClothesNecroRobesHoodedIllusion04:
+	case kEnchClothesNecroRobesHoodedIllusion05:
+	case kEnchClothesNecroRobesHoodedIllusion06:
+	case kEnchClothesNecroRobesHoodedMagickaRate02:
+	case kEnchClothesNecroRobesHoodedMagickaRate03:
+	case kEnchClothesNecroRobesHoodedMagickaRate04:
+	case kEnchClothesNecroRobesHoodedMagickaRate05:
+	case kEnchClothesNecroRobesHoodedRestoration01:
+	case kEnchClothesNecroRobesHoodedRestoration02:
+	case kEnchClothesNecroRobesHoodedRestoration03:
+	case kEnchClothesNecroRobesHoodedRestoration04:
+	case kEnchClothesNecroRobesHoodedRestoration05:
+	case kEnchClothesNecroRobesHoodedRestoration06:
+	case kEnchClothesNecroRobesIllusion01:
+	case kEnchClothesNecroRobesIllusion02:
+	case kEnchClothesNecroRobesIllusion03:
+	case kEnchClothesNecroRobesIllusion04:
+	case kEnchClothesNecroRobesIllusion05:
+	case kEnchClothesNecroRobesIllusion06:
+	case kEnchClothesNecroRobesMagickaRate02:
+	case kEnchClothesNecroRobesMagickaRate03:
+	case kEnchClothesNecroRobesMagickaRate04:
+	case kEnchClothesNecroRobesMagickaRate05:
+	case kEnchClothesNecroRobesRestoration01:
+	case kEnchClothesNecroRobesRestoration02:
+	case kEnchClothesNecroRobesRestoration03:
+	case kEnchClothesNecroRobesRestoration04:
+	case kEnchClothesNecroRobesRestoration05:
+	case kEnchClothesNecroRobesRestoration06:
+	case kEnchClothesRobesMageAlteration01:
+	case kEnchClothesRobesMageAlteration02:
+	case kEnchClothesRobesMageAlteration03:
+	case kEnchClothesRobesMageAlteration04:
+	case kEnchClothesRobesMageAlteration05:
+	case kEnchClothesRobesMageConjuration01:
+	case kEnchClothesRobesMageConjuration02:
+	case kEnchClothesRobesMageConjuration03:
+	case kEnchClothesRobesMageConjuration04:
+	case kEnchClothesRobesMageConjuration05:
+	case kEnchClothesRobesMageDestruction01:
+	case kEnchClothesRobesMageDestruction02:
+	case kEnchClothesRobesMageDestruction03:
+	case kEnchClothesRobesMageDestruction04:
+	case kEnchClothesRobesMageDestruction05:
+	case kEnchClothesRobesMageIllusion01:
+	case kEnchClothesRobesMageIllusion02:
+	case kEnchClothesRobesMageIllusion03:
+	case kEnchClothesRobesMageIllusion04:
+	case kEnchClothesRobesMageIllusion05:
+	case kEnchClothesRobesMageRegen01:
+	case kEnchClothesRobesMageRegen02:
+	case kEnchClothesRobesMageRegen03:
+	case kEnchClothesRobesMageRegen04:
+	case kEnchClothesRobesMageRegen05:
+	case kEnchClothesRobesMageRestoration01:
+	case kEnchClothesRobesMageRestoration02:
+	case kEnchClothesRobesMageRestoration03:
+	case kEnchClothesRobesMageRestoration04:
+	case kEnchClothesRobesMageRestoration05:
+	case kEnchClothesWarlockRobesAlteration01:
+	case kEnchClothesWarlockRobesAlteration02:
+	case kEnchClothesWarlockRobesAlteration03:
+	case kEnchClothesWarlockRobesAlteration04:
+	case kEnchClothesWarlockRobesAlteration05:
+	case kEnchClothesWarlockRobesAlteration06:
+	case kEnchClothesWarlockRobesConjuration01:
+	case kEnchClothesWarlockRobesConjuration02:
+	case kEnchClothesWarlockRobesConjuration03:
+	case kEnchClothesWarlockRobesConjuration04:
+	case kEnchClothesWarlockRobesConjuration05:
+	case kEnchClothesWarlockRobesConjuration06:
+	case kEnchClothesWarlockRobesDestruction01:
+	case kEnchClothesWarlockRobesDestruction02:
+	case kEnchClothesWarlockRobesDestruction03:
+	case kEnchClothesWarlockRobesDestruction04:
+	case kEnchClothesWarlockRobesDestruction05:
+	case kEnchClothesWarlockRobesDestruction06:
+	case kEnchClothesWarlockRobesHoodedAlteration01:
+	case kEnchClothesWarlockRobesHoodedAlteration02:
+	case kEnchClothesWarlockRobesHoodedAlteration03:
+	case kEnchClothesWarlockRobesHoodedAlteration04:
+	case kEnchClothesWarlockRobesHoodedAlteration05:
+	case kEnchClothesWarlockRobesHoodedAlteration06:
+	case kEnchClothesWarlockRobesHoodedConjuration01:
+	case kEnchClothesWarlockRobesHoodedConjuration02:
+	case kEnchClothesWarlockRobesHoodedConjuration03:
+	case kEnchClothesWarlockRobesHoodedConjuration04:
+	case kEnchClothesWarlockRobesHoodedConjuration05:
+	case kEnchClothesWarlockRobesHoodedConjuration06:
+	case kEnchClothesWarlockRobesHoodedDestruction01:
+	case kEnchClothesWarlockRobesHoodedDestruction02:
+	case kEnchClothesWarlockRobesHoodedDestruction03:
+	case kEnchClothesWarlockRobesHoodedDestruction04:
+	case kEnchClothesWarlockRobesHoodedDestruction05:
+	case kEnchClothesWarlockRobesHoodedDestruction06:
+	case kEnchClothesWarlockRobesHoodedIllusion01:
+	case kEnchClothesWarlockRobesHoodedIllusion02:
+	case kEnchClothesWarlockRobesHoodedIllusion03:
+	case kEnchClothesWarlockRobesHoodedIllusion04:
+	case kEnchClothesWarlockRobesHoodedIllusion05:
+	case kEnchClothesWarlockRobesHoodedIllusion06:
+	case kEnchClothesWarlockRobesHoodedMagickaRate02:
+	case kEnchClothesWarlockRobesHoodedMagickaRate03:
+	case kEnchClothesWarlockRobesHoodedMagickaRate04:
+	case kEnchClothesWarlockRobesHoodedMagickaRate05:
+	case kEnchClothesWarlockRobesHoodedRestoration01:
+	case kEnchClothesWarlockRobesHoodedRestoration02:
+	case kEnchClothesWarlockRobesHoodedRestoration03:
+	case kEnchClothesWarlockRobesHoodedRestoration04:
+	case kEnchClothesWarlockRobesHoodedRestoration05:
+	case kEnchClothesWarlockRobesHoodedRestoration06:
+	case kEnchClothesWarlockRobesIllusion01:
+	case kEnchClothesWarlockRobesIllusion02:
+	case kEnchClothesWarlockRobesIllusion03:
+	case kEnchClothesWarlockRobesIllusion04:
+	case kEnchClothesWarlockRobesIllusion05:
+	case kEnchClothesWarlockRobesIllusion06:
+	case kEnchClothesWarlockRobesMagickaRate02:
+	case kEnchClothesWarlockRobesMagickaRate03:
+	case kEnchClothesWarlockRobesMagickaRate04:
+	case kEnchClothesWarlockRobesMagickaRate05:
+	case kEnchClothesWarlockRobesRestoration01:
+	case kEnchClothesWarlockRobesRestoration02:
+	case kEnchClothesWarlockRobesRestoration03:
+	case kEnchClothesWarlockRobesRestoration04:
+	case kEnchClothesWarlockRobesRestoration05:
+	case kEnchClothesWarlockRobesRestoration06:
+	case kTemplateClothesMageRobesApprentice:
+	case kTemplateClothesMageRobesApprenticeHooded:
+	case kTemplateClothesMageRobesCommon:
+	case kTemplateClothesMageRobesCommonHooded:
+	case kTemplateClothesRobesMageAdept:
+	case kTemplateClothesRobesMageApprentice:
+	case kTemplateClothesRobesMageExpert:
+	case kTemplateClothesRobesMageMaster:
+	case kTemplateClothesRobesMageNovice:
+		return Type::kClothingRobe;
+	case kClothesBarKeeperShoes:
+	case kClothesBlackSmithShoes:
+	case kClothesChefShoes:
+	case kClothesChildrenShoes:
+	case kClothesJarlShoes02:
+	case kDBClothesShoes:
+		return Type::kClothingShoes;
+	case kClothesPrisonerRags:
+		return Type::kClothingPants;
+	case kArmorDragonPriestMaskIronHelmet:
+	case kArmorDragonPriestMaskEbonyHelmet:
+	case kArmorDragonPriestMaskMarbleHelmet:
+	case kArmorDragonPriestMaskOrichalumHelmet:
+	case kArmorDragonPriestMaskSteelHelmet:
+	case kArmorDragonPriestMaskUltraHelmet:
+		return Type::kArmorMask;
+	case kArmorDragonPriestMaskBronzeHelmet:
+	case kArmorDragonPriestMaskMoonstoneHelmet:
+	case kArmorDragonPriestMaskCorondrumHelmet:
+	case kArmorDragonPriestMaskWoodHelmet:
+		return Type::kLightArmorMask;
+	default:
+		return Type::kInvalid;
 	}
 }
 
 
-ItemData::Type ItemData::getTypeMisc(RE::TESObjectMISC* a_misc)
+auto ItemData::CalcTypeBook(RE::TESObjectBOOK* a_book)
+-> Type
 {
-	switch (a_misc->formID) {
-	case kMISCFormID_LockPick:
-		return Type::kMiscLockPick;
-	case kMISCFormID_Gold:
-		return Type::kMiscGold;
-	case kMISCFormID_Leather01:
-		return Type::kMiscLeather;
-	case kMISCFormID_LeatherStrips:
-		return Type::kMiscStrips;
-	case kMISCFormID_DragonClawIron:
-	case kMISCFormID_DragonClawGoldenE3:
-	case kMISCFormID_DragonClawGoldenMS13:
-	case kMISCFormID_DragonClawCoral:
-	case kMISCFormID_DragonClawIvory:
-	case kMISCFormID_DragonClawRuby:
-	case kMISCFormID_DragonClawSapphire:
-	case kMISCFormID_DragonClawEmerald:
-	case kMISCFormID_DragonClawGlass:
-	case kMISCFormID_DragonClawEbony:
-	case kMISCFormID_DragonClawDiamond:
-		return Type::kMiscDragonClaw;
+	auto artID = a_book->inventoryArt ? a_book->inventoryArt->formID : static_cast<RE::FormID>(-1);
+	switch (artID) {
+	case kHighPolyJournal:
+	case kHighPolyJournal02:
+	case kHighPolyJournal03:
+		return Type::kBookJournal;
+	case kHighPolyNote:
+	case kHighPolyNote02:
+	case kHighPolyNote03:
+	case kHighPolyNote04:
+	case kHighPolyNoteBlood:
+	case kHighPolyNoteTornPage:
+		return Type::kBookNote;
 	default:
-		if (a_misc->HasKeyword(VendorItemAnimalHide)) {
-			return Type::kMiscHide;
-		} else if (a_misc->HasKeyword(VendorItemDaedricArtifact)) {
-			return Type::kMiscArtifact;
-		} else if (a_misc->HasKeyword(VendorItemGem)) {
-			return Type::kMiscGem;
-		} else if (a_misc->HasKeyword(VendorItemAnimalPart)) {
-			return Type::kMiscRemains;
-		} else if (a_misc->HasKeyword(VendorItemOreIngot)) {
-			return Type::kMiscIngot;
-		} else if (a_misc->HasKeyword(VendorItemClutter)) {
-			return Type::kMiscClutter;
-		} else if (a_misc->HasKeyword(VendorItemFireword)) {
-			return Type::kMiscWood;
-		} else {
-			return Type::kDefaultMisc;
+		switch (a_book->formID) {
+		case kdunTreasMapRiverwood:
+		case kdunTreasMapValtheim:
+		case kdunTreasMapSolLightHouse:
+		case kdunTreasMapWhiterun:
+		case kdunTreasMapLostValleyRedoubt:
+		case kdunTreasMapKorvanjund:
+		case kdunTreasMapGallowsRock:
+		case kdunTreasMapDragonBridge:
+		case kdunTreasMapBrokenHelm:
+		case kdunTreasMapIlinaltasDeep:
+		case kdunTreasMapFortNeugrad:
+		case kdunMiddenTreasureMap:
+		case kMQ106DragonParchment:
+		case kTGLT04EastEmpireShippingRoutes:
+			return Type::kBookMap;
+		default:
+			if (a_book->IsNoteScroll() || a_book->HasKeyword(VendorItemRecipe)) {
+				return Type::kBookNote;
+			} else if (a_book->HasKeyword(VendorItemSpellTome)) {
+				return _isRead ? Type::kBookTomeRead : Type::kBookTome;
+			} else {
+				return _isRead ? Type::kDefaultBookRead : Type::kDefaultBook;
+			}
 		}
 	}
 }
 
 
-ItemData::Type ItemData::getTypeWeapon(RE::TESObjectWEAP* a_weap)
+auto ItemData::CalcTypeMisc(RE::TESObjectMISC* a_misc)
+-> Type
+{
+	switch (a_misc->formID) {
+	case kLockPick:
+		return Type::kMiscLockPick;
+	case kGold:
+		return Type::kMiscGold;
+	case kLeather01:
+		return Type::kMiscLeather;
+	case kLeatherStrips:
+		return Type::kMiscStrips;
+	case kDragonClawIron:
+	case kDragonClawGoldenE3:
+	case kDragonClawGoldenMS13:
+	case kDragonClawCoral:
+	case kDragonClawIvory:
+	case kDragonClawRuby:
+	case kDragonClawSapphire:
+	case kDragonClawEmerald:
+	case kDragonClawGlass:
+	case kDragonClawEbony:
+	case kDragonClawDiamond:
+		return Type::kMiscDragonClaw;
+	case kOreCorundum:
+	case kOreEbony:
+	case kOreGold:
+	case kOreIron:
+	case kOreMalachite:
+	case kOreMoonstone:
+	case kOreOrichalcum:
+	case kOreQuicksilver:
+	case kOreSilver:
+		return Type::kMiscOre;
+	case kBoneTrollSkull01:
+		return Type::kMiscTrollSkull;
+	case kSoulGemPiece001:
+	case kSoulGemPiece002:
+	case kSoulGemPiece003:
+	case kSoulGemPiece004:
+	case kSoulGemPiece005:
+		return Type::kMiscSoulGem;
+	default:
+		for (UInt32 i = 0; i < a_misc->keywordCount; ++i) {
+			switch (a_misc->keywords[i]->formID) {
+			case kVendorItemAnimalHide:
+				return Type::kMiscHide;
+			case kVendorItemDaedricArtifact:
+				return Type::kMiscArtifact;
+			case kVendorItemGem:
+				return Type::kMiscGem;
+			case kVendorItemAnimalPart:
+				return Type::kMiscRemains;
+			case kVendorItemOreIngot:
+				return Type::kMiscIngot;
+			case kVendorItemClutter:
+				return Type::kMiscClutter;
+			case kVendorItemFireword:
+				return Type::kMiscWood;
+			default:
+				break;
+			}
+		}
+		return Type::kDefaultMisc;
+	}
+}
+
+
+auto ItemData::CalcTypeWeapon(RE::TESObjectWEAP* a_weap)
+-> Type
 {
 	using AnimationType = RE::TESObjectWEAP::Data::AnimationType;
 
-	switch (a_weap->animationType()) {
-	case AnimationType::kOneHandSword:
-		return Type::kWeaponSword;
-	case AnimationType::kOneHandDagger:
-		return Type::kWeaponDagger;
-	case AnimationType::kOneHandAxe:
-		return Type::kWeaponWarAxe;
-	case AnimationType::kOneHandMace:
-		return Type::kWeaponMace;
-	case AnimationType::kTwoHandSword:
-		return Type::kWeaponGreatSword;
-	case AnimationType::kTwoHandAxe:
-		if (a_weap->HasKeyword(WeapTypeWarhammer)) {
-			return Type::kWeaponHammer;
-		} else {
-			return Type::kWeaponBattleAxe;
-		}
-	case AnimationType::kBow:
-		return Type::kWeaponBow;
-	case AnimationType::kStaff:
-		return Type::kWeaponStaff;
-	case AnimationType::kCrossbow:
-		return Type::kWeaponCrossbow;
+	auto fpObjID = a_weap->firstPersonModelObject ? a_weap->firstPersonModelObject->formID : static_cast<RE::FormID>(-1);
+	switch (fpObjID) {
+	case k1stPersonPickAxe02:
+		return Type::kWeaponPickAxe;
+	case k1stPersonAxe:
+		return Type::kWeaponWoodAxe;
 	default:
-		return Type::kDefaultWeapon;
+		switch (a_weap->GetAnimationType()) {
+		case AnimationType::kOneHandSword:
+			return a_weap->HasKeyword(WeapMaterialDaedric) ? Type::kWeaponDaedra : Type::kWeaponSword;
+		case AnimationType::kOneHandDagger:
+			return Type::kWeaponDagger;
+		case AnimationType::kOneHandAxe:
+			return Type::kWeaponWarAxe;
+		case AnimationType::kOneHandMace:
+			return Type::kWeaponMace;
+		case AnimationType::kTwoHandSword:
+			return a_weap->HasKeyword(WeapMaterialDaedric) ? Type::kWeaponDaedra : Type::kWeaponGreatSword;
+		case AnimationType::kTwoHandAxe:
+			if (a_weap->HasKeyword(WeapTypeWarhammer)) {
+				return Type::kWeaponHammer;
+			} else {
+				return Type::kWeaponBattleAxe;
+			}
+		case AnimationType::kBow:
+			return Type::kWeaponBow;
+		case AnimationType::kStaff:
+			return Type::kWeaponStaff;
+		case AnimationType::kCrossbow:
+			return Type::kWeaponCrossbow;
+		default:
+			return Type::kDefaultWeapon;
+		}
 	}
 }
 
 
-ItemData::Type ItemData::getTypePotion(RE::AlchemyItem* a_potion)
+auto ItemData::CalcTypeKey(RE::TESKey* a_key)
+-> Type
+{
+	switch (a_key->formID) {
+	case kAngasMillAeriHouseKey:
+	case kAngasMillCommonHouseKey:
+	case kBarleyDarkFarmHouseKey:
+	case kDarkwaterCrossingVernersHouseKey:
+	case kDawnstarBeitildsHouseKey:
+	case kDawnstarBrinasKey:
+	case kDawnstarFrukisHouseKey:
+	case kDawnstarIrgnirsKey:
+	case kDawnstarLeigelfsKey:
+	case kDawnstarRustleifsHouseKey:
+	case kDragonBridgeHorgeirsHouseKey:
+	case kDragonBridgeLylvieveHouseKey:
+	case kFalkreathHosueofArkayKey:
+	case kFalkreathLodsHouseKey:
+	case kHeljarchenFathendasHouseKey:
+	case kHeljarchenTraillusHouseKey:
+	case kIrontreeMillHouseKey:
+	case kIvarsteadKlimmeksHouseKey:
+	case kKarthwastenEnmonsHouseKey:
+	case kKolskeggrMinePavosHouseKey:
+	case kKolskeggrPavosHouseKey:
+	case kLeftHandDaighreKey:
+	case kLeftHandMineSkaggisHouseKey:
+	case kMarkarthAbandonedHouseKey:
+	case kMarkarthEndonsHouseKey:
+	case kMarkarthNeposHouseKey:
+	case kMarkarthOgmundsHouseKey:
+	case kMarkarthOverseersHouseKey:
+	case kMarkarthTreasuryHouseKey:
+	case kMixwaterMillGilfreKey:
+	case kMorthalAlvasHouseKey:
+	case kMorthalFalionsHouseKey:
+	case kMorthalFalionsHouseKeyCOPY0000:
+	case kMorthalJorgenLamiKey:
+	case kMorthalThonnirsHouseKey:
+	case kRiftenAerinsHouseKey:
+	case kRiftenBolliHouseKey:
+	case kRiftenMariseAravelsHouseKey:
+	case kRiftenRomlynKey:
+	case kRiftenRomlynsHouseKey:
+	case kRiftenSnowShodHouseKey:
+	case kRiftenValindorsHouseKey:
+	case kRiverwoodAlvorHouseKey:
+	case kRiverwoodFaendalsHouseKey:
+	case kRiverwoodGerdursHouseKey:
+	case kRiverwoodSvensHouseKey:
+	case kRoriksteadLemkilsHouseKey:
+	case kShorsStoneFilnjarsHouseKey:
+	case kShorsStoneOdfelsHouseKey:
+	case kShorsStoneSylgjaKey:
+	case kSolitudeAddvarsHouseKey:
+	case kSolitudeBrylingsHouseKey:
+	case kSolitudeErikursHouseKey:
+	case kSolitudeEvetteSansHouseKey:
+	case kSolitudeJalasHouseKey:
+	case kSolitudeStyrrsHouseKey:
+	case kSolitudeVittoriaVicisHouseKey:
+	case kSoljundsSinkholeMinerHouseKey:
+	case kStonehillsAleucsHouseKey:
+	case kStonehillsGestursHouseKey:
+	case kStonehillsSorlisHouseKey:
+	case kTG07MercerHouseKey:
+	case kWhiterunAmrensHouseKey:
+	case kWhiterunCarlottaValentiasKey:
+	case kWhiterunHeimskrsHouseKey:
+	case kWhiterunHouseBattleBornKey:
+	case kWhiterunHouseGrayManeKey:
+	case kWhiterunOlavasKey:
+	case kWhiterunSeverioPelagiasHouseKey:
+	case kWhiterunUlfbethsKey:
+	case kWhiterunUthgerdsHouseKey:
+	case kWhiterunYsoldasHouseKey:
+	case kWindhelmBelynHlaaluHouseKey:
+	case kWindhelmBrunwulfsHouseKey:
+	case kWindhelmClanCruelSeaHouseKey:
+	case kWindhelmClanShatterShieldHouseKey:
+	case kWindhelmNiranyesHouseKey:
+	case kWindhelmViolaGiordanosKey:
+	case kWinterholdKraldarsHouseKey:
+	case kWinterholdRanmirsHouseKey:
+	case kBattleBornFarmKey:
+	case kBrandyMugFarmKey:
+	case kChillfurrowFarmKey:
+	case kHeljarchenHeigenFarmHouseKey:
+	case kHeljarchenJensFarmHouseKey:
+	case kHlaaluFarmKey:
+	case kHollyfrostFarmKey:
+	case kPelagiusFarmKey:
+	case kSalviusFarmhouseKey:
+		return Type::kKeyHouse;
+	default:
+		return Type::kDefaultKey;
+	}
+}
+
+
+auto ItemData::CalcTypePotion(RE::AlchemyItem* a_potion)
+-> Type
 {
 	using RE::ActorValue;
 
 	if (a_potion->IsFoodItem()) {
-		return (a_potion->effectData.consumeSound && a_potion->effectData.consumeSound->formID == kSNDRFormID_ITMPotionUse) ? Type::kFoodWine : Type::kDefaultFood;
+		if (a_potion->effectData.consumeSound && a_potion->effectData.consumeSound->formID == kITMPotionUse) {
+			switch (a_potion->formID) {
+			case kFoodMead:
+			case kMQ101JuniperMead:
+			case kFoodHonningbrewMead:
+			case kFreeformDragonBridgeMead:
+			case kAle:
+			case kAleWhiterunQuest:
+			case kFoodBlackBriarMead:
+			case kFoodBlackBriarMeadPrivateReserve:
+				return Type::kFoodBeer;
+			default:
+				return Type::kFoodWine;
+			}
+		} else {
+			return Type::kDefaultFood;
+		}
 	} else if (a_potion->IsPoison()) {
 		return Type::kPotionPoison;
 	} else {
@@ -723,18 +1330,19 @@ ItemData::Type ItemData::getTypePotion(RE::AlchemyItem* a_potion)
 				return Type::kPotionFrost;
 			}
 		}
+		return Type::kDefaultPotion;
 	}
-	return Type::kDefaultPotion;
 }
 
 
-ItemData::Type ItemData::getTypeSoulGem(RE::TESSoulGem* a_gem)
+auto ItemData::CalcTypeSoulGem(RE::TESSoulGem* a_gem)
+-> Type
 {
 	using RE::SoulLevel;
 
-	switch (a_gem->GetFormID()) {
-	case kSLGMFormID_DA01SoulGemBlackStar:
-	case kSLGMFormID_DA01SoulGemAzurasStar:
+	switch (a_gem->formID) {
+	case kDA01SoulGemBlackStar:
+	case kDA01SoulGemAzurasStar:
 		return Type::kSoulGemAzura;
 	default:
 		{
@@ -761,7 +1369,7 @@ ItemData::Type ItemData::getTypeSoulGem(RE::TESSoulGem* a_gem)
 }
 
 
-bool ItemData::getStolen()
+bool ItemData::CalcStolen()
 {
 	auto owner = _entryData->Get()->GetOwner();
 	if (!owner) {
@@ -777,7 +1385,7 @@ bool ItemData::getStolen()
 }
 
 
-bool ItemData::getEnchanted()
+bool ItemData::CalcEnchanted()
 {
 	if (_entryData->Get()->extraList) {
 		for (auto& xList : *_entryData->Get()->extraList) {
@@ -786,7 +1394,7 @@ bool ItemData::getEnchanted()
 			}
 		}
 	}
-	auto enchantForm = skyrim_cast<RE::TESEnchantableForm*>(_entryData->Get()->type);
+	auto enchantForm = skyrim_cast<RE::TESEnchantableForm*>(GetForm());
 	if (enchantForm && enchantForm->objectEffect) {
 		return true;
 	}
@@ -794,7 +1402,7 @@ bool ItemData::getEnchanted()
 }
 
 
-bool ItemData::getCanPickPocket()
+bool ItemData::CalcCanPickPocket()
 {
 	if (_container->baseForm->IsNot(RE::FormType::NPC)) {
 		return true;
@@ -812,7 +1420,7 @@ bool ItemData::getCanPickPocket()
 	for (auto& xList : *_entryData->Get()->extraList) {
 		if (xList->HasType(RE::ExtraDataType::kWorn) || xList->HasType(RE::ExtraDataType::kWornLeft)) {
 			auto player = RE::PlayerCharacter::GetSingleton();
-			if (_entryData->Get()->type->Is(RE::FormType::Weapon)) {
+			if (GetForm()->Is(RE::FormType::Weapon)) {
 				if (!player->HasPerk(Misdirection)) {
 					return false;
 				}
@@ -828,7 +1436,7 @@ bool ItemData::getCanPickPocket()
 }
 
 
-SInt32 ItemData::getPickPocketChance()
+SInt32 ItemData::CalcPickPocketChance()
 {
 	auto player = RE::PlayerCharacter::GetSingleton();
 	if (IsValidPickPocketTarget(_container, player->IsSneaking())) {
@@ -840,7 +1448,7 @@ SInt32 ItemData::getPickPocketChance()
 		auto playerSkill = player->GetPlayerActorValueCurrent(RE::ActorValue::kPickpocket);
 		auto targetSkill = targetActor->GetActorValueCurrent(RE::ActorValue::kPickpocket);
 
-		auto chance = RE::PlayerCharacter::GetPickpocketChance(playerSkill, targetSkill, totalValue, itemWeight, player, targetActor, isDetected, _entryData->Get()->type);
+		auto chance = RE::PlayerCharacter::GetPickpocketChance(playerSkill, targetSkill, totalValue, itemWeight, player, targetActor, isDetected, GetForm());
 		if (chance > 100) {
 			chance = 100;
 		} else if (chance < 0) {
@@ -853,10 +1461,10 @@ SInt32 ItemData::getPickPocketChance()
 }
 
 
-bool ItemData::getRead()
+bool ItemData::CalcRead()
 {
-	if (_entryData->Get()->type->Is(RE::FormType::Book)) {
-		auto book = static_cast<RE::TESObjectBOOK*>(_entryData->Get()->type);
+	if (GetForm()->Is(RE::FormType::Book)) {
+		auto book = GetForm<RE::TESObjectBOOK*>();
 		return book->IsRead();
 	} else {
 		return false;
@@ -864,9 +1472,10 @@ bool ItemData::getRead()
 }
 
 
-ItemData::Priority ItemData::getPriority()
+auto ItemData::CalcPriority()
+-> Priority
 {
-	switch (_entryData->Get()->type->formType) {
+	switch (GetForm()->formType) {
 	case RE::FormType::Ammo:
 		return Priority::kAmmo;
 	case RE::FormType::SoulGem:

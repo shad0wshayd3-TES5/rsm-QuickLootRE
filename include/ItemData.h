@@ -8,6 +8,8 @@
 
 #include "RE/Skyrim.h"
 
+#undef GetForm
+
 
 class ItemData;
 
@@ -78,8 +80,8 @@ public:
 	explicit ItemData(ManagedEntryDataPtr a_entryData, SInt32 a_count);
 	~ItemData();
 
-	static void setCompareOrder();
-	static void setContainer(RE::TESObjectREFR* a_container);
+	static void SetCompareOrder();
+	static void SetContainer(RE::TESObjectREFR* a_container);
 
 	ItemData& operator=(const ItemData&) = default;
 	ItemData& operator=(ItemData&&) = default;
@@ -90,21 +92,22 @@ public:
 	friend bool operator<=(const ItemData& a_lhs, const ItemData& a_rhs);
 	friend bool operator>=(const ItemData& a_lhs, const ItemData& a_rhs);
 
-	RE::InventoryEntryData* entryData() const;
-	const char* name() const;
-	SInt32 count() const;
-	SInt32 value() const;
-	float weight() const;
-	const char* icon() const;
-	bool isStolen() const;
-	bool isRead() const;
-	bool isEnchanted() const;
-	bool canPickPocket() const;
-	SInt32 pickPocketChance() const;
-	RE::TESForm* form() const;
+	RE::InventoryEntryData* GetEntryData() const;
+	const char* GetName() const;
+	SInt32 GetCount() const;
+	SInt32 GetValue() const;
+	float GetWeight() const;
+	const char* GetIcon() const;
+	bool GetIsStolen() const;
+	bool GetIsRead() const;
+	bool GetIsEnchanted() const;
+	bool GetCanPickPocket() const;
+	SInt32 GetPickPocketChance() const;
+	RE::TESForm* GetForm() const;
+	template <class T, typename std::enable_if_t<RE::BSScript::is_form_pointer<T>::value, int> = 0> T GetForm() const;
 
-	void modCount(SInt32 a_mod);
-	void dbgDumpType(std::size_t a_index);
+	void ModCount(SInt32 a_mod);
+	void DBGDumpType(std::size_t a_index);
 
 private:
 	friend class CompareMap;
@@ -133,7 +136,9 @@ private:
 
 	enum class Type : UInt32
 	{
-		kNone,
+		kInvalid = static_cast<std::underlying_type_t<Type>>(-1),
+		kNone = 0,
+
 		kDefaultWeapon,
 		kWeaponSword,
 		kWeaponGreatSword,
@@ -190,11 +195,10 @@ private:
 		kCirclet,
 
 		kDefaultScroll,
-
 		kDefaultBook,
-		kBookRead,
+		kDefaultBookRead,
 		kBookTome,
-		kTomeRead,
+		kBookTomeRead,
 		kBookJournal,
 		kBookNote,
 		kBookMap,
@@ -241,28 +245,30 @@ private:
 		kMiscRemains,
 		kMiscTrollSkull,
 		kMiscTorch,
-		kMiscGoldSack,
+		kMiscGoldSack,	// coin purses are flora
 		kMiscGold,
 		kMiscDragonClaw
 	};
 
 
-	void constructCommon();
+	void ConstructCommon();
 
-	float getWeight();
-	Type getType();
-	Type getTypeArmor(RE::TESObjectARMO* a_armor);
-	Type getTypeBook(RE::TESObjectBOOK* a_book);
-	Type getTypeMisc(RE::TESObjectMISC* a_misc);
-	Type getTypeWeapon(RE::TESObjectWEAP* a_weap);
-	Type getTypePotion(RE::AlchemyItem* a_potion);
-	Type getTypeSoulGem(RE::TESSoulGem* a_gem);
-	bool getStolen();
-	bool getRead();
-	bool getEnchanted();
-	bool getCanPickPocket();
-	SInt32 getPickPocketChance();
-	Priority getPriority();
+	float CalcWeight();
+	Type CalcType();
+	Type CalcTypeArmor(RE::TESObjectARMO* a_armor);
+	Type CalcSpecialArmor(RE::FormID a_formID);
+	Type CalcTypeBook(RE::TESObjectBOOK* a_book);
+	Type CalcTypeMisc(RE::TESObjectMISC* a_misc);
+	Type CalcTypeWeapon(RE::TESObjectWEAP* a_weap);
+	Type CalcTypeKey(RE::TESKey* a_key);
+	Type CalcTypePotion(RE::AlchemyItem* a_potion);
+	Type CalcTypeSoulGem(RE::TESSoulGem* a_gem);
+	bool CalcStolen();
+	bool CalcRead();
+	bool CalcEnchanted();
+	bool CalcCanPickPocket();
+	SInt32 CalcPickPocketChance();
+	Priority CalcPriority();
 
 	ManagedEntryDataPtr _entryData;
 	const char* _name;
@@ -380,3 +386,11 @@ private:
 	"misc_dragonclaw"
 	};
 };
+
+
+
+template <class T, typename std::enable_if_t<RE::BSScript::is_form_pointer<T>::value, int>>
+T ItemData::GetForm() const
+{
+	return static_cast<T>(GetForm());
+}

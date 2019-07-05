@@ -516,7 +516,7 @@ void LootMenu::TakeItemStack()
 
 	ItemData itemCopy(_invList[_selectedIndex]);
 
-	auto numItems = itemCopy.count();
+	auto numItems = itemCopy.GetCount();
 	if (numItems > 1 && IsSingleLootEnabled()) {
 		numItems = 1;
 	}
@@ -524,8 +524,8 @@ void LootMenu::TakeItemStack()
 	if (TakeItem(itemCopy, numItems, true, true)) {
 		auto player = RE::PlayerCharacter::GetSingleton();
 		auto invChanges = player->GetInventoryChanges();
-		auto extraList = itemCopy.entryData()->extraList ? itemCopy.entryData()->extraList->front() : 0;
-		invChanges->SendContainerChangedEvent(extraList, _containerRef, itemCopy.form(), itemCopy.count());
+		auto extraList = itemCopy.GetEntryData()->extraList ? itemCopy.GetEntryData()->extraList->front() : 0;
+		invChanges->SendContainerChangedEvent(extraList, _containerRef, itemCopy.GetForm(), itemCopy.GetCount());
 	}
 	RE::ChestsLooted::SendEvent();
 }
@@ -546,7 +546,7 @@ void LootMenu::TakeAllItems()
 
 	UInt32 playSound = 5;
 	for (auto& item : _invList) {
-		TakeItem(item, item.count(), false, playSound);
+		TakeItem(item, item.GetCount(), false, playSound);
 		if (playSound) {
 			--playSound;
 		}
@@ -890,8 +890,8 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 
 	// Locate item's extra list (if any)
 	RE::BaseExtraList* xList = 0;
-	if (a_item.entryData()->extraList && !a_item.entryData()->extraList->empty()) {
-		xList = a_item.entryData()->extraList->front();
+	if (a_item.GetEntryData()->extraList && !a_item.GetEntryData()->extraList->empty()) {
+		xList = a_item.GetEntryData()->extraList->front();
 	}
 
 	auto player = RE::PlayerCharacter::GetSingleton();
@@ -907,7 +907,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 		if (_containerRef->baseForm->Is(RE::FormType::NPC)) {
 			// Dead body
 			if (_containerRef->IsDead(false)) {
-				player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kDeadBody);
+				player->PlayPickupEvent(a_item.GetForm(), _containerRef->GetOwner(), _containerRef, EventType::kDeadBody);
 				// Pickpocket
 			} else {
 				if (!TryToPickPocket(a_item, lootMode)) {
@@ -916,7 +916,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 			}
 		} else {
 			// Container
-			player->PlayPickupEvent(a_item.form(), _containerRef->GetOwner(), _containerRef, EventType::kContainer);
+			player->PlayPickupEvent(a_item.GetForm(), _containerRef->GetOwner(), _containerRef, EventType::kContainer);
 
 			// Stealing
 			if (_containerRef->IsOffLimits()) {
@@ -925,7 +925,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 		}
 
 		// Remove projectile 3D
-		auto bound = static_cast<RE::TESBoundObject*>(a_item.form());
+		auto bound = static_cast<RE::TESBoundObject*>(a_item.GetForm());
 		if (bound) {
 			bound->OnRemovedFrom(_containerRef);
 		}
@@ -935,7 +935,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 		} else {
 			// Stealing
 			if (_containerRef->IsOffLimits()) {
-				player->SendStealAlarm(_containerRef, a_item.entryData()->type, a_numItems, a_item.value(), _containerRef->GetOwner(), true);
+				player->SendStealAlarm(_containerRef, a_item.GetEntryData()->type, a_numItems, a_item.GetValue(), _containerRef->GetOwner(), true);
 			}
 		}
 
@@ -943,13 +943,13 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 			PlayAnimationOpen();
 		}
 		if (a_playSound) {
-			player->PlaySounds(a_item.form(), true);
+			player->PlaySounds(a_item.GetForm(), true);
 		}
 		if (!Settings::disableInvisDispell) {
 			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
 		}
 		RE::RefHandle droppedHandle = 0;
-		_containerRef->RemoveItem(droppedHandle, a_item.form(), a_numItems, lootMode, xList, player);
+		_containerRef->RemoveItem(droppedHandle, a_item.GetForm(), a_numItems, lootMode, xList, player);
 	}
 
 	return manualUpdate;
@@ -963,13 +963,13 @@ bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& 
 
 	auto target = static_cast<RE::Actor*>(_containerRef);
 	auto player = RE::PlayerCharacter::GetSingleton();
-	auto pickSuccess = player->TryToPickPocket(target, a_item.entryData(), a_item.count(), true);
-	player->PlayPickupEvent(a_item.entryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
+	auto pickSuccess = player->TryToPickPocket(target, a_item.GetEntryData(), a_item.GetCount(), true);
+	player->PlayPickupEvent(a_item.GetEntryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
 	a_lootMode = RemoveType::kSteal;
 	if (!pickSuccess) {
 		return false;
 	} else {
-		RE::ItemsPickpocketed::SendEvent(a_item.count());
+		RE::ItemsPickpocketed::SendEvent(a_item.GetCount());
 		return true;
 	}
 }

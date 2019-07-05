@@ -169,19 +169,19 @@ void OpenContainerDelegate::Run()
 
 	SInt32 displaySize = 0;
 	for (std::size_t i = 0; i < size; ++i) {
-		if (!invList[i].canPickPocket()) {
+		if (!invList[i].GetCanPickPocket()) {
 			continue;
 		}
 
 		loot->view->CreateObject(&item[i]);
 
-		text[i].SetString(invList[i].name());
-		count[i].SetNumber(invList[i].count());
-		isStolen[i].SetBoolean(invList[i].isStolen());
-		isEnchanted[i].SetBoolean(invList[i].isEnchanted());
-		isRead[i].SetBoolean(invList[i].isRead());
-		itemChance[i].SetNumber(invList[i].pickPocketChance());
-		iconLabel[i].SetString(invList[i].icon());
+		text[i].SetString(invList[i].GetName());
+		count[i].SetNumber(invList[i].GetCount());
+		isStolen[i].SetBoolean(invList[i].GetIsStolen());
+		isEnchanted[i].SetBoolean(invList[i].GetIsEnchanted());
+		isRead[i].SetBoolean(invList[i].GetIsRead());
+		itemChance[i].SetNumber(invList[i].GetPickPocketChance());
+		iconLabel[i].SetString(invList[i].GetIcon());
 
 		item[i].SetMember("text", text[i]);
 		item[i].SetMember("count", count[i]);
@@ -222,11 +222,11 @@ void OpenContainerDelegate::DebugContents()
 	_DMESSAGE("");
 	auto& invList = LootMenu::GetSingleton()->GetInventoryList();
 	for (auto& item : invList) {
-		if (!div && !item.canPickPocket()) {
+		if (!div && !item.GetCanPickPocket()) {
 			_DMESSAGE("========== HIDDEN ITEMS ==========");
 			div = true;
 		}
-		item.dbgDumpType(i);
+		item.DBGDumpType(i);
 		++i;
 	}
 }

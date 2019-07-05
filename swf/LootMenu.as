@@ -26,13 +26,9 @@ class LootMenu extends MovieClip
 		
 		background.gotoAndStop("Default");
 	}
-
-
-	public function InitExtensions(): Void
-	{}
 	
 
-	public function Setup(a_positionX:Number, a_positionY:Number, a_scale:Number, a_opacity:Number) :Void
+	public function Setup(a_positionX:Number, a_positionY:Number, a_scale:Number, a_opacity:Number): Void
 	{
 		if (0 <= a_positionX) {
 			_x = a_positionX;

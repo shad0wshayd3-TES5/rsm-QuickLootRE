@@ -68,7 +68,7 @@ class ItemListEntry extends BasicListEntry
 				text += " (" + a_entryObject.count.toString() + ")";
 			}
 			
-			var maxTextLength: Number = 32;
+			var maxTextLength:Number = 32;
 			if (text.length > maxTextLength) {
 				textField.text = text.substr(0, maxTextLength - 3) + "...";
 			} else {
