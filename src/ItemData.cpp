@@ -401,7 +401,7 @@ SInt32 ItemData::GetPickPocketChance() const
 }
 
 
-RE::TESForm* ItemData::GetForm() const
+RE::TESBoundObject* ItemData::GetForm() const
 {
 	return _entryData->Get()->type;
 }
@@ -488,25 +488,25 @@ auto ItemData::CalcType()
 	case RE::FormType::Scroll:
 		return Type::kDefaultScroll;
 	case RE::FormType::Armor:
-		return CalcTypeArmor(GetForm<RE::TESObjectARMO*>());
+		return CalcTypeArmor(GetForm<RE::TESObjectARMO>());
 	case RE::FormType::Book:
-		return CalcTypeBook(GetForm<RE::TESObjectBOOK*>());
+		return CalcTypeBook(GetForm<RE::TESObjectBOOK>());
 	case RE::FormType::Ingredient:
 		return Type::kDefaultIngredient;
 	case RE::FormType::Light:
 		return Type::kMiscTorch;
 	case RE::FormType::Misc:
-		return CalcTypeMisc(GetForm<RE::TESObjectMISC*>());
+		return CalcTypeMisc(GetForm<RE::TESObjectMISC>());
 	case RE::FormType::Weapon:
-		return CalcTypeWeapon(GetForm<RE::TESObjectWEAP*>());
+		return CalcTypeWeapon(GetForm<RE::TESObjectWEAP>());
 	case RE::FormType::Ammo:
-		return (GetForm<RE::TESAmmo*>()->IsBolt()) ? Type::kWeaponBolt : Type::kWeaponArrow;
+		return (GetForm<RE::TESAmmo>()->IsBolt()) ? Type::kWeaponBolt : Type::kWeaponArrow;
 	case RE::FormType::KeyMaster:
-		return CalcTypeKey(GetForm<RE::TESKey*>());
+		return CalcTypeKey(GetForm<RE::TESKey>());
 	case RE::FormType::AlchemyItem:
-		return CalcTypePotion(GetForm<RE::AlchemyItem*>());
+		return CalcTypePotion(GetForm<RE::AlchemyItem>());
 	case RE::FormType::SoulGem:
-		return CalcTypeSoulGem(GetForm<RE::TESSoulGem*>());
+		return CalcTypeSoulGem(GetForm<RE::TESSoulGem>());
 	default:
 		return Type::kNone;
 	}
@@ -1464,7 +1464,7 @@ SInt32 ItemData::CalcPickPocketChance()
 bool ItemData::CalcRead()
 {
 	if (GetForm()->Is(RE::FormType::Book)) {
-		auto book = GetForm<RE::TESObjectBOOK*>();
+		auto book = GetForm<RE::TESObjectBOOK>();
 		return book->IsRead();
 	} else {
 		return false;

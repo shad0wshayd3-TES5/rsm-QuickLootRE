@@ -2,6 +2,7 @@
 
 #include "skse64_common/SafeWrite.h"
 
+#include <array>
 #include <cstdlib>  // abort
 #include <queue>
 #include <string>
@@ -533,6 +534,8 @@ void LootMenu::TakeItemStack()
 
 void LootMenu::TakeAllItems()
 {
+	using DefaultObjects = RE::BGSDefaultObjectManager::DefaultObjects;
+
 	if (!IsOpen() || !_containerRef || _displaySize <= 0) {
 		return;
 	}
@@ -544,13 +547,25 @@ void LootMenu::TakeAllItems()
 
 	_canProcessInvChanges = true;
 
-	UInt32 playSound = 5;
-	for (auto& item : _invList) {
-		TakeItem(item, item.GetCount(), false, playSound);
-		if (playSound) {
-			--playSound;
+	std::array<RE::BGSSoundDescriptorForm*, 5> descriptors = { 0 };
+	auto dObjManager = RE::BGSDefaultObjectManager::GetSingleton();
+	descriptors[0] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericUpSD);
+	descriptors[1] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericWeaponUpSD);
+	descriptors[2] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericArmorUpSD);
+	descriptors[3] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericBookUpSD);
+	descriptors[4] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericIngredientUpSD);
+
+	auto soundManager = RE::BSAudioManager::GetSingleton();
+	for (auto& descriptor : descriptors) {
+		if (descriptor) {
+			soundManager->Play(descriptor);
 		}
 	}
+
+	for (auto& item : _invList) {
+		TakeItem(item, item.GetCount(), false, false);
+	}
+
 	_invList.clear();
 	SkipNextInput();
 	_containerRef->ActivateRefChildren(player);  // Trigger traps
@@ -943,7 +958,7 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 			PlayAnimationOpen();
 		}
 		if (a_playSound) {
-			player->PlaySounds(a_item.GetForm(), true);
+			player->PlaySounds(a_item.GetForm(), true, false);
 		}
 		if (!Settings::disableInvisDispell) {
 			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);

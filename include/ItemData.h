@@ -103,8 +103,8 @@ public:
 	bool GetIsEnchanted() const;
 	bool GetCanPickPocket() const;
 	SInt32 GetPickPocketChance() const;
-	RE::TESForm* GetForm() const;
-	template <class T, typename std::enable_if_t<RE::BSScript::is_form_pointer<T>::value, int> = 0> T GetForm() const;
+	RE::TESBoundObject* GetForm() const;
+	template <class T, typename std::enable_if_t<std::is_convertible<T*, RE::TESBoundObject*>::value, int> = 0> T* GetForm() const;
 
 	void ModCount(SInt32 a_mod);
 	void DBGDumpType(std::size_t a_index);
@@ -389,8 +389,8 @@ private:
 
 
 
-template <class T, typename std::enable_if_t<RE::BSScript::is_form_pointer<T>::value, int>>
-T ItemData::GetForm() const
+template <class T, typename std::enable_if_t<std::is_convertible<T*, RE::TESBoundObject*>::value, int>>
+T* ItemData::GetForm() const
 {
-	return static_cast<T>(GetForm());
+	return static_cast<T*>(GetForm());
 }
