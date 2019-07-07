@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "CrosshairHook.h"
 #include "Events.h"
 #include "Hooks.h"
 #include "ItemData.h"
@@ -238,8 +239,9 @@ extern "C" {
 		}
 
 		auto papyrus = SKSE::GetPapyrusInterface();
-		if (!papyrus->Register(QuickLoot::RegisterFuncs)) {
+		if (!papyrus->Register(QuickLoot::RegisterFuncs, Temporary::CrosshairHook::RegisterFuncs)) {
 			_FATALERROR("[FATAL ERROR] Failed to register papyrus reg callback!\n");
+			return false;
 		}
 
 		auto serialization = SKSE::GetSerializationInterface();

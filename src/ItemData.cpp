@@ -128,9 +128,9 @@ namespace
 
 	int CompareMap::compareByValuePerWeight(const ItemData& a_lhs, const ItemData& a_rhs)
 	{
-		float leftVpW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::infinity();
-		float rightVpW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::infinity();
-		float result = leftVpW - rightVpW;
+		float leftVPW = a_lhs._weight ? a_lhs._value / a_lhs._weight : std::numeric_limits<float>::infinity();
+		float rightVPW = a_rhs._weight ? a_rhs._value / a_rhs._weight : std::numeric_limits<float>::infinity();
+		float result = leftVPW - rightVPW;
 		if (result < -0.0001) {
 			return -1;
 		} else if (result > 0.0001) {

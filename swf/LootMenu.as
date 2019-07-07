@@ -113,7 +113,7 @@ class LootMenu extends MovieClip
 	}
 
 
-	public function SetSelectedIndex(a_idx: Number): Void
+	public function SetSelectedIndex(a_idx:Number): Void
 	{
 		itemList.selectedIndex = a_idx;
 	}
