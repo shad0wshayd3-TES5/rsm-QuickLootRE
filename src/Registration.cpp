@@ -32,13 +32,13 @@ namespace QuickLoot
 	void RegisterForContainerOpenAnimEvent(RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
-			_ERROR("[ERROR] a_form is a NONE form!\n");
+			_ERROR("a_form is a NONE form!\n");
 			return;
 		}
 
 		auto dispatcher = OnContainerOpenAnim::GetSingleton();
 		if (!dispatcher->Register(a_form)) {
-			_ERROR("[ERROR] Failed to register for OnContainerOpenAnim event!\n");
+			_ERROR("Failed to register for OnContainerOpenAnim event!\n");
 		}
 	}
 
@@ -46,13 +46,13 @@ namespace QuickLoot
 	void UnregisterForContainerOpenAnimEvent(RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
-			_ERROR("[ERROR] a_form is a NONE form!\n");
+			_ERROR("a_form is a NONE form!\n");
 			return;
 		}
 
 		auto dispatcher = OnContainerOpenAnim::GetSingleton();
 		if (!dispatcher->Unregister(a_form)) {
-			_ERROR("[ERROR] Failed to unregister for OnContainerOpenAnim event!\n");
+			_ERROR("Failed to unregister for OnContainerOpenAnim event!\n");
 		}
 	}
 
@@ -60,13 +60,13 @@ namespace QuickLoot
 	void RegisterForContainerCloseAnimEvent(RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
-			_ERROR("[ERROR] a_form is a NONE form!\n");
+			_ERROR("a_form is a NONE form!\n");
 			return;
 		}
 
 		auto dispatcher = OnContainerCloseAnim::GetSingleton();
 		if (!dispatcher->Register(a_form)) {
-			_ERROR("[ERROR] Failed to register for OnContainerOpenAnim event!\n");
+			_ERROR("Failed to register for OnContainerOpenAnim event!\n");
 		}
 	}
 
@@ -74,13 +74,13 @@ namespace QuickLoot
 	void UnregisterForContainerCloseAnimEvent(RE::StaticFunctionTag*, RE::TESForm* a_form)
 	{
 		if (!a_form) {
-			_ERROR("[ERROR] a_form is a NONE form!\n");
+			_ERROR("a_form is a NONE form!\n");
 			return;
 		}
 
 		auto dispatcher = OnContainerCloseAnim::GetSingleton();
 		if (!dispatcher->Unregister(a_form)) {
-			_ERROR("[ERROR] Failed to unregister for OnContainerOpenAnim event!\n");
+			_ERROR("Failed to unregister for OnContainerOpenAnim event!\n");
 		}
 	}
 

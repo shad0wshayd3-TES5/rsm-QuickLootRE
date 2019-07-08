@@ -264,7 +264,7 @@ void LootMenu::QueueMessage(Message a_msg)
 		}
 		break;
 	default:
-		_ERROR("[ERROR] Invalid message (%i)", a_msg);
+		_ERROR("Invalid message (%i)", a_msg);
 		break;
 	}
 
@@ -612,7 +612,8 @@ LootMenu::LootMenu(const char* a_swfPath) :
 	}
 
 	if (!view) {
-		_FATALERROR("[FATAL ERROR] Lootmenu did not have a view, likely due to missing dependencies! Aborting process!\n");
+		_FATALERROR("Lootmenu did not have a view due to missing dependencies! Aborting process!\n");
+		MessageBoxA(NULL, "Lootmenu did not have a view due to missing dependencies!\r\nAborting process!", NULL, MB_OK);
 		std::abort();
 	}
 

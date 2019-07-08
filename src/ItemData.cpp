@@ -270,10 +270,10 @@ void ItemData::SetCompareOrder()
 	for (auto& comp : Settings::sortOrder) {
 		auto it = compMap.find(comp);
 		if (it != compMap.end()) {
-			_DMESSAGE("[DEBUG] Added compare by %s", comp.c_str());
+			_DMESSAGE("Added compare by %s", comp.c_str());
 			_compares.push_back(it->second);
 		} else {
-			_ERROR("[ERROR] Encountered unknown compare (%s)!\n", comp.c_str());
+			_ERROR("Encountered unknown compare (%s)!\n", comp.c_str());
 		}
 	}
 }
@@ -423,37 +423,37 @@ void ItemData::DBGDumpType(std::size_t a_index)
 {
 	switch (ITEM_DATA_DEBUG_TYPE) {
 	case kDebugType_Name:
-		_DMESSAGE("[DEBUG] (%s) name == (%s: %zu)", _name, _name, a_index);
+		SKSE::Logger::VPrint("(%s) name == (%s: %zu)", _name, _name, a_index);
 		break;
 	case kDebugType_Count:
-		_DMESSAGE("[DEBUG] (%i) count == (%s: %zu)", _count, _name, a_index);
+		SKSE::Logger::VPrint("(%i) count == (%s: %zu)", _count, _name, a_index);
 		break;
 	case kDebugType_Value:
-		_DMESSAGE("[DEBUG] (%i) value == (%s: %zu)", _value, _name, a_index);
+		SKSE::Logger::VPrint("(%i) value == (%s: %zu)", _value, _name, a_index);
 		break;
 	case kDebugType_Weight:
-		_DMESSAGE("[DEBUG] (%F) weight == (%s: %zu)", _weight, _name, a_index);
+		SKSE::Logger::VPrint("(%F) weight == (%s: %zu)", _weight, _name, a_index);
 		break;
 	case kDebugType_Type:
-		_DMESSAGE("[DEBUG] (%u) type == (%s: %zu)", _type, _name, a_index);
+		SKSE::Logger::VPrint("(%u) type == (%s: %zu)", _type, _name, a_index);
 		break;
 	case kDebugType_Read:
-		_DMESSAGE("[DEBUG] (%s) read == (%s: %zu)", boolToString(_isRead), _name, a_index);
+		SKSE::Logger::VPrint("(%s) read == (%s: %zu)", boolToString(_isRead), _name, a_index);
 		break;
 	case kDebugType_Enchanted:
-		_DMESSAGE("[DEBUG] (%s) enchanted == (%s: %zu)", boolToString(_isEnchanted), _name, a_index);
+		SKSE::Logger::VPrint("(%s) enchanted == (%s: %zu)", boolToString(_isEnchanted), _name, a_index);
 		break;
 	case kDebugType_PickPocketChance:
-		_DMESSAGE("[DEBUG] (%i) pickPocketChance == (%s: %zu)", _pickPocketChance, _name, a_index);
+		SKSE::Logger::VPrint("(%i) pickPocketChance == (%s: %zu)", _pickPocketChance, _name, a_index);
 		break;
 	case kDebugType_ValuePerWeight:
 		{
 			float vpw = _weight ? _value / _weight : std::numeric_limits<float>::infinity();
-			_DMESSAGE("[DEBUG] (%F) valuePerWeight == (%s: %zu)", vpw, _name, a_index);
+			SKSE::Logger::VPrint("(%F) valuePerWeight == (%s: %zu)", vpw, _name, a_index);
 			break;
 		}
 	case kDebugType_Priority:
-		_DMESSAGE("[DEBUG] (%u) priority == (%s: %zu)", _priority, _name, a_index);
+		SKSE::Logger::VPrint("(%u) priority == (%s: %zu)", _priority, _name, a_index);
 		break;
 	}
 }

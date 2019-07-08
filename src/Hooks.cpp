@@ -205,7 +205,7 @@ namespace
 			REL::Offset<func_t**> vFunc(RE::Offset::MenuOpenHandler::Vtbl + (0x5 * 0x8));
 			func = *vFunc;
 			SafeWrite64(vFunc.GetAddress(), unrestricted_cast<std::uintptr_t>(&Hook_ProcessButton));
-			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(MenuOpenHandlerEx).name());
+			_DMESSAGE("(%s) installed hook", typeid(MenuOpenHandlerEx).name());
 		}
 	};
 
@@ -260,7 +260,7 @@ namespace
 			REL::Offset<func_t**> vFunc(OFFSET);
 			func = *vFunc;
 			SafeWrite64(vFunc.GetAddress(), unrestricted_cast<std::uintptr_t>(&Hook_GetCrosshairText));
-			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESBoundAnimObjectEx).name());
+			_DMESSAGE("(%s) installed hook", typeid(TESBoundAnimObjectEx).name());
 		}
 	};
 
@@ -296,7 +296,7 @@ namespace
 			SafeWrite8(funcBase.GetAddress() + LEA_HOOK + 3, 0x00);
 
 			g_branchTrampoline.Write5Branch(funcBase.GetAddress() + JMP_HOOK, unrestricted_cast<std::uintptr_t>(&Hook_BlockActivation));
-			_DMESSAGE("[DEBUG] (%s) installed hook", typeid(TESObjectREFREx).name());
+			_DMESSAGE("(%s) installed hook", typeid(TESObjectREFREx).name());
 		}
 	};
 
@@ -313,7 +313,7 @@ namespace
 		for (std::uintptr_t i = START; i < END; ++i) {
 			SafeWrite8(funcBase.GetAddress() + i, NOP);
 		}
-		_DMESSAGE("[DEBUG] Installed crash fix for scaleform heap leak detection");
+		_DMESSAGE("Installed crash fix for scaleform heap leak detection");
 	}
 
 
@@ -347,7 +347,7 @@ namespace
 		case ControlID::kFavorites:
 			return strHolder->favorites;
 		default:
-			_ERROR("[ERROR] Invalid control ID (%i)\n", a_controlID);
+			_ERROR("Invalid control ID (%i)\n", a_controlID);
 			[[fallthrough]] ;
 		case ControlID::kNone:
 			return emptyStr;
@@ -369,7 +369,7 @@ namespace
 		std::sort(settings.begin(), settings.end());
 		for (std::size_t i = 0, j = 1; j < settings.size(); ++i, ++j) {
 			if (settings[i] == settings[j]) {
-				_ERROR("[ERROR] %s and %s are mapped to the same key (%s)!", settings[i].key().c_str(), settings[j].key().c_str(), settings[i].c_str());
+				_ERROR("%s and %s are mapped to the same key (%s)!", settings[i].key().c_str(), settings[j].key().c_str(), settings[i].c_str());
 				LootMenu::QueueMessage(LootMenu::Message::kNoInputLoaded);
 				return true;
 			}
@@ -386,11 +386,11 @@ namespace
 		auto it = settingMap.find(a_setting);
 		if (it != settingMap.end()) {
 			it->second(a_register, a_set);
-			_DMESSAGE("[DEBUG] Applied %s hook to (%s)", a_setting.key().c_str(), a_setting.c_str());
+			_DMESSAGE("Applied %s hook to (%s)", a_setting.key().c_str(), a_setting.c_str());
 			return true;
 		} else {
-			_ERROR("[ERROR] Unrecognized mapping (%s)!", a_setting.c_str());
-			_ERROR("[ERROR] Failed to apply %s hook to (%s)!\n", a_setting.key().c_str(), a_setting.c_str());
+			_ERROR("Unrecognized mapping (%s)!", a_setting.c_str());
+			_ERROR("Failed to apply %s hook to (%s)!\n", a_setting.key().c_str(), a_setting.c_str());
 			return false;
 		}
 	}
@@ -411,21 +411,21 @@ namespace Hooks
 
 			if (!g_activateHandlerHooked) {
 				a_register(Hook::kActivate, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
-				_DMESSAGE("[DEBUG] Stubbed activate can process handler");
+				_DMESSAGE("Stubbed activate can process handler");
 			}
 
 			if (!g_cameraStateHandlerHooked) {
 				a_register(Hook::kFirstPersonState, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
 				a_register(Hook::kThirdPersonState, &ActivateHandlerEx<NullOp>::Hook_CanProcess);
-				_DMESSAGE("[DEBUG] Stubbed camera state can process handlers");
+				_DMESSAGE("Stubbed camera state can process handlers");
 			}
 		} else {
-			_ERROR("[ERROR] Mapping conflicts detected!");
-			_ERROR("[ERROR] No input hooks applied!\n");
+			_ERROR("Mapping conflicts detected!");
+			_ERROR("No input hooks applied!\n");
 		}
 
 		a_register(Hook::kFavorites, &FavoritesHandlerEx<NullOp>::Hook_CanProcess);
-		_DMESSAGE("[DEBUG] Stubbed Favorites can process handler");
+		_DMESSAGE("Stubbed Favorites can process handler");
 
 		if (!Settings::disableActiTextHook) {
 			TESObjectACTIEx::InstallHook();

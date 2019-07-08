@@ -217,18 +217,26 @@ void OpenContainerDelegate::Run()
 
 void OpenContainerDelegate::DebugContents()
 {
+	auto logStamp = SKSE::Logger::UseLogStamp(false);
+	bool timeStamp;
+	bool hourFormat;
+	std::tie(timeStamp, hourFormat) = SKSE::Logger::UseTimeStamp(false);
+
 	std::size_t i = 0;
 	bool div = false;
-	_DMESSAGE("");
+	SKSE::Logger::Print("");
 	auto& invList = LootMenu::GetSingleton()->GetInventoryList();
 	for (auto& item : invList) {
 		if (!div && !item.GetCanPickPocket()) {
-			_DMESSAGE("========== HIDDEN ITEMS ==========");
+			SKSE::Logger::Print("========== HIDDEN ITEMS ==========");
 			div = true;
 		}
 		item.DBGDumpType(i);
 		++i;
 	}
+
+	SKSE::Logger::UseLogStamp(logStamp);
+	SKSE::Logger::UseTimeStamp(timeStamp, hourFormat);
 }
 
 

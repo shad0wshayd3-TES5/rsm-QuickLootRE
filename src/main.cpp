@@ -47,14 +47,14 @@ namespace
 	void SaveCallback(SKSE::SerializationInterface* a_intfc)
 	{
 		if (!OnContainerOpenAnim::GetSingleton()->Save(a_intfc, kOnOpenAnimStart, kSerializationVersion)) {
-			_ERROR("[ERROR] Failed to save OnContainerOpenAnim regs!\n");
+			_ERROR("Failed to save OnContainerOpenAnim regs!\n");
 		}
 
 		if (!OnContainerCloseAnim::GetSingleton()->Save(a_intfc, kOnCloseAnimStart, kSerializationVersion)) {
-			_ERROR("[ERROR] Failed to save OnContainerCloseAnim regs!\n");
+			_ERROR("Failed to save OnContainerCloseAnim regs!\n");
 		}
 
-		_MESSAGE("[MESSAGE] Finished saving data");
+		_MESSAGE("Finished saving data");
 	}
 
 
@@ -65,7 +65,7 @@ namespace
 		UInt32 length;
 		while (a_intfc->GetNextRecordInfo(type, version, length)) {
 			if (version != kSerializationVersion) {
-				_ERROR("[ERROR] Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, kSerializationVersion, DecodeTypeCode(type).c_str());
+				_ERROR("Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, kSerializationVersion, DecodeTypeCode(type).c_str());
 				continue;
 			}
 
@@ -75,7 +75,7 @@ namespace
 					auto regs = OnContainerOpenAnim::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						_ERROR("[ERROR] Failed to load OnContainerOpenAnim regs!\n");
+						_ERROR("Failed to load OnContainerOpenAnim regs!\n");
 					}
 				}
 				break;
@@ -84,17 +84,17 @@ namespace
 					auto regs = OnContainerCloseAnim::GetSingleton();
 					regs->Clear();
 					if (!regs->Load(a_intfc)) {
-						_ERROR("[ERROR] Failed to load OnContainerCloseAnim regs!\n");
+						_ERROR("Failed to load OnContainerCloseAnim regs!\n");
 					}
 				}
 				break;
 			default:
-				_ERROR("[ERROR] Unrecognized record type (%s)!", DecodeTypeCode(type).c_str());
+				_ERROR("Unrecognized record type (%s)!", DecodeTypeCode(type).c_str());
 				break;
 			}
 		}
 
-		_MESSAGE("[MESSAGE] Finished loading data");
+		_MESSAGE("Finished loading data");
 	}
 
 
@@ -107,9 +107,9 @@ namespace
 			if (a_msg->dataLen == HookShare::kAPIVersionMajor) {
 				auto _RegisterForCanProcess = static_cast<RegisterForCanProcess_t*>(a_msg->data);
 				Hooks::InstallHooks(_RegisterForCanProcess);
-				_MESSAGE("[MESSAGE] Hooks registered");
+				_MESSAGE("Hooks registered");
 			} else {
-				_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
+				_FATALERROR("An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
 				LootMenu::QueueMessage(LootMenu::Message::kHookShareIncompatible);
 			}
 			break;
@@ -124,9 +124,9 @@ namespace
 			{
 				auto messaging = SKSE::GetMessagingInterface();
 				if (messaging->RegisterListener("HookShareSSE", HooksReady)) {
-					_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
+					_MESSAGE("Registered HookShareSSE listener");
 				} else {
-					_FATALERROR("[FATAL ERROR] Failed to register HookShareSSE listener!\n");
+					_FATALERROR("Failed to register HookShareSSE listener!\n");
 					LootMenu::QueueMessage(LootMenu::Message::kHookShareMissing);
 				}
 			}
@@ -135,9 +135,9 @@ namespace
 			{
 				auto dataHandler = RE::TESDataHandler::GetSingleton();
 				if (dataHandler->LookupModByName("SkyUI_SE.esp")) {
-					_MESSAGE("[MESSAGE] SkyUI is installed");
+					_MESSAGE("SkyUI is installed");
 				} else {
-					_FATALERROR("[FATAL ERROR] SkyUI is not installed!\n");
+					_FATALERROR("SkyUI is not installed!\n");
 				}
 
 				auto mm = RE::MenuManager::GetSingleton();
@@ -145,31 +145,31 @@ namespace
 				{
 					return LootMenu::GetSingleton();
 				});
-				_MESSAGE("[MESSAGE] LootMenu registered");
+				_MESSAGE("LootMenu registered");
 
 				LootMenu::GetSingleton();	// instantiate menu
-				_MESSAGE("[MESSAGE] LootMenu initialized");
+				_MESSAGE("LootMenu initialized");
 
 				ItemData::SetCompareOrder();
-				_MESSAGE("[MESSAGE] Settings applied");
+				_MESSAGE("Settings applied");
 
 				auto crosshairRefDispatcher = SKSE::GetCrosshairRefEventSource();
 				crosshairRefDispatcher->AddEventSink(Events::CrosshairRefEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Crosshair ref event handler sinked");
+				_MESSAGE("Crosshair ref event handler sinked");
 
 				auto inputManager = RE::InputManager::GetSingleton();
 				inputManager->AddEventSink(Events::InputEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Input event handler sinked");
+				_MESSAGE("Input event handler sinked");
 
 				mm->GetMenuOpenCloseEventSource()->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
+				_MESSAGE("Menu open/close event handler sinked");
 
 				auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
 				sourceHolder->combatEventSource.AddEventSink(Events::TESCombatEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Combat event handler sinked");
+				_MESSAGE("Combat event handler sinked");
 
 				sourceHolder->containerChangedEventSource.AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
-				_MESSAGE("[MESSAGE] Container changed event handler sinked");
+				_MESSAGE("Container changed event handler sinked");
 			}
 			break;
 		}
@@ -183,6 +183,7 @@ extern "C" {
 		SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
 		SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
 		SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
+		SKSE::Logger::UseLogStamp(true);
 
 		_MESSAGE("QuickLootRE v%s", QKLT_VERSION_VERSTRING);
 
@@ -191,7 +192,7 @@ extern "C" {
 		a_info->version = QKLT_VERSION_MAJOR;
 
 		if (a_skse->IsEditor()) {
-			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
+			_FATALERROR("Loaded in editor, marking as incompatible!\n");
 			return false;
 		}
 
@@ -200,7 +201,7 @@ extern "C" {
 		case RUNTIME_VERSION_1_5_80:
 			break;
 		default:
-			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
+			_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
 			return false;
 		}
 
@@ -210,37 +211,37 @@ extern "C" {
 
 	bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	{
-		_MESSAGE("[MESSAGE] QuickLootRE loaded");
+		_MESSAGE("QuickLootRE loaded");
 
 		if (!SKSE::Init(a_skse)) {
 			return false;
 		}
 
 		if (Settings::loadSettings()) {
-			_MESSAGE("[MESSAGE] Settings successfully loaded");
+			_MESSAGE("Settings successfully loaded");
 		} else {
-			_FATALERROR("[FATAL ERROR] Settings failed to load!\n");
+			_FATALERROR("Settings failed to load!\n");
 			return false;
 		}
 
 		if (g_branchTrampoline.Create(1024 * 1)) {
-			_MESSAGE("[MESSAGE] Branch trampoline creation successful");
+			_MESSAGE("Branch trampoline creation successful");
 		} else {
-			_FATALERROR("[FATAL ERROR] Branch trampoline creation failed!\n");
+			_FATALERROR("Branch trampoline creation failed!\n");
 			return false;
 		}
 
 		auto messaging = SKSE::GetMessagingInterface();
 		if (messaging->RegisterListener("SKSE", MessageHandler)) {
-			_MESSAGE("[MESSAGE] Registered SKSE listener");
+			_MESSAGE("Registered SKSE listener");
 		} else {
-			_FATALERROR("[FATAL ERROR] Failed to register SKSE listener!\n");
+			_FATALERROR("Failed to register SKSE listener!\n");
 			return false;
 		}
 
 		auto papyrus = SKSE::GetPapyrusInterface();
 		if (!papyrus->Register(QuickLoot::RegisterFuncs, Temporary::CrosshairHook::RegisterFuncs)) {
-			_FATALERROR("[FATAL ERROR] Failed to register papyrus reg callback!\n");
+			_FATALERROR("Failed to register papyrus reg callback!\n");
 			return false;
 		}
 

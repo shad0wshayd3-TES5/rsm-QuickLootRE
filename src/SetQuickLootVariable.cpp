@@ -44,9 +44,9 @@ void SetQuickLootVariable::Register()
 		info->execute = &Exec;
 		info->eval = 0;
 
-		_DMESSAGE("[DEBUG] Registered console command: %s (%s)", info->longName, info->shortName);
+		_DMESSAGE("Registered console command: %s (%s)", info->longName, info->shortName);
 	} else {
-		_ERROR("[ERROR] Failed to register console command!\n");
+		_ERROR("Failed to register console command!\n");
 	}
 }
 

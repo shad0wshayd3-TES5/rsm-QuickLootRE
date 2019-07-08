@@ -30,14 +30,14 @@ namespace Temporary
 	{
 		REL::Offset<std::uintptr_t> target(0x006B0570 + 0x90);	// 1_5_80
 		g_branchTrampoline.Write5Call(target.GetAddress(), unrestricted_cast<std::uintptr_t>(&LookupCrosshairRefByHandle));
-		_DMESSAGE("[DEBUG] Installed fix for crosshair ref dispatch");
+		_DMESSAGE("Installed fix for crosshair ref dispatch");
 	}
 
 
 	bool CrosshairHook::RegisterFuncs(RE::BSScript::Internal::VirtualMachine* a_vm)
 	{
 		a_vm->RegisterFunction("GetCurrentCrosshairRef", "Game", GetCurrentCrosshairRef);
-		_DMESSAGE("[DEBUG] Hooked Game.GetCurrentCrosshairRef");
+		_DMESSAGE("Hooked Game.GetCurrentCrosshairRef");
 		return true;
 	}
 
