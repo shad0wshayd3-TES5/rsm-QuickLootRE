@@ -1,5 +1,6 @@
 ﻿class ButtonPanel extends MovieClip
 {
+	// STAGE ELMENTS
 	public var icon: MovieClip;
 	public var name: TextField;
 	

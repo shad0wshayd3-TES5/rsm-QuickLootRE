@@ -328,5 +328,7 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
 *.swf
+*.swd
 swf/RECOVER_LootMenu.fla

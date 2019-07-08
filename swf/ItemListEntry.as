@@ -9,6 +9,8 @@ class ItemListEntry extends BasicListEntry
 	private var _iconLabel: String;
 	private var _iconSource: String;
 	
+	// CONSTANTS
+	static var ICON_SPACING: Number = 6;
 
 	// STAGE ELMENTS
   	public var itemIcon: MovieClip;
@@ -81,19 +83,19 @@ class ItemListEntry extends BasicListEntry
 		stolenIcon._visible = (a_entryObject.isStolen != undefined && a_entryObject.isStolen);
 		if (stolenIcon._visible) {
 			stolenIcon._x = iconPosX;
-			iconPosX += stolenIcon._width + 2;
+			iconPosX += stolenIcon._width + ICON_SPACING;
 		}
 		
 		enchantIcon._visible = (a_entryObject.isEnchanted != undefined && a_entryObject.isEnchanted);
 		if (enchantIcon._visible) {
 			enchantIcon._x = iconPosX;
-			iconPosX += enchantIcon._width + 2;
+			iconPosX += enchantIcon._width + ICON_SPACING;
 		}
 		
 		readIcon._visible = (a_entryObject.isRead != undefined && a_entryObject.isRead);
 		if (readIcon._visible) {
 			readIcon._x = iconPosX;
-			iconPosX += readIcon._width + 2;
+			iconPosX += readIcon._width + ICON_SPACING;
 		}
 		
 		pickPocketChance.autoSize = "right";

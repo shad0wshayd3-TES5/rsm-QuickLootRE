@@ -5,7 +5,7 @@ import ButtonPanel;
 
 class LootMenu extends MovieClip
 {
-	// stage elements
+	// STAGE ELMENTS
 	public var background: MovieClip;
 	public var itemList: ScrollingList;
 	public var titleText: TextField;
@@ -61,8 +61,8 @@ class LootMenu extends MovieClip
 		itemList.clearList();
 		itemList.listEnumeration = new BasicEnumeration(itemList.entryList);
 		for (var i = 0; i < a_items.length; i++) {
-			var entry = a_items[i]
-			itemList.entryList.push(entry)
+			var entry = a_items[i];
+			itemList.entryList.push(entry);
 		}
 		itemList.InvalidateData();
 		_visible = true;
@@ -90,13 +90,13 @@ class LootMenu extends MovieClip
 			case 0:
 				background.gotoAndStop("Default");
 				itemList.scrollbar._x = itemList.width - itemList.scrollbar.width;
-				itemList.leftBorder = 0
-				break
+				itemList.leftBorder = 0;
+				break;
 			case 1:
 				background.gotoAndStop("Dialogue");
 				itemList.scrollbar._x = 0;
 				itemList.leftBorder += itemList.scrollbar.width;
-				break
+				break;
 		};
 	}
 
