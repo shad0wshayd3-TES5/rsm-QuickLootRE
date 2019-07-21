@@ -460,7 +460,7 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 	case RE::FormType::Activator:
 		{
 			RE::RefHandle refHandle = 0;
-			if (a_ref->extraData.GetAshPileRefHandle(refHandle) && refHandle != *g_invalidRefHandle) {
+			if (a_ref->extraData.GetAshPileRefHandle(refHandle)) {
 				RE::TESObjectREFRPtr refPtr;
 				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
 					containerRef = refPtr.get();

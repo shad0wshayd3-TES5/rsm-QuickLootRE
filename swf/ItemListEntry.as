@@ -49,9 +49,7 @@ class ItemListEntry extends BasicListEntry
 	{
 		var isAssigned = a_entryObject == a_state.assignedEntry;
 		var isSelected = a_entryObject == a_state.list.selectedEntry || isAssigned;
-		
-		var groupIndex = a_state.activeGroupIndex;
-		
+				
 		enabled = a_state.assignedEntry == null || isAssigned;
 		_alpha = enabled ? 100 : 25;
 		

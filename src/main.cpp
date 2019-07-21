@@ -161,14 +161,14 @@ namespace
 				inputManager->AddEventSink(Events::InputEventHandler::GetSingleton());
 				_MESSAGE("Input event handler sinked");
 
-				mm->GetMenuOpenCloseEventSource()->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
+				mm->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
 				_MESSAGE("Menu open/close event handler sinked");
 
 				auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-				sourceHolder->combatEventSource.AddEventSink(Events::TESCombatEventHandler::GetSingleton());
+				sourceHolder->AddEventSink(Events::TESCombatEventHandler::GetSingleton());
 				_MESSAGE("Combat event handler sinked");
 
-				sourceHolder->containerChangedEventSource.AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
+				sourceHolder->AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
 				_MESSAGE("Container changed event handler sinked");
 			}
 			break;

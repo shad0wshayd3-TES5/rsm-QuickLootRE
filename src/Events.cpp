@@ -65,10 +65,10 @@ namespace Events
 		using DeviceType = RE::DeviceType;
 		using Message = RE::UIMessage::Message;
 
-		auto event = *a_event;
-		if (!event) {
+		if (!a_event || !*a_event) {
 			return EventResult::kContinue;
 		}
+		auto event = *a_event;
 
 		auto loot = LootMenu::GetSingleton();
 		if (loot->IsOpen()) {
