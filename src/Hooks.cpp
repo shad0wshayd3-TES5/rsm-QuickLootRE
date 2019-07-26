@@ -23,7 +23,7 @@
 
 namespace
 {
-	template <ControlID controlID, class Op>
+	template <ControlID CONTROLID, class Op>
 	class PlayerInputHandler
 	{
 	public:
@@ -47,7 +47,7 @@ namespace
 			}
 
 			if (loot->IsVisible()) {
-				if (button->IsDown() && button->GetControlID() == GetControlID(controlID)) {  // Must be IsDown, otherwise might process input received from another context
+				if (button->IsDown() && button->GetControlID() == GetControlID(CONTROLID)) {  // Must be IsDown, otherwise might process input received from another context
 					_op();
 				}
 				return result_type::kFalse;
@@ -317,10 +317,8 @@ namespace
 	}
 
 
-	RE::BSFixedString& GetControlID(ControlID a_controlID)
+	const RE::BSFixedString& GetControlID(ControlID a_controlID)
 	{
-		static RE::BSFixedString emptyStr = "";
-
 		auto strHolder = RE::InputStringHolder::GetSingleton();
 		switch (a_controlID) {
 		case ControlID::kActivate:
@@ -348,9 +346,9 @@ namespace
 			return strHolder->favorites;
 		default:
 			_ERROR("Invalid control ID (%i)\n", a_controlID);
-			[[fallthrough]] ;
+			[[fallthrough]];
 		case ControlID::kNone:
-			return emptyStr;
+			return "";
 		}
 	}
 

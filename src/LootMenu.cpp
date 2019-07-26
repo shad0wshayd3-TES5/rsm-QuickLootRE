@@ -70,6 +70,10 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 	if (IsOpen() && a_event->eventType == EventType::kButton) {
 		auto button = static_cast<RE::ButtonEvent*>(a_event);
 
+		if (button->IsUp()) {
+			return false;
+		}
+
 		auto& controlID = a_event->GetControlID();
 		auto strHolder = RE::InputStringHolder::GetSingleton();
 		if (controlID == strHolder->sneak) {
@@ -104,36 +108,44 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 	using Gamepad = RE::BSWin32GamepadDevice::Key;
 	using Mouse = RE::BSWin32MouseDevice::Key;
 
-	if (!a_event->IsDown()) {
-		return true;
-	}
-
 	auto& controlID = a_event->GetControlID();
 	auto strHolder = RE::InputStringHolder::GetSingleton();
-	if (controlID == strHolder->sneak) {
-		Close();
-		SkipNextInput();
-		auto player = RE::PlayerCharacter::GetSingleton();
-		if (CanOpen(_containerRef, !player->IsSneaking())) {
-			Open();
-		}
-		return true;
-	}
-
 	ControlMethod inputMethod;
+
 	switch (a_event->deviceType) {
 	case DeviceType::kGamepad:
-		inputMethod = ControlMethod::kController;
-		switch (static_cast<Gamepad>(a_event->keyMask)) {
-		case Gamepad::kUp:
-			ModSelectedIndex(-1);
-			break;
-		case Gamepad::kDown:
-			ModSelectedIndex(1);
-			break;
+		{
+			bool ret;
+			if (a_event->timer == 0.0) {
+				ResetInputTimer();
+				ret = false;
+			} else {
+				if (!MeetsInputThreshold(a_event->timer)) {
+					return true;
+				}
+				ret = true;
+			}
+
+			inputMethod = ControlMethod::kController;
+			switch (static_cast<Gamepad>(a_event->keyMask)) {
+			case Gamepad::kUp:
+				ModSelectedIndex(-1);
+				break;
+			case Gamepad::kDown:
+				ModSelectedIndex(1);
+				break;
+			}
+
+			if (ret) {
+				return true;
+			}
 		}
 		break;
 	case DeviceType::kMouse:
+		if (!a_event->IsDown()) {
+			return true;
+		}
+
 		inputMethod = ControlMethod::kPC;
 		switch (Mouse(a_event->keyMask)) {
 		case Mouse::kWheelUp:
@@ -145,6 +157,10 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		}
 		break;
 	case DeviceType::kKeyboard:
+		if (!a_event->IsDown()) {
+			return true;
+		}
+
 		inputMethod = ControlMethod::kPC;
 		if (controlID == strHolder->zoomIn) {
 			ModSelectedIndex(-1);
@@ -152,6 +168,16 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 			ModSelectedIndex(1);
 		}
 		break;
+	}
+
+	if (controlID == strHolder->sneak) {
+		Close();
+		SkipNextInput();
+		auto player = RE::PlayerCharacter::GetSingleton();
+		if (CanOpen(_containerRef, !player->IsSneaking())) {
+			Open();
+		}
+		return true;
 	}
 
 	if (_controlMethod != inputMethod) {
@@ -588,13 +614,14 @@ void LootMenu::ParseInventory()
 
 
 LootMenu::LootMenu(const char* a_swfPath) :
-	_containerRef(0),
 	_invList(),
 	_actiText(""),
+	_containerRef(0),
 	_controlMethod(ControlMethod::kPC),
 	_selectedIndex(0),
 	_displaySize(0),
 	_skipInputCount(0),
+	_lastInputTimer(0.0),
 	_isContainerOpen(false),
 	_isMenuOpen(false),
 	_canProcessInvChanges(false),
@@ -979,7 +1006,7 @@ bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& 
 
 	auto target = static_cast<RE::Actor*>(_containerRef);
 	auto player = RE::PlayerCharacter::GetSingleton();
-	auto pickSuccess = player->TryToPickPocket(target, a_item.GetEntryData(), a_item.GetCount(), true);
+	auto pickSuccess = player->TryToPickPocket(target, a_item.GetEntryData(), a_item.GetCount());
 	player->PlayPickupEvent(a_item.GetEntryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
 	a_lootMode = RemoveType::kSteal;
 	if (!pickSuccess) {
@@ -1011,6 +1038,23 @@ UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType) const
 bool LootMenu::IsEnabled() const
 {
 	return _isEnabled;
+}
+
+
+void LootMenu::ResetInputTimer()
+{
+	_lastInputTimer = 0.5;
+}
+
+
+bool LootMenu::MeetsInputThreshold(float a_timer)
+{
+	if (a_timer > _lastInputTimer + INPUT_THRESHOLD) {
+		_lastInputTimer += INPUT_THRESHOLD;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 

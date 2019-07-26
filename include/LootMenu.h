@@ -134,6 +134,11 @@ protected:
 	void DispellWornItemEnchantments() const;
 	UInt32 GetSingleLootKey(RE::DeviceType a_deviceType) const;
 	bool IsEnabled() const;
+	void ResetInputTimer();
+	bool MeetsInputThreshold(float a_timer);
+
+
+	static constexpr float INPUT_THRESHOLD = 0.11;
 
 
 	static LootMenu* _singleton;
@@ -142,13 +147,14 @@ protected:
 	static std::string _takeAllMapping;
 	static std::string _searchMapping;
 	static std::queue<const char*> _messageQueue;
-	RE::TESObjectREFR* _containerRef;
 	InventoryList _invList;
 	std::string _actiText;
+	RE::TESObjectREFR* _containerRef;
 	ControlMethod _controlMethod;
 	SInt32 _selectedIndex;
 	SInt32 _displaySize;
 	SInt32 _skipInputCount;
+	float _lastInputTimer;
 	bool _isContainerOpen;
 	bool _isMenuOpen;
 	bool _canProcessInvChanges;
