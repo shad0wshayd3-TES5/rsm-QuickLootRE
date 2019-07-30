@@ -1,4 +1,4 @@
-#include "settings.h"
+#include "Settings.h"
 
 
 bool Settings::loadSettings(bool a_dumpParse)
