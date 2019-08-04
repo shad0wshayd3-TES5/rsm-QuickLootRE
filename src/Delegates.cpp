@@ -72,7 +72,7 @@ void SetSelectedIndexDelegate::Run()
 
 	args[kIdx].SetNumber(_idx);
 
-	loot->view->Invoke("_root.Menu_mc.SetSelectedIndex", 0, args, kTotal);
+	loot->view->Invoke("_root.Menu_mc.setSelectedIndex", 0, args, kTotal);
 }
 
 
@@ -108,7 +108,7 @@ void SetupDelegate::Run()
 	args[kScale].SetNumber(scale);
 	args[kOpacity].SetNumber(opacity);
 
-	loot->view->Invoke("_root.Menu_mc.Setup", 0, args, kTotal);
+	loot->view->Invoke("_root.Menu_mc.setup", 0, args, kTotal);
 }
 
 
@@ -145,7 +145,7 @@ void SetContainerDelegate::Run()
 	args[kSearch].SetString(searchText);
 	args[kSelectedIndex].SetNumber(_selectedIndex);
 
-	loot->view->Invoke("_root.Menu_mc.SetContainer", 0, args, kTotal);
+	loot->view->Invoke("_root.Menu_mc.setContainer", 0, args, kTotal);
 }
 
 
@@ -206,7 +206,7 @@ void OpenContainerDelegate::Run()
 			RE::TESObjectREFRPtr caster(RE::PlayerCharacter::GetSingleton());
 			sourceHolder->SendActivateEvent(target, caster);
 		}
-		loot->view->Invoke("_root.Menu_mc.OpenContainer", 0, args, kTotal);
+		loot->view->Invoke("_root.Menu_mc.openContainer", 0, args, kTotal);
 	}
 
 #if ITEM_DATA_DEBUG_ENABLED
@@ -243,7 +243,7 @@ void OpenContainerDelegate::DebugContents()
 void CloseContainerDelegate::Run()
 {
 	auto loot = LootMenu::GetSingleton();
-	loot->view->Invoke("_root.Menu_mc.CloseContainer", 0, 0, 0);
+	loot->view->Invoke("_root.Menu_mc.closeContainer", 0, 0, 0);
 }
 
 
@@ -267,7 +267,7 @@ void UpdateButtonIconsDelegate::Run()
 	args[kTakeAll].SetNumber(_takeAll);
 	args[kSearch].SetNumber(_search);
 
-	loot->view->Invoke("_root.Menu_mc.UpdateButtonIcons", 0, args, kTotal);
+	loot->view->Invoke("_root.Menu_mc.updateButtonIcons", 0, args, kTotal);
 }
 
 
@@ -291,7 +291,7 @@ void SetVisibleButtonsDelegate::Run()
 	args[kTakeAll].SetBoolean(_takeAll);
 	args[kSearch].SetBoolean(_search);
 
-	loot->view->Invoke("_root.Menu_mc.SetVisibleButtons", 0, args, kTotal);
+	loot->view->Invoke("_root.Menu_mc.setVisibleButtons", 0, args, kTotal);
 }
 
 
@@ -307,7 +307,7 @@ void SwitchStyleDelegate::Run()
 	args[kStyle].SetNumber(_style);
 
 	auto loot = LootMenu::GetSingleton();
-	loot->view->Invoke("_root.Menu_mc.SwitchStyle", 0, args, kTotal);
+	loot->view->Invoke("_root.Menu_mc.switchStyle", 0, args, kTotal);
 }
 
 

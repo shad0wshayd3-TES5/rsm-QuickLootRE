@@ -16,14 +16,24 @@ intrinsic class Selection
 	
 	// scaleform extensions
 	
+	/*
 	static var alwaysEnableArrowKeys:Boolean;
+	static var alwaysEnableKeyboardPress:Boolean;
 	static var disableFocusAutoRelease:Boolean;
 	static var disableFocusKeys:Boolean;
 	static var disableFocusRolloverEvent:Boolean;
+	static var modalClip:MovieClip;
 	static var numFocusGroups:Number;
-	static var alwaysEnableKeyboardPress:Boolean;
-	static function getControllerMaskByFocusGroup(focusGroupIdx:Number):Number;
+	
+	static function captureFocus([doCapture:Boolean, controllerIdx:Number]):Void;
+	static function moveFocus(keyToSimmulate:String [, startFromMovie:Object, includeFocusEnabledChars:Boolean = false, controllerIdx:Number]):Object;
+	static function findFocus(keyToSimmulate:String [, parentMovie:Object, loop:Boolean, startFromMovie:Object, includeFocusEnabledChars:Boolean, controllerIndex:Number]):Object;
+	static function setModalClip(modalClip:Object, controllerIndex:Number):Void;
+	static function getModalClip(controllerIndex:Number):Object;
+	static function setControllerFocusGroup(controllerIndex:Number, focusGroupIdx:Number):Boolean;
 	static function getControllerFocusGroup(controllerIndex:Number):Number;
-	static function findFocus(keyToSimulate:String, parentMovie:Object, loop:Boolean, startFromMovie:Object, includeFocusEnabledChars:Boolean, controllerIndex:Number):Object;
+	static function getFocusArray(mc:Object):Array;
 	static function getFocusBitmask(mc:Object):Number;
+	static function getControllerMaskByFocusGroup(focusGroupIdx:Number):Number;
+	*/
 }

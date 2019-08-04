@@ -1,18 +1,20 @@
-﻿import skyui.components.list.ScrollingList;
-import skyui.components.list.ListState;
+﻿import skyui.components.list.ListState;
 import skyui.components.list.BasicListEntry;
 
 
 class ItemListEntry extends BasicListEntry
 {
-	// PRIVATE VARIABLES
+	/* PRIVATE VARIABLES */
+	
 	private var _iconLabel: String;
 	private var _iconSource: String;
 	
-	// CONSTANTS
+	/* CONSTANTS */
+	
 	static var ICON_SPACING: Number = 6;
 
-	// STAGE ELMENTS
+	/* STAGE ELMENTS */
+	
   	public var itemIcon: MovieClip;
 	public var stolenIcon: MovieClip;
 	public var enchantIcon: MovieClip;
@@ -23,13 +25,13 @@ class ItemListEntry extends BasicListEntry
 
 
 	// @override BasicListEntry
-	public function initialize(a_index:Number, a_state:ListState): Void
+	public function initialize(a_index:Number, a_state:ListState):Void
 	{
 		super.initialize();
 
 		_iconSource = "skyui/icons_item_psychosteve.swf";
 
-		var iconLoader = new MovieClipLoader();
+		var iconLoader:MovieClipLoader = new MovieClipLoader();
 		iconLoader.addListener(this);
 		iconLoader.loadClip(_iconSource, itemIcon);
 		
@@ -38,17 +40,17 @@ class ItemListEntry extends BasicListEntry
 	
 
 	// @implements MovieClipLoader
-	private function onLoadInit(a_icon:MovieClip): Void
+	private function onLoadInit(a_icon:MovieClip):Void
 	{
 		a_icon.gotoAndStop(_iconLabel);
 	}
 	
 	
 	// @override BasicListEntry
-	public function setEntry(a_entryObject:Object, a_state:ListState): Void
+	public function setEntry(a_entryObject:Object, a_state:ListState):Void
 	{
-		var isAssigned = a_entryObject == a_state.assignedEntry;
-		var isSelected = a_entryObject == a_state.list.selectedEntry || isAssigned;
+		var isAssigned:Boolean = a_entryObject == a_state.assignedEntry;
+		var isSelected:Boolean = a_entryObject == a_state.list.selectedEntry || isAssigned;
 				
 		enabled = a_state.assignedEntry == null || isAssigned;
 		_alpha = enabled ? 100 : 25;
@@ -62,7 +64,7 @@ class ItemListEntry extends BasicListEntry
 		if (a_entryObject.text == undefined) {
 			textField.text = " ";
 		} else {
-			var text = a_entryObject.text;
+			var text:String = a_entryObject.text;
 			
 			if (a_entryObject.count > 1) {
 				text += " (" + a_entryObject.count.toString() + ")";
@@ -76,7 +78,7 @@ class ItemListEntry extends BasicListEntry
 			}
 		}
 
-		var iconPosX = textField._x + textField._width + 6;
+		var iconPosX:Number = textField._x + textField._width + 6;
 		
 		stolenIcon._visible = (a_entryObject.isStolen != undefined && a_entryObject.isStolen);
 		if (stolenIcon._visible) {
@@ -100,7 +102,7 @@ class ItemListEntry extends BasicListEntry
 		if (a_entryObject.itemChance < 0){
 			pickPocketChance.text = "";
 		} else {
-			var chance = a_entryObject.itemChance.toString();
+			var chance:String = a_entryObject.itemChance.toString();
 			chance += "%";
 			pickPocketChance.text = chance;
 		}
@@ -110,7 +112,7 @@ class ItemListEntry extends BasicListEntry
 		_iconLabel = a_entryObject.iconLabel != undefined ? a_entryObject.iconLabel : "default_misc";
 		itemIcon.gotoAndStop(_iconLabel);
 	
-		var iconAlpha = isSelected ? 90 : 50;
+		var iconAlpha:Number = isSelected ? 90 : 50;
 		itemIcon._alpha = iconAlpha;
 	}
 }

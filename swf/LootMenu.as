@@ -5,7 +5,8 @@ import ButtonPanel;
 
 class LootMenu extends MovieClip
 {
-	// STAGE ELMENTS
+	/* STAGE ELMENTS */
+	
 	public var background: MovieClip;
 	public var itemList: ScrollingList;
 	public var titleText: TextField;
@@ -28,7 +29,7 @@ class LootMenu extends MovieClip
 	}
 	
 
-	public function Setup(a_positionX:Number, a_positionY:Number, a_scale:Number, a_opacity:Number): Void
+	public function setup(a_positionX:Number, a_positionY:Number, a_scale:Number, a_opacity:Number):Void
 	{
 		if (0 <= a_positionX) {
 			_x = a_positionX;
@@ -56,12 +57,12 @@ class LootMenu extends MovieClip
 	}
 	
 	
-	public function OpenContainer(a_items:Array): Void
+	public function openContainer(a_items:Array):Void
 	{
 		itemList.clearList();
 		itemList.listEnumeration = new BasicEnumeration(itemList.entryList);
-		for (var i = 0; i < a_items.length; i++) {
-			var entry = a_items[i];
+		for (var i:Number = 0; i < a_items.length; i++) {
+			var entry:Object = a_items[i];
 			itemList.entryList.push(entry);
 		}
 		itemList.InvalidateData();
@@ -69,22 +70,22 @@ class LootMenu extends MovieClip
 	}
 	
 	
-	public function CloseContainer(): Void
+	public function closeContainer():Void
 	{
 		itemList.clearList();
 		_visible = false;
 	}
 
 
-	public function UpdateButtonIcons(a_take:Number, a_takeAll:Number, a_search:Number): Void
+	public function updateButtonIcons(a_take:Number, a_takeAll:Number, a_search:Number):Void
 	{
-		buttonTake.UpdateButtonIcon(a_take);
-		buttonTakeAll.UpdateButtonIcon(a_takeAll);
-		buttonSearch.UpdateButtonIcon(a_search);
+		buttonTake.updateButtonIcon(a_take);
+		buttonTakeAll.updateButtonIcon(a_takeAll);
+		buttonSearch.updateButtonIcon(a_search);
 	}
 
 
-	public function SwitchStyle(a_style:Number): Void
+	public function switchStyle(a_style:Number):Void
 	{
 		switch(a_style) {
 			case 0:
@@ -101,28 +102,28 @@ class LootMenu extends MovieClip
 	}
 
 
-	public function SetContainer(a_title:String, a_take:String, a_takeAll:String, a_search:String, a_selectedIndex:Number): Void
+	public function setContainer(a_title:String, a_take:String, a_takeAll:String, a_search:String, a_selectedIndex:Number):Void
 	{
 		itemList.selectedIndex = a_selectedIndex;
 		
 		titleText.htmlText = a_title;
 		
-		buttonTake.SetButtonText(a_take);
-		buttonTakeAll.SetButtonText(a_takeAll);
-		buttonSearch.SetButtonText(a_search);
+		buttonTake.setButtonText(a_take);
+		buttonTakeAll.setButtonText(a_takeAll);
+		buttonSearch.setButtonText(a_search);
 	}
 
 
-	public function SetSelectedIndex(a_idx:Number): Void
+	public function setSelectedIndex(a_idx:Number):Void
 	{
 		itemList.selectedIndex = a_idx;
 	}
 	
 	
-	public function SetVisibleButtons(a_take:Boolean, a_takeAll:Boolean, a_search:Boolean): Void
+	public function setVisibleButtons(a_take:Boolean, a_takeAll:Boolean, a_search:Boolean):Void
 	{
-		buttonTake.SetVisible(a_take);
-		buttonTakeAll.SetVisible(a_takeAll);
-		buttonSearch.SetVisible(a_search);
+		buttonTake.setVisible(a_take);
+		buttonTakeAll.setVisible(a_takeAll);
+		buttonSearch.setVisible(a_search);
 	}
 }

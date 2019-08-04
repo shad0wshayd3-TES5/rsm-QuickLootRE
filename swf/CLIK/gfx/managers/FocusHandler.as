@@ -1,4 +1,4 @@
-dynamic class gfx.managers.FocusHandler
+﻿dynamic class gfx.managers.FocusHandler
 {
 	static var _instance = gfx.managers.FocusHandler.instance;
 	var inited: Boolean = false;
@@ -10,10 +10,10 @@ dynamic class gfx.managers.FocusHandler
 	{
 		Selection.addListener(this);
 		_global.gfxExtensions = 1;
-		Selection.alwaysEnableArrowKeys = true;
-		Selection.disableFocusKeys = true;
-		Selection.disableFocusAutoRelease = true;
-		Selection.disableFocusRolloverEvent = true;
+		Selection["alwaysEnableArrowKeys"] = true;
+		Selection["disableFocusKeys"] = true;
+		Selection["disableFocusAutoRelease"] = true;
+		Selection["disableFocusRolloverEvent"] = true;
 		_root._focusrect = false;
 		this.currentFocusLookup = [];
 		this.actualFocusLookup = [];
@@ -57,7 +57,7 @@ dynamic class gfx.managers.FocusHandler
 			currentFocus.focused = currentFocus.focused | (1 << focusIdx);
 		}
 		if (actualFocus != currentFocus && !(actualFocus instanceof TextField)) {
-			var controllerMask: Number = Selection.getControllerMaskByFocusGroup(focusIdx);
+			var controllerMask: Number = Selection["getControllerMaskByFocusGroup"](focusIdx);
 
 			for(var i: Number = 0; i < System.capabilities.numControllers; i++) {
 				var controllerHasIdx: Boolean = (controllerMask >> i & 0x1) != 0;
@@ -71,7 +71,7 @@ dynamic class gfx.managers.FocusHandler
 	function handleInput(event: Object): Void
 	{
 		var controllerIdx: Number = event.details.controllerIdx;
-		var focusIdx: Number = Selection.getControllerFocusGroup(controllerIdx);
+		var focusIdx: Number = Selection["getControllerFocusGroup"](controllerIdx);
 		var path: Array = getPathToFocus(focusIdx);
 		if (path.length == 0 || path[0].handleInput == null || path[0].handleInput(event.details, path.slice(1)) != true) {
 			if (event.details.value != "keyUp") {
@@ -98,7 +98,7 @@ dynamic class gfx.managers.FocusHandler
 					} else {
 						focusContext = null;
 					}
-					var newFocus: Object = Selection.findFocus(nav, focusContext, focusMode == "loop", null, false, controllerIdx);
+					var newFocus: Object = Selection["findFocus"](nav, focusContext, focusMode == "loop", null, false, controllerIdx);
 					if (newFocus) {
 						Selection.setFocus(newFocus, controllerIdx);
 					}
@@ -133,7 +133,7 @@ dynamic class gfx.managers.FocusHandler
 		{
 			return undefined;
 		}
-		var __reg2 = Selection.getControllerFocusGroup(controllerIdx);
+		var __reg2 = Selection["getControllerFocusGroup"](controllerIdx);
 		var __reg6 = this.actualFocusLookup[__reg2];
 		if (__reg6 == newFocus) 
 		{
@@ -151,7 +151,7 @@ dynamic class gfx.managers.FocusHandler
 	function textFieldHandleInput(nav, controllerIdx)
 	{
 		var __reg3 = Selection.getCaretIndex(controllerIdx);
-		var __reg4 = Selection.getControllerFocusGroup(controllerIdx);
+		var __reg4 = Selection["getControllerFocusGroup"](controllerIdx);
 		var __reg2 = this.actualFocusLookup[__reg4];
 		if ((__reg0 = nav) === gfx.ui.NavigationCode.UP) 
 		{

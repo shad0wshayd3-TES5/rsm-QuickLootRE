@@ -1,5 +1,7 @@
 #include "InventoryList.h"
 
+#include "skse64/GameReferences.h"
+
 #include <algorithm>  // sort
 #include <map>
 #include <vector>

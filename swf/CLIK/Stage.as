@@ -3,6 +3,7 @@
 // Stage object 
 //****************************************************************************
 
+import flash.geom.Point;
 import flash.geom.Rectangle;
 
 intrinsic class Stage
@@ -26,4 +27,7 @@ intrinsic class Stage
 	// scaleform extensions
 	static var visibleRect:Rectangle;
 	static var safeRect:Rectangle;
+	static var originalRect:Rectangle;
+	
+	function translateToScreen(pt:Object):Point;
 }

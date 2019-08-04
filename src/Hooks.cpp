@@ -319,6 +319,8 @@ namespace
 
 	const RE::BSFixedString& GetControlID(ControlID a_controlID)
 	{
+		static const RE::BSFixedString NONE("");
+
 		auto strHolder = RE::InputStringHolder::GetSingleton();
 		switch (a_controlID) {
 		case ControlID::kActivate:
@@ -348,7 +350,7 @@ namespace
 			_ERROR("Invalid control ID (%i)\n", a_controlID);
 			[[fallthrough]];
 		case ControlID::kNone:
-			return "";
+			return NONE;
 		}
 	}
 

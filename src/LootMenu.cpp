@@ -192,7 +192,7 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 LootMenu* LootMenu::GetSingleton()
 {
 	if (!_singleton) {
-		_singleton = new LootMenu(LootMenu::GetName().c_str());
+		_singleton = new LootMenu();
 	}
 	return _singleton;
 }
@@ -204,13 +204,6 @@ void LootMenu::Free()
 		_singleton->Release();
 		_singleton = 0;
 	}
-}
-
-
-const RE::BSFixedString& LootMenu::GetName()
-{
-	static RE::BSFixedString name = "LootMenu";
-	return name;
 }
 
 
@@ -402,7 +395,7 @@ void LootMenu::Open() const
 {
 	if (_isEnabled) {
 		auto uiManager = RE::UIManager::GetSingleton();
-		uiManager->AddMessage(GetName(), RE::UIMessage::Message::kOpen, 0);
+		uiManager->AddMessage(Name(), RE::UIMessage::Message::kOpen, 0);
 	}
 }
 
@@ -410,7 +403,7 @@ void LootMenu::Open() const
 void LootMenu::Close() const
 {
 	auto uiManager = RE::UIManager::GetSingleton();
-	uiManager->AddMessage(GetName(), RE::UIMessage::Message::kClose, 0);
+	uiManager->AddMessage(Name(), RE::UIMessage::Message::kClose, 0);
 }
 
 
@@ -613,7 +606,7 @@ void LootMenu::ParseInventory()
 }
 
 
-LootMenu::LootMenu(const char* a_swfPath) :
+LootMenu::LootMenu() :
 	_invList(),
 	_actiText(""),
 	_containerRef(0),
@@ -633,7 +626,7 @@ LootMenu::LootMenu(const char* a_swfPath) :
 	using Flag = RE::IMenu::Flag;
 
 	auto loader = RE::GFxLoader::GetSingleton();
-	if (loader->LoadMovie(this, view, a_swfPath, ScaleModeType::kShowAll, 0.0)) {
+	if (loader->LoadMovie(this, view, SWF_NAME, ScaleModeType::kShowAll, 0.0)) {
 		flags = Flag::kDoNotDeleteOnClose | Flag::kDoNotPreventGameSave;
 		context = Context::kInventory;
 	}
@@ -756,8 +749,8 @@ void LootMenu::GetGamepadButtonID(UInt32& a_key, const std::string_view& a_mappi
 		a_key = 1;
 		break;
 	case Key::kLeft:
-		break;
 		a_key = 2;
+		break;
 	case Key::kRight:
 		a_key = 3;
 		break;

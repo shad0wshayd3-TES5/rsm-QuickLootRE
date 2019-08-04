@@ -1,11 +1,8 @@
-﻿import gfx.events.EventDispatcher;
-import gfx.ui.NavigationCode;
+﻿import gfx.ui.NavigationCode;
 import gfx.ui.InputDetails;
 import Shared.GlobalFunc;
 
-import skyui.components.list.EntryClipManager;
 import skyui.components.list.BasicList;
-import skyui.filter.IFilter;
 
 
 class skyui.components.list.ScrollingList extends BasicList
@@ -186,7 +183,7 @@ class skyui.components.list.ScrollingList extends BasicList
 			
 		// Select entry under the cursor for mouse-driven navigation
 		if (isMouseDrivenNav)
-			for (var e = Mouse.getTopMostEntity(); e != undefined; e = e._parent)
+			for (var e = Mouse["getTopMostEntity"](); e != undefined; e = e._parent)
 				if (e._parent == this && e._visible && e.itemIndex != undefined)
 					doSetSelectedIndex(e.itemIndex, SELECT_MOUSE);
 					
@@ -297,7 +294,7 @@ class skyui.components.list.ScrollingList extends BasicList
 		if (disableInput)
 			return;
 			
-		for (var target = Mouse.getTopMostEntity(); target && target != undefined; target = target._parent) {
+		for (var target = Mouse["getTopMostEntity"](); target && target != undefined; target = target._parent) {
 			if (target == this) {
 				if (a_delta < 0)
 					scrollPosition = scrollPosition + scrollDelta;

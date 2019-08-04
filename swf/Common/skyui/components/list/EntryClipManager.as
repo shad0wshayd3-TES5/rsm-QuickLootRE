@@ -1,5 +1,4 @@
 ﻿import skyui.components.list.BasicList;
-import skyui.components.list.IEntryClipBuilder;
 
 
 class skyui.components.list.EntryClipManager

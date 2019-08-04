@@ -54,7 +54,7 @@ public:
 
 	static LootMenu* GetSingleton();
 	static void Free();
-	static const RE::BSFixedString&	GetName();
+	static constexpr std::string_view Name();
 	static const char* GetSingleLootMapping();
 	static void SetSingleLootMapping(const char* a_singLootMapping);
 	static const char* GetTakeMapping();
@@ -108,10 +108,9 @@ protected:
 	};
 
 
-	LootMenu() = delete;
+	LootMenu();
 	LootMenu(const LootMenu&) = delete;
 	LootMenu(LootMenu&&) = delete;
-	explicit LootMenu(const char* a_swfPath);
 	virtual ~LootMenu();
 
 	LootMenu& operator=(const LootMenu&) = delete;
@@ -139,6 +138,7 @@ protected:
 
 
 	static constexpr float INPUT_THRESHOLD = 0.11;
+	static constexpr char SWF_NAME[] = "LootMenu";
 
 
 	static LootMenu* _singleton;
@@ -161,3 +161,9 @@ protected:
 	bool _isRegistered;
 	bool _isEnabled;
 };
+
+
+inline constexpr std::string_view LootMenu::Name()
+{
+	return "LootMenu";
+}

@@ -57,8 +57,8 @@ class Shared.GlobalFunc
 	{
 		MovieClip.prototype.Lock = function (aPosition: String): Void
 		{
-			var minXY: Object = {x: Stage.visibleRect.x + Stage.safeRect.x, y: Stage.visibleRect.y + Stage.safeRect.y};
-			var maxXY: Object = {x: Stage.visibleRect.x + Stage.visibleRect.width - Stage.safeRect.x, y: Stage.visibleRect.y + Stage.visibleRect.height - Stage.safeRect.y};
+			var minXY: Object = {x: Stage["visibleRect"].x + Stage["safeRect"].x, y: Stage["visibleRect"].y + Stage["safeRect"].y};
+			var maxXY: Object = {x: Stage["visibleRect"].x + Stage["visibleRect"].width - Stage["safeRect"].x, y: Stage["visibleRect"].y + Stage["visibleRect"].height - Stage["safeRect"].y};
 			this._parent.globalToLocal(minXY);
 			this._parent.globalToLocal(maxXY);
 

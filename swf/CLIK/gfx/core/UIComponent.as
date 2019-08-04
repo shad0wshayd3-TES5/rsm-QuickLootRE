@@ -1,4 +1,4 @@
-dynamic class gfx.core.UIComponent extends MovieClip
+﻿dynamic class gfx.core.UIComponent extends MovieClip
 {
 	var initialized: Boolean = false;
 	var enableInitCallback: Boolean = true;
@@ -52,19 +52,19 @@ dynamic class gfx.core.UIComponent extends MovieClip
 		{
 			_global.CLIK_loadCallback(this._name, targetPath(this), this);
 		}
-		if (this._focused != 0 && Selection.getFocusBitmask(this) == 0) 
+		if (this._focused != 0 && Selection["getFocusBitmask"](this) == 0) 
 		{
 			var __reg4 = 0;
 			for (;;) 
 			{
-				if (__reg4 >= Selection.numFocusGroups) 
+				if (__reg4 >= Selection["numFocusGroups"]) 
 				{
 					return;
 				}
 				var __reg6 = (this._focused >> __reg4 & 1) != 0;
 				if (__reg6) 
 				{
-					var __reg5 = Selection.getControllerMaskByFocusGroup(__reg4);
+					var __reg5 = Selection["getControllerMaskByFocusGroup"](__reg4);
 					var __reg3 = 0;
 					while (__reg3 < System.capabilities.numControllers) 
 					{
@@ -163,12 +163,12 @@ dynamic class gfx.core.UIComponent extends MovieClip
 		{
 			this._focused = value;
 			var __reg3 = 0;
-			while (__reg3 < Selection.numFocusGroups) 
+			while (__reg3 < Selection["numFocusGroups"]) 
 			{
 				var __reg6 = (this._focused >> __reg3 & 1) != 0;
 				if (__reg6) 
 				{
-					__reg5 = Selection.getControllerMaskByFocusGroup(__reg3);
+					__reg5 = Selection["getControllerMaskByFocusGroup"](__reg3);
 					__reg2 = 0;
 					while (__reg2 < System.capabilities.numControllers) 
 					{
@@ -182,7 +182,7 @@ dynamic class gfx.core.UIComponent extends MovieClip
 				}
 				else 
 				{
-					var __reg5 = Selection.getControllerMaskByFocusGroup(__reg3);
+					var __reg5 = Selection["getControllerMaskByFocusGroup"](__reg3);
 					var __reg2 = 0;
 					while (__reg2 < System.capabilities.numControllers) 
 					{
@@ -286,7 +286,7 @@ dynamic class gfx.core.UIComponent extends MovieClip
 	{
 		if (this.visible && this.hitTest(_root._xmouse, _root._ymouse, true)) 
 		{
-			var __reg3 = Mouse.getTopMostEntity();
+			var __reg3 = Mouse["getTopMostEntity"]();
 			for (;;) 
 			{
 				if (!__reg3) 
