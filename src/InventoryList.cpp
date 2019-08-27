@@ -38,7 +38,7 @@ void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
 	{
 		auto& it = _defaultMap.find(a_entry->form->formID);
 		if (it != _defaultMap.end()) {
-			if (a_entry->form->formID != kGold) {
+			if (!a_entry->form->IsGold()) {
 				it->second.count += a_entry->count;
 			}
 		} else {
