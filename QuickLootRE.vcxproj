@@ -59,7 +59,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ForcedIncludeFiles>ForceInclude.h;SKSE/Logger.h</ForcedIncludeFiles>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -72,6 +72,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <UseFullPaths>false</UseFullPaths>
       <UndefinePreprocessorDefinitions>min;max;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
@@ -105,7 +106,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ForcedIncludeFiles>ForceInclude.h;SKSE/Logger.h</ForcedIncludeFiles>
       <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -118,6 +119,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <UseFullPaths>false</UseFullPaths>
       <UndefinePreprocessorDefinitions>min;max;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
@@ -146,47 +148,37 @@
     <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
       <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\skse64\skse64.vcxproj">
-      <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\skse64_common\skse64_common.vcxproj">
-      <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ActivatePerkEntryVisitor.cpp" />
-    <ClCompile Include="src\Delegates.cpp" />
-    <ClCompile Include="src\Hooks.cpp" />
-    <ClCompile Include="src\InventoryList.cpp" />
-    <ClCompile Include="src\GFxItemData.cpp" />
-    <ClCompile Include="src\Forms.cpp" />
-    <ClCompile Include="src\ItemData.cpp" />
-    <ClCompile Include="src\ItemWrapper.cpp" />
+    <ClCompile Include="src\CLIK\Array.cpp" />
+    <ClCompile Include="src\CLIK\Button.cpp" />
+    <ClCompile Include="src\CLIK\CoreList.cpp" />
+    <ClCompile Include="src\CLIK\DropdownMenu.cpp" />
+    <ClCompile Include="src\CLIK\MovieClip.cpp" />
+    <ClCompile Include="src\CLIK\Object.cpp" />
+    <ClCompile Include="src\CLIK\ScrollingList.cpp" />
+    <ClCompile Include="src\CLIK\Slider.cpp" />
+    <ClCompile Include="src\CLIK\TextField.cpp" />
+    <ClCompile Include="src\CLIK\TextInput.cpp" />
+    <ClCompile Include="src\CLIK\UIComponent.cpp" />
     <ClCompile Include="src\LootMenu.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Events.cpp" />
-    <ClCompile Include="src\Registration.cpp" />
-    <ClCompile Include="src\SetActivateLabelPerkEntryVisitor.cpp" />
-    <ClCompile Include="src\SetQuickLootVariable.cpp" />
-    <ClCompile Include="src\Settings.cpp" />
-    <ClCompile Include="src\Utility.cpp" />
+    <ClCompile Include="src\Scaleform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ActivatePerkEntryVisitor.h" />
-    <ClInclude Include="include\Delegates.h" />
-    <ClInclude Include="include\Events.h" />
-    <ClInclude Include="include\Hooks.h" />
-    <ClInclude Include="include\InventoryList.h" />
-    <ClInclude Include="include\GFxItemData.h" />
-    <ClInclude Include="include\Forms.h" />
-    <ClInclude Include="include\ItemData.h" />
-    <ClInclude Include="include\ItemWrapper.h" />
+    <ClInclude Include="include\CLIK\Array.h" />
+    <ClInclude Include="include\CLIK\Button.h" />
+    <ClInclude Include="include\CLIK\CoreList.h" />
+    <ClInclude Include="include\CLIK\DropdownMenu.h" />
+    <ClInclude Include="include\CLIK\MovieClip.h" />
+    <ClInclude Include="include\CLIK\Object.h" />
+    <ClInclude Include="include\CLIK\ScrollingList.h" />
+    <ClInclude Include="include\CLIK\Slider.h" />
+    <ClInclude Include="include\CLIK\TextField.h" />
+    <ClInclude Include="include\CLIK\TextInput.h" />
+    <ClInclude Include="include\CLIK\UIComponent.h" />
     <ClInclude Include="include\LootMenu.h" />
-    <ClInclude Include="include\Registration.h" />
-    <ClInclude Include="include\SetActivateLabelPerkEntryVisitor.h" />
-    <ClInclude Include="include\SetQuickLootVariable.h" />
-    <ClInclude Include="include\Settings.h" />
-    <ClInclude Include="include\Utility.h" />
+    <ClInclude Include="include\Scaleform.h" />
     <ClInclude Include="include\version.h" />
   </ItemGroup>
   <ItemGroup>

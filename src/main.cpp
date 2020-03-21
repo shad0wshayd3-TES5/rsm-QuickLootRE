@@ -1,183 +1,98 @@
-﻿#include "skse64_common/BranchTrampoline.h"
-#include "skse64_common/skse_version.h"
-
-#include <string>
-
-#include "CrosshairHook.h"
-#include "Events.h"
-#include "Hooks.h"
-#include "ItemData.h"
-#include "LootMenu.h"
-#include "Registration.h"
-#include "Settings.h"
-#include "version.h"
-
-#include "HookShare.h"
-
-#include "RE/Skyrim.h"
+﻿#include "RE/Skyrim.h"
 #include "SKSE/API.h"
+
+#include "LootMenu.h"
+#include "Scaleform.h"
+#include "version.h"
 
 
 namespace
 {
-	enum : UInt32
+	class InputHandler : public RE::BSTEventSink<RE::InputEvent*>
 	{
-		kSerializationVersion = 1,
+	public:
+		using EventResult = RE::BSEventNotifyControl;
 
-		kQuickLoot = 'QKLT',
-		kOnOpenAnimStart = 'OOAS',
-		kOnCloseAnimStart = 'OCAS'
+
+		static InputHandler* GetSingleton()
+		{
+			static InputHandler singleton;
+			return &singleton;
+		}
+
+
+		static void Register()
+		{
+			auto input = RE::BSInputDeviceManager::GetSingleton();
+			input->AddEventSink(GetSingleton());
+			_MESSAGE("Registered InputHandler");
+		}
+
+
+		virtual EventResult ProcessEvent(RE::InputEvent* const* a_event, [[maybe_unused]] RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
+		{
+			using InputType = RE::INPUT_EVENT_TYPE;
+			using Key = RE::BSKeyboardDevice::Key;
+			using RemoveType = RE::ITEM_REMOVE_REASON;
+
+			if (!a_event) {
+				return EventResult::kContinue;
+			}
+
+			auto uiStr = RE::InterfaceStrings::GetSingleton();
+			auto ui = RE::UI::GetSingleton();
+			if (ui->IsMenuOpen(uiStr->console)) {
+				return EventResult::kContinue;
+			}
+
+			for (auto event = *a_event; event; event = event->next) {
+				if (event->eventType != InputType::kButton) {
+					continue;
+				}
+
+				auto button = static_cast<RE::ButtonEvent*>(event);
+				if (!button->IsDown() || button->device != RE::INPUT_DEVICE::kKeyboard) {
+					continue;
+				}
+
+				switch (button->idCode) {
+				case Key::kNum0:
+					Scaleform::LootMenu::Open();
+					break;
+				case Key::kNum9:
+					Scaleform::LootMenu::Close();
+					break;
+				}
+			}
+
+			return EventResult::kContinue;
+		}
+
+	private:
+		InputHandler() = default;
+		InputHandler(const InputHandler&) = delete;
+		InputHandler(InputHandler&&) = delete;
+		virtual ~InputHandler() = default;
+
+		InputHandler& operator=(const InputHandler&) = delete;
+		InputHandler& operator=(InputHandler&&) = delete;
 	};
-
-
-	std::string DecodeTypeCode(UInt32 a_typeCode)
-	{
-		constexpr std::size_t SIZE = sizeof(UInt32);
-
-		std::string sig;
-		sig.resize(SIZE);
-		char* iter = reinterpret_cast<char*>(&a_typeCode);
-		for (std::size_t i = 0, j = SIZE - 2; i < SIZE - 1; ++i, --j) {
-			sig[j] = iter[i];
-		}
-		return sig;
-	}
-
-
-	void SaveCallback(SKSE::SerializationInterface* a_intfc)
-	{
-		if (!OnContainerOpenAnim::GetSingleton()->Save(a_intfc, kOnOpenAnimStart, kSerializationVersion)) {
-			_ERROR("Failed to save OnContainerOpenAnim regs!\n");
-		}
-
-		if (!OnContainerCloseAnim::GetSingleton()->Save(a_intfc, kOnCloseAnimStart, kSerializationVersion)) {
-			_ERROR("Failed to save OnContainerCloseAnim regs!\n");
-		}
-
-		_MESSAGE("Finished saving data");
-	}
-
-
-	void LoadCallback(SKSE::SerializationInterface* a_intfc)
-	{
-		UInt32 type;
-		UInt32 version;
-		UInt32 length;
-		while (a_intfc->GetNextRecordInfo(type, version, length)) {
-			if (version != kSerializationVersion) {
-				_ERROR("Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, kSerializationVersion, DecodeTypeCode(type).c_str());
-				continue;
-			}
-
-			switch (type) {
-			case kOnOpenAnimStart:
-				{
-					auto regs = OnContainerOpenAnim::GetSingleton();
-					regs->Clear();
-					if (!regs->Load(a_intfc)) {
-						_ERROR("Failed to load OnContainerOpenAnim regs!\n");
-					}
-				}
-				break;
-			case kOnCloseAnimStart:
-				{
-					auto regs = OnContainerCloseAnim::GetSingleton();
-					regs->Clear();
-					if (!regs->Load(a_intfc)) {
-						_ERROR("Failed to load OnContainerCloseAnim regs!\n");
-					}
-				}
-				break;
-			default:
-				_ERROR("Unrecognized record type (%s)!", DecodeTypeCode(type).c_str());
-				break;
-			}
-		}
-
-		_MESSAGE("Finished loading data");
-	}
-
-
-	void HooksReady(SKSE::MessagingInterface::Message* a_msg)
-	{
-		using HookShare::RegisterForCanProcess_t;
-
-		switch (a_msg->type) {
-		case HookShare::kType_CanProcess:
-			if (a_msg->dataLen == HookShare::kAPIVersionMajor) {
-				auto _RegisterForCanProcess = static_cast<RegisterForCanProcess_t*>(a_msg->data);
-				Hooks::InstallHooks(_RegisterForCanProcess);
-				_MESSAGE("Hooks registered");
-			} else {
-				_FATALERROR("An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
-				LootMenu::QueueMessage(LootMenu::Message::kHookShareIncompatible);
-			}
-			break;
-		}
-	}
 
 
 	void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	{
 		switch (a_msg->type) {
-		case SKSE::MessagingInterface::kPostPostLoad:
-			{
-				auto messaging = SKSE::GetMessagingInterface();
-				if (messaging->RegisterListener("HookShareSSE", HooksReady)) {
-					_MESSAGE("Registered HookShareSSE listener");
-				} else {
-					_FATALERROR("Failed to register HookShareSSE listener!\n");
-					LootMenu::QueueMessage(LootMenu::Message::kHookShareMissing);
-				}
-			}
-			break;
 		case SKSE::MessagingInterface::kDataLoaded:
-			{
-				auto dataHandler = RE::TESDataHandler::GetSingleton();
-				if (dataHandler->LookupModByName("SkyUI_SE.esp")) {
-					_MESSAGE("SkyUI is installed");
-				} else {
-					_FATALERROR("SkyUI is not installed!\n");
-				}
-
-				auto ui = RE::UI::GetSingleton();
-				ui->Register("LootMenu", []() -> RE::IMenu*
-				{
-					return LootMenu::GetSingleton();
-				});
-				_MESSAGE("LootMenu registered");
-
-				LootMenu::GetSingleton();	// instantiate menu
-				_MESSAGE("LootMenu initialized");
-
-				ItemData::SetCompareOrder();
-				_MESSAGE("Settings applied");
-
-				auto crosshairRefDispatcher = SKSE::GetCrosshairRefEventSource();
-				crosshairRefDispatcher->AddEventSink(Events::CrosshairRefEventHandler::GetSingleton());
-				_MESSAGE("Crosshair ref event handler sinked");
-
-				auto input = RE::BSInputDeviceManager::GetSingleton();
-				input->AddEventSink(Events::InputEventHandler::GetSingleton());
-				_MESSAGE("Input event handler sinked");
-
-				ui->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
-				_MESSAGE("Menu open/close event handler sinked");
-
-				auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-				sourceHolder->AddEventSink(Events::TESCombatEventHandler::GetSingleton());
-				_MESSAGE("Combat event handler sinked");
-
-				sourceHolder->AddEventSink(Events::TESContainerChangedEventHandler::GetSingleton());
-				_MESSAGE("Container changed event handler sinked");
-			}
+			InputHandler::Register();
+			Scaleform::Register();
 			break;
 		}
 	}
 }
 
 
-extern "C" {
+extern "C"
+{
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
 		SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
@@ -196,12 +111,9 @@ extern "C" {
 			return false;
 		}
 
-		switch (a_skse->RuntimeVersion()) {
-		case RUNTIME_VERSION_1_5_73:
-		case RUNTIME_VERSION_1_5_80:
-			break;
-		default:
-			_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
+		auto ver = a_skse->RuntimeVersion();
+		if (ver < SKSE::RUNTIME_1_5_39) {
+			_FATALERROR("Unsupported runtime version %s!\n", ver.GetString().c_str());
 			return false;
 		}
 
@@ -217,26 +129,10 @@ extern "C" {
 			return false;
 		}
 
-		if (Settings::LoadSettings()) {
-			_MESSAGE("Settings successfully loaded");
-		} else {
-			_FATALERROR("Settings failed to load!\n");
+		auto message = SKSE::GetMessagingInterface();
+		if (!message->RegisterListener(MessageHandler)) {
 			return false;
 		}
-
-		if (!SKSE::AllocTrampoline(1 << 10)) {
-			return false;
-		}
-
-		auto messaging = SKSE::GetMessagingInterface();
-		if (!messaging->RegisterListener("SKSE", MessageHandler)) {
-			return false;
-		}
-
-		auto serialization = SKSE::GetSerializationInterface();
-		serialization->SetUniqueID(kQuickLoot);
-		serialization->SetSaveCallback(SaveCallback);
-		serialization->SetLoadCallback(LoadCallback);
 
 		return true;
 	}

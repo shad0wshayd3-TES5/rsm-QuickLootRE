@@ -10,111 +10,123 @@
     <Filter Include="include">
       <UniqueIdentifier>{aee06ac9-1bc5-42ef-858c-7657bb1ee832}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\visitors">
-      <UniqueIdentifier>{73737ee5-1582-4a35-b496-c8e67dc954a1}</UniqueIdentifier>
+    <Filter Include="include\CLIK">
+      <UniqueIdentifier>{682afc3c-57a6-4a40-a3d8-3253951f01ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\visitors">
-      <UniqueIdentifier>{24f79ced-c779-4eb3-a35d-5a484d5facd2}</UniqueIdentifier>
+    <Filter Include="src\CLIK">
+      <UniqueIdentifier>{8aaec797-bc76-4204-afcc-91a144a61596}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\CLIK\GFx">
+      <UniqueIdentifier>{318349a7-b894-4b78-b76c-4a589ab238ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\CLIK\GFx\Controls">
+      <UniqueIdentifier>{6a56621c-4e11-4892-a8d4-656b7347130a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\CLIK\GFx\Core">
+      <UniqueIdentifier>{ac6a2989-6f78-488b-b771-5d4c58c4efdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CLIK\GFx">
+      <UniqueIdentifier>{ef714e5b-14e5-481e-998a-9a62dc7b4f9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CLIK\GFx\Core">
+      <UniqueIdentifier>{b30191cc-b773-498b-a2cd-2e1a85175399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\CLIK\GFx\Controls">
+      <UniqueIdentifier>{4ff3f52f-e7e0-4652-92fb-0d0724304751}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scaleform">
+      <UniqueIdentifier>{92532adb-4b86-43ea-ad8b-3d6e2b2524f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Scaleform">
+      <UniqueIdentifier>{11bfbc67-9e77-4dfb-ae48-e2d7456b0142}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Events.cpp">
+    <ClCompile Include="src\Scaleform.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utility.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\CLIK\Array.cpp">
+      <Filter>src\CLIK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\MovieClip.cpp">
+      <Filter>src\CLIK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\Object.cpp">
+      <Filter>src\CLIK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\TextField.cpp">
+      <Filter>src\CLIK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\Button.cpp">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\CoreList.cpp">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\DropdownMenu.cpp">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\ScrollingList.cpp">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\Slider.cpp">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\TextInput.cpp">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLIK\UIComponent.cpp">
+      <Filter>src\CLIK\GFx\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\LootMenu.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\InventoryList.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Hooks.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Settings.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Delegates.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Forms.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SetActivateLabelPerkEntryVisitor.cpp">
-      <Filter>src\visitors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ActivatePerkEntryVisitor.cpp">
-      <Filter>src\visitors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Registration.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SetQuickLootVariable.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GFxItemData.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ItemData.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ItemWrapper.cpp">
-      <Filter>src</Filter>
+      <Filter>src\Scaleform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Events.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Utility.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\LootMenu.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\InventoryList.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Hooks.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Settings.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Delegates.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Forms.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\version.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\SetActivateLabelPerkEntryVisitor.h">
-      <Filter>include\visitors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ActivatePerkEntryVisitor.h">
-      <Filter>include\visitors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Registration.h">
+    <ClInclude Include="include\Scaleform.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\SetQuickLootVariable.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\CLIK\Array.h">
+      <Filter>include\CLIK</Filter>
     </ClInclude>
-    <ClInclude Include="include\GFxItemData.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\CLIK\MovieClip.h">
+      <Filter>include\CLIK</Filter>
     </ClInclude>
-    <ClInclude Include="include\ItemData.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\CLIK\Object.h">
+      <Filter>include\CLIK</Filter>
     </ClInclude>
-    <ClInclude Include="include\ItemWrapper.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\CLIK\TextField.h">
+      <Filter>include\CLIK</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\UIComponent.h">
+      <Filter>include\CLIK\GFx\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\Button.h">
+      <Filter>include\CLIK\GFx\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\CoreList.h">
+      <Filter>include\CLIK\GFx\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\DropdownMenu.h">
+      <Filter>include\CLIK\GFx\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\ScrollingList.h">
+      <Filter>include\CLIK\GFx\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\Slider.h">
+      <Filter>include\CLIK\GFx\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CLIK\TextInput.h">
+      <Filter>include\CLIK\GFx\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LootMenu.h">
+      <Filter>include\Scaleform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
