@@ -2,11 +2,12 @@
 
 #include <queue>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 #include "Delegates.h"
 #include "InventoryList.h"
-#include "Utility.h"  // Style
+#include "Utility.h"
 
 #include "RE/Skyrim.h"
 
@@ -29,7 +30,9 @@ class LootMenu :
 	public RE::MenuEventHandler
 {
 public:
-	using Result = RE::IMenu::Result;
+	using MenuBase = RE::IMenu;
+	using HandlerBase = RE::MenuEventHandler;
+	using Result = MenuBase::Result;
 	using GRefCountBaseStatImpl::operator new;
 	using GRefCountBaseStatImpl::operator delete;
 
@@ -46,7 +49,7 @@ public:
 
 	// IMenu
 	virtual Result ProcessMessage(RE::UIMessage* a_message) override;
-	virtual void Render() override;
+	virtual void PostDisplay() override;
 
 	// MenuEventHandler
 	virtual bool CanProcess(RE::InputEvent* a_event) override;
@@ -92,7 +95,7 @@ public:
 protected:
 	enum
 	{
-		kInvalidButton = RE::InputMappingManager::kInvalid,
+		kInvalidButton = RE::ControlMap::kInvalid,
 		kESC = 1,
 		kKeyboardOffset = 0,
 		kMouseOffset = 256,
@@ -125,13 +128,13 @@ protected:
 	void GetGamepadButtonID(UInt32& a_key, const std::string_view& a_mapping) const;
 	void GetPCButtonID(UInt32& a_key, const std::string_view& a_mapping) const;
 	bool IsSingleLootEnabled() const;
-	void PlayAnimation(const char* a_fromName, const char* a_toName) const;
+	void PlayAnimation(std::string_view a_fromName, std::string_view a_toName) const;
 	void PlayAnimationOpen();
 	void PlayAnimationClose();
-	bool TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound);
-	bool TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode) const;
+	bool TakeItem(ItemData& a_item, SInt32 a_numItems, bool a_playAnim, bool a_playSound);
+	bool TryToPickPocket(ItemData& a_item, RE::ITEM_REMOVE_REASON& a_lootMode) const;
 	void DispellWornItemEnchantments() const;
-	UInt32 GetSingleLootKey(RE::DeviceType a_deviceType) const;
+	UInt32 GetSingleLootKey(RE::INPUT_DEVICE a_deviceType) const;
 	bool IsEnabled() const;
 	void ResetInputTimer();
 	bool MeetsInputThreshold(float a_timer);

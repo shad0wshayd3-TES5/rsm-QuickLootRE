@@ -41,5 +41,9 @@ private:
 
 namespace QuickLoot
 {
-	bool RegisterFuncs(RE::BSScript::Internal::VirtualMachine* a_vm);
+	using Severity = RE::BSScript::Internal::VirtualMachine::Severity;
+	using VM = RE::BSScript::Internal::VirtualMachine;
+
+
+	bool RegisterFuncs(VM* a_vm);
 }

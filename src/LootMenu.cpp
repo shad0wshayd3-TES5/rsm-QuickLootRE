@@ -52,7 +52,7 @@ RE::IMenu::Result LootMenu::ProcessMessage(RE::UIMessage* a_message)
 }
 
 
-void LootMenu::Render()
+void LootMenu::PostDisplay()
 {
 	if (IsOpen()) {
 		view->Display();
@@ -62,8 +62,8 @@ void LootMenu::Render()
 
 bool LootMenu::CanProcess(RE::InputEvent* a_event)
 {
-	using DeviceType = RE::DeviceType;
-	using EventType = RE::InputEvent::EventType;
+	using DeviceType = RE::INPUT_DEVICE;
+	using EventType = RE::INPUT_EVENT_TYPE;
 	using Gamepad = RE::BSWin32GamepadDevice::Key;
 	using Mouse = RE::BSWin32MouseDevice::Key;
 
@@ -74,27 +74,27 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 			return false;
 		}
 
-		auto& controlID = a_event->GetControlID();
-		auto strHolder = RE::InputStringHolder::GetSingleton();
-		if (controlID == strHolder->sneak) {
+		auto& controlID = a_event->QUserEvent();
+		auto events = RE::UserEvents::GetSingleton();
+		if (controlID == events->sneak) {
 			return true;
 		}
 
-		switch (a_event->deviceType) {
+		switch (a_event->device) {
 		case DeviceType::kGamepad:
 			{
-				auto keyMask = static_cast<Gamepad>(button->keyMask);
+				auto keyMask = static_cast<Gamepad>(button->idCode);
 				return (keyMask == Gamepad::kUp || keyMask == Gamepad::kDown);
 			}
 			break;
 		case DeviceType::kMouse:
 			{
-				auto keyMask = static_cast<Mouse>(button->keyMask);
+				auto keyMask = static_cast<Mouse>(button->idCode);
 				return (keyMask == Mouse::kWheelDown || keyMask == Mouse::kWheelUp);
 			}
 			break;
 		case DeviceType::kKeyboard:
-			return (controlID == strHolder->zoomIn || controlID == strHolder->zoomOut);
+			return (controlID == events->zoomIn || controlID == events->zoomOut);
 			break;
 		}
 	}
@@ -104,30 +104,30 @@ bool LootMenu::CanProcess(RE::InputEvent* a_event)
 
 bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 {
-	using DeviceType = RE::DeviceType;
+	using DeviceType = RE::INPUT_DEVICE;
 	using Gamepad = RE::BSWin32GamepadDevice::Key;
 	using Mouse = RE::BSWin32MouseDevice::Key;
 
-	auto& controlID = a_event->GetControlID();
-	auto strHolder = RE::InputStringHolder::GetSingleton();
+	auto& controlID = a_event->QUserEvent();
+	auto events = RE::UserEvents::GetSingleton();
 	ControlMethod inputMethod;
 
-	switch (a_event->deviceType) {
+	switch (a_event->device) {
 	case DeviceType::kGamepad:
 		{
 			bool ret;
-			if (a_event->timer == 0.0) {
+			if (a_event->heldDownSecs == 0.0) {
 				ResetInputTimer();
 				ret = false;
 			} else {
-				if (!MeetsInputThreshold(a_event->timer)) {
+				if (!MeetsInputThreshold(a_event->heldDownSecs)) {
 					return true;
 				}
 				ret = true;
 			}
 
 			inputMethod = ControlMethod::kController;
-			switch (static_cast<Gamepad>(a_event->keyMask)) {
+			switch (static_cast<Gamepad>(a_event->idCode)) {
 			case Gamepad::kUp:
 				ModSelectedIndex(-1);
 				break;
@@ -147,7 +147,7 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		}
 
 		inputMethod = ControlMethod::kPC;
-		switch (Mouse(a_event->keyMask)) {
+		switch (Mouse(a_event->idCode)) {
 		case Mouse::kWheelUp:
 			ModSelectedIndex(-1);
 			break;
@@ -162,15 +162,15 @@ bool LootMenu::ProcessButton(RE::ButtonEvent* a_event)
 		}
 
 		inputMethod = ControlMethod::kPC;
-		if (controlID == strHolder->zoomIn) {
+		if (controlID == events->zoomIn) {
 			ModSelectedIndex(-1);
-		} else if (controlID == strHolder->zoomOut) {
+		} else if (controlID == events->zoomOut) {
 			ModSelectedIndex(1);
 		}
 		break;
 	}
 
-	if (controlID == strHolder->sneak) {
+	if (controlID == events->sneak) {
 		Close();
 		SkipNextInput();
 		auto player = RE::PlayerCharacter::GetSingleton();
@@ -394,16 +394,16 @@ void LootMenu::SetActiText(const char* a_actiText)
 void LootMenu::Open() const
 {
 	if (_isEnabled) {
-		auto uiManager = RE::UIManager::GetSingleton();
-		uiManager->AddMessage(Name(), RE::UIMessage::Message::kOpen, 0);
+		auto msgQ = RE::UIMessageQueue::GetSingleton();
+		msgQ->AddMessage(Name(), RE::UIMessage::Message::kOpen, 0);
 	}
 }
 
 
 void LootMenu::Close() const
 {
-	auto uiManager = RE::UIManager::GetSingleton();
-	uiManager->AddMessage(Name(), RE::UIMessage::Message::kClose, 0);
+	auto msgQ = RE::UIMessageQueue::GetSingleton();
+	msgQ->AddMessage(Name(), RE::UIMessage::Message::kClose, 0);
 }
 
 
@@ -437,23 +437,23 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 		return 0;
 	}
 
-	if (!a_ref || !a_ref->baseForm) {
+	if (!a_ref || !a_ref->GetBaseObject()) {
 		return 0;
 	}
 
-	auto mm = RE::MenuManager::GetSingleton();
-	auto uiStrHolder = RE::UIStringHolder::GetSingleton();
-	if (mm->GameIsPaused() || mm->CrosshairIsPaused() || mm->GetMenu(uiStrHolder->dialogueMenu)) {
+	auto ui = RE::UI::GetSingleton();
+	auto intfcStr = RE::InterfaceStrings::GetSingleton();
+	if (ui->GameIsPaused() || !ui->IsCursorHiddenWhenTopmost() || ui->GetMenu(intfcStr->dialogueMenu)) {
 		return 0;
 	}
 
-	auto mappingManager = RE::InputMappingManager::GetSingleton();
-	if (!mappingManager->IsMovementControlsEnabled()) {
+	auto ctrlMap = RE::ControlMap::GetSingleton();
+	if (!ctrlMap->IsMovementControlsEnabled()) {
 		return 0;
 	}
 
 	auto player = RE::PlayerCharacter::GetSingleton();
-	if (player->GetGrabbedRef() || player->GetActorInFavorState() || player->IsInKillMove()) {
+	if (player->GetGrabbedRef() || player->GetActorDoingPlayerCommand() || player->IsInKillMove()) {
 		return 0;
 	}
 
@@ -475,11 +475,11 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 	}
 
 	RE::TESObjectREFR* containerRef = 0;
-	switch (a_ref->baseForm->formType) {
+	switch (a_ref->GetBaseObject()->formType) {
 	case RE::FormType::Activator:
 		{
 			RE::RefHandle refHandle = 0;
-			if (a_ref->extraData.GetAshPileRefHandle(refHandle)) {
+			if (a_ref->extraList.GetAshPileRefHandle(refHandle)) {
 				RE::TESObjectREFRPtr refPtr;
 				if (RE::TESObjectREFR::LookupByHandle(refHandle, refPtr)) {
 					containerRef = refPtr.get();
@@ -511,14 +511,14 @@ RE::TESObjectREFR* LootMenu::CanOpen(RE::TESObjectREFR* a_ref, bool a_isSneaking
 	}
 
 	auto numItems = containerRef->GetNumItems();
-	auto droppedList = containerRef->extraData.GetByType<RE::ExtraDroppedItemList>();
-	if (Settings::disableIfEmpty && numItems <= 0 && (!droppedList || droppedList->handles.empty())) {
+	auto droppedList = containerRef->extraList.GetByType<RE::ExtraDroppedItemList>();
+	if (Settings::disableIfEmpty && numItems <= 0 && (!droppedList || droppedList->droppedItemList.empty())) {
 		return 0;
 	}
 
-	if (Settings::disableForActiOverride && player->CanProcessEntryPointPerkEntry(EntryPoint::kActivate)) {
+	if (Settings::disableForActiOverride && player->HasPerkEntries(EntryPoint::kActivate)) {
 		ActivatePerkEntryVisitor visitor(player, containerRef);
-		player->VisitEntryPointPerkEntries(EntryPoint::kActivate, visitor);
+		player->ForEachPerkEntry(EntryPoint::kActivate, visitor);
 		if (visitor.GetResult()) {
 			return 0;
 		}
@@ -544,8 +544,9 @@ void LootMenu::TakeItemStack()
 	if (TakeItem(itemCopy, numItems, true, true)) {
 		auto player = RE::PlayerCharacter::GetSingleton();
 		auto invChanges = player->GetInventoryChanges();
-		auto extraList = itemCopy.GetEntryData()->extraList ? itemCopy.GetEntryData()->extraList->front() : 0;
-		invChanges->SendContainerChangedEvent(extraList, _containerRef, itemCopy.GetForm(), itemCopy.GetCount());
+		auto xLists = itemCopy.GetEntryData()->extraLists;
+		auto xList = (xLists && !xLists->empty()) ? xLists->front() : 0;
+		invChanges->SendContainerChangedEvent(xList, _containerRef, itemCopy.GetForm(), itemCopy.GetCount());
 	}
 	RE::ChestsLooted::SendEvent();
 }
@@ -553,7 +554,7 @@ void LootMenu::TakeItemStack()
 
 void LootMenu::TakeAllItems()
 {
-	using DefaultObjects = RE::BGSDefaultObjectManager::DefaultObjects;
+	using DObj = RE::DEFAULT_OBJECT;
 
 	if (!IsOpen() || !_containerRef || _displaySize <= 0) {
 		return;
@@ -568,11 +569,11 @@ void LootMenu::TakeAllItems()
 
 	std::array<RE::BGSSoundDescriptorForm*, 5> descriptors = { 0 };
 	auto dObjManager = RE::BGSDefaultObjectManager::GetSingleton();
-	descriptors[0] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericUpSD);
-	descriptors[1] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericWeaponUpSD);
-	descriptors[2] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericArmorUpSD);
-	descriptors[3] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericBookUpSD);
-	descriptors[4] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DefaultObjects::kITMGenericIngredientUpSD);
+	descriptors[0] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DObj::kPickupSoundGeneric);
+	descriptors[1] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DObj::kPickupSoundWeapon);
+	descriptors[2] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DObj::kPickupSoundArmor);
+	descriptors[3] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DObj::kPickupSoundBook);
+	descriptors[4] = dObjManager->GetObject<RE::BGSSoundDescriptorForm>(DObj::kPickupSoundIngredient);
 
 	auto soundManager = RE::BSAudioManager::GetSingleton();
 	for (auto& descriptor : descriptors) {
@@ -602,11 +603,13 @@ InventoryList& LootMenu::GetInventoryList()
 
 void LootMenu::ParseInventory()
 {
-	_invList.parseInventory(_containerRef);
+	_invList.parse(_containerRef);
 }
 
 
 LootMenu::LootMenu() :
+	MenuBase(),
+	HandlerBase(),
 	_invList(),
 	_actiText(""),
 	_containerRef(0),
@@ -622,12 +625,12 @@ LootMenu::LootMenu() :
 	_isEnabled(true)
 {
 	using ScaleModeType = RE::GFxMovieView::ScaleModeType;
-	using Context = RE::InputMappingManager::Context;
+	using Context = RE::UserEvents::INPUT_CONTEXT_ID;
 	using Flag = RE::IMenu::Flag;
 
-	auto loader = RE::GFxLoader::GetSingleton();
+	auto loader = RE::BSScaleformManager::GetSingleton();
 	if (loader->LoadMovie(this, view, SWF_NAME, ScaleModeType::kShowAll, 0.0)) {
-		flags = Flag::kDoNotDeleteOnClose | Flag::kDoNotPreventGameSave;
+		flags = Flag::kAlwaysOpen | Flag::kAllowSaving;
 		context = Context::kInventory;
 	}
 
@@ -665,8 +668,8 @@ void LootMenu::OnMenuOpen()
 		return;
 	}
 
-	auto inputManager = RE::InputManager::GetSingleton();
-	if (inputManager->IsGamepadEnabled()) {
+	auto input = RE::BSInputDeviceManager::GetSingleton();
+	if (input->IsGamepadEnabled()) {
 		_controlMethod = ControlMethod::kController;
 		UpdateButtonIcons(true);
 	} else {
@@ -739,8 +742,8 @@ void LootMenu::GetGamepadButtonID(UInt32& a_key, const std::string_view& a_mappi
 {
 	using Key = RE::BSWin32GamepadDevice::Key;
 
-	auto input = RE::InputMappingManager::GetSingleton();
-	a_key = input->GetMappedKey(a_mapping, RE::DeviceType::kGamepad);
+	auto ctrlMap = RE::ControlMap::GetSingleton();
+	a_key = ctrlMap->GetMappedKey(a_mapping, RE::INPUT_DEVICE::kGamepad);
 	switch (a_key) {
 	case Key::kUp:
 		a_key = 0;
@@ -805,10 +808,10 @@ void LootMenu::GetGamepadButtonID(UInt32& a_key, const std::string_view& a_mappi
 
 void LootMenu::GetPCButtonID(UInt32& a_key, const std::string_view& a_mapping) const
 {
-	auto input = RE::InputMappingManager::GetSingleton();
-	a_key = input->GetMappedKey(a_mapping, RE::DeviceType::kKeyboard);
+	auto ctrlMap = RE::ControlMap::GetSingleton();
+	a_key = ctrlMap->GetMappedKey(a_mapping, RE::INPUT_DEVICE::kKeyboard);
 	if (a_key == kInvalidButton) {
-		a_key = input->GetMappedKey(a_mapping, RE::DeviceType::kMouse);
+		a_key = ctrlMap->GetMappedKey(a_mapping, RE::INPUT_DEVICE::kMouse);
 		if (a_key == kInvalidButton) {
 			a_key = kESC;
 		} else {
@@ -822,24 +825,22 @@ void LootMenu::GetPCButtonID(UInt32& a_key, const std::string_view& a_mapping) c
 
 bool LootMenu::IsSingleLootEnabled() const
 {
-	using DeviceType = RE::DeviceType;
+	using DeviceType = RE::INPUT_DEVICE;
 
 	if (Settings::disableSingleLoot) {
 		return false;
 	}
 
-	auto inputManager = RE::InputManager::GetSingleton();
-	auto keyboard = skyrim_cast<RE::BSWin32KeyboardDevice*>(inputManager->keyboard);
+	auto input = RE::BSInputDeviceManager::GetSingleton();
+	auto keyboard = input->GetKeyboard();
 	if (keyboard && keyboard->IsEnabled()) {
-		UInt32 singleLootKeyboard = GetSingleLootKey(DeviceType::kKeyboard);
+		auto singleLootKeyboard = GetSingleLootKey(DeviceType::kKeyboard);
 		if (singleLootKeyboard != -1 && keyboard->IsPressed(singleLootKeyboard)) {
 			return true;
 		}
 	}
 
-	RE::BSGamepadDevice* gamepadHandle = 0;
-	gamepadHandle = inputManager->GetGamepad();
-	auto gamepad = skyrim_cast<RE::BSWin32GamepadDevice*>(gamepadHandle);
+	auto gamepad = input->GetGamepad();
 	if (gamepad && gamepad->IsEnabled()) {
 		auto singleLootSprint = GetSingleLootKey(DeviceType::kGamepad);
 		if (singleLootSprint != kInvalidButton && gamepad->IsPressed(singleLootSprint)) {
@@ -851,34 +852,11 @@ bool LootMenu::IsSingleLootEnabled() const
 }
 
 
-void LootMenu::PlayAnimation(const char* a_fromName, const char* a_toName) const
+void LootMenu::PlayAnimation(std::string_view a_fromName, std::string_view a_toName) const
 {
-	if (Settings::disableAnimations) {
-		return;
+	if (!Settings::disableAnimations) {
+		_containerRef->PlayAnimation(a_fromName, a_toName);
 	}
-
-	auto niNode = _containerRef->GetNiNode();
-	if (!niNode) {
-		return;
-	}
-
-	auto controller = niNode->GetController();
-	if (!controller) {
-		return;
-	}
-
-	auto manager = skyrim_cast<RE::NiControllerManager*>(controller);
-	if (!manager) {
-		return;
-	}
-
-	auto fromSeq = manager->GetSequenceByName(a_fromName);
-	auto toSeq = manager->GetSequenceByName(a_toName);
-	if (!fromSeq || !toSeq) {
-		return;
-	}
-
-	_containerRef->PlayAnimation(manager, toSeq, fromSeq);
 }
 
 
@@ -916,31 +894,33 @@ void LootMenu::PlayAnimationClose()
 }
 
 
-bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bool a_playSound)
+bool LootMenu::TakeItem(ItemData& a_item, SInt32 a_numItems, bool a_playAnim, bool a_playSound)
 {
 	using EventType = RE::PlayerCharacter::EventType;
-	using RemoveType = RE::TESObjectREFR::RemoveType;
-	using Archetype = RE::EffectSetting::Data::Archetype;
+	using RemoveType = RE::ITEM_REMOVE_REASON;
+	using Archetype = RE::EffectArchetypes::ArchetypeID;
 
 	bool manualUpdate = false;	// picking up dropped items doesn't disptach a container changed event
 
 	// Locate item's extra list (if any)
-	RE::BaseExtraList* xList = 0;
-	if (a_item.GetEntryData()->extraList && !a_item.GetEntryData()->extraList->empty()) {
-		xList = a_item.GetEntryData()->extraList->front();
+	auto entryData = a_item.GetEntryData();
+	RE::ExtraDataList* xList = 0;
+	if (entryData->extraLists && !entryData->extraLists->empty()) {
+		xList = entryData->extraLists->front();
 	}
 
 	auto player = RE::PlayerCharacter::GetSingleton();
 
 	// Pickup dropped items
 	if (xList && xList->HasType(RE::ExtraDataType::kItemDropper)) {
-		auto refItem = reinterpret_cast<RE::TESObjectREFR*>((std::uintptr_t)xList - offsetof(RE::TESObjectREFR, extraData));
-		player->PickUpItem(refItem, 1, false, true);
+		auto refItem = reinterpret_cast<RE::TESObjectREFR*>((std::uintptr_t)xList - offsetof(RE::TESObjectREFR, extraList));
+		player->PickUpObject(refItem, 1, false, a_playSound);
 		manualUpdate = true;
 	} else {
-		auto lootMode = RemoveType::kTake;
+		auto lootMode = RemoveType::kRemove;
+		auto baseObj = _containerRef->GetBaseObject();
 
-		if (_containerRef->baseForm->Is(RE::FormType::NPC)) {
+		if (baseObj->Is(RE::FormType::NPC)) {
 			// Dead body
 			if (_containerRef->IsDead(false)) {
 				player->PlayPickupEvent(a_item.GetForm(), _containerRef->GetOwner(), _containerRef, EventType::kDeadBody);
@@ -966,12 +946,12 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 			bound->OnRemovedFrom(_containerRef);
 		}
 
-		if (_containerRef->baseForm->Is(RE::FormType::ActorCharacter)) {
+		if (_containerRef->Is(RE::FormType::ActorCharacter)) {
 			DispellWornItemEnchantments();
 		} else {
 			// Stealing
 			if (_containerRef->IsOffLimits()) {
-				player->SendStealAlarm(_containerRef, a_item.GetEntryData()->type, a_numItems, a_item.GetValue(), _containerRef->GetOwner(), true);
+				player->SendStealAlarm(_containerRef, entryData->object, a_numItems, a_item.GetValue(), _containerRef->GetOwner(), true);
 			}
 		}
 
@@ -979,12 +959,12 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 			PlayAnimationOpen();
 		}
 		if (a_playSound) {
-			player->PlaySounds(a_item.GetForm(), true, false);
+			player->PlayPickUpSound(a_item.GetForm(), true, false);
 		}
 		if (!Settings::disableInvisDispell) {
 			player->DispellEffectsWithArchetype(Archetype::kInvisibility, false);
 		}
-		RE::RefHandle droppedHandle = 0;
+		RE::ObjectRefHandle droppedHandle;
 		_containerRef->RemoveItem(droppedHandle, a_item.GetForm(), a_numItems, lootMode, xList, player);
 	}
 
@@ -992,15 +972,15 @@ bool LootMenu::TakeItem(ItemData& a_item, UInt32 a_numItems, bool a_playAnim, bo
 }
 
 
-bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& a_lootMode) const
+bool LootMenu::TryToPickPocket(ItemData& a_item, RE::ITEM_REMOVE_REASON& a_lootMode) const
 {
 	using EventType = RE::PlayerCharacter::EventType;
-	using RemoveType = RE::TESObjectREFR::RemoveType;
+	using RemoveType = RE::ITEM_REMOVE_REASON;
 
 	auto target = static_cast<RE::Actor*>(_containerRef);
 	auto player = RE::PlayerCharacter::GetSingleton();
 	auto pickSuccess = player->TryToPickPocket(target, a_item.GetEntryData(), a_item.GetCount());
-	player->PlayPickupEvent(a_item.GetEntryData()->type, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
+	player->PlayPickupEvent(a_item.GetEntryData()->object, _containerRef->GetActorOwner(), _containerRef, EventType::kThief);
 	a_lootMode = RemoveType::kSteal;
 	if (!pickSuccess) {
 		return false;
@@ -1014,16 +994,16 @@ bool LootMenu::TryToPickPocket(ItemData& a_item, RE::TESObjectREFR::RemoveType& 
 void LootMenu::DispellWornItemEnchantments() const
 {
 	auto actor = static_cast<RE::Actor*>(_containerRef);
-	if (actor->processManager) {
+	if (actor->currentProcess) {
 		actor->DispelWornItemEnchantments();
-		actor->processManager->UpdateEquipment_Hooked(actor);
+		actor->currentProcess->Update3DModel(actor);
 	}
 }
 
 
-UInt32 LootMenu::GetSingleLootKey(RE::DeviceType a_deviceType) const
+UInt32 LootMenu::GetSingleLootKey(RE::INPUT_DEVICE a_deviceType) const
 {
-	auto mm = RE::InputMappingManager::GetSingleton();
+	auto mm = RE::ControlMap::GetSingleton();
 	return mm->GetMappedKey(_singleLootMapping, a_deviceType);
 }
 

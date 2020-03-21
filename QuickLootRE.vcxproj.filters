@@ -30,9 +30,6 @@
     <ClCompile Include="src\LootMenu.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\ItemData.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\InventoryList.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -54,16 +51,19 @@
     <ClCompile Include="src\ActivatePerkEntryVisitor.cpp">
       <Filter>src\visitors</Filter>
     </ClCompile>
-    <ClCompile Include="src\ManagedEntryData.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Registration.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\SetQuickLootVariable.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\CrosshairHook.cpp">
+    <ClCompile Include="src\GFxItemData.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ItemData.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ItemWrapper.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,9 +75,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\LootMenu.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ItemData.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\InventoryList.h">
@@ -104,16 +101,19 @@
     <ClInclude Include="include\ActivatePerkEntryVisitor.h">
       <Filter>include\visitors</Filter>
     </ClInclude>
-    <ClInclude Include="include\ManagedEntryData.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\Registration.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\SetQuickLootVariable.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\CrosshairHook.h">
+    <ClInclude Include="include\GFxItemData.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ItemData.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ItemWrapper.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

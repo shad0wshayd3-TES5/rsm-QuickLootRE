@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skse64/gamethreads.h"  // TaskDelegate
-#include "skse64/Hooks_UI.h"  // UIDelegate_v1
+#include "skse64/gamethreads.h"
+#include "skse64/Hooks_UI.h"
 
 #include <string>
 

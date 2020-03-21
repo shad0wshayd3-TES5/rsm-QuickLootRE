@@ -16,4 +16,4 @@ constexpr const char* boolToString(bool a_bool)
 }
 
 
-bool IsValidPickPocketTarget(RE::TESObjectREFR* a_refr, bool a_isSneaking);
+bool IsValidPickPocketTarget(RE::TESObjectREFR* a_ref, bool a_isSneaking);

@@ -19,7 +19,7 @@ namespace Events
 	}
 
 
-	auto CrosshairRefEventHandler::ReceiveEvent(SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher)
+	auto CrosshairRefEventHandler::ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_dispatcher)
 		-> EventResult
 	{
 		// If player is not looking at anything
@@ -58,11 +58,11 @@ namespace Events
 	}
 
 
-	auto InputEventHandler::ReceiveEvent(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
+	auto InputEventHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
 		-> EventResult
 	{
-		using EventType = RE::InputEvent::EventType;
-		using DeviceType = RE::DeviceType;
+		using EventType = RE::INPUT_EVENT_TYPE;
+		using DeviceType = RE::INPUT_DEVICE;
 		using Message = RE::UIMessage::Message;
 
 		if (!a_event || !*a_event) {
@@ -72,27 +72,27 @@ namespace Events
 
 		auto loot = LootMenu::GetSingleton();
 		if (loot->IsOpen()) {
-			if (event->eventType == EventType::kButton && event->deviceType == DeviceType::kKeyboard) {
+			if (event->eventType == EventType::kButton && event->device == DeviceType::kKeyboard) {
 				auto button = static_cast<RE::ButtonEvent*>(event);
 
-				auto inputStrHolder = RE::InputStringHolder::GetSingleton();
-				if (button->GetControlID() == inputStrHolder->nextFocus) {  // Tab
-					auto mm = RE::MenuManager::GetSingleton();
-					auto uiStrHolder = RE::UIStringHolder::GetSingleton();
-					auto uiManager = RE::UIManager::GetSingleton();
+				auto events = RE::UserEvents::GetSingleton();
+				if (button->QUserEvent() == events->nextFocus) {  // Tab
+					auto ui = RE::UI::GetSingleton();
+					auto intfcStr = RE::InterfaceStrings::GetSingleton();
+					auto msgQ = RE::UIMessageQueue::GetSingleton();
 
-					if (mm->GetMovieView(uiStrHolder->inventoryMenu)) {
-						uiManager->AddMessage(uiStrHolder->inventoryMenu, Message::kClose, 0);
-					} else if (mm->GetMovieView(uiStrHolder->statsMenu) && !mm->GetMovieView(uiStrHolder->levelUpMenu)) {
-						uiManager->AddMessage(uiStrHolder->statsMenu, Message::kClose, 0);
-					} else if (mm->GetMovieView(uiStrHolder->magicMenu)) {
-						uiManager->AddMessage(uiStrHolder->magicMenu, Message::kClose, 0);
-					} else if (mm->GetMovieView(uiStrHolder->mapMenu)) {
-						uiManager->AddMessage(uiStrHolder->mapMenu, Message::kClose, 0);
-					} else if (mm->GetMovieView(uiStrHolder->containerMenu)) {
-						uiManager->AddMessage(uiStrHolder->containerMenu, Message::kClose, 0);
-					} else if (mm->GetMovieView(uiStrHolder->journalMenu)) {
-						uiManager->AddMessage(uiStrHolder->journalMenu, Message::kClose, 0);
+					if (ui->GetMovieView(intfcStr->inventoryMenu)) {
+						msgQ->AddMessage(intfcStr->inventoryMenu, Message::kClose, 0);
+					} else if (ui->GetMovieView(intfcStr->statsMenu) && !ui->GetMovieView(intfcStr->levelUpMenu)) {
+						msgQ->AddMessage(intfcStr->statsMenu, Message::kClose, 0);
+					} else if (ui->GetMovieView(intfcStr->magicMenu)) {
+						msgQ->AddMessage(intfcStr->magicMenu, Message::kClose, 0);
+					} else if (ui->GetMovieView(intfcStr->mapMenu)) {
+						msgQ->AddMessage(intfcStr->mapMenu, Message::kClose, 0);
+					} else if (ui->GetMovieView(intfcStr->containerMenu)) {
+						msgQ->AddMessage(intfcStr->containerMenu, Message::kClose, 0);
+					} else if (ui->GetMovieView(intfcStr->journalMenu)) {
+						msgQ->AddMessage(intfcStr->journalMenu, Message::kClose, 0);
 					}
 				}
 			}
@@ -108,7 +108,7 @@ namespace Events
 	}
 
 
-	auto MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
+	auto MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_eventSource)
 		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
@@ -116,20 +116,20 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
-		auto mm = RE::MenuManager::GetSingleton();
-		if (a_event->isOpening) {
-			auto menu = mm->GetMenu(a_event->menuName);
+		auto ui = RE::UI::GetSingleton();
+		if (a_event->opening) {
+			auto menu = ui->GetMenu(a_event->menuName);
 			if (menu) {
-				auto uiStrHolder = RE::UIStringHolder::GetSingleton();
+				auto intfcStr = RE::InterfaceStrings::GetSingleton();
 				auto& menuName = a_event->menuName;
-				if (menuName == uiStrHolder->dialogueMenu || menuName == uiStrHolder->messageBoxMenu) {
+				if (menuName == intfcStr->dialogueMenu || menuName == intfcStr->messageBoxMenu) {
 					loot->Close();
-				} else if ((menu->StopsCrosshairUpdates() && menuName != uiStrHolder->tweenMenu) || menu->PausesGame()) {
+				} else if ((menu->DontHideCursorWhenTopmost() && menuName != intfcStr->tweenMenu) || menu->PausesGame()) {
 					loot->SetVisible(false);
 				}
 			}
 		} else {
-			if (!loot->IsVisible() && !mm->GameIsPaused()) {
+			if (!loot->IsVisible() && !ui->GameIsPaused()) {
 				loot->SetVisible(true);
 				loot->ParseInventory();
 				Dispatch<OpenContainerDelegate>();
@@ -147,7 +147,7 @@ namespace Events
 	}
 
 
-	auto TESCombatEventHandler::ReceiveEvent(RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
+	auto TESCombatEventHandler::ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>* a_eventSource)
 		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
@@ -156,7 +156,7 @@ namespace Events
 		}
 
 		auto player = RE::PlayerCharacter::GetSingleton();
-		if ((a_event->source && a_event->source->IsPlayerRef()) || (a_event->target && a_event->target->IsPlayerRef())) {
+		if ((a_event->actor && a_event->actor->IsPlayerRef()) || (a_event->targetActor && a_event->targetActor->IsPlayerRef())) {
 			if (Settings::disableInCombat || IsValidPickPocketTarget(loot->GetContainerRef(), player->IsSneaking())) {
 				loot->Close();
 				loot->SkipNextInput();
@@ -174,7 +174,7 @@ namespace Events
 	}
 
 
-	auto TESContainerChangedEventHandler::ReceiveEvent(RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
+	auto TESContainerChangedEventHandler::ProcessEvent(const RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource)
 		-> EventResult
 	{
 		auto loot = LootMenu::GetSingleton();
@@ -187,7 +187,7 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
-		if (a_event->from == ref->formID || a_event->to == ref->formID) {
+		if (a_event->oldContainer == ref->formID || a_event->newContainer == ref->formID) {
 			auto task = SKSE::GetTaskInterface();
 			task->AddTask(new DelayedUpdater());	// This event is fired before the item is removed, so we have to wait a bit
 		}

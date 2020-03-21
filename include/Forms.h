@@ -447,9 +447,6 @@ enum : RE::FormID
 	kMQ106DragonParchment = 0x000BBCD5,
 	kTGLT04EastEmpireShippingRoutes = 0x00060CC2,
 
-	// FACT
-	kCurrentFollowerFaction = 0x0005C84E,
-
 	// KEYM
 	kAngasMillAeriHouseKey = 0x0006564E,
 	kAngasMillCommonHouseKey = 0x00065650,
@@ -661,4 +658,3 @@ extern Form<RE::BGSKeyword*>	WeapMaterialDaedric;
 extern Form<RE::BGSKeyword*>	WeapTypeWarhammer;
 extern Form<RE::BGSPerk*>		Misdirection;
 extern Form<RE::BGSPerk*>		PerfectTouch;
-extern Form<RE::TESFaction*>	CurrentFollowerFaction;

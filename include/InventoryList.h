@@ -1,10 +1,8 @@
 #pragma once
 
-#include <map>
 #include <vector>
 
 #include "ItemData.h"
-#include "ManagedEntryData.h"
 
 #include "RE/Skyrim.h"
 
@@ -12,42 +10,39 @@
 class InventoryList
 {
 public:
+	using ItemList = std::vector<ItemData>;
+	using size_type = typename ItemList::size_type;
+	using reference = typename ItemList::reference;
+	using const_reference = typename ItemList::const_reference;
+	using iterator = typename ItemList::iterator;
+	using const_iterator = typename ItemList::const_iterator;
+
+
 	InventoryList() = default;
 	~InventoryList() = default;
 
+	void parse(RE::TESObjectREFR* a_ref);
 
-	struct EntryDataCountPair
-	{
-		EntryDataCountPair(ManagedEntryDataPtr a_entryData, SInt32 a_count);
+	reference operator[](size_type a_pos);
+	const_reference operator[](size_type a_pos) const;
 
+	iterator begin() noexcept;
+	const_iterator begin() const noexcept;
+	const_iterator cbegin() const noexcept;
+	iterator end() noexcept;
+	const_iterator end() const noexcept;
+	const_iterator cend() const noexcept;
 
-		ManagedEntryDataPtr	entryData;
-		SInt32				count;
-	};
+	bool empty() const noexcept;
+	size_type size() const noexcept;
 
-
-	using FormID = UInt32;
-	using DefaultMap = std::map<FormID, EntryDataCountPair>;
-	using ItemList = std::vector<ItemData>;
-
-
-	void				parseInventory(RE::TESObjectREFR* a_refr);
-	ItemData&			operator[](UInt32 a_pos);
-	ItemList::iterator	begin() noexcept;
-	ItemList::iterator	end() noexcept;
-	bool				empty() const noexcept;
-	std::size_t			size() const noexcept;
-	void				clear() noexcept;
-	ItemList::iterator	erase(ItemList::iterator a_pos);
+	void clear() noexcept;
+	iterator erase(const_iterator a_pos);
+	iterator erase(const_iterator a_first, const_iterator a_last);
 
 private:
-	void	add(ManagedEntryDataPtr& a_entryData);
-	void	add(ManagedEntryDataPtr& a_entryData, SInt32 a_count);
-	void	parseInventoryChanges(RE::TESObjectREFR* a_refr);
-	void	parseDroppedList(RE::TESObjectREFR* a_refr);
-	bool	isValidItem(RE::TESForm* a_item);
+	static bool	is_valid(RE::TESBoundObject* a_item);
 
 
-	DefaultMap	_defaultMap;
-	ItemList	_itemList;
+	ItemList _itemList;
 };

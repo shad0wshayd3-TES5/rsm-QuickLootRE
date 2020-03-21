@@ -2,76 +2,97 @@
 
 #include "skse64/GameReferences.h"
 
-#include <algorithm>  // sort
-#include <map>
-#include <vector>
-
-#include "Forms.h"
-#include "ManagedEntryData.h"
+#include <algorithm>
 
 #include "RE/Skyrim.h"
 
 
-InventoryList::EntryDataCountPair::EntryDataCountPair(ManagedEntryDataPtr a_entryData, SInt32 a_count) :
-	entryData{ a_entryData },
-	count{ a_count }
-{}
-
-
-void InventoryList::parseInventory(RE::TESObjectREFR* a_refr)
+void InventoryList::parse(RE::TESObjectREFR* a_ref)
 {
-	clear();
+	_itemList.clear();
 
-	if (!a_refr) {
+	if (!a_ref) {
 		ItemData::SetContainer(0);
 		return;
 	} else {
-		ItemData::SetContainer(a_refr);
+		ItemData::SetContainer(a_ref);
 	}
 
-	// Get extra items
-	parseInventoryChanges(a_refr);
-	parseDroppedList(a_refr);
-
-	// Get default items
-	a_refr->GetContainer()->ForEach([&](auto a_entry)
-	{
-		auto& it = _defaultMap.find(a_entry->form->formID);
-		if (it != _defaultMap.end()) {
-			if (!a_entry->form->IsGold()) {
-				it->second.count += a_entry->count;
-			}
-		} else {
-			auto entryData = MakeEntryDataPtr(a_entry->form, a_entry->count);
-			_defaultMap.insert({ entryData->Get()->type->formID, EntryDataCountPair(entryData, entryData->Get()->countDelta) });
+	auto inv = a_ref->GetInventory(is_valid);
+	for (auto& item : inv) {
+		auto count = item.second.first;
+		if (count > 0) {
+			auto entry = ItemData(item.second.second, item.second.first);
+			_itemList.emplace_back(std::move(entry), item.second.first);
 		}
-		return true;
-	});
-
-	// Add parsed items
-	for (auto& it : _defaultMap) {
-		add(it.second.entryData, it.second.count);
 	}
 
-	std::sort(_itemList.begin(), _itemList.end(), operator>);
+	auto droppedInv = a_ref->GetDroppedInventory(is_valid);
+	for (auto& item : droppedInv) {
+		auto count = item.second.first;
+		if (count > 0) {
+			auto entry = ItemData(std::move(item.second.second), item.second.first);
+			_itemList.emplace_back(std::move(entry), item.second.first);
+		}
+	}
+
+	std::sort(_itemList.begin(), _itemList.end(), std::greater<ItemData>());
 }
 
 
-ItemData& InventoryList::operator[](UInt32 a_pos)
+auto InventoryList::operator[](size_type a_pos)
+-> reference
 {
 	return _itemList[a_pos];
 }
 
 
-std::vector<ItemData>::iterator InventoryList::begin() noexcept
+auto InventoryList::operator[](size_type a_pos) const
+-> const_reference
+{
+	return _itemList[a_pos];
+}
+
+
+auto InventoryList::begin() noexcept
+-> iterator
 {
 	return _itemList.begin();
 }
 
 
-std::vector<ItemData>::iterator InventoryList::end() noexcept
+auto InventoryList::begin() const noexcept
+-> const_iterator
+{
+	return _itemList.begin();
+}
+
+
+auto InventoryList::cbegin() const noexcept
+-> const_iterator
+{
+	return _itemList.cbegin();
+}
+
+
+auto InventoryList::end() noexcept
+-> iterator
 {
 	return _itemList.end();
+}
+
+
+auto InventoryList::end() const noexcept
+-> const_iterator
+{
+	return _itemList.end();
+}
+
+
+auto InventoryList::cend() const noexcept
+-> const_iterator
+{
+	return _itemList.cend();
 }
 
 
@@ -81,7 +102,8 @@ bool InventoryList::empty() const noexcept
 }
 
 
-std::size_t InventoryList::size() const noexcept
+auto InventoryList::size() const noexcept
+-> size_type
 {
 	return _itemList.size();
 }
@@ -90,85 +112,25 @@ std::size_t InventoryList::size() const noexcept
 void InventoryList::clear() noexcept
 {
 	ItemData::SetContainer(0);
-	_defaultMap.clear();
 	_itemList.clear();
 }
 
 
-std::vector<ItemData>::iterator InventoryList::erase(std::vector<ItemData>::iterator a_pos)
+auto InventoryList::erase(const_iterator a_pos)
+-> iterator
 {
 	return _itemList.erase(a_pos);
 }
 
 
-void InventoryList::add(ManagedEntryDataPtr& a_entryData)
+auto InventoryList::erase(const_iterator a_first, const_iterator a_last)
+-> iterator
 {
-	if (isValidItem(a_entryData->Get()->type) && a_entryData->Get()->countDelta > 0) {
-		_itemList.emplace_back(a_entryData);
-	}
+	return _itemList.erase(a_first, a_last);
 }
 
 
-void InventoryList::add(ManagedEntryDataPtr& a_entryData, SInt32 a_count)
-{
-	if (isValidItem(a_entryData->Get()->type) && a_count > 0) {
-		_itemList.emplace_back(a_entryData, a_count);
-	}
-}
-
-
-void InventoryList::parseInventoryChanges(RE::TESObjectREFR* a_refr)
-{
-	auto invChanges = a_refr->GetInventoryChanges();
-	if (!invChanges || !invChanges->entryList) {
-		return;
-	}
-
-	for (auto& entry : *invChanges->entryList) {
-		_defaultMap.insert({ entry->type->formID, EntryDataCountPair(MakeEntryDataPtr(entry, false), entry->countDelta) });
-	}
-}
-
-
-void InventoryList::parseDroppedList(RE::TESObjectREFR* a_refr)
-{
-	auto droppedList = a_refr->extraData.GetByType<RE::ExtraDroppedItemList>();
-	if (!droppedList) {
-		return;
-	}
-
-	for (auto& handle : droppedList->handles) {
-		if (handle == *g_invalidRefHandle) {
-			continue;
-		}
-
-		RE::TESObjectREFRPtr refPtr;
-		if (!RE::TESObjectREFR::LookupByHandle(handle, refPtr)) {
-			continue;
-		}
-
-		auto entryData = MakeEntryDataPtr(refPtr->baseForm, 1);
-		entryData->Get()->AddEntryList(&refPtr->extraData);
-		auto result = _defaultMap.insert({ entryData->Get()->type->formID, EntryDataCountPair(entryData, entryData->Get()->countDelta) });
-		if (!result.second) {
-			auto& item = result.first->second;
-			item.count += 1;
-			if (item.entryData->IsManaged()) {
-				item.entryData->Get()->AddEntryList(&refPtr->extraData);
-			} else {
-				if (item.entryData->Get()->extraList) {
-					for (auto& xList : *item.entryData->Get()->extraList) {
-						entryData->Get()->AddEntryList(xList);
-					}
-				}
-				item.entryData = entryData;
-			}
-		}
-	}
-}
-
-
-bool InventoryList::isValidItem(RE::TESForm* a_item)
+bool InventoryList::is_valid(RE::TESBoundObject* a_item)
 {
 	using RE::FormType;
 
@@ -201,12 +163,12 @@ bool InventoryList::isValidItem(RE::TESForm* a_item)
 		return false;
 	}
 
-	if (!a_item->IsPlayable()) {
+	if (!a_item->GetPlayable()) {
 		return false;
 	}
 
-	auto fullName = skyrim_cast<RE::TESFullName*>(a_item);
-	if (!fullName || fullName->name.empty()) {
+	auto name = a_item->GetName();
+	if (name[0] == '\0') {
 		return false;
 	}
 

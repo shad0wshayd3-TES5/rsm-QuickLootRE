@@ -1,25 +1,26 @@
 #include "SetQuickLootVariable.h"
 
 #include <cstdarg>
+#include <string>
 
 #include "LootMenu.h"
 #include "Settings.h"
 
 
-bool SetQuickLootVariable::Exec(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::CommandInfo::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
+bool SetQuickLootVariable::Exec(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::SCRIPT_FUNCTION::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, UInt32& a_opcodeOffsetPtr)
 {
-	auto strChunk = static_cast<RE::CommandInfo::StringChunk*>(a_scriptData->GetChunk());
+	auto strChunk = a_scriptData->GetStringChunk();
 	auto name = strChunk->GetString();
 
-	auto intChunk = static_cast<RE::CommandInfo::IntegerChunk*>(strChunk->GetNext());
+	auto intChunk = strChunk->GetNext()->AsInteger();
 	auto val = intChunk->GetInteger();
 
 	auto setting = Settings::set(name, val);
 	if (setting) {
 		Dispatch<SetupDelegate>();
-		CPrint("> [LootMenu] Set \"%s\" = %s", name.c_str(), setting->getValueAsString().c_str());
+		CPrint("> [%s] Set \"%s\" = %s", LONG_NAME, name.c_str(), setting->getValueAsString().c_str());
 	} else {
-		CPrint("> [LootMenu] ERROR: Variable \"%s\" not found.", name.c_str());
+		CPrint("> [%s] ERROR: Variable \"%s\" not found.", LONG_NAME, name.c_str());
 	}
 
 	return true;
@@ -28,23 +29,24 @@ bool SetQuickLootVariable::Exec(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::Com
 
 void SetQuickLootVariable::Register()
 {
-	using Type = RE::SCRIPT_PARAMETER::Type;
+	using Type = RE::SCRIPT_PARAM_TYPE;
 
-	auto info = RE::CommandInfo::LocateConsoleCommand("TestSeenData");  // Unused
+	auto info = RE::SCRIPT_FUNCTION::LocateConsoleCommand("TestSeenData");  // Unused
 	if (info) {
 		static RE::SCRIPT_PARAMETER params[] = {
-			{ "Name", Type::kString, 0 },
-			{ "Value", Type::kInteger, 0 }
+			{ "String", Type::kChar, 0 },
+			{ "Integer", Type::kInt, 0 }
 		};
-		info->longName = "SetQuickLootVariable";
-		info->shortName = "sqlv";
-		info->helpText = "<SetQuickLootVariable|sqlv> <variable-name> <new-value>";
-		info->isRefRequired = false;
-		info->SetParameters(params);
-		info->execute = &Exec;
-		info->eval = 0;
 
-		_DMESSAGE("Registered console command: %s (%s)", info->longName, info->shortName);
+		info->functionName = LONG_NAME;
+		info->shortName = SHORT_NAME;
+		info->helpString = HelpStr();
+		info->referenceFunction = false;
+		info->SetParameters(params);
+		info->executeFunction = &Exec;
+		info->conditionFunction = 0;
+
+		_MESSAGE("Registered console command: %s (%s)", LONG_NAME, SHORT_NAME);
 	} else {
 		_ERROR("Failed to register console command!\n");
 	}
@@ -53,11 +55,24 @@ void SetQuickLootVariable::Register()
 
 void SetQuickLootVariable::CPrint(const char* a_fmt, ...)
 {
-	auto console = RE::ConsoleManager::GetSingleton();
-	if (console && console->IsConsoleMode()) {
+	auto log = RE::ConsoleLog::GetSingleton();
+	if (log && log->IsConsoleMode()) {
 		std::va_list args;
 		va_start(args, a_fmt);
-		console->VPrint(a_fmt, args);
+		log->VPrint(a_fmt, args);
 		va_end(args);
 	}
+}
+
+
+const char* SetQuickLootVariable::HelpStr()
+{
+	static std::string help;
+	if (help.empty()) {
+		help += "<setquicklootvariable> \" \" <variablename> \" \" <newvalue>";
+		help += "\m\t<setquicklootvariable> ::= \"SetQuickLootVariable\" | \"SQLV\"";
+		help += "\m\t<variablename> ::= <string> ; The variable to set";
+		help += "\m\t<newvalue> ::= <integer> ; The new value of the variable to set";
+	}
+	return help.c_str();
 }

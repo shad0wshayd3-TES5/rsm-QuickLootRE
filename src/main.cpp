@@ -140,8 +140,8 @@ namespace
 					_FATALERROR("SkyUI is not installed!\n");
 				}
 
-				auto mm = RE::MenuManager::GetSingleton();
-				mm->Register("LootMenu", []() -> RE::IMenu*
+				auto ui = RE::UI::GetSingleton();
+				ui->Register("LootMenu", []() -> RE::IMenu*
 				{
 					return LootMenu::GetSingleton();
 				});
@@ -157,11 +157,11 @@ namespace
 				crosshairRefDispatcher->AddEventSink(Events::CrosshairRefEventHandler::GetSingleton());
 				_MESSAGE("Crosshair ref event handler sinked");
 
-				auto inputManager = RE::InputManager::GetSingleton();
-				inputManager->AddEventSink(Events::InputEventHandler::GetSingleton());
+				auto input = RE::BSInputDeviceManager::GetSingleton();
+				input->AddEventSink(Events::InputEventHandler::GetSingleton());
 				_MESSAGE("Input event handler sinked");
 
-				mm->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
+				ui->AddEventSink(Events::MenuOpenCloseEventHandler::GetSingleton());
 				_MESSAGE("Menu open/close event handler sinked");
 
 				auto sourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
@@ -217,31 +217,19 @@ extern "C" {
 			return false;
 		}
 
-		if (Settings::loadSettings()) {
+		if (Settings::LoadSettings()) {
 			_MESSAGE("Settings successfully loaded");
 		} else {
 			_FATALERROR("Settings failed to load!\n");
 			return false;
 		}
 
-		if (g_branchTrampoline.Create(1024 * 1)) {
-			_MESSAGE("Branch trampoline creation successful");
-		} else {
-			_FATALERROR("Branch trampoline creation failed!\n");
+		if (!SKSE::AllocTrampoline(1 << 10)) {
 			return false;
 		}
 
 		auto messaging = SKSE::GetMessagingInterface();
-		if (messaging->RegisterListener("SKSE", MessageHandler)) {
-			_MESSAGE("Registered SKSE listener");
-		} else {
-			_FATALERROR("Failed to register SKSE listener!\n");
-			return false;
-		}
-
-		auto papyrus = SKSE::GetPapyrusInterface();
-		if (!papyrus->Register(QuickLoot::RegisterFuncs, Temporary::CrosshairHook::RegisterFuncs)) {
-			_FATALERROR("Failed to register papyrus reg callback!\n");
+		if (!messaging->RegisterListener("SKSE", MessageHandler)) {
 			return false;
 		}
 

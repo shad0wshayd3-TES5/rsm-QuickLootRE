@@ -10,4 +10,3 @@ decltype(WeapMaterialDaedric)		WeapMaterialDaedric(kWeapMaterialDaedric);
 decltype(WeapTypeWarhammer)			WeapTypeWarhammer(kWeapTypeWarhammer);
 decltype(Misdirection)				Misdirection(kMisdirection);
 decltype(PerfectTouch)				PerfectTouch(kPerfectTouch);
-decltype(CurrentFollowerFaction)	CurrentFollowerFaction(kCurrentFollowerFaction);
