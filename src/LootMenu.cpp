@@ -1,6 +1,7 @@
 #include "LootMenu.h"
 
 #include <array>
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <string_view>
@@ -9,29 +10,40 @@
 #include "RE/Skyrim.h"
 
 #include "CLIK/Array.h"
+#include "Loot.h"
 
 
 namespace Scaleform
 {
-	void LootMenu::Close()
-	{
-		auto msgQ = RE::UIMessageQueue::GetSingleton();
-		msgQ->AddMessage(MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-	}
-
-
-	void LootMenu::Open()
-	{
-		auto msgQ = RE::UIMessageQueue::GetSingleton();
-		msgQ->AddMessage(MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
-	}
-
-
 	void LootMenu::Register()
 	{
 		auto ui = RE::UI::GetSingleton();
-		ui->Register(MENU_NAME, Creator);
-		_MESSAGE("Registered %s", MENU_NAME.data());
+		if (ui) {
+			ui->Register(MENU_NAME, Creator);
+			_MESSAGE("Registered %s", MENU_NAME.data());
+		}
+	}
+
+
+	void LootMenu::ProcessRef(RE::TESObjectREFRPtr a_ref)
+	{
+		assert(a_ref);
+		_itemListImpl.clear();
+
+		auto inv = a_ref->GetInventory();
+		for (auto& item : inv) {
+			auto& [count, entry] = item.second;
+			if (count > 0) {
+				_itemListImpl.emplace_back(std::move(entry), count, a_ref);
+			}
+		}
+
+		CLIK::Array arr(_view);
+		for (auto& elem : _itemListImpl) {
+			auto obj = elem.Object();
+			arr.Push(obj);
+		}
+		_itemList.DataProvider(arr);
 	}
 
 
@@ -105,13 +117,8 @@ namespace Scaleform
 			assert(success && instance.IsObject());
 		}
 
-		CLIK::Array arr(_view);
-		CLIK::Object elem;
-		for (std::size_t i = 0; i < 10; ++i) {
-			elem = "Foobar";
-			arr.Push(elem);
-		}
-		_itemList.DataProvider(arr);
+		auto loot = Loot::GetSingleton();
+		loot->Process(*this);
 	}
 
 

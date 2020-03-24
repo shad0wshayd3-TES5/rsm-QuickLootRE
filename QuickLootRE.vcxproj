@@ -161,6 +161,10 @@
     <ClCompile Include="src\CLIK\TextField.cpp" />
     <ClCompile Include="src\CLIK\TextInput.cpp" />
     <ClCompile Include="src\CLIK\UIComponent.cpp" />
+    <ClCompile Include="src\Events.cpp" />
+    <ClCompile Include="src\GFxItem.cpp" />
+    <ClCompile Include="src\InventoryItem.cpp" />
+    <ClCompile Include="src\Loot.cpp" />
     <ClCompile Include="src\LootMenu.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Scaleform.cpp" />
@@ -177,6 +181,10 @@
     <ClInclude Include="include\CLIK\TextField.h" />
     <ClInclude Include="include\CLIK\TextInput.h" />
     <ClInclude Include="include\CLIK\UIComponent.h" />
+    <ClInclude Include="include\Events.h" />
+    <ClInclude Include="include\GFxItem.h" />
+    <ClInclude Include="include\InventoryItem.h" />
+    <ClInclude Include="include\Loot.h" />
     <ClInclude Include="include\LootMenu.h" />
     <ClInclude Include="include\Scaleform.h" />
     <ClInclude Include="include\version.h" />

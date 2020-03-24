@@ -1,6 +1,7 @@
 ﻿#include "RE/Skyrim.h"
 #include "SKSE/API.h"
 
+#include "Events.h"
 #include "LootMenu.h"
 #include "Scaleform.h"
 #include "version.h"
@@ -57,10 +58,10 @@ namespace
 
 				switch (button->idCode) {
 				case Key::kNum0:
-					Scaleform::LootMenu::Open();
+					//Scaleform::LootMenu::Open();
 					break;
 				case Key::kNum9:
-					Scaleform::LootMenu::Close();
+					//Scaleform::LootMenu::Close();
 					break;
 				}
 			}
@@ -83,7 +84,8 @@ namespace
 	{
 		switch (a_msg->type) {
 		case SKSE::MessagingInterface::kDataLoaded:
-			InputHandler::Register();
+			//InputHandler::Register();
+			Events::Register();
 			Scaleform::Register();
 			break;
 		}

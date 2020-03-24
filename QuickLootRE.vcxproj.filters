@@ -40,12 +40,15 @@
     <Filter Include="include\Scaleform">
       <UniqueIdentifier>{11bfbc67-9e77-4dfb-ae48-e2d7456b0142}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\Events">
+      <UniqueIdentifier>{cc8a8208-d320-45b8-819d-45cfc8dd58c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Events">
+      <UniqueIdentifier>{9eecf212-7552-4a0b-802d-f4f1664ae36e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scaleform.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\CLIK\Array.cpp">
@@ -81,15 +84,27 @@
     <ClCompile Include="src\CLIK\UIComponent.cpp">
       <Filter>src\CLIK\GFx\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\InventoryItem.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GFxItem.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Events.cpp">
+      <Filter>src\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Loot.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\LootMenu.cpp">
+      <Filter>src\Scaleform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scaleform.cpp">
       <Filter>src\Scaleform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\version.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Scaleform.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\CLIK\Array.h">
@@ -125,7 +140,22 @@
     <ClInclude Include="include\CLIK\TextInput.h">
       <Filter>include\CLIK\GFx\Controls</Filter>
     </ClInclude>
+    <ClInclude Include="include\InventoryItem.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GFxItem.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Events.h">
+      <Filter>include\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Loot.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\LootMenu.h">
+      <Filter>include\Scaleform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Scaleform.h">
       <Filter>include\Scaleform</Filter>
     </ClInclude>
   </ItemGroup>
