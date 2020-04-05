@@ -5,6 +5,7 @@
 #include "RE/Skyrim.h"
 
 #include "CLIK/ScrollingList.h"
+#include "InputDisabler.h"
 #include "InventoryItem.h"
 
 
@@ -38,6 +39,7 @@ namespace Scaleform
 		static constexpr std::string_view MENU_NAME = "LootMenu";
 
 		RE::GPtr<RE::GFxMovieView> _view;
+		InputDisabler _inputDisabler;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		std::vector<InventoryItem> _itemListImpl;
 	};

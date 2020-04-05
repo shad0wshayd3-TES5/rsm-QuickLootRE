@@ -48,8 +48,11 @@ namespace Scaleform
 
 
 	LootMenu::LootMenu() :
+		RE::IMenu(),
 		_view(nullptr),
-		_itemList()
+		_inputDisabler(),
+		_itemList(),
+		_itemListImpl()
 	{
 		using Context = RE::UserEvents::INPUT_CONTEXT_ID;
 		using Flag = RE::UI_MENU_FLAGS;
