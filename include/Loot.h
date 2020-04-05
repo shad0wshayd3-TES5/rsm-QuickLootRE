@@ -12,6 +12,7 @@ namespace Scaleform
 }
 
 
+// Interface for interacting with the loot menu outside of UI threads
 class Loot
 {
 public:
@@ -21,6 +22,7 @@ public:
 	void Open();
 	void Process(Scaleform::LootMenu& a_menu);
 
+	void ModSelectedIndex(double a_mod);
 	void SetContainer(RE::TESObjectREFRPtr a_container);
 
 private:

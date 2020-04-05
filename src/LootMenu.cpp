@@ -25,6 +25,18 @@ namespace Scaleform
 	}
 
 
+	void LootMenu::ModSelectedIndex(double a_mod)
+	{
+		const auto maxIdx = static_cast<double>(_itemListImpl.size() - 1);
+		if (maxIdx >= 0.0) {
+			auto idx = _itemList.SelectedIndex();
+			idx += a_mod;
+			idx = std::clamp(idx, 0.0, maxIdx);
+			_itemList.SelectedIndex(idx);
+		}
+	}
+
+
 	void LootMenu::ProcessRef(RE::TESObjectREFRPtr a_ref)
 	{
 		assert(a_ref);
@@ -44,13 +56,18 @@ namespace Scaleform
 			arr.Push(obj);
 		}
 		_itemList.DataProvider(arr);
+
+		if (!_itemListImpl.empty()) {
+			_itemList.SelectedIndex(0.0);
+		}
 	}
 
 
 	LootMenu::LootMenu() :
-		RE::IMenu(),
+		super(),
 		_view(nullptr),
-		_inputDisabler(),
+		_inputDisablers(),
+		_inputListeners(),
 		_itemList(),
 		_itemListImpl()
 	{
@@ -68,6 +85,7 @@ namespace Scaleform
 
 		assert(success);
 		_view = menu->view;
+		_view->SetMouseCursorCount(0);	// disable input, we'll handle it ourselves
 		InitExtensions();
 	}
 
@@ -93,6 +111,14 @@ namespace Scaleform
 		default:
 			return RE::IMenu::ProcessMessage(a_message);
 		}
+	}
+
+
+	void LootMenu::AdvanceMovie(float a_interval, UInt32 a_currentTime)
+	{
+		auto loot = Loot::GetSingleton();
+		loot->Process(*this);
+		super::AdvanceMovie(a_interval, a_currentTime);
 	}
 
 

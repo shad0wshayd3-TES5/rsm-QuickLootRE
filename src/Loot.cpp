@@ -35,10 +35,20 @@ void Loot::Open()
 
 void Loot::Process(Scaleform::LootMenu& a_menu)
 {
-	for (auto& task : _taskQueue) {
-		task(a_menu);
+	if (!_taskQueue.empty()) {
+		for (auto& task : _taskQueue) {
+			task(a_menu);
+		}
+		_taskQueue.clear();
 	}
-	_taskQueue.clear();
+}
+
+
+void Loot::ModSelectedIndex(double a_mod)
+{
+	AddTask([a_mod](Scaleform::LootMenu& a_menu) {
+		a_menu.ModSelectedIndex(a_mod);
+	});
 }
 
 

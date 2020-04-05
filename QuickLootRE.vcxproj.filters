@@ -46,6 +46,12 @@
     <Filter Include="src\Events">
       <UniqueIdentifier>{9eecf212-7552-4a0b-802d-f4f1664ae36e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\Input">
+      <UniqueIdentifier>{3eb5724b-9ea4-47dc-8d0d-3aebed5857e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Input">
+      <UniqueIdentifier>{d3626fd0-684e-44c3-99ba-d916d5db881a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -102,8 +108,11 @@
     <ClCompile Include="src\Scaleform.cpp">
       <Filter>src\Scaleform</Filter>
     </ClCompile>
-    <ClCompile Include="src\InputDisabler.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="src\InputDisablers.cpp">
+      <Filter>src\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputListeners.cpp">
+      <Filter>src\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -161,8 +170,11 @@
     <ClInclude Include="include\Scaleform.h">
       <Filter>include\Scaleform</Filter>
     </ClInclude>
-    <ClInclude Include="include\InputDisabler.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\InputDisablers.h">
+      <Filter>include\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputListeners.h">
+      <Filter>include\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -163,7 +163,8 @@
     <ClCompile Include="src\CLIK\UIComponent.cpp" />
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\GFxItem.cpp" />
-    <ClCompile Include="src\InputDisabler.cpp" />
+    <ClCompile Include="src\InputDisablers.cpp" />
+    <ClCompile Include="src\InputListeners.cpp" />
     <ClCompile Include="src\InventoryItem.cpp" />
     <ClCompile Include="src\Loot.cpp" />
     <ClCompile Include="src\LootMenu.cpp" />
@@ -184,7 +185,8 @@
     <ClInclude Include="include\CLIK\UIComponent.h" />
     <ClInclude Include="include\Events.h" />
     <ClInclude Include="include\GFxItem.h" />
-    <ClInclude Include="include\InputDisabler.h" />
+    <ClInclude Include="include\InputDisablers.h" />
+    <ClInclude Include="include\InputListeners.h" />
     <ClInclude Include="include\InventoryItem.h" />
     <ClInclude Include="include\Loot.h" />
     <ClInclude Include="include\LootMenu.h" />
