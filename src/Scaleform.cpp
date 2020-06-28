@@ -1,7 +1,6 @@
-#include "Scaleform.h"
+#include "Scaleform/Scaleform.h"
 
-#include "LootMenu.h"
-
+#include "Scaleform/LootMenu.h"
 
 namespace Scaleform
 {

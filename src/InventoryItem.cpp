@@ -1,14 +1,8 @@
 #include "InventoryItem.h"
 
-#include <algorithm>
-#include <cassert>
-#include <vector>
-
-
 InventoryItem::InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_entry, std::ptrdiff_t a_count) :
 	InventoryItem(std::move(a_entry), a_count, RE::ObjectRefHandle())
 {}
-
 
 InventoryItem::InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_entry, std::ptrdiff_t a_count, RE::ObjectRefHandle a_container) :
 	_entry(std::move(a_entry)),
@@ -17,23 +11,19 @@ InventoryItem::InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_entry, st
 	_gfxItem(_entry)
 {}
 
-
 InventoryItem::InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_entry, std::ptrdiff_t a_count, RE::TESObjectREFRPtr a_container) :
 	InventoryItem(std::move(a_entry), a_count, a_container->CreateRefHandle())
 {}
-
 
 [[nodiscard]] std::ptrdiff_t InventoryItem::Count() const
 {
 	return std::max<std::ptrdiff_t>(_count, 0);
 }
 
-
 CLIK::Object InventoryItem::Object() const
 {
 	return _gfxItem.Object();
 }
-
 
 void InventoryItem::Take(RE::TESObjectREFRPtr a_dst, std::ptrdiff_t a_count)
 {
@@ -69,12 +59,10 @@ void InventoryItem::Take(RE::TESObjectREFRPtr a_dst, std::ptrdiff_t a_count)
 	}
 }
 
-
 void InventoryItem::Take(RE::TESObjectREFRPtr a_dst)
 {
 	Take(std::move(a_dst), 1);
 }
-
 
 void InventoryItem::TakeAll(RE::TESObjectREFRPtr a_dst)
 {
