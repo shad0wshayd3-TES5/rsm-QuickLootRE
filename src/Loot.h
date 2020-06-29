@@ -9,10 +9,15 @@ namespace Scaleform
 class Loot
 {
 public:
-	static Loot* GetSingleton();
+	static inline Loot* GetSingleton()
+	{
+		static Loot singleton;
+		return std::addressof(singleton);
+	}
 
 	void Close();
 	void Open();
+
 	void Process(Scaleform::LootMenu& a_menu);
 
 	void ModSelectedIndex(double a_mod);
@@ -25,12 +30,14 @@ private:
 	Loot() = default;
 	Loot(const Loot&) = delete;
 	Loot(Loot&&) = delete;
+
 	~Loot() = default;
 
 	Loot& operator=(const Loot&) = delete;
 	Loot& operator=(Loot&&) = delete;
 
-	void AddTask(Tasklet a_task);
+	inline void AddTask(Tasklet a_task);
+
 	RE::GPtr<LootMenu> GetMenu();
 
 	std::vector<Tasklet> _taskQueue;

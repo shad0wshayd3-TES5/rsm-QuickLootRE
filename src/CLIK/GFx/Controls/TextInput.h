@@ -8,56 +8,116 @@ namespace CLIK
 	{
 		namespace Controls
 		{
-			class TextInput : public Core::UIComponent
+			class TextInput :
+				public Core::UIComponent
 			{
-			public:
+			private:
 				using super = Core::UIComponent;
 
-				TextInput();
-				TextInput(const TextInput& a_rhs);
-				TextInput(TextInput&& a_rhs);
-				TextInput(const Core::UIComponent& a_rhs);
-				TextInput(Core::UIComponent&& a_rhs);
-				explicit TextInput(const RE::GFxValue& a_val);
-				explicit TextInput(RE::GFxValue&& a_val);
-				~TextInput();
+			public:
+				TextInput() = default;
+				TextInput(const TextInput&) = default;
+				TextInput(TextInput&&) = default;
+				using super::super;
 
-				TextInput& operator=(const TextInput& a_rhs);
-				TextInput& operator=(TextInput&& a_rhs);
-				TextInput& operator=(const Core::UIComponent& a_rhs);
-				TextInput& operator=(Core::UIComponent&& a_rhs);
-				TextInput& operator=(const RE::GFxValue& a_rhs);
-				TextInput& operator=(RE::GFxValue&& a_rhs);
+				inline TextInput(const super& a_rhs) :
+					super(a_rhs)
+				{}
 
-				std::string_view TextID() const;
-				void TextID(std::string_view a_textID);
+				inline TextInput(super&& a_rhs) :
+					super(std::move(a_rhs))
+				{}
 
-				std::string_view Text() const;
-				void Text(std::string_view a_text);
+				~TextInput() = default;
 
-				std::string_view HTMLText() const;
-				void HTMLText(std::string_view a_htmlText);
+				TextInput& operator=(const TextInput&) = default;
+				TextInput& operator=(TextInput&&) = default;
+				using super::operator=;
 
-				bool Editable() const;
-				void Editable(bool a_editable);
+				inline TextInput& operator=(const super& a_rhs)
+				{
+					super::operator=(a_rhs);
+					return *this;
+				}
 
-				bool Password() const;
-				void Password(bool a_password);
+				inline TextInput& operator=(super&& a_rhs)
+				{
+					super::operator=(std::move(a_rhs));
+					return *this;
+				}
 
-				double MaxChars() const;
-				void MaxChars(double a_maxChars);
+				inline std::string_view TextID() const { return GetString("textID"); }
+				inline void TextID(std::string_view a_textID) { SetString("textID", a_textID); }
 
-				bool Disabled() const;
-				void Disabled(bool a_disabled);
+				inline std::string_view Text() const { return GetString("text"); }
+				inline void Text(std::string_view a_text) { SetString("text", a_text); }
 
-				void AppendText(std::string_view a_text);
-				void AppendHTML(std::string_view a_text);
+				inline std::string_view HTMLText() const { return GetString("htmlText"); }
+				inline void HTMLText(std::string_view a_htmlText) { SetString("htmlText", a_htmlText); }
 
-				double Length() const;
+				inline bool Editable() const { return GetBoolean("editable"); }
+				inline void Editable(bool a_editable) { SetBoolean("editable", a_editable); }
+
+				inline bool Password() const { return GetBoolean("password"); }
+				inline void Password(bool a_password) { SetBoolean("password", a_password); }
+
+				inline double MaxChars() const { return GetNumber("maxChars"); }
+				inline void MaxChars(double a_maxChars) { SetNumber("maxChars", a_maxChars); }
+
+				inline bool Disabled() const { return GetBoolean("disabled"); }
+				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
+
+				inline void AppendText(std::string_view a_text)
+				{
+					enum
+					{
+						kText,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kText] = a_text;
+					assert(args[kText].IsString());
+
+					[[maybe_unused]] const auto success =
+						Invoke("appendText", nullptr, args.data(), args.size());
+					assert(success);
+				}
+
+				inline void AppendHTML(std::string_view a_text)
+				{
+					enum
+					{
+						kText,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kText] = a_text;
+					assert(args[kText].IsString());
+
+					[[maybe_unused]] const auto success =
+						Invoke("appendHtml", nullptr, args.data(), args.size());
+					assert(success);
+				}
+
+				inline double Length() const
+				{
+					return GetNumber("length");
+				}
 
 				//bool handleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				std::string_view ToString();
+				inline std::string_view ToString()
+				{
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("toString", std::addressof(str));
+					assert(success);
+					return str.GetString();
+				}
 			};
 		}
 	}

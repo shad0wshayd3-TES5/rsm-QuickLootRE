@@ -8,59 +8,103 @@ namespace CLIK
 	{
 		namespace Controls
 		{
-			class Button : public Core::UIComponent
+			class Button :
+				public Core::UIComponent
 			{
-			public:
+			private:
 				using super = Core::UIComponent;
 
-				Button();
-				Button(const Button& a_rhs);
-				Button(Button&& a_rhs);
-				Button(const Core::UIComponent& a_rhs);
-				Button(Core::UIComponent&& a_rhs);
-				explicit Button(const RE::GFxValue& a_val);
-				explicit Button(RE::GFxValue&& a_val);
-				~Button();
+			public:
+				Button() = default;
+				Button(const Button&) = default;
+				Button(Button&&) = default;
+				using super::super;
 
-				Button& operator=(const Button& a_rhs);
-				Button& operator=(Button&& a_rhs);
-				Button& operator=(const Core::UIComponent& a_rhs);
-				Button& operator=(Core::UIComponent&& a_rhs);
-				Button& operator=(const RE::GFxValue& a_rhs);
-				Button& operator=(RE::GFxValue&& a_rhs);
+				inline Button(const super& a_rhs) :
+					super(a_rhs)
+				{}
 
-				std::string_view LabelID() const;
-				void LabelID(std::string_view a_labelID);
+				inline Button(super&& a_rhs) :
+					super(std::move(a_rhs))
+				{}
 
-				std::string_view Label() const;
-				void Label(std::string_view a_label);
+				~Button() = default;
 
-				bool Disabled() const;
-				void Disabled(bool a_disabled);
+				Button& operator=(const Button&) = default;
+				Button& operator=(Button&&) = default;
+				using super::operator=;
 
-				bool Selected() const;
-				void Selected(bool a_selected);
+				inline Button& operator=(const super& a_rhs)
+				{
+					super::operator=(a_rhs);
+					return *this;
+				}
 
-				std::string_view GroupName() const;
-				void GroupName(std::string_view a_groupName);
+				inline Button& operator=(super&& a_rhs)
+				{
+					super::operator=(std::move(a_rhs));
+					return *this;
+				}
 
-				Object Group() const;
-				void Group(const Object& a_group);
+				inline std::string_view LabelID() const { return GetString("labelID"); }
+				inline void LabelID(std::string_view a_labelID) { SetString("labelID", a_labelID); }
 
-				bool DisableFocus() const;
-				void DisableFocus(bool a_disableFocus);
+				inline std::string_view Label() const { return GetString("label"); }
+				inline void Label(std::string_view a_label) { SetString("label", a_label); }
 
-				bool DisableConstraints() const;
-				void DisableConstraints(bool a_disableConstraints);
+				inline bool Disabled() const { return GetBoolean("disabled"); }
+				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
-				std::string_view AutoSize() const;
-				void AutoSize(std::string_view a_autoSize);
+				inline bool Selected() const { return GetBoolean("selected"); }
+				inline void Selected(bool a_selected) { SetBoolean("selected", a_selected); }
 
-				void SetSize(double a_width, double a_height);
+				inline std::string_view GroupName() const { return GetString("groupName"); }
+				inline void GroupName(std::string_view a_groupName) { SetString("groupName", a_groupName); }
+
+				inline Object Group() const { return GetObject("group"); }
+				inline void Group(const Object& a_group) { SetObject("group", a_group); }
+
+				inline bool DisableFocus() const { return GetBoolean("disableFocus"); }
+				inline void DisableFocus(bool a_disableFocus) { SetBoolean("disableFocus", a_disableFocus); }
+
+				inline bool DisableConstraints() const { return GetBoolean("disableConstraints"); }
+				inline void DisableConstraints(bool a_disableConstraints) { SetBoolean("disableConstraints", a_disableConstraints); }
+
+				inline std::string_view AutoSize() const { return GetString("autoSize"); }
+				inline void AutoSize(std::string_view a_autoSize) { SetString("autoSize", a_autoSize); }
+
+				inline void SetSize(double a_width, double a_height)
+				{
+					enum
+					{
+						kWidth,
+						kHeight,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kWidth] = a_width;
+					assert(args[kWidth].IsNumber());
+
+					args[kHeight] = a_height;
+					assert(args[kHeight].IsNumber());
+
+					[[maybe_unused]] const auto success =
+						Invoke("setSize", nullptr, args.data(), args.size());
+					assert(success);
+				}
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				std::string_view ToString();
+				inline std::string_view ToString()
+				{
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("toString", std::addressof(str));
+					assert(success);
+					return str.GetString();
+				}
 			};
 		}
 	}

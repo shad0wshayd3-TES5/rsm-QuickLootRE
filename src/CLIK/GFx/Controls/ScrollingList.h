@@ -8,54 +8,99 @@ namespace CLIK
 	{
 		namespace Controls
 		{
-			class ScrollingList : public CoreList
+			class ScrollingList :
+				public CoreList
 			{
-			public:
+			private:
 				using super = CoreList;
 
-				ScrollingList();
-				ScrollingList(const ScrollingList& a_rhs);
-				ScrollingList(ScrollingList&& a_rhs);
-				ScrollingList(const CoreList& a_rhs);
-				ScrollingList(CoreList&& a_rhs);
-				explicit ScrollingList(const RE::GFxValue& a_val);
-				explicit ScrollingList(RE::GFxValue&& a_val);
-				~ScrollingList();
+			public:
+				ScrollingList() = default;
+				ScrollingList(const ScrollingList&) = default;
+				ScrollingList(ScrollingList&&) = default;
+				using super::super;
 
-				ScrollingList& operator=(const ScrollingList& a_rhs);
-				ScrollingList& operator=(ScrollingList&& a_rhs);
-				ScrollingList& operator=(const CoreList& a_rhs);
-				ScrollingList& operator=(CoreList&& a_rhs);
-				ScrollingList& operator=(const RE::GFxValue& a_rhs);
-				ScrollingList& operator=(RE::GFxValue&& a_rhs);
+				inline ScrollingList(const super& a_rhs) :
+					super(a_rhs)
+				{}
 
-				Object ScrollBar() const;
-				void ScrollBar(const Object& a_scrollBar);
+				inline ScrollingList(super&& a_rhs) :
+					super(std::move(a_rhs))
+				{}
 
-				double RowHeight() const;
-				void RowHeight(double a_rowHeight);
+				~ScrollingList() = default;
 
-				double ScrollPosition() const;
-				void ScrollPosition(double a_scrollPosition);
+				ScrollingList& operator=(const ScrollingList&) = default;
+				ScrollingList& operator=(ScrollingList&&) = default;
+				using super::operator=;
 
-				double SelectedIndex() const;
-				void SelectedIndex(double a_selectedIndex);
+				inline ScrollingList& operator=(const super& a_rhs)
+				{
+					super::operator=(a_rhs);
+					return *this;
+				}
 
-				bool Disabled() const;
-				void Disabled(bool a_disabled);
+				inline ScrollingList& operator=(super&& a_rhs)
+				{
+					super::operator=(std::move(a_rhs));
+					return *this;
+				}
 
-				void ScrollToIndex(double a_index);
+				inline Object ScrollBar() const { return GetObject("scrollBar"); }
+				inline void ScrollBar(const Object& a_scrollBar) { SetObject("scrollBar", a_scrollBar); }
 
-				double RowCount() const;
-				void RowCount(double a_rowCount);
+				inline double RowHeight() const { return GetNumber("rowHeight"); }
+				inline void RowHeight(double a_rowHeight) { SetNumber("rowHeight", a_rowHeight); }
 
-				void InvalidateData();
+				inline double ScrollPosition() const { return GetNumber("scrollPosition"); }
+				inline void ScrollPosition(double a_scrollPosition) { SetNumber("scrollPosition", a_scrollPosition); }
+
+				inline double SelectedIndex() const { return GetNumber("selectedIndex"); }
+				inline void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
+
+				inline bool Disabled() const { return GetBoolean("disabled"); }
+				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
+
+				inline void ScrollToIndex(double a_index)
+				{
+					enum
+					{
+						kIndex,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kIndex] = a_index;
+					assert(args[kIndex].IsNumber());
+
+					[[maybe_unused]] const auto success =
+						Invoke("scrollToIndex", nullptr, args.data(), args.size());
+					assert(success);
+				}
+
+				inline double RowCount() const { return GetNumber("rowCount"); }
+				inline void RowCount(double a_rowCount) { SetNumber("rowCount", a_rowCount); }
+
+				inline void InvalidateData()
+				{
+					[[maybe_unused]] const auto success =
+						Invoke("invalidateData");
+					assert(success);
+				}
 
 				//bool handleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				double AvailableWidth() const;
+				inline double AvailableWidth() const { return GetNumber("availableWidth"); }
 
-				std::string_view ToString();
+				inline std::string_view ToString()
+				{
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("toString", std::addressof(str));
+					assert(success);
+					return str.GetString();
+				}
 			};
 		}
 	}

@@ -10,49 +10,72 @@ namespace CLIK
 		{
 			class Slider : public Core::UIComponent
 			{
-			public:
+			private:
 				using super = Core::UIComponent;
 
-				Slider();
-				Slider(const Slider& a_rhs);
-				Slider(Slider&& a_rhs);
-				Slider(const Core::UIComponent& a_rhs);
-				Slider(Core::UIComponent&& a_rhs);
-				explicit Slider(const RE::GFxValue& a_val);
-				explicit Slider(RE::GFxValue&& a_val);
-				~Slider();
+			public:
+				Slider() = default;
+				Slider(const Slider&) = default;
+				Slider(Slider&&) = default;
+				using super::super;
 
-				Slider& operator=(const Slider& a_rhs);
-				Slider& operator=(Slider&& a_rhs);
-				Slider& operator=(const Core::UIComponent& a_rhs);
-				Slider& operator=(Core::UIComponent&& a_rhs);
-				Slider& operator=(const RE::GFxValue& a_rhs);
-				Slider& operator=(RE::GFxValue&& a_rhs);
+				inline Slider(const super& a_rhs) :
+					super(a_rhs)
+				{}
 
-				double Maximum() const;
-				void Maximum(double a_maximum);
+				inline Slider(super&& a_rhs) :
+					super(std::move(a_rhs))
+				{}
 
-				double Minimum() const;
-				void Minimum(double a_minimum);
+				~Slider() = default;
 
-				double Value() const;
-				void Value(double a_value);
+				Slider& operator=(const Slider&) = default;
+				Slider& operator=(Slider&&) = default;
+				using super::operator=;
 
-				bool Disabled() const;
-				void Disabled(bool a_disabled);
+				inline Slider& operator=(const super& a_rhs)
+				{
+					super::operator=(a_rhs);
+					return *this;
+				}
 
-				double Position() const;
-				void Position(double a_position);
+				inline Slider& operator=(super&& a_rhs)
+				{
+					super::operator=(std::move(a_rhs));
+					return *this;
+				}
 
-				bool Snapping() const;
-				void Snapping(bool a_snapping);
+				inline double Maximum() const { return GetNumber("maximum"); }
+				inline void Maximum(double a_maximum) { SetNumber("maximum", a_maximum); }
 
-				double SnapInterval() const;
-				void SnapInterval(double a_snapInterval);
+				inline double Minimum() const { return GetNumber("minimum"); }
+				inline void Minimum(double a_minimum) { SetNumber("minimum", a_minimum); }
+
+				inline double Value() const { return GetNumber("value"); }
+				inline void Value(double a_value) { SetNumber("value", a_value); }
+
+				inline bool Disabled() const { return GetBoolean("disabled"); }
+				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
+
+				inline double Position() const { return GetNumber("position"); }
+				inline void Position(double a_position) { SetNumber("position", a_position); }
+
+				inline bool Snapping() const { return GetBoolean("snapping"); }
+				inline void Snapping(bool a_snapping) { SetBoolean("snapping", a_snapping); }
+
+				inline double SnapInterval() const { return GetNumber("snapInterval"); }
+				inline void SnapInterval(double a_snapInterval) { SetNumber("snapInterval", a_snapInterval); }
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				std::string_view ToString();
+				inline std::string_view ToString()
+				{
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("toString", std::addressof(str));
+					assert(success);
+					return str.GetString();
+				}
 			};
 		}
 	}

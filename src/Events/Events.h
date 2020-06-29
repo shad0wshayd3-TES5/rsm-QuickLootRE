@@ -5,20 +5,32 @@ namespace Events
 	class CrosshairRefHandler : public RE::BSTEventSink<SKSE::CrosshairRefEvent>
 	{
 	public:
-		static CrosshairRefHandler* GetSingleton();
+		static inline CrosshairRefHandler* GetSingleton()
+		{
+			static CrosshairRefHandler singleton;
+			return std::addressof(singleton);
+		}
 
-		static void Register();
+		static inline void Register()
+		{
+			auto source = SKSE::GetCrosshairRefEventSource();
+			if (source) {
+				source->AddEventSink(GetSingleton());
+				_MESSAGE("Registered %s", typeid(CrosshairRefHandler).name());
+			}
+		}
 
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 
-		virtual EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
+		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
 
 	private:
 		CrosshairRefHandler() = default;
 		CrosshairRefHandler(const CrosshairRefHandler&) = delete;
 		CrosshairRefHandler(CrosshairRefHandler&&) = delete;
-		virtual ~CrosshairRefHandler() = default;
+
+		~CrosshairRefHandler() = default;
 
 		CrosshairRefHandler& operator=(const CrosshairRefHandler&) = delete;
 		CrosshairRefHandler& operator=(CrosshairRefHandler&&) = delete;
@@ -26,5 +38,9 @@ namespace Events
 		RE::TESObjectREFRPtr _cachedRef;
 	};
 
-	void Register();
+	inline void Register()
+	{
+		CrosshairRefHandler::Register();
+		_MESSAGE("Registered all event handlers");
+	}
 }

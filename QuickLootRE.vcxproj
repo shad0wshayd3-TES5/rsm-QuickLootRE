@@ -100,7 +100,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -153,7 +153,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -205,22 +205,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\CLIK\Array.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Controls\Button.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Controls\CoreList.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Controls\DropdownMenu.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Controls\ScrollingList.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Controls\Slider.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Controls\TextInput.cpp" />
-    <ClCompile Include="src\CLIK\GFx\Core\UIComponent.cpp" />
-    <ClCompile Include="src\CLIK\MovieClip.cpp" />
-    <ClCompile Include="src\CLIK\Object.cpp" />
-    <ClCompile Include="src\CLIK\TextField.cpp" />
     <ClCompile Include="src\Events\Events.cpp" />
-    <ClCompile Include="src\GFxItem.cpp" />
-    <ClCompile Include="src\Input\InputDisablers.cpp" />
     <ClCompile Include="src\Input\InputListeners.cpp" />
-    <ClCompile Include="src\InventoryItem.cpp" />
     <ClCompile Include="src\Loot.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PCH.cpp">
@@ -252,7 +238,9 @@
     <ClInclude Include="src\GFxItem.h" />
     <ClInclude Include="src\Input\InputDisablers.h" />
     <ClInclude Include="src\Input\InputListeners.h" />
-    <ClInclude Include="src\InventoryItem.h" />
+    <ClInclude Include="src\Items\GroundItems.h" />
+    <ClInclude Include="src\Items\InventoryItem.h" />
+    <ClInclude Include="src\Items\Item.h" />
     <ClInclude Include="src\Loot.h" />
     <ClInclude Include="src\PCH.h" />
     <ClInclude Include="src\Scaleform\LootMenu.h" />

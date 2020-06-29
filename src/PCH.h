@@ -17,4 +17,7 @@
 #include <utility>
 #include <vector>
 
+using RE::observer;
+using RE::owner;
+
 #define DLLEXPORT __declspec(dllexport)

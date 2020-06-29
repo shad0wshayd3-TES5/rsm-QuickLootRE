@@ -5,9 +5,23 @@
 class GFxItem
 {
 public:
-	GFxItem(const std::unique_ptr<RE::InventoryEntryData>& a_entry);
+	inline GFxItem(observer<RE::InventoryEntryData*> a_item) :
+		_displayName(a_item->GetDisplayName())
+	{}
 
-	[[nodiscard]] CLIK::Object Object() const;
+	inline GFxItem(observer<RE::TESObjectREFR*> a_item) :
+		_displayName()
+	{
+		const auto name = a_item->GetDisplayFullName();
+		if (name) {
+			_displayName = name;
+		}
+	}
+
+	[[nodiscard]] inline CLIK::Object Object() const
+	{
+		return CLIK::Object{ _displayName };
+	}
 
 private:
 	std::string _displayName;

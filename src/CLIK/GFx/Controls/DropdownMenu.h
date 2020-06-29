@@ -8,68 +8,151 @@ namespace CLIK
 	{
 		namespace Controls
 		{
-			class DropdownMenu : public Button
+			class DropdownMenu :
+				public Button
 			{
-			public:
+			private:
 				using super = Button;
 
-				DropdownMenu();
-				DropdownMenu(const DropdownMenu& a_rhs);
-				DropdownMenu(DropdownMenu&& a_rhs);
-				DropdownMenu(const Button& a_rhs);
-				DropdownMenu(Button&& a_rhs);
-				explicit DropdownMenu(const RE::GFxValue& a_val);
-				explicit DropdownMenu(RE::GFxValue&& a_val);
-				~DropdownMenu();
+			public:
+				DropdownMenu() = default;
+				DropdownMenu(const DropdownMenu&) = default;
+				DropdownMenu(DropdownMenu&&) = default;
+				using super::super;
 
-				DropdownMenu& operator=(const DropdownMenu& a_rhs);
-				DropdownMenu& operator=(DropdownMenu&& a_rhs);
-				DropdownMenu& operator=(const Button& a_rhs);
-				DropdownMenu& operator=(Button&& a_rhs);
-				DropdownMenu& operator=(const RE::GFxValue& a_rhs);
-				DropdownMenu& operator=(RE::GFxValue&& a_rhs);
+				inline DropdownMenu(const super& a_rhs) :
+					super(a_rhs)
+				{}
 
-				Object Dropdown() const;
-				void Dropdown(const Object& a_dropdown);
+				inline DropdownMenu(super&& a_rhs) :
+					super(std::move(a_rhs))
+				{}
 
-				Object ItemRenderer() const;
-				void ItemRenderer(const Object& a_itemRenderer);
+				~DropdownMenu() = default;
 
-				Object ScrollBar() const;
-				void ScrollBar(const Object& a_scrollBar);
+				DropdownMenu& operator=(const DropdownMenu&) = default;
+				DropdownMenu& operator=(DropdownMenu&&) = default;
+				using super::operator=;
 
-				Object DropdownWidth() const;
-				void DropdownWidth(const Object& a_dropdownWidth);
+				inline DropdownMenu& operator=(const super& a_rhs)
+				{
+					super::operator=(a_rhs);
+					return *this;
+				}
 
-				double RowCount() const;
-				void RowCount(double a_rowCount);
+				inline DropdownMenu& operator=(super&& a_rhs)
+				{
+					super::operator=(std::move(a_rhs));
+					return *this;
+				}
 
-				Object DataProvider() const;
-				void DataProvider(const Object& a_dataProvider);
+				inline Object Dropdown() const { return GetObject("dropdown"); }
+				inline void Dropdown(const Object& a_dropdown) { SetObject("dropdown", a_dropdown); }
 
-				double SelectedIndex() const;
-				void SelectedIndex(double a_selectedIndex);
+				inline Object ItemRenderer() const { return GetObject("itemRenderer"); }
+				inline void ItemRenderer(const Object& a_itemRenderer) { SetObject("itemRenderer", a_itemRenderer); }
 
-				std::string_view LabelField() const;
-				void LabelField(std::string_view a_selectedIndex);
+				inline Object ScrollBar() const { return GetObject("scrollBar"); }
+				inline void ScrollBar(const Object& a_scrollBar) { SetObject("scrollBar", a_scrollBar); }
+
+				inline Object DropdownWidth() const { return GetObject("scrollBar"); }
+				inline void DropdownWidth(const Object& a_dropdownWidth) { SetObject("scrollBar", a_dropdownWidth); }
+
+				inline double RowCount() const { return GetNumber("rowCount"); }
+				inline void RowCount(double a_rowCount) { SetNumber("rowCount", a_rowCount); }
+
+				inline Object DataProvider() const { return GetObject("dataProvider"); }
+				inline void DataProvider(const Object& a_dataProvider) { SetObject("dataProvider", a_dataProvider); }
+
+				inline double SelectedIndex() const { return GetNumber("selectedIndex"); }
+				inline void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
+
+				inline std::string_view LabelField() const { return GetString("labelField"); }
+				inline void LabelField(std::string_view a_selectedIndex) { SetString("labelField", a_selectedIndex); }
 
 				//Function LabelFunction() const;
 				//void LabelFunction(const Function& a_labelFunction);
 
-				std::string_view ItemToLabel(Object& a_item);
+				inline std::string_view ItemToLabel(Object& a_item)
+				{
+					enum
+					{
+						kItem,
+						kNumArgs
+					};
 
-				void Open();
-				void Close();
+					std::array<RE::GFxValue, kNumArgs> args;
 
-				void InvalidateData();
+					args[kItem] = a_item.GetInstance();
 
-				void SetSize(double a_width, double a_height);
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("itemToLabel", std::addressof(str), args.data(), args.size());
+					assert(success);
+
+					return str.GetString();
+				}
+
+				inline void Open()
+				{
+					[[maybe_unused]] const auto success =
+						Invoke("open");
+					assert(success);
+				}
+
+				inline void Close()
+				{
+					[[maybe_unused]] const auto success =
+						Invoke("close");
+					assert(success);
+				}
+
+				inline void InvalidateData()
+				{
+					[[maybe_unused]] const auto success =
+						Invoke("invalidateData");
+					assert(success);
+				}
+
+				inline void SetSize(double a_width, double a_height)
+				{
+					enum
+					{
+						kWidth,
+						kHeight,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kWidth] = a_width;
+					assert(args[kWidth].IsNumber());
+
+					args[kHeight] = a_height;
+					assert(args[kHeight].IsNumber());
+
+					[[maybe_unused]] const auto success =
+						Invoke("setSize", nullptr, args.data(), args.size());
+					assert(success);
+				}
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				void RemoveMovieClip();
+				inline void RemoveMovieClip()
+				{
+					[[maybe_unused]] const auto success =
+						Invoke("removeMovieClip");
+					assert(success);
+				}
 
-				std::string_view ToString();
+				inline std::string_view ToString()
+				{
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("toString", std::addressof(str));
+					assert(success);
+					return str.GetString();
+				}
 			};
 		}
 	}

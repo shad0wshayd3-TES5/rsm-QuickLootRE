@@ -2,12 +2,6 @@
 
 #include "Scaleform/LootMenu.h"
 
-Loot* Loot::GetSingleton()
-{
-	static Loot singleton;
-	return std::addressof(singleton);
-}
-
 void Loot::Close()
 {
 	auto msgQ = RE::UIMessageQueue::GetSingleton();

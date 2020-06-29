@@ -5,11 +5,28 @@ namespace Input
 	class Listeners : public RE::BSTEventSink<RE::InputEvent*>
 	{
 	public:
-		Listeners();
+		inline Listeners() :
+			super(),
+			_callbacks()
+		{
+			auto input = RE::BSInputDeviceManager::GetSingleton();
+			if (input) {
+				input->AddEventSink(this);
+			}
+
+			_callbacks.emplace_back(ScrollWheelHandler);
+		}
+
 		Listeners(const Listeners&) = default;
 		Listeners(Listeners&&) = default;
 
-		virtual ~Listeners();
+		virtual inline ~Listeners()
+		{
+			auto input = RE::BSInputDeviceManager::GetSingleton();
+			if (input) {
+				input->RemoveEventSink(this);
+			}
+		}
 
 		Listeners& operator=(const Listeners&) = default;
 		Listeners& operator=(Listeners&&) = default;
@@ -26,7 +43,16 @@ namespace Input
 
 		static void ScrollWheelHandler(const Event& a_event);
 
-		virtual EventResult ProcessEvent(const Event* a_event, RE::BSTEventSource<Event>* a_eventSource) override;
+		inline virtual EventResult ProcessEvent(const Event* a_event, RE::BSTEventSource<Event>*) override
+		{
+			if (a_event) {
+				for (auto& callback : _callbacks) {
+					callback(*a_event);
+				}
+			}
+
+			return EventResult::kContinue;
+		}
 
 		std::vector<Callback> _callbacks;
 	};

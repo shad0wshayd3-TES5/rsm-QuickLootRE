@@ -10,58 +10,138 @@ namespace CLIK
 	{
 		namespace Controls
 		{
-			class CoreList : public Core::UIComponent
+			class CoreList :
+				public Core::UIComponent
 			{
-			public:
+			private:
 				using super = Core::UIComponent;
 
-				CoreList();
-				CoreList(const CoreList& a_rhs);
-				CoreList(CoreList&& a_rhs);
-				CoreList(const Core::UIComponent& a_rhs);
-				CoreList(Core::UIComponent&& a_rhs);
-				explicit CoreList(const RE::GFxValue& a_val);
-				explicit CoreList(RE::GFxValue&& a_val);
-				~CoreList();
+			public:
+				CoreList() = default;
+				CoreList(const CoreList&) = default;
+				CoreList(CoreList&&) = default;
+				using super::super;
 
-				CoreList& operator=(const CoreList& a_rhs);
-				CoreList& operator=(CoreList&& a_rhs);
-				CoreList& operator=(const Core::UIComponent& a_rhs);
-				CoreList& operator=(Core::UIComponent&& a_rhs);
-				CoreList& operator=(const RE::GFxValue& a_rhs);
-				CoreList& operator=(RE::GFxValue&& a_rhs);
+				inline CoreList(const super& a_rhs) :
+					super(a_rhs)
+				{}
 
-				std::string_view ItemRenderer() const;
-				void ItemRenderer(std::string_view a_itemRenderer);
+				inline CoreList(super&& a_rhs) :
+					super(std::move(a_rhs))
+				{}
 
-				Object DataProvider() const;
-				void DataProvider(const Object& a_dataProvider);
+				~CoreList() = default;
 
-				double SelectedIndex() const;
-				void SelectedIndex(double a_selectedIndex);
+				CoreList& operator=(const CoreList&) = default;
+				CoreList& operator=(CoreList&&) = default;
+				using super::operator=;
 
-				void ScrollToIndex(double a_index);
+				inline CoreList& operator=(const super& a_rhs)
+				{
+					super::operator=(a_rhs);
+					return *this;
+				}
 
-				std::string_view LabelField() const;
-				void LabelField(std::string_view a_labelField);
+				inline CoreList& operator=(super&& a_rhs)
+				{
+					super::operator=(std::move(a_rhs));
+					return *this;
+				}
+
+				inline std::string_view ItemRenderer() const { return GetString("itemRenderer"); }
+				inline void ItemRenderer(std::string_view a_itemRenderer) { SetString("itemRenderer", a_itemRenderer); }
+
+				inline Object DataProvider() const { return GetObject("dataProvider"); }
+				inline void DataProvider(const Object& a_dataProvider) { SetObject("dataProvider", a_dataProvider); }
+
+				inline double SelectedIndex() const { return GetNumber("selectedIndex"); }
+				inline void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
+
+				inline void ScrollToIndex(double a_index)
+				{
+					enum
+					{
+						kIndex,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kIndex] = a_index;
+					assert(args[kIndex].IsNumber());
+
+					[[maybe_unused]] const auto success =
+						Invoke("scrollToIndex", nullptr, args.data(), args.size());
+					assert(success);
+				}
+
+				inline std::string_view LabelField() const { return GetString("labelField"); }
+				inline void LabelField(std::string_view a_labelField) { SetString("labelField", a_labelField); }
 
 				//Function& LabelFunction() const;
 				//void LabelFunction(Function& a_labelFunction);
 
-				std::string_view ItemToLabel(Object& a_item);
+				inline std::string_view ItemToLabel(Object& a_item)
+				{
+					enum
+					{
+						kItem,
+						kNumArgs
+					};
 
-				void InvalidateData();
+					std::array<RE::GFxValue, kNumArgs> args;
 
-				double AvailableWidth() const;
+					args[kItem] = a_item.GetInstance();
+					assert(args[kItem].IsObject());
 
-				double AvailableHeight() const;
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("itemToLabel", std::addressof(str), args.data(), args.size());
+					assert(success);
 
-				void SetRendererList(Array& a_value);
+					return str.GetString();
+				}
 
-				std::string_view RendererInstanceName() const;
-				void RendererInstanceName(std::string_view a_rendererInstanceName);
+				inline void InvalidateData()
+				{
+					[[maybe_unused]] const auto success =
+						Invoke("invalidateData");
+					assert(success);
+				}
 
-				std::string_view ToString();
+				inline double AvailableWidth() const { return GetNumber("availableWidth"); }
+
+				inline double AvailableHeight() const { return GetNumber("availableHeight"); }
+
+				inline void SetRendererList(Array& a_value)
+				{
+					enum
+					{
+						kValue,
+						kNumArgs
+					};
+
+					std::array<RE::GFxValue, kNumArgs> args;
+
+					args[kValue] = a_value.GetInstance();
+					assert(args[kValue].IsArray());
+
+					[[maybe_unused]] const auto success =
+						Invoke("setRendererList", nullptr, args.data(), args.size());
+					assert(success);
+				}
+
+				inline std::string_view RendererInstanceName() const { return GetString("rendererInstanceName"); }
+				inline void RendererInstanceName(std::string_view a_rendererInstanceName) { SetString("rendererInstanceName", a_rendererInstanceName); }
+
+				inline std::string_view ToString()
+				{
+					RE::GFxValue str;
+					[[maybe_unused]] const auto success =
+						Invoke("toString", std::addressof(str));
+					assert(success);
+					return str.GetString();
+				}
 			};
 		}
 	}
