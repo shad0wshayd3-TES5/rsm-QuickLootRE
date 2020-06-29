@@ -35,6 +35,22 @@ namespace Events
 		CrosshairRefHandler& operator=(const CrosshairRefHandler&) = delete;
 		CrosshairRefHandler& operator=(CrosshairRefHandler&&) = delete;
 
+		[[nodiscard]] inline bool CanOpen() const
+		{
+			if (!_cachedRef) {
+				return false;
+			}
+
+			switch (_cachedRef->GetFormType()) {
+			case RE::FormType::Reference:
+				return _cachedRef->GetContainer();
+			case RE::FormType::ActorCharacter:
+				return _cachedRef->IsDead();
+			default:
+				return false;
+			}
+		}
+
 		RE::TESObjectREFRPtr _cachedRef;
 	};
 

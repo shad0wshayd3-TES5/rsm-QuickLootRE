@@ -45,9 +45,9 @@ namespace Scaleform
 			_itemListImpl.clear();
 
 			auto inv = a_ref->GetInventory();
-			for (auto& elem : inv) {
-				auto& [count, entry] = elem.second;
-				if (count > 0 && entry) {
+			for (auto& [obj, data] : inv) {
+				auto& [count, entry] = data;
+				if (CanDisplay(obj) && count > 0 && entry) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::InventoryItem>(
 							std::move(entry), count, a_ref));
@@ -55,9 +55,9 @@ namespace Scaleform
 			}
 
 			auto dropped = a_ref->GetDroppedInventory();
-			for (auto& elem : dropped) {
-				auto& [count, items] = elem.second;
-				if (count > 0 && !items.empty()) {
+			for (auto& [obj, data] : dropped) {
+				auto& [count, items] = data;
+				if (CanDisplay(obj) && count > 0 && !items.empty()) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::GroundItems>(
 							std::move(items), count));
@@ -133,6 +133,49 @@ namespace Scaleform
 		virtual void AdvanceMovie(float a_interval, UInt32 a_currentTime) override;
 
 	private:
+		[[nodiscard]] static inline bool CanDisplay(RE::TESBoundObject* a_object)
+		{
+			if (!a_object) {
+				return false;
+			}
+
+			switch (a_object->GetFormType()) {
+			case RE::FormType::Scroll:
+			case RE::FormType::Armor:
+			case RE::FormType::Book:
+			case RE::FormType::Ingredient:
+			case RE::FormType::Misc:
+			case RE::FormType::Weapon:
+			case RE::FormType::Ammo:
+			case RE::FormType::KeyMaster:
+			case RE::FormType::AlchemyItem:
+			case RE::FormType::Note:
+			case RE::FormType::SoulGem:
+				break;
+			case RE::FormType::Light:
+				{
+					auto light = static_cast<RE::TESObjectLIGH*>(a_object);
+					if (!light->CanBeCarried()) {
+						return false;
+					}
+				}
+				break;
+			default:
+				return false;
+			}
+
+			if (!a_object->GetPlayable()) {
+				return false;
+			}
+
+			auto name = a_object->GetName();
+			if (!name || name[0] == '\0') {
+				return false;
+			}
+
+			return true;
+		}
+
 		inline void InitExtensions()
 		{
 			const RE::GFxValue boolean{ true };

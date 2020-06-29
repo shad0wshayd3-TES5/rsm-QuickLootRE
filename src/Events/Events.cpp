@@ -13,7 +13,7 @@ namespace Events
 
 		_cachedRef = a_event->crosshairRef;
 		auto loot = Loot::GetSingleton();
-		if (_cachedRef && _cachedRef->GetContainer()) {
+		if (CanOpen()) {
 			loot->SetContainer(_cachedRef);
 		} else {
 			loot->Close();
