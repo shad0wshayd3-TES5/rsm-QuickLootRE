@@ -15,6 +15,14 @@ public:
 		return std::addressof(singleton);
 	}
 
+	inline void Disable()
+	{
+		_enabled = false;
+		Close();
+	}
+
+	inline void Enable() { _enabled = true; }
+
 	void Close();
 	void Open();
 
@@ -22,12 +30,17 @@ public:
 
 	void ModSelectedIndex(double a_mod);
 	void SetContainer(RE::TESObjectREFRPtr a_container);
+	void TakeStack();
 
 private:
 	using LootMenu = Scaleform::LootMenu;
 	using Tasklet = std::function<void(LootMenu&)>;
 
-	Loot() = default;
+	inline Loot() :
+		_taskQueue(),
+		_enabled(true)
+	{}
+
 	Loot(const Loot&) = delete;
 	Loot(Loot&&) = delete;
 
@@ -41,4 +54,5 @@ private:
 	RE::GPtr<LootMenu> GetMenu();
 
 	std::vector<Tasklet> _taskQueue;
+	bool _enabled;
 };

@@ -18,9 +18,9 @@ public:
 		}
 	}
 
-	[[nodiscard]] inline CLIK::Object Object() const
+	[[nodiscard]] inline RE::GFxValue Value() const
 	{
-		return CLIK::Object{ _displayName };
+		return { _displayName };
 	}
 
 private:

@@ -25,6 +25,11 @@ namespace Scaleform
 			assert(success && instance.IsObject());
 		}
 
+		_view->CreateArray(std::addressof(_itemListProvider));
+		assert(_itemListProvider.IsArray());
+		CLIK::Array arr{ _itemListProvider };
+		_itemList.DataProvider(arr);
+
 		auto loot = Loot::GetSingleton();
 		loot->Process(*this);
 	}

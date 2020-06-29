@@ -12,9 +12,11 @@ void Loot::Close()
 
 void Loot::Open()
 {
-	auto msgQ = RE::UIMessageQueue::GetSingleton();
-	if (msgQ) {
-		msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
+	if (_enabled) {
+		auto msgQ = RE::UIMessageQueue::GetSingleton();
+		if (msgQ) {
+			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
+		}
 	}
 }
 
@@ -39,6 +41,13 @@ void Loot::SetContainer(RE::TESObjectREFRPtr a_container)
 {
 	AddTask([a_container](Scaleform::LootMenu& a_menu) {
 		a_menu.ProcessRef(a_container);
+	});
+}
+
+void Loot::TakeStack()
+{
+	AddTask([](Scaleform::LootMenu& a_menu) {
+		a_menu.TakeStack();
 	});
 }
 

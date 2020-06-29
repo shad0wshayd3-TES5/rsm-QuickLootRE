@@ -26,15 +26,19 @@ namespace Items
 		GroundItems& operator=(GroundItems&&) = default;
 
 	protected:
-		inline void DoTake(RE::ActorPtr a_dst, std::ptrdiff_t a_count) override
+		inline void DoTake(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) override
 		{
+			assert(a_dst != nullptr);
+
 			auto toRemove = std::clamp<std::ptrdiff_t>(a_count, 0, Count());
 			if (toRemove <= 0) {
 				assert(false);
 				return;
 			}
 
-			for (const auto& item : _items) {
+			auto iter = _items.begin();
+			for (; iter != _items.end(); ++iter) {
+				const auto& item = *iter;
 				const auto xCount = std::min<std::ptrdiff_t>(item->extraList.GetCount(), toRemove);
 				a_dst->PickUpObject(item.get(), static_cast<SInt32>(xCount));
 				_count -= xCount;
@@ -44,6 +48,8 @@ namespace Items
 					break;
 				}
 			}
+
+			_items.erase(_items.begin(), iter);
 		}
 
 	private:

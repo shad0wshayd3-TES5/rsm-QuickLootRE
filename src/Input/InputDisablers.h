@@ -8,6 +8,7 @@ namespace Input
 		inline Disablers() :
 			_disablers()
 		{
+			_disablers.emplace_back(UEFlag::kActivate);
 			_disablers.emplace_back(UEFlag::kPOVSwitch);
 
 			Enable();

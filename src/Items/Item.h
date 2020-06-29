@@ -31,28 +31,28 @@ namespace Items
 			return std::max<std::ptrdiff_t>(_count, 0);
 		}
 
-		[[nodiscard]] inline CLIK::Object Object() const
+		[[nodiscard]] inline RE::GFxValue Value() const
 		{
-			return _item.Object();
+			return _item.Value();
 		}
 
-		inline void Take(RE::ActorPtr a_dst, std::ptrdiff_t a_count)
+		inline void Take(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count)
 		{
-			DoTake(std::move(a_dst), a_count);
+			DoTake(a_dst, a_count);
 		}
 
-		inline void Take(RE::ActorPtr a_dst)
+		inline void Take(observer<RE::Actor*> a_dst)
 		{
-			DoTake(std::move(a_dst), 1);
+			DoTake(a_dst, 1);
 		}
 
-		inline void TakeAll(RE::ActorPtr a_dst)
+		inline void TakeAll(observer<RE::Actor*> a_dst)
 		{
-			DoTake(std::move(a_dst), _count);
+			DoTake(a_dst, _count);
 		}
 
 	protected:
-		virtual void DoTake(RE::ActorPtr a_dst, std::ptrdiff_t a_count) = 0;
+		virtual void DoTake(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) = 0;
 
 		std::ptrdiff_t _count;
 

@@ -1,4 +1,5 @@
 ﻿#include "Events/Events.h"
+#include "Loot.h"
 #include "Scaleform/LootMenu.h"
 #include "Scaleform/Scaleform.h"
 #include "version.h"
@@ -47,12 +48,13 @@ public:
 				continue;
 			}
 
+			auto loot = Loot::GetSingleton();
 			switch (button->idCode) {
 			case Key::kNum0:
-				//Scaleform::LootMenu::Open();
+				loot->Enable();
 				break;
 			case Key::kNum9:
-				//Scaleform::LootMenu::Close();
+				loot->Disable();
 				break;
 			}
 		}
@@ -74,7 +76,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		//InputHandler::Register();
+		InputHandler::Register();
 		Events::Register();
 		Scaleform::Register();
 		break;

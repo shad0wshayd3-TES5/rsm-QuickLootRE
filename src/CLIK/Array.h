@@ -121,28 +121,26 @@ namespace CLIK
 
 		inline std::string_view Join(std::optional<std::string_view> a_delimiter)
 		{
-			RE::GFxValue str;
+			enum
+			{
+				kDelimiter,
+				kNumArgs
+			};
+
+			std::array<RE::GFxValue, kNumArgs> args;
+			std::size_t size = 0;
 
 			if (a_delimiter) {
-				enum
-				{
-					kDelimiter,
-					kNumArgs
-				};
-
-				std::array<RE::GFxValue, kNumArgs> args;
-
 				args[kDelimiter] = *a_delimiter;
 				assert(args[kDelimiter].IsString());
-
-				[[maybe_unused]] const auto success =
-					Invoke("join", std::addressof(str), args.data(), args.size());
-				assert(success);
-			} else {
-				[[maybe_unused]] const auto success =
-					Invoke("join", std::addressof(str), nullptr, 0);
-				assert(success);
+				++size;
 			}
+
+			auto data = size > 0 ? args.data() : nullptr;
+			RE::GFxValue str;
+			[[maybe_unused]] const auto success =
+				Invoke("join", std::addressof(str), data, size);
+			assert(success);
 
 			return str.GetString();
 		}
@@ -190,6 +188,38 @@ namespace CLIK
 				Invoke("shift", std::addressof(object));
 			assert(success);
 			return Object(object);
+		}
+
+		inline void Splice(double a_startIndex, std::optional<double> a_deleteCount, std::optional<Object> a_value)
+		{
+			enum
+			{
+				kStartIndex,
+				kDeleteCount,
+				kValue,
+				kNumArgs
+			};
+
+			std::array<RE::GFxValue, kNumArgs> args;
+			std::size_t size = 1;
+
+			args[kStartIndex] = a_startIndex;
+			assert(args[kStartIndex].IsNumber());
+
+			if (a_deleteCount) {
+				args[kDeleteCount] = *a_deleteCount;
+				assert(args[kDeleteCount].IsNumber());
+				++size;
+
+				if (a_value) {
+					args[kValue] = a_value->GetInstance();
+					++size;
+				}
+			}
+
+			[[maybe_unused]] const auto success =
+				Invoke("push", nullptr, args.data(), size);
+			assert(success);
 		}
 	};
 }

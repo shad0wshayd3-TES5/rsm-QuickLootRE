@@ -64,15 +64,27 @@ namespace Scaleform
 				}
 			}
 
-			CLIK::Array arr(_view);
+			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
-				auto obj = elem->Object();
-				arr.Push(obj);
+				_itemListProvider.PushBack(elem->Value());
 			}
-			_itemList.DataProvider(arr);
+			_itemList.Invalidate();
 
 			if (!_itemListImpl.empty()) {
 				_itemList.SelectedIndex(0.0);
+			}
+		}
+
+		inline void TakeStack()
+		{
+			if (!_itemListImpl.empty()) {
+				auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
+				if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
+					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(_dest.get());
+					_itemListImpl.erase(_itemListImpl.begin() + pos);
+					_itemListProvider.RemoveElement(static_cast<UInt32>(pos));
+					_itemList.Invalidate();
+				}
 			}
 		}
 
@@ -81,10 +93,12 @@ namespace Scaleform
 
 		inline LootMenu() :
 			super(),
-			_view(nullptr),
+			_view(),
+			_dest(RE::PlayerCharacter::GetSingleton()),
 			_inputDisablers(),
 			_inputListeners(),
 			_itemList(),
+			_itemListProvider(),
 			_itemListImpl()
 		{
 			using Context = RE::UserEvents::INPUT_CONTEXT_ID;
@@ -104,6 +118,10 @@ namespace Scaleform
 			_view = menu->view;
 			_view->SetMouseCursorCount(0);	// disable input, we'll handle it ourselves
 			InitExtensions();
+
+			if (!_dest->extraList.HasType<RE::ExtraContainerChanges>()) {
+				_dest->InitInventoryIfRequired();
+			}
 		}
 
 		~LootMenu() = default;
@@ -194,9 +212,11 @@ namespace Scaleform
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };
 
 		RE::GPtr<RE::GFxMovieView> _view;
+		RE::ActorPtr _dest;
 		Input::Disablers _inputDisablers;
 		Input::Listeners _inputListeners;
 		CLIK::GFx::Controls::ScrollingList _itemList;
+		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;
 	};
 }
