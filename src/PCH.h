@@ -7,10 +7,14 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <bitset>
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -67,5 +71,7 @@ namespace stl
 		return N;
 	}
 }
+
+constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""; }
 
 #define DLLEXPORT __declspec(dllexport)

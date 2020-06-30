@@ -30,6 +30,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ContainerHandler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\Events\Events.cpp">
       <Filter>src\Events</Filter>
     </ClCompile>
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="src\CLIK\TextField.h">
       <Filter>src\CLIK</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ContainerHandler.h">
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Events\Events.h">
       <Filter>src\Events</Filter>

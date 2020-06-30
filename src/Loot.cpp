@@ -27,16 +27,6 @@ void Loot::Open()
 	}
 }
 
-void Loot::Process(LootMenu& a_menu)
-{
-	if (!_taskQueue.empty()) {
-		for (auto& task : _taskQueue) {
-			task(a_menu);
-		}
-		_taskQueue.clear();
-	}
-}
-
 void Loot::ModSelectedIndex(double a_mod)
 {
 	AddTask([a_mod](LootMenu& a_menu) {
@@ -47,7 +37,7 @@ void Loot::ModSelectedIndex(double a_mod)
 void Loot::SetContainer(RE::TESObjectREFRPtr a_container)
 {
 	AddTask([a_container](LootMenu& a_menu) {
-		a_menu.ProcessRef(a_container);
+		a_menu.SetContainer(a_container);
 	});
 }
 
@@ -58,18 +48,26 @@ void Loot::TakeStack()
 	});
 }
 
+void Loot::Process(LootMenu& a_menu)
+{
+	if (!_taskQueue.empty()) {
+		for (auto& task : _taskQueue) {
+			task(a_menu);
+		}
+		_taskQueue.clear();
+	}
+
+	if (_refreshInventory) {
+		a_menu.RefreshInventory();
+		_refreshInventory = false;
+	}
+}
+
 void Loot::AddTask(Tasklet a_task)
 {
 	Open();
-	auto task = SKSE::GetTaskInterface();
-	task->AddUITask([this, a_task]() {
-		auto menu = GetMenu();
-		if (menu) {
-			a_task(*menu);
-		} else {
-			_taskQueue.push_back(std::move(a_task));  // thread safe
-		}
-	});
+	std::scoped_lock l{ _lock };
+	_taskQueue.push_back(std::move(a_task));
 }
 
 bool Loot::IsOpen() const

@@ -2,6 +2,7 @@
 
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
+#include "ContainerHandler.h"
 #include "HUDHandler.h"
 #include "Items/GroundItems.h"
 #include "Items/InventoryItem.h"
@@ -40,22 +41,30 @@ namespace Scaleform
 			}
 		}
 
-		inline void ProcessRef(RE::TESObjectREFRPtr a_ref)
+		inline void SetContainer(RE::TESObjectREFRPtr a_ref)
 		{
-			assert(a_ref);
+			assert(a_ref != nullptr);
+			_src = std::move(a_ref);
+			_containerHandler.emplace(_src);
+		}
+
+		inline void RefreshInventory()
+		{
+			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
+
 			_itemListImpl.clear();
 
-			auto inv = a_ref->GetInventory();
+			auto inv = _src->GetInventory();
 			for (auto& [obj, data] : inv) {
 				auto& [count, entry] = data;
 				if (CanDisplay(obj) && count > 0 && entry) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::InventoryItem>(
-							std::move(entry), count, a_ref));
+							std::move(entry), count, _src));
 				}
 			}
 
-			auto dropped = a_ref->GetDroppedInventory();
+			auto dropped = _src->GetDroppedInventory();
 			for (auto& [obj, data] : dropped) {
 				auto& [count, items] = data;
 				if (CanDisplay(obj) && count > 0 && !items.empty()) {
@@ -71,8 +80,12 @@ namespace Scaleform
 			}
 			_itemList.Invalidate();
 
-			if (!_itemListImpl.empty()) {
+			if (0 <= idx && idx < stl::ssize(_itemListImpl)) {
+				_itemList.SelectedIndex(static_cast<double>(idx));
+			} else if (!_itemListImpl.empty()) {
 				_itemList.SelectedIndex(0.0);
+			} else {
+				_itemList.SelectedIndex(-1.0);
 			}
 		}
 
@@ -81,12 +94,14 @@ namespace Scaleform
 			if (!_itemListImpl.empty()) {
 				auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 				if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
-					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(_dest.get());
+					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(_dst.get());
 					_itemListImpl.erase(_itemListImpl.begin() + pos);
 					_itemListProvider.RemoveElement(static_cast<UInt32>(pos));
 					_itemList.Invalidate();
 				}
 			}
+
+			QueueInventoryRefresh();
 		}
 
 	protected:
@@ -95,8 +110,10 @@ namespace Scaleform
 		inline LootMenu() :
 			super(),
 			_view(),
-			_dest(RE::PlayerCharacter::GetSingleton()),
-			_viewHandler(std::nullopt),
+			_dst(RE::PlayerCharacter::GetSingleton()),
+			_src(),
+			_viewHandler(),
+			_containerHandler(),
 			_itemList(),
 			_itemListProvider(),
 			_itemListImpl()
@@ -119,10 +136,6 @@ namespace Scaleform
 			_view = menu->uiMovie;
 			_view->SetMouseCursorCount(0);	// disable input, we'll handle it ourselves
 			InitExtensions();
-
-			if (!_dest->extraList.HasType<RE::ExtraContainerChanges>()) {
-				_dest->InitInventoryIfRequired();
-			}
 		}
 
 		LootMenu(const LootMenu&) = default;
@@ -236,14 +249,17 @@ namespace Scaleform
 		inline void OnClose() { return; }
 
 		void ProcessDelegate();
+		void QueueInventoryRefresh();
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };
 		static constexpr SInt8 SORT_PRIORITY{ 3 };
 
 		RE::GPtr<RE::GFxMovieView> _view;
-		RE::ActorPtr _dest;
+		RE::ActorPtr _dst;
+		RE::TESObjectREFRPtr _src;
 		std::optional<ViewHandler> _viewHandler;
+		std::optional<ContainerHandler> _containerHandler;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;

@@ -6,15 +6,14 @@
 #include "Scaleform/Scaleform.h"
 #include "version.h"
 
-class InputHandler : public RE::BSTEventSink<RE::InputEvent*>
+class InputHandler :
+	public RE::BSTEventSink<RE::InputEvent*>
 {
 public:
-	using EventResult = RE::BSEventNotifyControl;
-
 	static InputHandler* GetSingleton()
 	{
 		static InputHandler singleton;
-		return &singleton;
+		return std::addressof(singleton);
 	}
 
 	static void Register()
@@ -24,11 +23,13 @@ public:
 		_MESSAGE("Registered InputHandler");
 	}
 
-	virtual EventResult ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*) override
+protected:
+	using EventResult = RE::BSEventNotifyControl;
+
+	EventResult ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*) override
 	{
 		using InputType = RE::INPUT_EVENT_TYPE;
-		using Key = RE::BSKeyboardDevice::Key;
-		using RemoveType = RE::ITEM_REMOVE_REASON;
+		using Keyboard = RE::BSWin32KeyboardDevice::Key;
 
 		if (!a_event) {
 			return EventResult::kContinue;
@@ -52,11 +53,13 @@ public:
 
 			auto loot = Loot::GetSingleton();
 			switch (button->idCode) {
-			case Key::kNum0:
+			case Keyboard::kNum0:
 				loot->Enable();
 				break;
-			case Key::kNum9:
+			case Keyboard::kNum9:
 				loot->Disable();
+				break;
+			default:
 				break;
 			}
 		}
@@ -68,7 +71,8 @@ private:
 	InputHandler() = default;
 	InputHandler(const InputHandler&) = delete;
 	InputHandler(InputHandler&&) = delete;
-	virtual ~InputHandler() = default;
+
+	~InputHandler() = default;
 
 	InputHandler& operator=(const InputHandler&) = delete;
 	InputHandler& operator=(InputHandler&&) = delete;

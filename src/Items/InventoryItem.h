@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CLIK/Object.h"
 #include "Items/Item.h"
 
 namespace Items
@@ -64,23 +63,10 @@ namespace Items
 			const auto object = _entry->GetObject();
 			for (const auto& [xList, count] : queued) {
 				_container->RemoveItem(object, static_cast<SInt32>(count), RE::ITEM_REMOVE_REASON::kRemove, xList, a_dst);
-				_count -= count;
 			}
 			if (toRemove > 0) {
 				_container->RemoveItem(object, static_cast<SInt32>(toRemove), RE::ITEM_REMOVE_REASON::kRemove, nullptr, a_dst);
-				_count -= toRemove;
 				toRemove = 0;
-			}
-
-			if (!queued.empty()) {
-				for (std::size_t i = 0; i < queued.size() - 1; ++i) {
-					_entry->extraLists->pop_front();
-				}
-
-				auto& elem = queued.back();
-				if (elem.first->GetCount() == elem.second) {
-					_entry->extraLists->pop_front();
-				}
 			}
 		}
 

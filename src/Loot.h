@@ -29,17 +29,22 @@ public:
 	void Close();
 	void Open();
 
-	void Process(LootMenu& a_menu);
-
 	void ModSelectedIndex(double a_mod);
+	inline void RefreshInventory() { _refreshInventory = true; }
 	void SetContainer(RE::TESObjectREFRPtr a_container);
 	void TakeStack();
+
+protected:
+	friend class LootMenu;
+
+	void Process(LootMenu& a_menu);
 
 private:
 	using Tasklet = std::function<void(LootMenu&)>;
 
 	inline Loot() :
 		_taskQueue(),
+		_refreshInventory(false),
 		_enabled(true)
 	{}
 
@@ -51,11 +56,13 @@ private:
 	Loot& operator=(const Loot&) = delete;
 	Loot& operator=(Loot&&) = delete;
 
-	inline void AddTask(Tasklet a_task);
+	void AddTask(Tasklet a_task);
 
 	[[nodiscard]] RE::GPtr<LootMenu> GetMenu() const;
 	[[nodiscard]] bool IsOpen() const;
 
+	mutable std::mutex _lock;
 	std::vector<Tasklet> _taskQueue;
+	std::atomic_bool _refreshInventory;
 	std::atomic_bool _enabled;
 };

@@ -15,6 +15,7 @@ namespace Events
 		auto loot = Loot::GetSingleton();
 		if (CanOpen()) {
 			loot->SetContainer(_cachedRef);
+			loot->RefreshInventory();
 		} else {
 			loot->Close();
 		}

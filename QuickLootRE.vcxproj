@@ -205,6 +205,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ContainerHandler.cpp" />
     <ClCompile Include="src\Events\Events.cpp" />
     <ClCompile Include="src\Input\InputListeners.cpp" />
     <ClCompile Include="src\Loot.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="src\CLIK\MovieClip.h" />
     <ClInclude Include="src\CLIK\Object.h" />
     <ClInclude Include="src\CLIK\TextField.h" />
+    <ClInclude Include="src\ContainerHandler.h" />
     <ClInclude Include="src\Events\Events.h" />
     <ClInclude Include="src\GFxItem.h" />
     <ClInclude Include="src\HUDHandler.h" />
