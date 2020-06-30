@@ -148,7 +148,11 @@ namespace Scaleform
 			}
 		}
 
-		virtual void AdvanceMovie(float a_interval, UInt32 a_currentTime) override;
+		inline void AdvanceMovie(float a_interval, UInt32 a_currentTime) override
+		{
+			ProcessDelegate();
+			super::AdvanceMovie(a_interval, a_currentTime);
+		}
 
 	private:
 		[[nodiscard]] static inline bool CanDisplay(RE::TESBoundObject* a_object)
@@ -205,8 +209,30 @@ namespace Scaleform
 			assert(success);
 		}
 
-		void OnOpen();
+		inline void OnOpen()
+		{
+			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
+			std::array objects{
+				element_t{ std::ref(_itemList), "_root.itemList" }
+			};
+
+			for (const auto& [object, path] : objects) {
+				auto& instance = object.get().GetInstance();
+				[[maybe_unused]] const auto success =
+					_view->GetVariable(std::addressof(instance), path.data());
+				assert(success && instance.IsObject());
+			}
+
+			_view->CreateArray(std::addressof(_itemListProvider));
+			assert(_itemListProvider.IsArray());
+			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
+
+			ProcessDelegate();
+		}
+
 		inline void OnClose() { return; }
+
+		void ProcessDelegate();
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };

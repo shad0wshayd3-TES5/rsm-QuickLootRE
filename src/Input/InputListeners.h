@@ -14,8 +14,8 @@ namespace Input
 				input->AddEventSink(this);
 			}
 
-			_callbacks.emplace_back(ActivateHandler);
-			_callbacks.emplace_back(ScrollWheelHandler);
+			_callbacks.emplace_back(TakeHandler);
+			_callbacks.emplace_back(ScrollHandler);
 		}
 
 		Listeners(const Listeners&) = default;
@@ -42,8 +42,8 @@ namespace Input
 
 		using Callback = std::function<void(const Event&)>;
 
-		static void ActivateHandler(const Event& a_event);
-		static void ScrollWheelHandler(const Event& a_event);
+		static void ScrollHandler(const Event& a_event);
+		static void TakeHandler(const Event& a_event);
 
 		inline virtual EventResult ProcessEvent(const Event* a_event, RE::BSTEventSource<Event>*) override
 		{

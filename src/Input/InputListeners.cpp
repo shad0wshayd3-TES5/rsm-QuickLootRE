@@ -4,17 +4,60 @@
 
 namespace Input
 {
-	void Listeners::ActivateHandler(const Event& a_event)
+	void Listeners::ScrollHandler(const Event& a_event)
+	{
+		using Mouse = RE::BSWin32MouseDevice::Key;
+		using Gamepad = RE::BSWin32GamepadDevice::Key;
+
+		for (auto iter = a_event; iter; iter = iter->next) {
+			const auto& inputEvent = *iter;
+			if (!inputEvent.HasIDCode()) {
+				continue;
+			}
+
+			const auto& idEvent = static_cast<const RE::IDEvent&>(inputEvent);
+			auto loot = Loot::GetSingleton();
+			switch (inputEvent.GetDevice()) {
+			case Device::kMouse:
+				switch (idEvent.GetIDCode()) {
+				case Mouse::kWheelUp:
+					loot->ModSelectedIndex(-1.0);
+					return;
+				case Mouse::kWheelDown:
+					loot->ModSelectedIndex(1.0);
+					return;
+				default:
+					break;
+				}
+				break;
+			case Device::kGamepad:
+				switch (idEvent.GetIDCode()) {
+				case Gamepad::kUp:
+					loot->ModSelectedIndex(-1.0);
+					return;
+				case Gamepad::kDown:
+					loot->ModSelectedIndex(1.0);
+					return;
+				default:
+					break;
+				}
+			default:
+				break;
+			}
+		}
+	}
+
+	void Listeners::TakeHandler(const Event& a_event)
 	{
 		using Keyboard = RE::BSWin32KeyboardDevice::Key;
 
 		for (auto iter = a_event; iter; iter = iter->next) {
-			const auto& event = *iter;
-			if (!event.HasIDCode()) {
+			const auto& inputEvent = *iter;
+			if (!inputEvent.HasIDCode()) {
 				continue;
 			}
 
-			const auto& idEvent = static_cast<const RE::IDEvent&>(event);
+			const auto& idEvent = static_cast<const RE::IDEvent&>(inputEvent);
 			switch (idEvent.GetEventType()) {
 			case RE::INPUT_EVENT_TYPE::kButton:
 				{
@@ -29,42 +72,11 @@ namespace Input
 			}
 
 			auto controls = RE::ControlMap::GetSingleton();
-			auto idCode = controls->GetMappedKey("Activate", RE::INPUT_DEVICE::kKeyboard);
+			auto idCode = controls->GetMappedKey("Activate", inputEvent.GetDevice());
 			if (idEvent.GetIDCode() == idCode) {
 				auto loot = Loot::GetSingleton();
 				loot->TakeStack();
 				return;
-			}
-		}
-	}
-
-	void Listeners::ScrollWheelHandler(const Event& a_event)
-	{
-		using Mouse = RE::BSWin32MouseDevice::Key;
-
-		for (auto iter = a_event; iter; iter = iter->next) {
-			const auto& event = *iter;
-			if (!event.HasIDCode()) {
-				continue;
-			}
-
-			const auto& idEvent = static_cast<const RE::IDEvent&>(event);
-			auto loot = Loot::GetSingleton();
-			switch (event.GetDevice()) {
-			case Device::kMouse:
-				switch (idEvent.GetIDCode()) {
-				case Mouse::kWheelUp:
-					loot->ModSelectedIndex(-1.0);
-					return;
-				case Mouse::kWheelDown:
-					loot->ModSelectedIndex(1.0);
-					return;
-				default:
-					break;
-				}
-				break;
-			default:
-				break;
 			}
 		}
 	}

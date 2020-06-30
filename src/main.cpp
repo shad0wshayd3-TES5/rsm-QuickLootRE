@@ -1,4 +1,5 @@
 ﻿#include "Events/Events.h"
+#include "Input/Input.h"
 #include "Loot.h"
 #include "Scaleform/LootMenu.h"
 #include "Scaleform/Scaleform.h"
@@ -79,6 +80,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		InputHandler::Register();
 		Events::Register();
 		Scaleform::Register();
+		Input::HookControlMap();
 		break;
 	}
 }

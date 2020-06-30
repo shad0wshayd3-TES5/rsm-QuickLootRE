@@ -92,6 +92,9 @@
     <ClInclude Include="src\GFxItem.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Input\Input.h">
+      <Filter>src\Input</Filter>
+    </ClInclude>
     <ClInclude Include="src\Input\InputDisablers.h">
       <Filter>src\Input</Filter>
     </ClInclude>
