@@ -7,8 +7,7 @@ namespace Input
 	class Disablers
 	{
 	public:
-		inline Disablers() { Enable(); }
-
+		Disablers() = default;
 		Disablers(const Disablers&) = default;
 		Disablers(Disablers&&) = default;
 

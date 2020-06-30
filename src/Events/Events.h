@@ -2,7 +2,8 @@
 
 namespace Events
 {
-	class CrosshairRefHandler : public RE::BSTEventSink<SKSE::CrosshairRefEvent>
+	class CrosshairRefHandler :
+		public RE::BSTEventSink<SKSE::CrosshairRefEvent>
 	{
 	public:
 		static inline CrosshairRefHandler* GetSingleton()

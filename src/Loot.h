@@ -54,5 +54,5 @@ private:
 	RE::GPtr<LootMenu> GetMenu();
 
 	std::vector<Tasklet> _taskQueue;
-	bool _enabled;
+	std::atomic_bool _enabled;
 };

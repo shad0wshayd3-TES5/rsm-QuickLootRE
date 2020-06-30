@@ -60,7 +60,7 @@ void Loot::AddTask(Tasklet a_task)
 			a_task(*menu);
 		} else {
 			Open();
-			_taskQueue.push_back(std::move(a_task));
+			_taskQueue.push_back(std::move(a_task));  // thread safe
 		}
 	});
 }

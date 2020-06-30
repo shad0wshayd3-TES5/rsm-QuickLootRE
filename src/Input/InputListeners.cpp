@@ -6,9 +6,6 @@ namespace Input
 {
 	void Listeners::ScrollHandler(const Event& a_event)
 	{
-		using Mouse = RE::BSWin32MouseDevice::Key;
-		using Gamepad = RE::BSWin32GamepadDevice::Key;
-
 		for (auto iter = a_event; iter; iter = iter->next) {
 			const auto& inputEvent = *iter;
 			if (!inputEvent.HasIDCode()) {
@@ -49,8 +46,6 @@ namespace Input
 
 	void Listeners::TakeHandler(const Event& a_event)
 	{
-		using Keyboard = RE::BSWin32KeyboardDevice::Key;
-
 		for (auto iter = a_event; iter; iter = iter->next) {
 			const auto& inputEvent = *iter;
 			if (!inputEvent.HasIDCode()) {

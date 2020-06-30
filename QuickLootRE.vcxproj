@@ -247,6 +247,7 @@
     <ClInclude Include="src\Scaleform\LootMenu.h" />
     <ClInclude Include="src\Scaleform\Scaleform.h" />
     <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\ViewHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

@@ -2,11 +2,10 @@
 
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
-#include "Input/InputDisablers.h"
-#include "Input/InputListeners.h"
 #include "Items/GroundItems.h"
 #include "Items/InventoryItem.h"
 #include "Items/Item.h"
+#include "ViewHandler.h"
 
 namespace Scaleform
 {
@@ -95,8 +94,7 @@ namespace Scaleform
 			super(),
 			_view(),
 			_dest(RE::PlayerCharacter::GetSingleton()),
-			_inputDisablers(),
-			_inputListeners(),
+			_viewHandler(std::nullopt),
 			_itemList(),
 			_itemListProvider(),
 			_itemListImpl()
@@ -104,7 +102,8 @@ namespace Scaleform
 			using Context = RE::UserEvents::INPUT_CONTEXT_ID;
 			using Flag = RE::UI_MENU_FLAGS;
 
-			auto menu = static_cast<RE::IMenu*>(this);
+			auto menu = static_cast<super*>(this);
+			menu->menuDepth = 0;
 			//menu->flags = Flag::kUpdateUsesCursor | Flag::kUsesCursor;
 			//menu->context = Context::kGameplay;
 
@@ -115,6 +114,7 @@ namespace Scaleform
 				});
 
 			assert(success);
+			_viewHandler.emplace(menu->view);
 			_view = menu->view;
 			_view->SetMouseCursorCount(0);	// disable input, we'll handle it ourselves
 			InitExtensions();
@@ -124,12 +124,15 @@ namespace Scaleform
 			}
 		}
 
-		~LootMenu() = default;
+		LootMenu(const LootMenu&) = default;
+		LootMenu(LootMenu&&) = default;
 
-		static inline owner<RE::IMenu*> Creator()
-		{
-			return new LootMenu();
-		}
+		inline ~LootMenu() {}
+
+		LootMenu& operator=(const LootMenu&) = default;
+		LootMenu& operator=(LootMenu&&) = default;
+
+		static inline owner<RE::IMenu*> Creator() { return new LootMenu(); }
 
 		// IMenu
 		inline UIResult ProcessMessage(RE::UIMessage& a_message) override
@@ -239,8 +242,7 @@ namespace Scaleform
 
 		RE::GPtr<RE::GFxMovieView> _view;
 		RE::ActorPtr _dest;
-		Input::Disablers _inputDisablers;
-		Input::Listeners _inputListeners;
+		std::optional<ViewHandler> _viewHandler;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;
