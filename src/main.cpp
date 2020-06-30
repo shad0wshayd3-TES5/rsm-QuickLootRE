@@ -1,4 +1,5 @@
 ﻿#include "Events/Events.h"
+#include "HUDHandler.h"
 #include "Input/Input.h"
 #include "Loot.h"
 #include "Scaleform/LootMenu.h"
@@ -78,6 +79,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
 		InputHandler::Register();
+		HUDHandler::Install();
 		Events::Register();
 		Scaleform::Register();
 		Input::HookControlMap();

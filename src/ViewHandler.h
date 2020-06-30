@@ -14,13 +14,15 @@ public:
 	ViewHandler(const ViewHandler&) = default;
 	ViewHandler(ViewHandler&&) = default;
 
-	inline ViewHandler(RE::GPtr<RE::GFxMovieView> a_view) :
+	inline ViewHandler(observer<RE::IMenu*> a_menu) :
 		super(),
-		_view(std::move(a_view)),
+		_menu(a_menu),
+		_view(a_menu->uiMovie),
 		_disablers(),
 		_listeners(),
 		_enabled(false)
 	{
+		assert(_menu != nullptr);
 		assert(_view != nullptr);
 		Register();
 		Evaluate();
@@ -41,6 +43,12 @@ protected:
 	}
 
 private:
+	enum class Priority
+	{
+		kDefault,
+		kLowest
+	};
+
 	inline void Register()
 	{
 		auto source = RE::UI::GetSingleton();
@@ -72,6 +80,7 @@ private:
 	inline void Enable()
 	{
 		if (!_enabled) {
+			AdjustPriority(Priority::kDefault);
 			_view->SetVisible(true);
 			_disablers.Enable();
 			_listeners.Enable();
@@ -82,6 +91,7 @@ private:
 	inline void Disable()
 	{
 		if (_enabled) {
+			AdjustPriority(Priority::kLowest);
 			_view->SetVisible(false);
 			_disablers.Disable();
 			_listeners.Disable();
@@ -89,6 +99,9 @@ private:
 		}
 	}
 
+	void AdjustPriority(Priority a_priority);
+
+	observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;
 	Input::Disablers _disablers;
 	Input::Listeners _listeners;

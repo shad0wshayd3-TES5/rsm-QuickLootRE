@@ -1,26 +1,33 @@
 #include "Loot.h"
 
+#include "HUDHandler.h"
 #include "Scaleform/LootMenu.h"
 
 void Loot::Close()
 {
-	auto msgQ = RE::UIMessageQueue::GetSingleton();
-	if (msgQ) {
-		msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
+	if (IsOpen()) {
+		auto msgQ = RE::UIMessageQueue::GetSingleton();
+		if (msgQ) {
+			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
+			auto hud = HUDHandler::GetSingleton();
+			hud->Disable();
+		}
 	}
 }
 
 void Loot::Open()
 {
-	if (_enabled) {
+	if (_enabled && !IsOpen()) {
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
+			auto hud = HUDHandler::GetSingleton();
+			hud->Enable();
 		}
 	}
 }
 
-void Loot::Process(Scaleform::LootMenu& a_menu)
+void Loot::Process(LootMenu& a_menu)
 {
 	if (!_taskQueue.empty()) {
 		for (auto& task : _taskQueue) {
@@ -32,40 +39,45 @@ void Loot::Process(Scaleform::LootMenu& a_menu)
 
 void Loot::ModSelectedIndex(double a_mod)
 {
-	AddTask([a_mod](Scaleform::LootMenu& a_menu) {
+	AddTask([a_mod](LootMenu& a_menu) {
 		a_menu.ModSelectedIndex(a_mod);
 	});
 }
 
 void Loot::SetContainer(RE::TESObjectREFRPtr a_container)
 {
-	AddTask([a_container](Scaleform::LootMenu& a_menu) {
+	AddTask([a_container](LootMenu& a_menu) {
 		a_menu.ProcessRef(a_container);
 	});
 }
 
 void Loot::TakeStack()
 {
-	AddTask([](Scaleform::LootMenu& a_menu) {
+	AddTask([](LootMenu& a_menu) {
 		a_menu.TakeStack();
 	});
 }
 
 void Loot::AddTask(Tasklet a_task)
 {
+	Open();
 	auto task = SKSE::GetTaskInterface();
 	task->AddUITask([this, a_task]() {
 		auto menu = GetMenu();
 		if (menu) {
 			a_task(*menu);
 		} else {
-			Open();
 			_taskQueue.push_back(std::move(a_task));  // thread safe
 		}
 	});
 }
 
-auto Loot::GetMenu()
+bool Loot::IsOpen() const
+{
+	return static_cast<bool>(GetMenu());
+}
+
+auto Loot::GetMenu() const
 	-> RE::GPtr<LootMenu>
 {
 	auto ui = RE::UI::GetSingleton();

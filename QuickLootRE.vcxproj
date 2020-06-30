@@ -221,6 +221,7 @@
     </ClCompile>
     <ClCompile Include="src\Scaleform.cpp" />
     <ClCompile Include="src\Scaleform\LootMenu.cpp" />
+    <ClCompile Include="src\ViewHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CLIK\Array.h" />
@@ -236,6 +237,7 @@
     <ClInclude Include="src\CLIK\TextField.h" />
     <ClInclude Include="src\Events\Events.h" />
     <ClInclude Include="src\GFxItem.h" />
+    <ClInclude Include="src\HUDHandler.h" />
     <ClInclude Include="src\Input\Input.h" />
     <ClInclude Include="src\Input\InputDisablers.h" />
     <ClInclude Include="src\Input\InputListeners.h" />

@@ -8,6 +8,9 @@ namespace Scaleform
 // Interface for interacting with the loot menu outside of UI threads
 class Loot
 {
+private:
+	using LootMenu = Scaleform::LootMenu;
+
 public:
 	static inline Loot* GetSingleton()
 	{
@@ -26,14 +29,13 @@ public:
 	void Close();
 	void Open();
 
-	void Process(Scaleform::LootMenu& a_menu);
+	void Process(LootMenu& a_menu);
 
 	void ModSelectedIndex(double a_mod);
 	void SetContainer(RE::TESObjectREFRPtr a_container);
 	void TakeStack();
 
 private:
-	using LootMenu = Scaleform::LootMenu;
 	using Tasklet = std::function<void(LootMenu&)>;
 
 	inline Loot() :
@@ -51,7 +53,8 @@ private:
 
 	inline void AddTask(Tasklet a_task);
 
-	RE::GPtr<LootMenu> GetMenu();
+	[[nodiscard]] RE::GPtr<LootMenu> GetMenu() const;
+	[[nodiscard]] bool IsOpen() const;
 
 	std::vector<Tasklet> _taskQueue;
 	std::atomic_bool _enabled;

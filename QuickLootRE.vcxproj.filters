@@ -51,6 +51,9 @@
     <ClCompile Include="src\Scaleform\LootMenu.cpp">
       <Filter>src\Scaleform</Filter>
     </ClCompile>
+    <ClCompile Include="src\ViewHandler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CLIK\Array.h">
@@ -90,6 +93,9 @@
       <Filter>src\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\GFxItem.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HUDHandler.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Input\Input.h">

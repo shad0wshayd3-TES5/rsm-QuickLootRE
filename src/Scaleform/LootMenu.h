@@ -2,6 +2,7 @@
 
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
+#include "HUDHandler.h"
 #include "Items/GroundItems.h"
 #include "Items/InventoryItem.h"
 #include "Items/Item.h"
@@ -16,7 +17,8 @@ namespace Scaleform
 		using super = RE::IMenu;
 
 	public:
-		static constexpr std::string_view MenuName() { return MENU_NAME; }
+		static constexpr std::string_view MenuName() noexcept { return MENU_NAME; }
+		static constexpr SInt8 SortPriority() noexcept { return SORT_PRIORITY; }
 
 		static inline void Register()
 		{
@@ -103,9 +105,8 @@ namespace Scaleform
 			using Flag = RE::UI_MENU_FLAGS;
 
 			auto menu = static_cast<super*>(this);
-			menu->menuDepth = 0;
-			//menu->flags = Flag::kUpdateUsesCursor | Flag::kUsesCursor;
-			//menu->context = Context::kGameplay;
+			//menu->menuFlags = Flag::kUpdateUsesCursor | Flag::kUsesCursor;
+			//menu->inputContext = Context::kGameplay;
 
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 			[[maybe_unused]] const auto success =
@@ -114,8 +115,8 @@ namespace Scaleform
 				});
 
 			assert(success);
-			_viewHandler.emplace(menu->view);
-			_view = menu->view;
+			_viewHandler.emplace(menu);
+			_view = menu->uiMovie;
 			_view->SetMouseCursorCount(0);	// disable input, we'll handle it ourselves
 			InitExtensions();
 
@@ -127,7 +128,7 @@ namespace Scaleform
 		LootMenu(const LootMenu&) = default;
 		LootMenu(LootMenu&&) = default;
 
-		inline ~LootMenu() {}
+		~LootMenu() = default;
 
 		LootMenu& operator=(const LootMenu&) = default;
 		LootMenu& operator=(LootMenu&&) = default;
@@ -135,19 +136,18 @@ namespace Scaleform
 		static inline owner<RE::IMenu*> Creator() { return new LootMenu(); }
 
 		// IMenu
+		inline void PostCreate() override { OnOpen(); }
+
 		inline UIResult ProcessMessage(RE::UIMessage& a_message) override
 		{
 			using Type = RE::UI_MESSAGE_TYPE;
 
 			switch (a_message.type) {
-			case Type::kShow:
-				OnOpen();
-				return UIResult::kHandled;
 			case Type::kHide:
 				OnClose();
 				return UIResult::kHandled;
 			default:
-				return RE::IMenu::ProcessMessage(a_message);
+				return super::ProcessMessage(a_message);
 			}
 		}
 
@@ -239,6 +239,7 @@ namespace Scaleform
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };
+		static constexpr SInt8 SORT_PRIORITY{ 3 };
 
 		RE::GPtr<RE::GFxMovieView> _view;
 		RE::ActorPtr _dest;
