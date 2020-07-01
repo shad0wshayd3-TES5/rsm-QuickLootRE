@@ -79,24 +79,32 @@ private:
 
 	inline void Enable()
 	{
-		if (!_enabled) {
-			AdjustPriority(Priority::kDefault);
-			_view->SetVisible(true);
-			_disablers.Enable();
-			_listeners.Enable();
-			_enabled = true;
-		}
+		RE::GPtr safety{ _menu };
+		auto task = SKSE::GetTaskInterface();
+		task->AddUITask([this, safety]() {
+			if (!_enabled) {
+				AdjustPriority(Priority::kDefault);
+				_view->SetVisible(true);
+				_disablers.Enable();
+				_listeners.Enable();
+				_enabled = true;
+			}
+		});
 	}
 
 	inline void Disable()
 	{
-		if (_enabled) {
-			AdjustPriority(Priority::kLowest);
-			_view->SetVisible(false);
-			_disablers.Disable();
-			_listeners.Disable();
-			_enabled = false;
-		}
+		RE::GPtr safety{ _menu };
+		auto task = SKSE::GetTaskInterface();
+		task->AddUITask([this, safety]() {
+			if (_enabled) {
+				AdjustPriority(Priority::kLowest);
+				_view->SetVisible(false);
+				_disablers.Disable();
+				_listeners.Disable();
+				_enabled = false;
+			}
+		});
 	}
 
 	void AdjustPriority(Priority a_priority);
