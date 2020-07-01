@@ -1,6 +1,6 @@
 #include "Loot.h"
 
-#include "HUDHandler.h"
+#include "HUDManager.h"
 #include "Scaleform/LootMenu.h"
 
 void Loot::Close()
@@ -9,7 +9,7 @@ void Loot::Close()
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
-			auto hud = HUDHandler::GetSingleton();
+			auto hud = HUDManager::GetSingleton();
 			hud->Disable();
 		}
 	}
@@ -17,11 +17,11 @@ void Loot::Close()
 
 void Loot::Open()
 {
-	if (_enabled && !IsOpen()) {
+	if (ShouldOpen()) {
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
-			auto hud = HUDHandler::GetSingleton();
+			auto hud = HUDManager::GetSingleton();
 			hud->Enable();
 		}
 	}

@@ -3,7 +3,6 @@
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "ContainerHandler.h"
-#include "HUDHandler.h"
 #include "Items/GroundItems.h"
 #include "Items/InventoryItem.h"
 #include "Items/Item.h"

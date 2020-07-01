@@ -4,7 +4,7 @@
 
 namespace Events
 {
-	auto CrosshairRefHandler::ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*)
+	auto CrosshairRefManager::ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*)
 		-> EventResult
 	{
 		if (!a_event || _cachedRef == a_event->crosshairRef) {

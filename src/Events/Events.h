@@ -2,13 +2,13 @@
 
 namespace Events
 {
-	class CrosshairRefHandler :
+	class CrosshairRefManager :
 		public RE::BSTEventSink<SKSE::CrosshairRefEvent>
 	{
 	public:
-		static inline CrosshairRefHandler* GetSingleton()
+		static inline CrosshairRefManager* GetSingleton()
 		{
-			static CrosshairRefHandler singleton;
+			static CrosshairRefManager singleton;
 			return std::addressof(singleton);
 		}
 
@@ -17,7 +17,7 @@ namespace Events
 			auto source = SKSE::GetCrosshairRefEventSource();
 			if (source) {
 				source->AddEventSink(GetSingleton());
-				_MESSAGE("Registered %s", typeid(CrosshairRefHandler).name());
+				_MESSAGE("Registered %s", typeid(CrosshairRefManager).name());
 			}
 		}
 
@@ -27,14 +27,14 @@ namespace Events
 		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
 
 	private:
-		CrosshairRefHandler() = default;
-		CrosshairRefHandler(const CrosshairRefHandler&) = delete;
-		CrosshairRefHandler(CrosshairRefHandler&&) = delete;
+		CrosshairRefManager() = default;
+		CrosshairRefManager(const CrosshairRefManager&) = delete;
+		CrosshairRefManager(CrosshairRefManager&&) = delete;
 
-		~CrosshairRefHandler() = default;
+		~CrosshairRefManager() = default;
 
-		CrosshairRefHandler& operator=(const CrosshairRefHandler&) = delete;
-		CrosshairRefHandler& operator=(CrosshairRefHandler&&) = delete;
+		CrosshairRefManager& operator=(const CrosshairRefManager&) = delete;
+		CrosshairRefManager& operator=(CrosshairRefManager&&) = delete;
 
 		[[nodiscard]] inline bool CanOpen() const
 		{
@@ -57,7 +57,7 @@ namespace Events
 
 	inline void Register()
 	{
-		CrosshairRefHandler::Register();
+		CrosshairRefManager::Register();
 		_MESSAGE("Registered all event handlers");
 	}
 }

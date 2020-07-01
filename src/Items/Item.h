@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GFxItem.h"
+#include "Items/GFxItem.h"
 
 namespace Items
 {

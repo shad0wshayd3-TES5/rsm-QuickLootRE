@@ -1,20 +1,20 @@
 #pragma once
 
-class HUDHandler
+class HUDManager
 {
 public:
-	inline static HUDHandler* GetSingleton()
+	inline static HUDManager* GetSingleton()
 	{
-		static HUDHandler singleton;
+		static HUDManager singleton;
 		return std::addressof(singleton);
 	}
 
-	inline static void Install()
+	static inline void Install()
 	{
 		Handler<241857>::Install();	 // TESNPC
 		Handler<234000>::Install();	 // TESObjectACTI
 		Handler<234148>::Install();	 // TESObjectCONT
-		_MESSAGE("Installed %s", typeid(HUDHandler).name());
+		_MESSAGE("Installed %s", typeid(HUDManager).name());
 	}
 
 	inline void Enable() noexcept { _enabled = true; }
@@ -44,7 +44,7 @@ protected:
 
 		inline static bool GetActivateText(RE::TESBoundObject* a_this, RE::TESObjectREFR* a_activator, RE::BSString& a_dst)
 		{
-			const auto* proxy = HUDHandler::GetSingleton();
+			const auto* proxy = HUDManager::GetSingleton();
 			if (proxy->Enabled()) {
 				return false;
 			} else {
@@ -59,17 +59,17 @@ protected:
 	[[nodiscard]] inline bool Disabled() const noexcept { return !_enabled; }
 
 private:
-	constexpr HUDHandler() noexcept :
+	constexpr HUDManager() noexcept :
 		_enabled(false)
 	{}
 
-	HUDHandler(const HUDHandler&) = delete;
-	HUDHandler(HUDHandler&&) = delete;
+	HUDManager(const HUDManager&) = delete;
+	HUDManager(HUDManager&&) = delete;
 
-	~HUDHandler() = default;
+	~HUDManager() = default;
 
-	HUDHandler& operator=(const HUDHandler&) = delete;
-	HUDHandler& operator=(HUDHandler&&) = delete;
+	HUDManager& operator=(const HUDManager&) = delete;
+	HUDManager& operator=(HUDManager&&) = delete;
 
 	std::atomic_bool _enabled;
 };

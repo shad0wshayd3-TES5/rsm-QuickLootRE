@@ -30,6 +30,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AnimationManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\ContainerHandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -59,6 +62,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AnimationManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
     <ClInclude Include="src\CLIK\Array.h">
       <Filter>src\CLIK</Filter>
     </ClInclude>
@@ -98,10 +104,7 @@
     <ClInclude Include="src\Events\Events.h">
       <Filter>src\Events</Filter>
     </ClInclude>
-    <ClInclude Include="src\GFxItem.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HUDHandler.h">
+    <ClInclude Include="src\HUDManager.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Input\Input.h">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="src\Input\InputListeners.h">
       <Filter>src\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Items\GFxItem.h">
+      <Filter>src\Items</Filter>
     </ClInclude>
     <ClInclude Include="src\Items\GroundItems.h">
       <Filter>src\Items</Filter>

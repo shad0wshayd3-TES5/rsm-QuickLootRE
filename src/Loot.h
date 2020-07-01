@@ -61,6 +61,20 @@ private:
 	[[nodiscard]] RE::GPtr<LootMenu> GetMenu() const;
 	[[nodiscard]] bool IsOpen() const;
 
+	[[nodiscard]] inline bool ShouldOpen() const
+	{
+		if (!_enabled || IsOpen()) {
+			return false;
+		}
+
+		auto player = RE::PlayerCharacter::GetSingleton();
+		if (!player || player->IsAnimationDriven()) {
+			return false;
+		}
+
+		return true;
+	}
+
 	mutable std::mutex _lock;
 	std::vector<Tasklet> _taskQueue;
 	std::atomic_bool _refreshInventory;

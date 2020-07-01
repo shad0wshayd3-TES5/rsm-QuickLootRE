@@ -1,5 +1,6 @@
-﻿#include "Events/Events.h"
-#include "HUDHandler.h"
+﻿#include "AnimationManager.h"
+#include "Events/Events.h"
+#include "HUDManager.h"
 #include "Input/Input.h"
 #include "Loot.h"
 #include "Scaleform/LootMenu.h"
@@ -82,11 +83,12 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
+		AnimationManager::Install();
+		HUDManager::Install();
 		InputHandler::Register();
-		HUDHandler::Install();
 		Events::Register();
-		Scaleform::Register();
 		Input::HookControlMap();
+		Scaleform::Register();
 		break;
 	}
 }
