@@ -91,14 +91,9 @@ namespace Scaleform
 
 		inline void TakeStack()
 		{
-			if (!_itemListImpl.empty()) {
-				auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-				if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
-					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(_dst.get());
-					_itemListImpl.erase(_itemListImpl.begin() + pos);
-					_itemListProvider.RemoveElement(static_cast<UInt32>(pos));
-					_itemList.Invalidate();
-				}
+			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
+			if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
+				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(_dst.get());
 			}
 
 			QueueInventoryRefresh();
