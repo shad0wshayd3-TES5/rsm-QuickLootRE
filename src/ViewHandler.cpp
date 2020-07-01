@@ -23,7 +23,7 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 		break;
 	}
 
-	std::sort(
+	std::stable_sort(
 		ui->menuStack.begin(),
 		ui->menuStack.end(),
 		[](auto&& a_lhs, auto&& a_rhs) {
