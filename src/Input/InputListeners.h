@@ -11,10 +11,11 @@ namespace Input
 	public:
 		inline Listeners() :
 			super(),
-			_callbacks()
+			_callbacks(),
+			_grabDelay(RE::GetINISetting("fZKeyDelay:Controls"))
 		{
-			_callbacks.emplace_back(TakeHandler);
-			_callbacks.emplace_back(ScrollHandler);
+			_callbacks.emplace_back(&Listeners::TakeHandler);
+			_callbacks.emplace_back(&Listeners::ScrollHandler);
 		}
 
 		Listeners(const Listeners&) = default;
@@ -50,22 +51,33 @@ namespace Input
 		using Keyboard = RE::BSWin32KeyboardDevice::Key;
 		using Mouse = RE::BSWin32MouseDevice::Key;
 
-		using Callback = std::function<void(const Event&)>;
+		using Callback = std::function<void(Listeners&, const Event&)>;
 
-		static void ScrollHandler(const Event& a_event);
-		static void TakeHandler(const Event& a_event);
+		inline float GetGrabDelay() const
+		{
+			if (_grabDelay) {
+				return _grabDelay->GetFloat();
+			} else {
+				assert(false);
+				return std::numeric_limits<float>::max();
+			}
+		}
 
 		inline EventResult ProcessEvent(const Event* a_event, RE::BSTEventSource<Event>*) override
 		{
 			if (a_event) {
 				for (auto& callback : _callbacks) {
-					callback(*a_event);
+					callback(*this, *a_event);
 				}
 			}
 
 			return EventResult::kContinue;
 		}
 
+		void ScrollHandler(const Event& a_event);
+		void TakeHandler(const Event& a_event);
+
 		std::vector<Callback> _callbacks;
+		observer<RE::Setting*> _grabDelay;
 	};
 }

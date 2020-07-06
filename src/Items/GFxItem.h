@@ -98,7 +98,7 @@ namespace Items
 			// FormID
 
 			if (const auto gold = _flags[kGold] != a_rhs._flags[kGold]; gold) {
-				return gold ? -1 : 1;
+				return _flags[kGold] ? -1 : 1;
 			} else if (const auto alpha = _stricmp(_displayName.c_str(), a_rhs._displayName.c_str()); alpha) {
 				return alpha < 0 ? -1 : 1;
 			} else {

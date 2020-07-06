@@ -53,25 +53,36 @@ namespace Input
 			}
 
 			const auto& idEvent = static_cast<const RE::IDEvent&>(inputEvent);
-			switch (idEvent.GetEventType()) {
-			case RE::INPUT_EVENT_TYPE::kButton:
-				{
-					const auto& buttonEvent = static_cast<const RE::ButtonEvent&>(idEvent);
-					if (!buttonEvent.IsDown()) {
-						continue;
-					}
-				}
-				break;
-			default:
+			if (idEvent.GetEventType() != EventType::kButton) {
 				continue;
 			}
 
-			auto controls = RE::ControlMap::GetSingleton();
-			auto idCode = controls->GetMappedKey("Activate", inputEvent.GetDevice());
-			if (idEvent.GetIDCode() == idCode) {
-				auto loot = Loot::GetSingleton();
-				loot->TakeStack();
-				return;
+			const auto& buttonEvent = static_cast<const RE::ButtonEvent&>(idEvent);
+			auto controlMap = RE::ControlMap::GetSingleton();
+			const auto idCode =
+				controlMap ?
+					controlMap->GetMappedKey("Activate", buttonEvent.GetDevice()) :
+					RE::ControlMap::kInvalid;
+
+			if (buttonEvent.GetIDCode() == idCode) {
+				if (buttonEvent.IsHeld() && buttonEvent.HeldDuration() > GetGrabDelay()) {
+					auto player = RE::PlayerCharacter::GetSingleton();
+					if (player) {
+						player->StartGrabObject();
+						auto playerControls = RE::PlayerControls::GetSingleton();
+						auto activateHandler = playerControls ? playerControls->GetActivateHandler() : nullptr;
+						if (activateHandler) {
+							activateHandler->SetHeldButtonActionSuccess(player->IsGrabbing());
+						}
+						auto loot = Loot::GetSingleton();
+						loot->Close();
+					}
+					return;
+				} else if (buttonEvent.IsUp()) {
+					auto loot = Loot::GetSingleton();
+					loot->TakeStack();
+					return;
+				}
 			}
 		}
 	}

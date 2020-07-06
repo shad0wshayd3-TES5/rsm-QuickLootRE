@@ -31,7 +31,7 @@ namespace Scaleform
 
 		inline void ModSelectedIndex(double a_mod)
 		{
-			const auto maxIdx = static_cast<double>(_itemListImpl.size() - 1);
+			const auto maxIdx = static_cast<double>(_itemListImpl.size()) - 1.0;
 			if (maxIdx >= 0.0) {
 				auto idx = _itemList.SelectedIndex();
 				idx += a_mod;
