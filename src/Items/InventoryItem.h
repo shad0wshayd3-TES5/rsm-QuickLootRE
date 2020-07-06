@@ -15,19 +15,15 @@ namespace Items
 		InventoryItem(const InventoryItem&) = delete;
 		InventoryItem(InventoryItem&&) = default;
 
-		inline InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_item, std::ptrdiff_t a_count, RE::TESObjectREFRPtr a_container) :
+		inline InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_item, std::ptrdiff_t a_count, RE::ObjectRefHandle a_container) :
 			super(a_item.get(), a_count),
 			_entry(std::move(a_item)),
-			_container(std::move(a_container))
+			_container(a_container)
 		{
 			assert(_entry != nullptr);
 			assert(_entry->GetObject() != nullptr);
-			assert(_container != nullptr);
+			assert(_container);
 		}
-
-		inline InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_item, std::ptrdiff_t a_count, RE::ObjectRefHandle a_container) :
-			InventoryItem(std::move(a_item), a_count, a_container.get())
-		{}
 
 		~InventoryItem() = default;
 
@@ -38,6 +34,11 @@ namespace Items
 		inline void DoTake(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) override
 		{
 			assert(a_dst != nullptr);
+			auto container = _container.get();
+			if (!container) {
+				assert(false);
+				return;
+			}
 
 			auto toRemove = std::clamp<std::ptrdiff_t>(a_count, 0, Count());
 			if (toRemove <= 0) {
@@ -62,16 +63,16 @@ namespace Items
 
 			const auto object = _entry->GetObject();
 			for (const auto& [xList, count] : queued) {
-				_container->RemoveItem(object, static_cast<SInt32>(count), RE::ITEM_REMOVE_REASON::kRemove, xList, a_dst);
+				container->RemoveItem(object, static_cast<SInt32>(count), RE::ITEM_REMOVE_REASON::kRemove, xList, a_dst);
 			}
 			if (toRemove > 0) {
-				_container->RemoveItem(object, static_cast<SInt32>(toRemove), RE::ITEM_REMOVE_REASON::kRemove, nullptr, a_dst);
+				container->RemoveItem(object, static_cast<SInt32>(toRemove), RE::ITEM_REMOVE_REASON::kRemove, nullptr, a_dst);
 				toRemove = 0;
 			}
 		}
 
 	private:
 		std::unique_ptr<RE::InventoryEntryData> _entry;
-		RE::TESObjectREFRPtr _container;
+		RE::ObjectRefHandle _container;
 	};
 }

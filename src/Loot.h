@@ -31,7 +31,7 @@ public:
 
 	void ModSelectedIndex(double a_mod);
 	inline void RefreshInventory() { _refreshInventory = true; }
-	void SetContainer(RE::TESObjectREFRPtr a_container);
+	void SetContainer(RE::ObjectRefHandle a_container);
 	void TakeStack();
 
 protected:

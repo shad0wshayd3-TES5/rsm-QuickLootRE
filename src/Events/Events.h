@@ -42,17 +42,18 @@ namespace Events
 				return false;
 			}
 
-			switch (_cachedRef->GetFormType()) {
+			auto ref = _cachedRef.get();
+			switch (ref->GetFormType()) {
 			case RE::FormType::Reference:
-				return _cachedRef->GetContainer();
+				return ref->GetContainer();
 			case RE::FormType::ActorCharacter:
-				return _cachedRef->IsDead();
+				return ref->IsDead();
 			default:
 				return false;
 			}
 		}
 
-		RE::TESObjectREFRPtr _cachedRef;
+		RE::ObjectRefHandle _cachedRef;
 	};
 
 	inline void Register()

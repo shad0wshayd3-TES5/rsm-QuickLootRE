@@ -5,9 +5,11 @@
 auto ContainerHandler::ProcessEvent(const RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>*)
 	-> EventResult
 {
+	auto container = _container.get();
 	if (a_event &&
-		(a_event->oldContainer == _container->GetFormID() ||
-			a_event->newContainer == _container->GetFormID())) {
+		container &&
+		(a_event->oldContainer == container->GetFormID() ||
+			a_event->newContainer == container->GetFormID())) {
 		auto loot = Loot::GetSingleton();
 		loot->RefreshInventory();
 	}

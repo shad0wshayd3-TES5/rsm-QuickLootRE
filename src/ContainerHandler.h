@@ -8,10 +8,10 @@ public:
 	ContainerHandler(const ContainerHandler&) = default;
 	ContainerHandler(ContainerHandler&&) = default;
 
-	inline ContainerHandler(RE::TESObjectREFRPtr a_container) :
-		_container(std::move(a_container))
+	inline ContainerHandler(RE::ObjectRefHandle a_container) :
+		_container(a_container)
 	{
-		assert(_container != nullptr);
+		assert(_container);
 		Register();
 	}
 
@@ -42,5 +42,5 @@ private:
 		}
 	}
 
-	RE::TESObjectREFRPtr _container;
+	RE::ObjectRefHandle _container;
 };

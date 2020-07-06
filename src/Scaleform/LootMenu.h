@@ -40,10 +40,10 @@ namespace Scaleform
 			}
 		}
 
-		inline void SetContainer(RE::TESObjectREFRPtr a_ref)
+		inline void SetContainer(RE::ObjectRefHandle a_ref)
 		{
-			assert(a_ref != nullptr);
-			_src = std::move(a_ref);
+			assert(a_ref);
+			_src = a_ref;
 			_containerHandler.emplace(_src);
 		}
 
@@ -52,8 +52,15 @@ namespace Scaleform
 			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 
 			_itemListImpl.clear();
+			auto src = _src.get();
+			if (!src) {
+				_itemListProvider.ClearElements();
+				_itemList.Invalidate();
+				_itemList.SelectedIndex(-1.0);
+				return;
+			}
 
-			auto inv = _src->GetInventory();
+			auto inv = src->GetInventory();
 			for (auto& [obj, data] : inv) {
 				auto& [count, entry] = data;
 				if (CanDisplay(obj) && count > 0 && entry) {
@@ -63,7 +70,7 @@ namespace Scaleform
 				}
 			}
 
-			auto dropped = _src->GetDroppedInventory();
+			auto dropped = src->GetDroppedInventory();
 			for (auto& [obj, data] : dropped) {
 				auto& [count, items] = data;
 				if (CanDisplay(obj) && count > 0 && !items.empty()) {
@@ -73,6 +80,7 @@ namespace Scaleform
 				}
 			}
 
+			Sort();
 			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
 				_itemListProvider.PushBack(elem->Value());
@@ -92,7 +100,10 @@ namespace Scaleform
 		{
 			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 			if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
-				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(_dst.get());
+				auto dst = _dst.get();
+				if (dst) {
+					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(dst.get());
+				}
 			}
 
 			QueueInventoryRefresh();
@@ -208,6 +219,15 @@ namespace Scaleform
 			return true;
 		}
 
+		inline void AdjustPosition()
+		{
+			auto def = _view->GetMovieDef();
+			if (def) {
+				_rootObj.X(
+					_rootObj.X() + def->GetWidth() / 5);
+			}
+		}
+
 		inline void InitExtensions()
 		{
 			const RE::GFxValue boolean{ true };
@@ -219,11 +239,14 @@ namespace Scaleform
 			assert(success);
 		}
 
+		inline void OnClose() { return; }
+
 		inline void OnOpen()
 		{
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
-				element_t{ std::ref(_itemList), "_root.itemList" }
+				element_t{ std::ref(_rootObj), "_root.rootObj" },
+				element_t{ std::ref(_itemList), "_root.rootObj.itemList" }
 			};
 
 			for (const auto& [object, path] : objects) {
@@ -237,23 +260,33 @@ namespace Scaleform
 			assert(_itemListProvider.IsArray());
 			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
 
+			AdjustPosition();
 			ProcessDelegate();
 		}
 
-		inline void OnClose() { return; }
-
 		void ProcessDelegate();
 		void QueueInventoryRefresh();
+
+		inline void Sort()
+		{
+			std::stable_sort(
+				_itemListImpl.begin(),
+				_itemListImpl.end(),
+				[&](auto&& a_lhs, auto&& a_rhs) {
+					return *a_lhs < *a_rhs;
+				});
+		}
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };
 		static constexpr SInt8 SORT_PRIORITY{ 3 };
 
 		RE::GPtr<RE::GFxMovieView> _view;
-		RE::ActorPtr _dst;
-		RE::TESObjectREFRPtr _src;
+		RE::ActorHandle _dst;
+		RE::ObjectRefHandle _src;
 		std::optional<ViewHandler> _viewHandler;
 		std::optional<ContainerHandler> _containerHandler;
+		CLIK::MovieClip _rootObj;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;

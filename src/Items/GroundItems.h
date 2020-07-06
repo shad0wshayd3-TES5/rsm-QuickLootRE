@@ -15,7 +15,7 @@ namespace Items
 		GroundItems(const GroundItems&) = delete;
 		GroundItems(GroundItems&&) = default;
 
-		inline GroundItems(std::vector<RE::NiPointer<RE::TESObjectREFR>> a_items, std::ptrdiff_t a_count) :
+		inline GroundItems(std::vector<RE::ObjectRefHandle> a_items, std::ptrdiff_t a_count) :
 			super(a_items, a_count),
 			_items(std::move(a_items))
 		{}
@@ -36,18 +36,21 @@ namespace Items
 				return;
 			}
 
-			for (auto& item : _items) {
-				const auto xCount = std::min<std::ptrdiff_t>(item->extraList.GetCount(), toRemove);
-				a_dst->PickUpObject(item.get(), static_cast<SInt32>(xCount));
-				toRemove -= xCount;
+			for (auto& handle : _items) {
+				auto item = handle.get();
+				if (item) {
+					const auto xCount = std::min<std::ptrdiff_t>(item->extraList.GetCount(), toRemove);
+					a_dst->PickUpObject(item.get(), static_cast<SInt32>(xCount));
+					toRemove -= xCount;
 
-				if (toRemove <= 0) {
-					break;
+					if (toRemove <= 0) {
+						break;
+					}
 				}
 			}
 		}
 
 	private:
-		std::vector<RE::NiPointer<RE::TESObjectREFR>> _items;
+		std::vector<RE::ObjectRefHandle> _items;
 	};
 }

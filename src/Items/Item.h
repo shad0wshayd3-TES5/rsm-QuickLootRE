@@ -16,7 +16,7 @@ namespace Items
 			_count(a_count)
 		{}
 
-		inline Item(const std::vector<RE::NiPointer<RE::TESObjectREFR>>& a_items, std::ptrdiff_t a_count) :
+		inline Item(const std::vector<RE::ObjectRefHandle>& a_items, std::ptrdiff_t a_count) :
 			_item(a_items),
 			_count(a_count)
 		{}
@@ -25,6 +25,8 @@ namespace Items
 
 		Item& operator=(const Item&) = delete;
 		Item& operator=(Item&&) = default;
+
+		[[nodiscard]] inline int compare(const Item& a_rhs) const { return _item.compare(a_rhs._item); }
 
 		[[nodiscard]] inline std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_count, 0); }
 		[[nodiscard]] inline RE::GFxValue Value() const { return _item.Value(); }
@@ -40,4 +42,11 @@ namespace Items
 		GFxItem _item;
 		std::ptrdiff_t _count;
 	};
+
+	[[nodiscard]] inline bool operator==(const Item& a_lhs, const Item& a_rhs) { return a_lhs.compare(a_rhs) == 0; }
+	[[nodiscard]] inline bool operator!=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.compare(a_rhs) != 0; }
+	[[nodiscard]] inline bool operator<(const Item& a_lhs, const Item& a_rhs) { return a_lhs.compare(a_rhs) < 0; }
+	[[nodiscard]] inline bool operator>(const Item& a_lhs, const Item& a_rhs) { return a_lhs.compare(a_rhs) > 0; }
+	[[nodiscard]] inline bool operator<=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.compare(a_rhs) <= 0; }
+	[[nodiscard]] inline bool operator>=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.compare(a_rhs) >= 0; }
 }

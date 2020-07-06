@@ -34,7 +34,7 @@ void Loot::ModSelectedIndex(double a_mod)
 	});
 }
 
-void Loot::SetContainer(RE::TESObjectREFRPtr a_container)
+void Loot::SetContainer(RE::ObjectRefHandle a_container)
 {
 	AddTask([a_container](LootMenu& a_menu) {
 		a_menu.SetContainer(a_container);
