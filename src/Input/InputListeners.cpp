@@ -62,13 +62,15 @@ namespace Input
 					auto player = RE::PlayerCharacter::GetSingleton();
 					if (player) {
 						player->StartGrabObject();
-						auto playerControls = RE::PlayerControls::GetSingleton();
-						auto activateHandler = playerControls ? playerControls->GetActivateHandler() : nullptr;
-						if (activateHandler) {
-							activateHandler->SetHeldButtonActionSuccess(player->IsGrabbing());
+						if (player->IsGrabbing()) {
+							auto playerControls = RE::PlayerControls::GetSingleton();
+							auto activateHandler = playerControls ? playerControls->GetActivateHandler() : nullptr;
+							if (activateHandler) {
+								activateHandler->SetHeldButtonActionSuccess(true);
+							}
+							auto loot = Loot::GetSingleton();
+							loot->Close();
 						}
-						auto loot = Loot::GetSingleton();
-						loot->Close();
 					}
 					return;
 				} else if (buttonEvent->IsUp()) {

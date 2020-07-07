@@ -8,40 +8,28 @@ namespace Items
 		inline GFxItem(std::ptrdiff_t a_count, observer<RE::InventoryEntryData*> a_item) :
 			_src(a_item),
 			_displayName(),
+			_count(a_count),
+			_enchantmentCharge(),
 			_flags(),
 			_cached(),
 			_value(),
-			_count(a_count),
-			_enchantmentCharge(100.0),
-			_formID(std::numeric_limits<RE::FormID>::max())
+			_formID()
 		{
 			assert(a_item != nullptr);
 
 			_displayName = safe_string(a_item->GetDisplayName());
-
-			auto charge = a_item->GetEnchantmentCharge();
-			if (charge) {
-				_enchantmentCharge = *charge;
-			}
-
-			_flags.set(kEnchanted, a_item->IsEnchanted());
-			_cached.set(kEnchanted);
-
-			auto obj = a_item->GetObject();
-			if (obj) {
-				_formID = obj->GetFormID();
-			}
+			_enchantmentCharge = a_item->GetEnchantmentCharge();
 		}
 
 		inline GFxItem(std::ptrdiff_t a_count, stl::span<const RE::ObjectRefHandle> a_items) :
 			_src(a_items),
 			_displayName(),
+			_count(a_count),
+			_enchantmentCharge(),
 			_flags(),
 			_cached(),
 			_value(),
-			_count(a_count),
-			_enchantmentCharge(100.0),
-			_formID(std::numeric_limits<RE::FormID>::max())
+			_formID()
 		{
 			std::vector<RE::TESObjectREFRPtr> items;
 			items.reserve(a_items.size());
@@ -52,32 +40,18 @@ namespace Items
 				}
 			}
 
-			if (!items.empty()) {
-				for (auto& item : items) {
-					_displayName = safe_string(item->GetDisplayFullName());
-					if (!_displayName.empty()) {
-						break;
-					}
+			for (auto& item : items) {
+				_displayName = safe_string(item->GetDisplayFullName());
+				if (!_displayName.empty()) {
+					break;
 				}
+			}
 
-				for (auto& item : items) {
-					auto charge = item->GetEnchantmentCharge();
-					if (charge) {
-						_enchantmentCharge = *charge;
-						break;
-					}
+			for (auto& item : items) {
+				_enchantmentCharge = item->GetEnchantmentCharge();
+				if (_enchantmentCharge) {
+					break;
 				}
-
-				for (auto& item : items) {
-					if (item->IsEnchanted()) {
-						_flags.set(kEnchanted);
-						break;
-					}
-				}
-				_cached.set(kEnchanted);
-
-				const auto& front = items.front();
-				_formID = front->GetFormID();
 			}
 		}
 
@@ -115,8 +89,8 @@ namespace Items
 			} else if (const auto alphabetical = _stricmp(_displayName.c_str(), a_rhs._displayName.c_str());
 					   alphabetical != 0) {
 				return alphabetical < 0 ? -1 : 1;
-			} else if (_formID != a_rhs._formID) {
-				return _formID < a_rhs._formID ? -1 : 1;
+			} else if (GetFormID() != a_rhs.GetFormID()) {
+				return GetFormID() < a_rhs.GetFormID() ? -1 : 1;
 			} else {
 				return 0;
 			}
@@ -129,6 +103,9 @@ namespace Items
 			a_view->CreateObject(std::addressof(value));
 			value.SetMember("displayName", { _displayName });
 			value.SetMember("count", { _count });
+			if (_enchantmentCharge) {
+				value.SetMember("enchantmentCharge", { *_enchantmentCharge });
+			}
 			return value;
 		}
 
@@ -142,7 +119,6 @@ namespace Items
 			kGold,
 			kAmmo,
 			kLockpick,
-			kEnchanted,
 			kStolen,
 			kTotal
 		};
@@ -155,6 +131,40 @@ namespace Items
 
 		using inventory_t = RE::InventoryEntryData*;
 		using ground_t = stl::span<const RE::ObjectRefHandle>;
+
+		[[nodiscard]] inline RE::FormID GetFormID() const
+		{
+			if (_formID) {
+				return *_formID;
+			}
+
+			_formID = std::numeric_limits<RE::FormID>::max();
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						_formID = obj->GetFormID();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						_value = obj->GetFormID();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			return *_formID;
+		}
 
 		[[nodiscard]] inline std::ptrdiff_t GetValue() const
 		{
@@ -471,12 +481,12 @@ namespace Items
 
 		std::variant<inventory_t, ground_t> _src;
 		std::string _displayName;
+		std::ptrdiff_t _count;
+		std::optional<double> _enchantmentCharge;
 		mutable std::bitset<kTotal> _flags;
 		mutable std::bitset<kTotal> _cached;
 		mutable std::optional<std::ptrdiff_t> _value;
-		std::ptrdiff_t _count;
-		double _enchantmentCharge;
-		RE::FormID _formID;
+		mutable std::optional<RE::FormID> _formID;
 	};
 
 	[[nodiscard]] inline bool operator==(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) == 0; }

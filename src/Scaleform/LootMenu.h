@@ -2,6 +2,7 @@
 
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
+#include "CLIK/TextField.h"
 #include "ContainerHandler.h"
 #include "Items/GroundItems.h"
 #include "Items/InventoryItem.h"
@@ -87,13 +88,8 @@ namespace Scaleform
 			}
 			_itemList.Invalidate();
 
-			if (0 <= idx && idx < stl::ssize(_itemListImpl)) {
-				_itemList.SelectedIndex(static_cast<double>(idx));
-			} else if (!_itemListImpl.empty()) {
-				_itemList.SelectedIndex(0.0);
-			} else {
-				_itemList.SelectedIndex(-1.0);
-			}
+			RestoreIndex(idx);
+			UpdateWeight();
 		}
 
 		inline void TakeStack()
@@ -246,7 +242,8 @@ namespace Scaleform
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
 				element_t{ std::ref(_rootObj), "_root.rootObj" },
-				element_t{ std::ref(_itemList), "_root.rootObj.itemList" }
+				element_t{ std::ref(_itemList), "_root.rootObj.itemList" },
+				element_t{ std::ref(_weight), "_root.rootObj.weight" }
 			};
 
 			for (const auto& [object, path] : objects) {
@@ -260,12 +257,29 @@ namespace Scaleform
 			assert(_itemListProvider.IsArray());
 			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
 
+			_weight.AutoSize(CLIK::Object{ true });
+
 			AdjustPosition();
 			ProcessDelegate();
 		}
 
 		void ProcessDelegate();
 		void QueueInventoryRefresh();
+
+		void RestoreIndex(std::ptrdiff_t a_oldIdx)
+		{
+			if (const auto ssize = stl::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize) {
+				_itemList.SelectedIndex(static_cast<double>(a_oldIdx));
+			} else if (!_itemListImpl.empty()) {
+				if (a_oldIdx >= ssize) {
+					_itemList.SelectedIndex(static_cast<double>(ssize) - 1.0);
+				} else {
+					_itemList.SelectedIndex(0.0);
+				}
+			} else {
+				_itemList.SelectedIndex(-1.0);
+			}
+		}
 
 		inline void Sort()
 		{
@@ -275,6 +289,21 @@ namespace Scaleform
 				[&](auto&& a_lhs, auto&& a_rhs) {
 					return *a_lhs < *a_rhs;
 				});
+		}
+
+		void UpdateWeight()
+		{
+			auto dst = _dst.get();
+			if (dst) {
+				auto inventoryWeight =
+					static_cast<std::ptrdiff_t>(dst->GetWeightInContainer());
+				auto carryWeight =
+					static_cast<std::ptrdiff_t>(dst->GetActorValue(RE::ActorValue::kCarryWeight));
+				auto text = std::to_string(inventoryWeight);
+				text += " / ";
+				text += std::to_string(carryWeight);
+				_weight.HTMLText(text);
+			}
 		}
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
@@ -287,6 +316,7 @@ namespace Scaleform
 		std::optional<ViewHandler> _viewHandler;
 		std::optional<ContainerHandler> _containerHandler;
 		CLIK::MovieClip _rootObj;
+		CLIK::TextField _weight;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;
