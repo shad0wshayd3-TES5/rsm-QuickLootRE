@@ -6,69 +6,79 @@ namespace Items
 	{
 	public:
 		inline GFxItem(std::ptrdiff_t a_count, observer<RE::InventoryEntryData*> a_item) :
+			_src(a_item),
 			_displayName(),
 			_flags(),
+			_cached(),
+			_value(),
 			_count(a_count),
-			_value(0),
 			_enchantmentCharge(100.0),
 			_formID(std::numeric_limits<RE::FormID>::max())
 		{
-			if (a_item) {
-				SetAmmo(*a_item);
-				SetBook(*a_item);
-				SetDisplayName(*a_item);
-				SetEnchanted(*a_item);
-				SetEnchantmentCharge(*a_item);
-				SetFormID(*a_item);
-				SetGold(*a_item);
-				SetKey(*a_item);
-				SetLockpick(*a_item);
-				SetNote(*a_item);
-				SetQuestItem(*a_item);
-				SetStolen(*a_item);
-				SetValue(*a_item);
-			} else {
-				assert(false);
+			assert(a_item != nullptr);
+
+			_displayName = safe_string(a_item->GetDisplayName());
+
+			auto charge = a_item->GetEnchantmentCharge();
+			if (charge) {
+				_enchantmentCharge = *charge;
+			}
+
+			_flags.set(kEnchanted, a_item->IsEnchanted());
+			_cached.set(kEnchanted);
+
+			auto obj = a_item->GetObject();
+			if (obj) {
+				_formID = obj->GetFormID();
 			}
 		}
 
-		inline GFxItem(std::ptrdiff_t a_count, const std::vector<RE::ObjectRefHandle>& a_items) :
+		inline GFxItem(std::ptrdiff_t a_count, stl::span<const RE::ObjectRefHandle> a_items) :
+			_src(a_items),
 			_displayName(),
 			_flags(),
+			_cached(),
+			_value(),
 			_count(a_count),
-			_value(0),
 			_enchantmentCharge(100.0),
 			_formID(std::numeric_limits<RE::FormID>::max())
 		{
 			std::vector<RE::TESObjectREFRPtr> items;
 			items.reserve(a_items.size());
 			for (auto& item : a_items) {
-				items.push_back(item.get());
+				auto ptr = item.get();
+				if (ptr) {
+					items.push_back(std::move(ptr));
+				}
 			}
 
-			const auto enumerate = [&](std::function<bool(GFxItem&, RE::TESObjectREFR&)> a_functor) {
-				for (const auto& item : items) {
-					if (item) {
-						if (!a_functor(*this, *item)) {
-							break;
-						}
+			if (!items.empty()) {
+				for (auto& item : items) {
+					_displayName = safe_string(item->GetDisplayFullName());
+					if (!_displayName.empty()) {
+						break;
 					}
 				}
-			};
 
-			enumerate(&GFxItem::AmmoFunctor);
-			enumerate(&GFxItem::BookFunctor);
-			enumerate(&GFxItem::DisplayNameFunctor);
-			enumerate(&GFxItem::EnchantedFunctor);
-			enumerate(&GFxItem::EnchantmentChargeFunctor);
-			enumerate(&GFxItem::FormIDFunctor);
-			enumerate(&GFxItem::GoldFunctor);
-			enumerate(&GFxItem::KeyFunctor);
-			enumerate(&GFxItem::LockpickFunctor);
-			enumerate(&GFxItem::NoteFunctor);
-			enumerate(&GFxItem::QuestItemFunctor);
-			enumerate(&GFxItem::StolenFunctor);
-			enumerate(&GFxItem::ValueFunctor);
+				for (auto& item : items) {
+					auto charge = item->GetEnchantmentCharge();
+					if (charge) {
+						_enchantmentCharge = *charge;
+						break;
+					}
+				}
+
+				for (auto& item : items) {
+					if (item->IsEnchanted()) {
+						_flags.set(kEnchanted);
+						break;
+					}
+				}
+				_cached.set(kEnchanted);
+
+				const auto& front = items.front();
+				_formID = front->GetFormID();
+			}
 		}
 
 		[[nodiscard]] constexpr std::ptrdiff_t Count() const noexcept { return _count; }
@@ -86,22 +96,22 @@ namespace Items
 		// FormID
 		[[nodiscard]] inline int Compare(const GFxItem& a_rhs) const
 		{
-			if (_flags[kQuestItem] != a_rhs._flags[kQuestItem]) {
-				return _flags[kQuestItem] ? -1 : 1;
-			} else if (_flags[kKey] != a_rhs._flags[kKey]) {
-				return _flags[kKey] ? -1 : 1;
-			} else if (_flags[kNote] != a_rhs._flags[kNote]) {
-				return _flags[kNote] ? -1 : 1;
-			} else if (_flags[kBook] != a_rhs._flags[kBook]) {
-				return _flags[kBook] ? -1 : 1;
-			} else if (_flags[kGold] != a_rhs._flags[kGold]) {
-				return _flags[kGold] ? -1 : 1;
-			} else if (_flags[kAmmo] != a_rhs._flags[kAmmo]) {
-				return _flags[kAmmo] ? -1 : 1;
-			} else if (_flags[kLockpick] != a_rhs._flags[kLockpick]) {
-				return _flags[kLockpick] ? -1 : 1;
-			} else if (_value != a_rhs._value) {
-				return _value > a_rhs._value ? -1 : 1;
+			if (IsQuestItem() != a_rhs.IsQuestItem()) {
+				return IsQuestItem() ? -1 : 1;
+			} else if (IsKey() != a_rhs.IsKey()) {
+				return IsKey() ? -1 : 1;
+			} else if (IsNote() != a_rhs.IsNote()) {
+				return IsNote() ? -1 : 1;
+			} else if (IsBook() != a_rhs.IsBook()) {
+				return IsBook() ? -1 : 1;
+			} else if (IsGold() != a_rhs.IsGold()) {
+				return IsGold() ? -1 : 1;
+			} else if (IsAmmo() != a_rhs.IsAmmo()) {
+				return IsAmmo() ? -1 : 1;
+			} else if (IsLockpick() != a_rhs.IsLockpick()) {
+				return IsLockpick() ? -1 : 1;
+			} else if (GetValue() != a_rhs.GetValue()) {
+				return GetValue() > a_rhs.GetValue() ? -1 : 1;
 			} else if (const auto alphabetical = _stricmp(_displayName.c_str(), a_rhs._displayName.c_str());
 					   alphabetical != 0) {
 				return alphabetical < 0 ? -1 : 1;
@@ -112,7 +122,15 @@ namespace Items
 			}
 		}
 
-		[[nodiscard]] inline RE::GFxValue Value() const { return { _displayName }; }
+		[[nodiscard]] inline RE::GFxValue Value(observer<RE::GFxMovieView*> a_view) const
+		{
+			assert(a_view != nullptr);
+			RE::GFxValue value;
+			a_view->CreateObject(std::addressof(value));
+			value.SetMember("displayName", { _displayName });
+			value.SetMember("count", { _count });
+			return value;
+		}
 
 	private:
 		enum : std::size_t
@@ -129,227 +147,334 @@ namespace Items
 			kTotal
 		};
 
-		[[nodiscard]] inline bool AmmoFunctor(RE::TESObjectREFR& a_ref)
+		enum : std::size_t
 		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj) {
-				_flags.set(kAmmo, obj->IsAmmo());
-				return false;
+			kInventory,
+			kGround
+		};
+
+		using inventory_t = RE::InventoryEntryData*;
+		using ground_t = stl::span<const RE::ObjectRefHandle>;
+
+		[[nodiscard]] inline std::ptrdiff_t GetValue() const
+		{
+			if (_value) {
+				return *_value;
 			}
-			return true;
-		}
 
-		[[nodiscard]] inline bool BookFunctor(RE::TESObjectREFR& a_ref)
-		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj) {
-				_flags.set(kBook, obj->IsBook());
-				return false;
+			_value = std::numeric_limits<std::ptrdiff_t>::min();
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						_value = obj->GetGoldValue() * _count;
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						_value = obj->GetGoldValue() * _count;
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
-			return true;
+
+			return *_value;
 		}
 
-		[[nodiscard]] inline bool DisplayNameFunctor(RE::TESObjectREFR& a_ref)
+		[[nodiscard]] inline bool IsAmmo() const
 		{
-			_displayName = safe_string(a_ref.GetDisplayFullName());
-			return _displayName.empty();
-		}
-
-		[[nodiscard]] inline bool EnchantedFunctor(RE::TESObjectREFR& a_ref)
-		{
-			auto charge = a_ref.GetEnchantmentCharge();
-			if (charge) {
-				_enchantmentCharge = *charge;
-				return false;
+			if (_cached[kAmmo]) {
+				return _flags[kAmmo];
 			}
-			return true;
-		}
 
-		[[nodiscard]] inline bool EnchantmentChargeFunctor(RE::TESObjectREFR& a_ref)
-		{
-			if (a_ref.IsEnchanted()) {
-				_flags.set(kEnchanted);
-				return false;
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->IsAmmo();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->IsAmmo();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
-			return true;
+
+			_cached.set(kAmmo);
+			_flags.set(kAmmo, result);
+			return result;
 		}
 
-		[[nodiscard]] inline bool FormIDFunctor(RE::TESObjectREFR& a_ref)
+		[[nodiscard]] inline bool IsBook() const
 		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj) {
-				_formID = obj->GetFormID();
-				return false;
+			if (_cached[kBook]) {
+				return _flags[kBook];
 			}
-			return true;
-		}
 
-		[[nodiscard]] inline bool GoldFunctor(RE::TESObjectREFR& a_ref)
-		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj && obj->IsGold()) {
-				_flags.set(kGold);
-				return false;
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->IsObject();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->IsBook();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
-			return true;
+
+			_cached.set(kBook);
+			_flags.set(kBook, result);
+			return result;
 		}
 
-		[[nodiscard]] inline bool KeyFunctor(RE::TESObjectREFR& a_ref)
+		[[nodiscard]] inline bool IsGold() const
 		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj) {
-				_flags.set(kKey, obj->IsKey());
-				return false;
+			if (_cached[kGold]) {
+				return _flags[kGold];
 			}
-			return true;
-		}
 
-		[[nodiscard]] inline bool LockpickFunctor(RE::TESObjectREFR& a_ref)
-		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj) {
-				_flags.set(kLockpick, obj->IsLockpick());
-				return false;
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->IsGold();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->IsGold();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
-			return true;
+
+			_cached.set(kGold);
+			_flags.set(kGold, result);
+			return result;
 		}
 
-		[[nodiscard]] inline bool NoteFunctor(RE::TESObjectREFR& a_ref)
+		[[nodiscard]] inline bool IsKey() const
 		{
-			auto obj = a_ref.GetObjectReference();
-			if (obj) {
-				_flags.set(kNote, obj->IsNote());
-				return false;
+			if (_cached[kKey]) {
+				return _flags[kKey];
 			}
-			return true;
-		}
 
-		[[nodiscard]] inline bool QuestItemFunctor(RE::TESObjectREFR& a_ref)
-		{
-			if (a_ref.HasQuestObject()) {
-				_flags.set(kQuestItem);
-				return false;
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->IsKey();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->IsKey();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
-			return true;
+
+			_cached.set(kKey);
+			_flags.set(kKey, result);
+			return result;
 		}
 
-		[[nodiscard]] inline bool StolenFunctor(RE::TESObjectREFR& a_ref)
+		[[nodiscard]] inline bool IsLockpick() const
 		{
-			auto player = RE::PlayerCharacter::GetSingleton();
-			if (player && player->WouldBeStealing(std::addressof(a_ref))) {
-				_flags.set(kStolen);
-				return false;
+			if (_cached[kLockpick]) {
+				return _flags[kLockpick];
 			}
-			return true;
-		}
 
-		[[nodiscard]] inline bool ValueFunctor(RE::TESObjectREFR& a_ref)
-		{
-			_value = a_ref.GetGoldValue() * _count;
-			return false;
-		}
-
-		inline void SetAmmo(RE::InventoryEntryData& a_item)
-		{
-			auto obj = a_item.GetObject();
-			if (obj && obj->IsAmmo()) {
-				_flags.set(kAmmo);
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->IsKey();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->IsKey();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
+
+			_cached.set(kLockpick);
+			_flags.set(kLockpick, result);
+			return result;
 		}
 
-		inline void SetBook(RE::InventoryEntryData& a_item)
+		[[nodiscard]] inline bool IsNote() const
 		{
-			auto obj = a_item.GetObject();
-			if (obj && obj->IsBook()) {
-				_flags.set(kBook);
+			if (_cached[kNote]) {
+				return _flags[kNote];
 			}
-		}
 
-		inline void SetDisplayName(RE::InventoryEntryData& a_item)
-		{
-			_displayName = safe_string(a_item.GetDisplayName());
-		}
-
-		inline void SetEnchanted(RE::InventoryEntryData& a_item)
-		{
-			_flags.set(kEnchanted, a_item.IsEnchanted());
-		}
-
-		inline void SetEnchantmentCharge(RE::InventoryEntryData& a_item)
-		{
-			auto charge = a_item.GetEnchantmentCharge();
-			if (charge) {
-				_enchantmentCharge = *charge;
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->IsNote();
+					}
+				}
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->IsNote();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
+
+			_cached.set(kNote);
+			_flags.set(kNote, result);
+			return result;
 		}
 
-		inline void SetFormID(RE::InventoryEntryData& a_item)
+		[[nodiscard]] inline bool IsQuestItem() const
 		{
-			auto obj = a_item.GetObject();
-			if (obj) {
-				_formID = obj->GetFormID();
+			if (_cached[kQuestItem]) {
+				return _flags[kQuestItem];
 			}
-		}
 
-		inline void SetGold(RE::InventoryEntryData& a_item)
-		{
-			auto obj = a_item.GetObject();
-			if (obj) {
-				_flags.set(kGold, obj->IsGold());
+			bool result = false;
+			switch (_src.index()) {
+			case kInventory:
+				result = std::get<kInventory>(_src)->IsQuestObject();
+				break;
+			case kGround:
+				for (auto& handle : std::get<kGround>(_src)) {
+					auto item = handle.get();
+					if (item && item->HasQuestObject()) {
+						result = true;
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
 			}
+
+			_cached.set(kQuestItem);
+			_flags.set(kQuestItem, result);
+			return result;
 		}
 
-		inline void SetKey(RE::InventoryEntryData& a_item)
+		[[nodiscard]] inline bool IsStolen() const
 		{
-			auto obj = a_item.GetObject();
-			if (obj) {
-				_flags.set(kKey, obj->IsKey());
+			if (_cached[kStolen]) {
+				return _flags[kStolen];
 			}
-		}
 
-		inline void SetLockpick(RE::InventoryEntryData& a_item)
-		{
-			auto obj = a_item.GetObject();
-			if (obj) {
-				_flags.set(kLockpick, obj->IsLockpick());
-			}
-		}
-
-		inline void SetNote(RE::InventoryEntryData& a_item)
-		{
-			auto obj = a_item.GetObject();
-			if (obj && obj->IsNote()) {
-				_flags.set(kNote);
-			}
-		}
-
-		inline void SetQuestItem(RE::InventoryEntryData& a_item)
-		{
-			if (a_item.IsQuestObject()) {
-				_flags.set(kQuestItem);
-			}
-		}
-
-		inline void SetStolen(RE::InventoryEntryData& a_item)
-		{
+			bool result = false;
 			auto player = RE::PlayerCharacter::GetSingleton();
 			if (player) {
-				_flags.set(kStolen, !a_item.IsOwnedBy(player));
+				switch (_src.index()) {
+				case kInventory:
+					result = !std::get<kInventory>(_src)->IsOwnedBy(player);
+					break;
+				case kGround:
+					for (auto& handle : std::get<kGround>(_src)) {
+						auto item = handle.get();
+						if (item && player->WouldBeStealing(item.get())) {
+							result = true;
+							break;
+						}
+					}
+					break;
+				default:
+					assert(false);
+					break;
+				}
 			}
+
+			_cached.set(kStolen);
+			_flags.set(kStolen, result);
+			return result;
 		}
 
-		inline void SetValue(RE::InventoryEntryData& a_item)
-		{
-			auto obj = a_item.GetObject();
-			if (obj) {
-				_value = obj->GetGoldValue() * _count;
-			}
-		}
-
+		std::variant<inventory_t, ground_t> _src;
 		std::string _displayName;
-		std::bitset<kTotal> _flags;
+		mutable std::bitset<kTotal> _flags;
+		mutable std::bitset<kTotal> _cached;
+		mutable std::optional<std::ptrdiff_t> _value;
 		std::ptrdiff_t _count;
-		std::ptrdiff_t _value;
 		double _enchantmentCharge;
 		RE::FormID _formID;
 	};

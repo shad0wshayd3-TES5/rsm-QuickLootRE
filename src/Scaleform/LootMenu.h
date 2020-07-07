@@ -66,7 +66,7 @@ namespace Scaleform
 				if (CanDisplay(obj) && count > 0 && entry) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::InventoryItem>(
-							std::move(entry), count, _src));
+							count, std::move(entry), _src));
 				}
 			}
 
@@ -76,14 +76,14 @@ namespace Scaleform
 				if (CanDisplay(obj) && count > 0 && !items.empty()) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::GroundItems>(
-							std::move(items), count));
+							count, std::move(items)));
 				}
 			}
 
 			Sort();
 			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
-				_itemListProvider.PushBack(elem->Value());
+				_itemListProvider.PushBack(elem->Value(_view.get()));
 			}
 			_itemList.Invalidate();
 

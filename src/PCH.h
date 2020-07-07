@@ -23,7 +23,10 @@
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
+#include <variant>
 #include <vector>
+
+#include <nonstd/span.hpp>
 
 using RE::observer;
 using RE::owner;
@@ -72,6 +75,8 @@ namespace stl
 	{
 		return N;
 	}
+
+	using nonstd::span;
 }
 
 constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""; }

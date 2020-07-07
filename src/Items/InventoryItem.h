@@ -15,8 +15,8 @@ namespace Items
 		InventoryItem(const InventoryItem&) = delete;
 		InventoryItem(InventoryItem&&) = default;
 
-		inline InventoryItem(std::unique_ptr<RE::InventoryEntryData> a_item, std::ptrdiff_t a_count, RE::ObjectRefHandle a_container) :
-			super(a_item.get(), a_count),
+		inline InventoryItem(std::ptrdiff_t a_count, std::unique_ptr<RE::InventoryEntryData> a_item, RE::ObjectRefHandle a_container) :
+			super(a_count, a_item.get()),
 			_entry(std::move(a_item)),
 			_container(a_container)
 		{
