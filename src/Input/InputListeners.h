@@ -16,6 +16,7 @@ namespace Input
 		{
 			_callbacks.emplace_back(&Listeners::TakeHandler);
 			_callbacks.emplace_back(&Listeners::ScrollHandler);
+			_callbacks.emplace_back(&Listeners::TransferHandler);
 		}
 
 		Listeners(const Listeners&) = default;
@@ -76,6 +77,7 @@ namespace Input
 
 		void ScrollHandler(const Event& a_event);
 		void TakeHandler(const Event& a_event);
+		void TransferHandler(const Event& a_event);
 
 		std::vector<Callback> _callbacks;
 		observer<RE::Setting*> _grabDelay;
