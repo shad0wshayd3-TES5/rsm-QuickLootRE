@@ -2,8 +2,12 @@ class LootMenu.Button extends gfx.controls.Button
 {
 	/* PRIVATE VARIABLES */
 
-	private var _xPos: Number = 0;
-	private var _yPos: Number = 0;
+	static private var INVALID: Number = 282;
+
+	private var _xVal: Number = 0;
+	private var _yVal: Number = 0;
+	private var _needsUpdate: Boolean = true;
+
 
 	/* STAGE ELEMENTS */
 
@@ -28,8 +32,8 @@ class LootMenu.Button extends gfx.controls.Button
 		disableConstraints = true;
 		textField.autoSize = "left";
 
-		_xPos = textField._x;
-		_yPos = textField._y;
+		_xVal = textField._x;
+		_yVal = textField._y;
 	}
 
 
@@ -39,20 +43,48 @@ class LootMenu.Button extends gfx.controls.Button
 	private function configUI(): Void
 	{
 		super.configUI();
+		doUpdate();
+	}
 
-		var index: Number = data.index != null ? data.index : 282;
-		icon.gotoAndStop(index);
-		icon._x = _xPos;
-		icon._y = _yPos;
 
-		var scale: Number = textField.textHeight / icon._height * 100;
-		icon._xscale = scale;
-		icon._yscale = scale;
+	// @override UIComponent
+	private function draw(): Void
+	{
+		super.draw();
+		doUpdate();
+	}
 
-		textField._x += icon._width + 7;
 
-		var w: Number = textField._x - icon._x + textField.textWidth;
-		var h: Number = Math.max(icon._height, textField.textHeight);
-		setSize(w, h);
+	// @override gfx.controls.Button
+	private function updateAfterStateChange(): Void
+	{
+		_needsUpdate = true;
+		super.updateAfterStateChange();
+	}
+
+
+	private function doUpdate(): Void
+	{
+		if (_needsUpdate) {
+			icon._x = _xVal;
+			icon._y = _yVal;
+			textField._x = _xVal;
+			textField._y = _yVal;
+
+			var index: Number = data.index != null ? data.index : INVALID;
+			icon.gotoAndStop(index);
+
+			var scale: Number = textField.textHeight / icon._height;
+			icon._width *= scale;
+			icon._height *= scale;
+
+			textField._x += icon._width + 7;
+
+			var w: Number = textField._x - icon._x + textField.textWidth;
+			var h: Number = Math.max(icon._height, textField.textHeight);
+			setSize(w, h);
+
+			_needsUpdate = false;
+		}
 	}
 }

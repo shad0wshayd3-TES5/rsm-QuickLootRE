@@ -9,21 +9,6 @@ class LootMenu.ButtonBar extends gfx.controls.ButtonBar
 	}
 
 
-	/* PUBLIC FUNCTIONS */
-
-	// @override gfx.controls.ButtonBar
-	public function invalidateData(): Void
-	{
-		while (renderers.length > 0) {
-			var r: MovieClip = MovieClip(renderers.pop());
-			r.group.removeButton(r);
-			r.removeMovieClip();
-		}
-
-		super.invalidateData();
-	}
-
-
 	/* PRIVATE FUNCTIONS */
 
 	/**
@@ -54,11 +39,7 @@ class LootMenu.ButtonBar extends gfx.controls.ButtonBar
 		totalW += _spacing * (renderers.length - 1);
 
 		var calcY: Function = function(a_height: Number): Number {
-			if (a_height < this.height) {
-				return (this.height - a_height) / 2;
-			} else {
-				return 0;
-			}
+			return Math.max((this.height - a_height) / 2, 0);
 		};
 
 		var midpoint: Number = width / 2;
