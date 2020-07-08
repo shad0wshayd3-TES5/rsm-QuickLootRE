@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CLIK/Array.h"
+#include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
 #include "ContainerHandler.h"
@@ -84,7 +85,7 @@ namespace Scaleform
 			Sort();
 			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
-				_itemListProvider.PushBack(elem->Value(_view.get()));
+				_itemListProvider.PushBack(elem->Value(*_view));
 			}
 			_itemList.Invalidate();
 
@@ -115,6 +116,9 @@ namespace Scaleform
 			_src(),
 			_viewHandler(),
 			_containerHandler(),
+			_rootObj(),
+			_weight(),
+			_buttonBar(),
 			_itemList(),
 			_itemListProvider(),
 			_itemListImpl()
@@ -123,13 +127,12 @@ namespace Scaleform
 			using Flag = RE::UI_MENU_FLAGS;
 
 			auto menu = static_cast<super*>(this);
-			//menu->menuFlags = Flag::kUpdateUsesCursor | Flag::kUsesCursor;
-			//menu->inputContext = Context::kGameplay;
-
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 			[[maybe_unused]] const auto success =
-				scaleformManager->LoadMovieEx(menu, FILE_NAME, [](RE::GFxMovieDef*) -> void {
-					return;
+				scaleformManager->LoadMovieEx(menu, FILE_NAME, [](RE::GFxMovieDef* a_def) -> void {
+					a_def->SetState(
+						RE::GFxState::StateType::kLog,
+						RE::make_gptr<Logger>().get());
 				});
 
 			assert(success);
@@ -172,6 +175,27 @@ namespace Scaleform
 		}
 
 	private:
+		class Logger :
+			public RE::GFxLog
+		{
+		public:
+			inline void LogMessageVarg(LogMessageType, const char* a_fmt, std::va_list a_argList) override
+			{
+				std::string fmt(a_fmt ? a_fmt : "");
+				while (!fmt.empty() && fmt.back() == '\n') {
+					fmt.pop_back();
+				}
+
+				std::va_list args;
+				va_copy(args, a_argList);
+				std::vector<char> buf(std::vsnprintf(0, 0, fmt.c_str(), a_argList) + 1);
+				std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
+				va_end(args);
+
+				_MESSAGE("%s: %s", LootMenu::MenuName().data(), buf.data());
+			}
+		};
+
 		[[nodiscard]] static inline bool CanDisplay(RE::TESBoundObject* a_object)
 		{
 			if (!a_object) {
@@ -243,7 +267,8 @@ namespace Scaleform
 			std::array objects{
 				element_t{ std::ref(_rootObj), "_root.rootObj" },
 				element_t{ std::ref(_itemList), "_root.rootObj.itemList" },
-				element_t{ std::ref(_weight), "_root.rootObj.weight" }
+				element_t{ std::ref(_weight), "_root.rootObj.weight" },
+				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar" }
 			};
 
 			for (const auto& [object, path] : objects) {
@@ -253,20 +278,22 @@ namespace Scaleform
 				assert(success && instance.IsObject());
 			}
 
+			AdjustPosition();
+
 			_view->CreateArray(std::addressof(_itemListProvider));
 			assert(_itemListProvider.IsArray());
 			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
 
-			_weight.AutoSize(CLIK::Object{ true });
+			_weight.AutoSize(CLIK::Object{ "left" });
 
-			AdjustPosition();
+			SetupButtonBar();
 			ProcessDelegate();
 		}
 
 		void ProcessDelegate();
 		void QueueInventoryRefresh();
 
-		void RestoreIndex(std::ptrdiff_t a_oldIdx)
+		inline void RestoreIndex(std::ptrdiff_t a_oldIdx)
 		{
 			if (const auto ssize = stl::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize) {
 				_itemList.SelectedIndex(static_cast<double>(a_oldIdx));
@@ -281,6 +308,29 @@ namespace Scaleform
 			}
 		}
 
+		inline void SetupButtonBar()
+		{
+			using namespace std::string_view_literals;
+
+			// TODO: dynamically acquire index
+			constexpr std::array data{
+				std::make_pair("Take"sv, 18),
+				std::make_pair("Transfer"sv, 19)
+			};
+
+			RE::GFxValue buttonBarProvider;
+			_view->CreateArray(std::addressof(buttonBarProvider));
+			for (const auto& elem : data) {
+				RE::GFxValue obj;
+				_view->CreateObject(std::addressof(obj));
+				obj.SetMember("label", { elem.first });
+				obj.SetMember("index", { elem.second });
+				buttonBarProvider.PushBack(obj);
+			}
+
+			_buttonBar.DataProvider(CLIK::Array{ std::move(buttonBarProvider) });
+		}
+
 		inline void Sort()
 		{
 			std::stable_sort(
@@ -291,7 +341,7 @@ namespace Scaleform
 				});
 		}
 
-		void UpdateWeight()
+		inline void UpdateWeight()
 		{
 			auto dst = _dst.get();
 			if (dst) {
@@ -317,6 +367,7 @@ namespace Scaleform
 		std::optional<ContainerHandler> _containerHandler;
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _weight;
+		CLIK::GFx::Controls::ButtonBar _buttonBar;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;

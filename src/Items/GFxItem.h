@@ -96,11 +96,10 @@ namespace Items
 			}
 		}
 
-		[[nodiscard]] inline RE::GFxValue Value(observer<RE::GFxMovieView*> a_view) const
+		[[nodiscard]] inline RE::GFxValue Value(RE::GFxMovieView& a_view) const
 		{
-			assert(a_view != nullptr);
 			RE::GFxValue value;
-			a_view->CreateObject(std::addressof(value));
+			a_view.CreateObject(std::addressof(value));
 			value.SetMember("displayName", { _displayName });
 			value.SetMember("count", { _count });
 			if (_enchantmentCharge) {

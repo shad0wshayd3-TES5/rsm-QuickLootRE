@@ -46,10 +46,10 @@ namespace CLIK
 					return *this;
 				}
 
-				inline std::string_view LabelID() const { return GetString("labelID"); }
+				inline std::string LabelID() const { return GetString("labelID"); }
 				inline void LabelID(std::string_view a_labelID) { SetString("labelID", a_labelID); }
 
-				inline std::string_view Label() const { return GetString("label"); }
+				inline std::string Label() const { return GetString("label"); }
 				inline void Label(std::string_view a_label) { SetString("label", a_label); }
 
 				inline bool Disabled() const { return GetBoolean("disabled"); }
@@ -58,7 +58,7 @@ namespace CLIK
 				inline bool Selected() const { return GetBoolean("selected"); }
 				inline void Selected(bool a_selected) { SetBoolean("selected", a_selected); }
 
-				inline std::string_view GroupName() const { return GetString("groupName"); }
+				inline std::string GroupName() const { return GetString("groupName"); }
 				inline void GroupName(std::string_view a_groupName) { SetString("groupName", a_groupName); }
 
 				inline Object Group() const { return GetObject("group"); }
@@ -70,7 +70,7 @@ namespace CLIK
 				inline bool DisableConstraints() const { return GetBoolean("disableConstraints"); }
 				inline void DisableConstraints(bool a_disableConstraints) { SetBoolean("disableConstraints", a_disableConstraints); }
 
-				inline std::string_view AutoSize() const { return GetString("autoSize"); }
+				inline std::string AutoSize() const { return GetString("autoSize"); }
 				inline void AutoSize(std::string_view a_autoSize) { SetString("autoSize", a_autoSize); }
 
 				inline void SetSize(double a_width, double a_height)
@@ -97,7 +97,7 @@ namespace CLIK
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

@@ -67,13 +67,13 @@ namespace CLIK
 				inline double SelectedIndex() const { return GetNumber("selectedIndex"); }
 				inline void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
 
-				inline std::string_view LabelField() const { return GetString("labelField"); }
+				inline std::string LabelField() const { return GetString("labelField"); }
 				inline void LabelField(std::string_view a_selectedIndex) { SetString("labelField", a_selectedIndex); }
 
 				//Function LabelFunction() const;
 				//void LabelFunction(const Function& a_labelFunction);
 
-				inline std::string_view ItemToLabel(Object& a_item)
+				inline std::string ItemToLabel(Object& a_item)
 				{
 					enum
 					{
@@ -145,7 +145,7 @@ namespace CLIK
 					assert(success);
 				}
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

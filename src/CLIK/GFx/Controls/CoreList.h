@@ -48,7 +48,7 @@ namespace CLIK
 					return *this;
 				}
 
-				inline std::string_view ItemRenderer() const { return GetString("itemRenderer"); }
+				inline std::string ItemRenderer() const { return GetString("itemRenderer"); }
 				inline void ItemRenderer(std::string_view a_itemRenderer) { SetString("itemRenderer", a_itemRenderer); }
 
 				inline Object DataProvider() const { return GetObject("dataProvider"); }
@@ -75,13 +75,13 @@ namespace CLIK
 					assert(success);
 				}
 
-				inline std::string_view LabelField() const { return GetString("labelField"); }
+				inline std::string LabelField() const { return GetString("labelField"); }
 				inline void LabelField(std::string_view a_labelField) { SetString("labelField", a_labelField); }
 
 				//Function& LabelFunction() const;
 				//void LabelFunction(Function& a_labelFunction);
 
-				inline std::string_view ItemToLabel(Object& a_item)
+				inline std::string ItemToLabel(Object& a_item)
 				{
 					enum
 					{
@@ -131,10 +131,10 @@ namespace CLIK
 					assert(success);
 				}
 
-				inline std::string_view RendererInstanceName() const { return GetString("rendererInstanceName"); }
+				inline std::string RendererInstanceName() const { return GetString("rendererInstanceName"); }
 				inline void RendererInstanceName(std::string_view a_rendererInstanceName) { SetString("rendererInstanceName", a_rendererInstanceName); }
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

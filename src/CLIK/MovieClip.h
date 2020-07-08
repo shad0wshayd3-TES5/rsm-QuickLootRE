@@ -54,7 +54,7 @@ namespace CLIK
 
 		inline double Currentframe() const { return GetNumber("_currentframe"); }
 
-		inline std::string_view Droptarget() const { return GetString("_droptarget"); }
+		inline std::string Droptarget() const { return GetString("_droptarget"); }
 
 		inline bool Enabled() const { return GetBoolean("enabled"); }
 		inline void Enabled(bool a_enabled) { SetBoolean("enabled", a_enabled); }
@@ -85,7 +85,7 @@ namespace CLIK
 		//ContextMenu Menu() const;
 		//void Menu(const ContextMenu& a_menu);
 
-		inline std::string_view Name() const { return GetString("_name"); }
+		inline std::string Name() const { return GetString("_name"); }
 		inline void Name(std::string_view a_name) { SetString("_name", a_name); }
 
 		inline double OpaqueBackground() const { return GetNumber("opaqueBackground"); }
@@ -94,7 +94,7 @@ namespace CLIK
 		inline MovieClip Parent() const { return GetObject("_parent"); }
 		inline void Parent(const MovieClip& a_parent) { SetObject("_parent", a_parent); }
 
-		inline std::string_view Quality() const { return GetString("_quality"); }
+		inline std::string Quality() const { return GetString("_quality"); }
 		inline void Quality(std::string_view a_quality) { SetString("_quality", a_quality); }
 
 		inline double Rotation() const { return GetNumber("_rotation"); }
@@ -118,7 +118,7 @@ namespace CLIK
 		inline double TabIndex() const { return GetNumber("tabIndex"); }
 		inline void TabIndex(double a_tabIndex) { SetNumber("tabIndex", a_tabIndex); }
 
-		inline std::string_view Target() const { return GetString("_target"); }
+		inline std::string Target() const { return GetString("_target"); }
 
 		inline double TotalFrames() const { return GetNumber("_totalframes"); }
 
@@ -128,7 +128,7 @@ namespace CLIK
 		//Transform Transform() const;
 		//void Transform(const Transform& a_transform);
 
-		inline std::string_view URL() const { return GetString("_url"); }
+		inline std::string URL() const { return GetString("_url"); }
 
 		inline bool UseHandCursor() const { return GetBoolean("useHandCursor"); }
 		inline void UseHandCursor(bool a_useHandCursor) { SetBoolean("useHandCursor", a_useHandCursor); }

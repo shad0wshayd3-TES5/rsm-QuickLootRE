@@ -46,7 +46,7 @@ namespace CLIK
 		inline double Alpha() const { return GetNumber("_alpha"); }
 		inline void Alpha(double a_alpha) { SetNumber("_alpha", a_alpha); }
 
-		inline std::string_view AntiAliasType() const { return GetString("antiAliasType"); }
+		inline std::string AntiAliasType() const { return GetString("antiAliasType"); }
 		inline void AntiAliasType(std::string_view a_antiAliasType) { SetString("antiAliasType", a_antiAliasType); }
 
 		inline Object AutoSize() const { return GetObject("autoSize"); }
@@ -75,7 +75,7 @@ namespace CLIK
 		//Array Filters() const;
 		//void Filters(Array& a_filters);
 
-		inline std::string_view GridFitType() const { return GetString("gridFitType"); }
+		inline std::string GridFitType() const { return GetString("gridFitType"); }
 		inline void GridFitType(std::string_view a_gridFitType) { SetString("gridFitType", a_gridFitType); }
 
 		inline double Height() const { return GetNumber("_height"); }
@@ -90,7 +90,7 @@ namespace CLIK
 		inline bool HTML() const { return GetBoolean("html"); }
 		inline void HTML(bool a_html) { SetBoolean("html", a_html); }
 
-		inline std::string_view HTMLText() const { return GetString("htmlText"); }
+		inline std::string HTMLText() const { return GetString("htmlText"); }
 		inline void HTMLText(std::string_view a_htmlText) { SetString("htmlText", a_htmlText); }
 
 		inline double Length() const { return GetNumber("length"); }
@@ -110,7 +110,7 @@ namespace CLIK
 		inline bool Multiline() const { return GetBoolean("multiline"); }
 		inline void Multiline(bool a_multiline) { SetBoolean("multiline", a_multiline); }
 
-		inline std::string_view Name() const { return GetString("_name"); }
+		inline std::string Name() const { return GetString("_name"); }
 		inline void Name(std::string_view a_name) { SetString("_name", a_name); }
 
 		//MovieClip Parent() const;
@@ -119,10 +119,10 @@ namespace CLIK
 		inline bool Password() const { return GetBoolean("password"); }
 		inline void Password(bool a_password) { SetBoolean("password", a_password); }
 
-		inline std::string_view Quality() const { return GetString("_quality"); }
+		inline std::string Quality() const { return GetString("_quality"); }
 		inline void Quality(std::string_view a_quality) { SetString("_quality", a_quality); }
 
-		inline std::string_view Restrict() const { return GetString("restrict"); }
+		inline std::string Restrict() const { return GetString("restrict"); }
 		inline void Restrict(std::string_view a_restrict) { SetString("restrict", a_restrict); }
 
 		inline double Rotation() const { return GetNumber("_rotation"); }
@@ -149,9 +149,9 @@ namespace CLIK
 		inline double TabIndex() const { return GetNumber("tabIndex"); }
 		inline void TabIndex(double a_tabIndex) { SetNumber("tabIndex", a_tabIndex); }
 
-		inline std::string_view Target() const { return GetString("_target"); }
+		inline std::string Target() const { return GetString("_target"); }
 
-		inline std::string_view Text() const { return GetString("text"); }
+		inline std::string Text() const { return GetString("text"); }
 		inline void Text(std::string_view a_text) { SetString("text", a_text); }
 
 		inline double TextColor() const { return GetNumber("textColor"); }
@@ -166,12 +166,12 @@ namespace CLIK
 		inline double Thickness() const { return GetNumber("thickness"); }
 		inline void Thickness(double a_thickness) { SetNumber("thickness", a_thickness); }
 
-		inline std::string_view Type() const { return GetString("type"); }
+		inline std::string Type() const { return GetString("type"); }
 		inline void Type(std::string_view a_type) { SetString("type", a_type); }
 
-		inline std::string_view URL() const { return GetString("_url"); }
+		inline std::string URL() const { return GetString("_url"); }
 
-		inline std::string_view Variable() const { return GetString("variable"); }
+		inline std::string Variable() const { return GetString("variable"); }
 		inline void Variable(std::string_view a_variable) { SetString("variable", a_variable); }
 
 		inline bool Visible() const { return GetBoolean("_visible"); }
@@ -362,13 +362,13 @@ namespace CLIK
 		inline double FontScaleFactor() const { return GetNumber("fontScaleFactor"); }
 		inline void FontScaleFactor(double a_fontScaleFactor) { SetNumber("fontScaleFactor", a_fontScaleFactor); }
 
-		inline std::string_view TextAutoSize() const { return GetString("textAutoSize"); }
+		inline std::string TextAutoSize() const { return GetString("textAutoSize"); }
 		inline void TextAutoSize(std::string_view a_textAutoSize) { SetString("textAutoSize", a_textAutoSize); }
 
-		inline std::string_view VerticalAlign() const { return GetString("verticalAlign"); }
+		inline std::string VerticalAlign() const { return GetString("verticalAlign"); }
 		inline void VerticalAlign(std::string_view a_verticalAlign) { SetString("verticalAlign", a_verticalAlign); }
 
-		inline std::string_view VerticalAutoSize() const { return GetString("verticalAutoSize"); }
+		inline std::string VerticalAutoSize() const { return GetString("verticalAutoSize"); }
 		inline void VerticalAutoSize(std::string_view a_verticalAutoSize) { SetString("verticalAutoSize", a_verticalAutoSize); }
 
 		// gfx methods
@@ -545,7 +545,7 @@ namespace CLIK
 			return number.GetNumber();
 		}
 
-		inline std::string_view GetLineText(double a_lineIndex)
+		inline std::string GetLineText(double a_lineIndex)
 		{
 			enum
 			{

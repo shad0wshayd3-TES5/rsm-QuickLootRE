@@ -297,7 +297,7 @@ namespace CLIK
 			return Object(object);
 		}
 
-		inline std::string_view GetString(const char* a_path) const
+		inline std::string GetString(const char* a_path) const
 		{
 			RE::GFxValue str;
 			[[maybe_unused]] const auto success =

@@ -233,6 +233,7 @@
     <ClInclude Include="src\AnimationManager.h" />
     <ClInclude Include="src\CLIK\Array.h" />
     <ClInclude Include="src\CLIK\GFx\Controls\Button.h" />
+    <ClInclude Include="src\CLIK\GFx\Controls\ButtonBar.h" />
     <ClInclude Include="src\CLIK\GFx\Controls\CoreList.h" />
     <ClInclude Include="src\CLIK\GFx\Controls\DropdownMenu.h" />
     <ClInclude Include="src\CLIK\GFx\Controls\ScrollingList.h" />

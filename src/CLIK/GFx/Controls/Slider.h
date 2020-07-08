@@ -68,7 +68,7 @@ namespace CLIK
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

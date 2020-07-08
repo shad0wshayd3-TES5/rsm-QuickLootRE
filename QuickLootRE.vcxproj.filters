@@ -71,6 +71,9 @@
     <ClInclude Include="src\CLIK\GFx\Controls\Button.h">
       <Filter>src\CLIK\GFx\Controls</Filter>
     </ClInclude>
+    <ClInclude Include="src\CLIK\GFx\Controls\ButtonBar.h">
+      <Filter>src\CLIK\GFx\Controls</Filter>
+    </ClInclude>
     <ClInclude Include="src\CLIK\GFx\Controls\CoreList.h">
       <Filter>src\CLIK\GFx\Controls</Filter>
     </ClInclude>

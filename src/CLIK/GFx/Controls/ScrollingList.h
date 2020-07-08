@@ -93,7 +93,7 @@ namespace CLIK
 
 				inline double AvailableWidth() const { return GetNumber("availableWidth"); }
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

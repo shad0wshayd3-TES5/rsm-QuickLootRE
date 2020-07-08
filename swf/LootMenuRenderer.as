@@ -5,47 +5,57 @@ class LootMenuRenderer extends ListItemRenderer
 {
 	/* PRIVATE VARIABLES */
 
-	private var itemChargeX: Number = 0;
+	private var chargeX: Number = 0;
+
 
 	/* STAGE ELEMENTS */
 
-	public var itemCharge: MovieClip;
-	public var itemChargeOutline: MovieClip;
+	public var charge: MovieClip;
+	public var chargeOutline: MovieClip;
 
 
 	/* INITIALIZATION */
 
-	public function LootMenuRenderer()
+	// @override ListItemRenderer
+	public function LootMenuRenderer(a_obj: Object)
 	{
 		super();
 
-		itemChargeX = itemCharge._x;
-		var itemChargeMask: MovieClip = itemCharge.duplicateMovieClip("itemChargeMask", itemCharge.getDepth() + 1);
-		itemCharge.setMask(itemChargeMask);
+		chargeX = charge._x;
+		var chargeMask: MovieClip = charge.duplicateMovieClip("chargeMask", charge.getDepth() + 1);
+		charge.setMask(chargeMask);
 	}
 
 
 	/* PUBLIC FUNCTIONS */
 
-	public function setData(data: Object): Void
+	/**
+	 * @override ListItemRenderer
+	 *
+	 * @param a_data
+	 * 	displayName: String
+	 * 	count: Number
+	 * 	[enchantmentCharge: Number]
+	 */
+	public function setData(a_data: Object): Void
 	{
-		super.setData(data);
+		super.setData(a_data);
 
-		itemCharge._x = itemChargeX - itemCharge._width;
-		itemChargeOutline._visible = false;
+		charge._x = chargeX - charge._width;
+		chargeOutline._visible = false;
 		if (data != null) {
-			var displayName: String = this.data.displayName;
-			var count: Number = this.data.count;
+			var displayName: String = data.displayName;
+			var count: Number = data.count;
 
 			if (count > 1) {
 				displayName += " (" + count.toString() + ")";
 			}
-			this.label = displayName;
+			label = displayName;
 
-			var enchantmentCharge: Number = this.data.enchantmentCharge;
+			var enchantmentCharge: Number = data.enchantmentCharge;
 			if (enchantmentCharge != null) {
-				itemCharge._x += itemCharge._width * (enchantmentCharge / 100);
-				itemChargeOutline._visible = true;
+				charge._x += charge._width * (enchantmentCharge / 100);
+				chargeOutline._visible = true;
 			}
 		}
 	}

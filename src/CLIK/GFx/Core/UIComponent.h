@@ -102,7 +102,7 @@ namespace CLIK
 					assert(success);
 				}
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

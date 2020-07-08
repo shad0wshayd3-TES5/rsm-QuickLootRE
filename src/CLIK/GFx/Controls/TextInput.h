@@ -46,13 +46,13 @@ namespace CLIK
 					return *this;
 				}
 
-				inline std::string_view TextID() const { return GetString("textID"); }
+				inline std::string TextID() const { return GetString("textID"); }
 				inline void TextID(std::string_view a_textID) { SetString("textID", a_textID); }
 
-				inline std::string_view Text() const { return GetString("text"); }
+				inline std::string Text() const { return GetString("text"); }
 				inline void Text(std::string_view a_text) { SetString("text", a_text); }
 
-				inline std::string_view HTMLText() const { return GetString("htmlText"); }
+				inline std::string HTMLText() const { return GetString("htmlText"); }
 				inline void HTMLText(std::string_view a_htmlText) { SetString("htmlText", a_htmlText); }
 
 				inline bool Editable() const { return GetBoolean("editable"); }
@@ -110,7 +110,7 @@ namespace CLIK
 
 				//bool handleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				inline std::string_view ToString()
+				inline std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

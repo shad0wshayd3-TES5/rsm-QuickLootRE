@@ -119,7 +119,7 @@ namespace CLIK
 			return Array(arr);
 		}
 
-		inline std::string_view Join(std::optional<std::string_view> a_delimiter)
+		inline std::string Join(std::optional<std::string_view> a_delimiter)
 		{
 			enum
 			{

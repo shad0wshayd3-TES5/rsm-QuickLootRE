@@ -1,21 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<project version="2">
+<?xml version="1.0" encoding="utf-8"?>
+<project>
   <!-- Output SWF options -->
   <output>
-    <movie outputType="Application" />
+    <movie disabled="False" />
     <movie input="" />
     <movie path="bin\LootMenu.swf" />
     <movie fps="30" />
     <movie width="800" />
     <movie height="600" />
-    <movie version="0" />
-    <movie minorVersion="0" />
-    <movie platform="Custom" />
+    <movie version="8" />
     <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
-    <!-- example: <class path="..." /> -->
+    <class path="src" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -43,7 +41,7 @@
   </library>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
-    <hidden path="obj" />
+    <!-- example: <hidden path="..." /> -->
   </hiddenPaths>
   <!-- Executed before build -->
   <preBuildCommand />
@@ -52,9 +50,6 @@
   <!-- Other project options -->
   <options>
     <option showHiddenPaths="False" />
-    <option testMovie="Unknown" />
-    <option testMovieCommand="" />
+    <option testMovie="Default" />
   </options>
-  <!-- Plugin storage -->
-  <storage />
 </project>
