@@ -78,7 +78,6 @@ class LootMenu.ButtonBar extends gfx.controls.ButtonBar
 	// @override gfx.controls.ButtonBar
 	private function createRenderer(a_index: Number): MovieClip
 	{
-		trace("createRenderer");
 		var renderer: MovieClip = super.createRenderer(a_index);
 		renderer._visible = false;	// avoid visible snapping into place
 		return renderer;

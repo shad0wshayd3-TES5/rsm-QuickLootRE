@@ -40,8 +40,6 @@ class LootMenu.Button extends gfx.controls.Button
 	{
 		super.configUI();
 
-		trace("configUI: " + textField.text);
-
 		var index: Number = data.index != null ? data.index : 282;
 		icon.gotoAndStop(index);
 		icon._x = _xPos;
