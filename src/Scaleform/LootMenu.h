@@ -311,12 +311,21 @@ namespace Scaleform
 		inline void SetupButtonBar()
 		{
 			using namespace std::string_view_literals;
+			auto gmst = RE::GameSettingCollection::GetSingleton();
 
-			// TODO: dynamically acquire index
-			constexpr std::array data{
-				std::make_pair("Take"sv, 18),
-				std::make_pair("Transfer"sv, 19)
+			constexpr std::array mappings{
+				std::make_pair("sTake"sv, "Activate"sv),
+				std::make_pair("sSearch"sv, "Ready Weapon"sv)
 			};
+
+			std::array<std::pair<std::string_view, std::ptrdiff_t>, mappings.size()> data;
+			for (std::size_t i = 0; i < mappings.size(); ++i) {
+				const auto& mapping = mappings[i];
+
+				auto setting = gmst->GetSetting(mapping.first.data());
+				data[i].first = setting ? setting->GetString() : "<undefined>"sv;
+				data[i].second = static_cast<std::ptrdiff_t>(Input::ControlMap()(mapping.second));
+			}
 
 			RE::GFxValue buttonBarProvider;
 			_view->CreateArray(std::addressof(buttonBarProvider));

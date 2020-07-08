@@ -28,6 +28,8 @@
 
 #include <nonstd/span.hpp>
 
+#include <frozen/map.h>
+
 using RE::observer;
 using RE::owner;
 
