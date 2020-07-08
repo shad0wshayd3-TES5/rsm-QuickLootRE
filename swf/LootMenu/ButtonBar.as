@@ -1,21 +1,33 @@
-import gfx.controls.ButtonBar;
-
-
-class LootMenuButtonBar extends ButtonBar
+class LootMenu.ButtonBar extends gfx.controls.ButtonBar
 {
 	/* INITIALIZATION */
 
 	// @override ButtonBar
-	public function LootMenuButtonBar()
+	public function ButtonBar()
 	{
 		super();
+	}
+
+
+	/* PUBLIC FUNCTIONS */
+
+	// @override gfx.controls.ButtonBar
+	public function invalidateData(): Void
+	{
+		while (renderers.length > 0) {
+			var r: MovieClip = MovieClip(renderers.pop());
+			r.group.removeButton(r);
+			r.removeMovieClip();
+		}
+
+		super.invalidateData();
 	}
 
 
 	/* PRIVATE FUNCTIONS */
 
 	/**
-	 * @override ButtonBar
+	 * @override gfx.controls.ButtonBar
 	 * implements a horizontal, centered layout
 	 */
 	private function drawLayout(): Boolean
@@ -63,9 +75,10 @@ class LootMenuButtonBar extends ButtonBar
 	}
 
 
-	// @override ButtonBar
+	// @override gfx.controls.ButtonBar
 	private function createRenderer(a_index: Number): MovieClip
 	{
+		trace("createRenderer");
 		var renderer: MovieClip = super.createRenderer(a_index);
 		renderer._visible = false;	// avoid visible snapping into place
 		return renderer;

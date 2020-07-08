@@ -119,6 +119,7 @@ namespace Scaleform
 			_rootObj(),
 			_weight(),
 			_buttonBar(),
+			_buttonBarProvider(),
 			_itemList(),
 			_itemListProvider(),
 			_itemListImpl()
@@ -172,6 +173,11 @@ namespace Scaleform
 		{
 			ProcessDelegate();
 			super::AdvanceMovie(a_interval, a_currentTime);
+		}
+
+		inline void RefreshPlatform() override
+		{
+			RefreshButtonBar();
 		}
 
 	private:
@@ -266,9 +272,9 @@ namespace Scaleform
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
 				element_t{ std::ref(_rootObj), "_root.rootObj" },
-				element_t{ std::ref(_itemList), "_root.rootObj.itemList" },
+				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar" },
 				element_t{ std::ref(_weight), "_root.rootObj.weight" },
-				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar" }
+				element_t{ std::ref(_itemList), "_root.rootObj.itemList" }
 			};
 
 			for (const auto& [object, path] : objects) {
@@ -280,13 +286,15 @@ namespace Scaleform
 
 			AdjustPosition();
 
-			_view->CreateArray(std::addressof(_itemListProvider));
-			assert(_itemListProvider.IsArray());
-			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
-
 			_weight.AutoSize(CLIK::Object{ "left" });
 
-			SetupButtonBar();
+			_view->CreateArray(std::addressof(_buttonBarProvider));
+			_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
+
+			_view->CreateArray(std::addressof(_itemListProvider));
+			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
+
+			RefreshButtonBar();
 			ProcessDelegate();
 		}
 
@@ -308,17 +316,20 @@ namespace Scaleform
 			}
 		}
 
-		inline void SetupButtonBar()
+		inline void RefreshButtonBar()
 		{
 			using namespace std::string_view_literals;
-			auto gmst = RE::GameSettingCollection::GetSingleton();
-
 			constexpr std::array mappings{
 				std::make_pair("sTake"sv, "Activate"sv),
 				std::make_pair("sSearch"sv, "Ready Weapon"sv)
 			};
 
+			if (!_view) {
+				return;
+			}
+
 			std::array<std::pair<std::string_view, std::ptrdiff_t>, mappings.size()> data;
+			auto gmst = RE::GameSettingCollection::GetSingleton();
 			for (std::size_t i = 0; i < mappings.size(); ++i) {
 				const auto& mapping = mappings[i];
 
@@ -327,17 +338,16 @@ namespace Scaleform
 				data[i].second = static_cast<std::ptrdiff_t>(Input::ControlMap()(mapping.second));
 			}
 
-			RE::GFxValue buttonBarProvider;
-			_view->CreateArray(std::addressof(buttonBarProvider));
+			_buttonBarProvider.ClearElements();
 			for (const auto& elem : data) {
 				RE::GFxValue obj;
 				_view->CreateObject(std::addressof(obj));
 				obj.SetMember("label", { elem.first });
 				obj.SetMember("index", { elem.second });
-				buttonBarProvider.PushBack(obj);
+				_buttonBarProvider.PushBack(obj);
 			}
 
-			_buttonBar.DataProvider(CLIK::Array{ std::move(buttonBarProvider) });
+			_buttonBar.InvalidateData();
 		}
 
 		inline void Sort()
@@ -377,6 +387,7 @@ namespace Scaleform
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _weight;
 		CLIK::GFx::Controls::ButtonBar _buttonBar;
+		RE::GFxValue _buttonBarProvider;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;

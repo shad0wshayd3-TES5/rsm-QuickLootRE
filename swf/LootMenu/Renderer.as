@@ -1,7 +1,4 @@
-import gfx.controls.ListItemRenderer;
-
-
-class LootMenuRenderer extends ListItemRenderer
+class LootMenu.Renderer extends gfx.controls.ListItemRenderer
 {
 	/* PRIVATE VARIABLES */
 
@@ -16,8 +13,8 @@ class LootMenuRenderer extends ListItemRenderer
 
 	/* INITIALIZATION */
 
-	// @override ListItemRenderer
-	public function LootMenuRenderer(a_obj: Object)
+	// @override gfx.controls.ListItemRenderer
+	public function Renderer(a_obj: Object)
 	{
 		super();
 
@@ -30,7 +27,7 @@ class LootMenuRenderer extends ListItemRenderer
 	/* PUBLIC FUNCTIONS */
 
 	/**
-	 * @override ListItemRenderer
+	 * @override gfx.controls.ListItemRenderer
 	 *
 	 * @param a_data
 	 * 	displayName: String

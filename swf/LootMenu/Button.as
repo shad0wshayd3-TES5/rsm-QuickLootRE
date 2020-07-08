@@ -1,12 +1,9 @@
-import gfx.controls.Button;
-import gfx.controls.ButtonBar;
-
-
-class LootMenuButton extends Button
+class LootMenu.Button extends gfx.controls.Button
 {
 	/* PRIVATE VARIABLES */
 
-	private var _focusTarget: ButtonBar = null;
+	private var _xPos: Number = 0;
+	private var _yPos: Number = 0;
 
 	/* STAGE ELEMENTS */
 
@@ -16,7 +13,7 @@ class LootMenuButton extends Button
 	/* INITIALIZATION */
 
 	/**
-	 * @override Button
+	 * @override gfx.controls.Button
 	 *
 	 * @param a_obj
 	 * 	toggle: Boolean
@@ -24,12 +21,15 @@ class LootMenuButton extends Button
 	 * 	tabEnabled: Boolean
 	 * 	autoSize: String
 	 */
-	public function LootMenuButton(a_obj: Object)
+	public function Button(a_obj: Object)
 	{
 		super();
 
 		disableConstraints = true;
 		textField.autoSize = "left";
+
+		_xPos = textField._x;
+		_yPos = textField._y;
 	}
 
 
@@ -40,10 +40,12 @@ class LootMenuButton extends Button
 	{
 		super.configUI();
 
+		trace("configUI: " + textField.text);
+
 		var index: Number = data.index != null ? data.index : 282;
 		icon.gotoAndStop(index);
-		icon._x = textField._x;
-		icon._y = textField._y;
+		icon._x = _xPos;
+		icon._y = _yPos;
 
 		var scale: Number = textField.textHeight / icon._height * 100;
 		icon._xscale = scale;
@@ -54,12 +56,5 @@ class LootMenuButton extends Button
 		var w: Number = textField._x - icon._x + textField.textWidth;
 		var h: Number = Math.max(icon._height, textField.textHeight);
 		setSize(w, h);
-	}
-
-
-	// @override UIComponent
-	private function draw(): Void
-	{
-		super.draw();
 	}
 }
