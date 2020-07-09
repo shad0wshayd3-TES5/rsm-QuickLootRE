@@ -57,13 +57,23 @@ namespace Input
 		{
 			using Device = RE::INPUT_DEVICE;
 			using Gamepad = RE::BSWin32GamepadDevice::Key;
+			using Keyboard = RE::BSWin32KeyboardDevice::Key;
 			using Mouse = RE::BSWin32MouseDevice::Key;
 
-			insert(Gamepad::kUp, Device::kGamepad);
-			insert(Gamepad::kDown, Device::kGamepad);
+			insert(Keyboard::kPageUp, Device::kKeyboard);
+			insert(Keyboard::kPageDown, Device::kKeyboard);
+			insert(Keyboard::kUp, Device::kKeyboard);
+			insert(Keyboard::kDown, Device::kKeyboard);
+			insert(Keyboard::kLeft, Device::kKeyboard);
+			insert(Keyboard::kRight, Device::kKeyboard);
 
 			insert(Mouse::kWheelUp, Device::kMouse);
 			insert(Mouse::kWheelDown, Device::kMouse);
+
+			insert(Gamepad::kUp, Device::kGamepad);
+			insert(Gamepad::kDown, Device::kGamepad);
+			insert(Gamepad::kLeft, Device::kGamepad);
+			insert(Gamepad::kRight, Device::kGamepad);
 		}
 
 		[[nodiscard]] inline bool operator()(std::size_t a_device, value_type a_value) const

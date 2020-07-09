@@ -30,6 +30,7 @@ public:
 	void Open();
 
 	void ModSelectedIndex(double a_mod);
+	void ModSelectedPage(double a_mod);
 	inline void RefreshInventory() { _refreshInventory = true; }
 	void SetContainer(RE::ObjectRefHandle a_container);
 	void TakeStack();

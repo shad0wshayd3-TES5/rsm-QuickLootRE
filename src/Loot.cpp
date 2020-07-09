@@ -34,6 +34,13 @@ void Loot::ModSelectedIndex(double a_mod)
 	});
 }
 
+void Loot::ModSelectedPage(double a_mod)
+{
+	AddTask([a_mod](LootMenu& a_menu) {
+		a_menu.ModSelectedPage(a_mod);
+	});
+}
+
 void Loot::SetContainer(RE::ObjectRefHandle a_container)
 {
 	AddTask([a_container](LootMenu& a_menu) {

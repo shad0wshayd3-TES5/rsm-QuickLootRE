@@ -42,6 +42,16 @@ namespace Scaleform
 			}
 		}
 
+		inline void ModSelectedPage(double a_mod)
+		{
+			auto& inst = _itemList.GetInstance();
+			std::array<RE::GFxValue, 1> args;
+			args[0] = a_mod;
+			[[maybe_unused]] auto success =
+				inst.Invoke("modSelectedPage", args);
+			assert(success);
+		}
+
 		inline void SetContainer(RE::ObjectRefHandle a_ref)
 		{
 			assert(a_ref);
