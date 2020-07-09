@@ -51,10 +51,10 @@
     <ClCompile Include="src\PCH.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scaleform.cpp">
+    <ClCompile Include="src\Scaleform\LootMenu.cpp">
       <Filter>src\Scaleform</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scaleform\LootMenu.cpp">
+    <ClCompile Include="src\Scaleform\Scaleform.cpp">
       <Filter>src\Scaleform</Filter>
     </ClCompile>
     <ClCompile Include="src\ViewHandler.cpp">

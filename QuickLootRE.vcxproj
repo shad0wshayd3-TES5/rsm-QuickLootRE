@@ -227,8 +227,8 @@ copy "$(TargetDir)$(TargetName).pdb" "$(Skyrim64Path)\Data\SKSE\Plugins\$(Target
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Scaleform.cpp" />
     <ClCompile Include="src\Scaleform\LootMenu.cpp" />
+    <ClCompile Include="src\Scaleform\Scaleform.cpp" />
     <ClCompile Include="src\ViewHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
