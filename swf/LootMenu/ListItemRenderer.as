@@ -17,9 +17,9 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 	public function ListItemRenderer(a_obj: Object)
 	{
 		super();
-
 		chargeX = charge._x;
 		var chargeMask: MovieClip = charge.duplicateMovieClip("chargeMask", charge.getDepth() + 1);
+		chargeMask._width += 1;
 		charge.setMask(chargeMask);
 	}
 
@@ -39,6 +39,7 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 		super.setData(a_data);
 
 		charge._x = chargeX - charge._width;
+		charge._visible = false;
 		chargeOutline._visible = false;
 		if (data != null) {
 			var displayName: String = data.displayName;
@@ -51,9 +52,19 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 
 			var enchantmentCharge: Number = data.enchantmentCharge;
 			if (enchantmentCharge != null) {
-				charge._x += charge._width * (enchantmentCharge / 100);
+				var offset: Number = clamp(charge._width * (enchantmentCharge / 100), 0, charge._width);
+				charge._x += offset;
+				charge._visible = true;
 				chargeOutline._visible = true;
 			}
 		}
+	}
+
+
+	/* PRIVATE FUNCTIONS */
+
+	private function clamp(a_val: Number, a_lo: Number, a_hi: Number): Number
+	{
+		return Math.min(Math.max(a_lo, a_val), a_hi);
 	}
 }
