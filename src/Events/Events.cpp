@@ -7,12 +7,8 @@ namespace Events
 	auto CrosshairRefManager::ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*)
 		-> EventResult
 	{
-		if (!a_event) {
-			return EventResult::kContinue;
-		}
-
 		auto crosshairRef =
-			a_event->crosshairRef ?
+			a_event && a_event->crosshairRef ?
 				a_event->crosshairRef->CreateRefHandle() :
 				RE::ObjectRefHandle();
 		if (_cachedRef == crosshairRef) {
@@ -20,9 +16,10 @@ namespace Events
 		}
 
 		_cachedRef = crosshairRef;
+		_cachedAshPile.reset();
 		auto loot = Loot::GetSingleton();
-		if (CanOpen()) {
-			loot->SetContainer(_cachedRef);
+		if (CanOpen(a_event->crosshairRef)) {
+			loot->SetContainer(_cachedAshPile ? _cachedAshPile : _cachedRef);
 			loot->RefreshInventory();
 		} else {
 			loot->Close();

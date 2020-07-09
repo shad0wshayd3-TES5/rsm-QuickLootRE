@@ -36,24 +36,33 @@ namespace Events
 		CrosshairRefManager& operator=(const CrosshairRefManager&) = delete;
 		CrosshairRefManager& operator=(CrosshairRefManager&&) = delete;
 
-		[[nodiscard]] inline bool CanOpen() const
+		[[nodiscard]] inline bool CanOpen(RE::TESObjectREFRPtr a_ref)
 		{
-			if (!_cachedRef) {
+			auto obj = a_ref ? a_ref->GetObjectReference() : nullptr;
+			if (!a_ref || !obj) {
 				return false;
 			}
 
-			auto ref = _cachedRef.get();
-			switch (ref->GetFormType()) {
+			switch (a_ref->GetFormType()) {
 			case RE::FormType::Reference:
-				return ref->GetContainer();
+				switch (obj->GetFormType()) {
+				case RE::FormType::Activator:
+					if (auto ashPile = a_ref->extraList.GetAshPileRef(); ashPile) {
+						_cachedAshPile = ashPile;
+						return CanOpen(_cachedAshPile.get());
+					}
+				default:
+					return a_ref->GetContainer();
+				}
 			case RE::FormType::ActorCharacter:
-				return ref->IsDead();
+				return a_ref->IsDead();
 			default:
 				return false;
 			}
 		}
 
 		RE::ObjectRefHandle _cachedRef;
+		RE::ObjectRefHandle _cachedAshPile;
 	};
 
 	inline void Register()
