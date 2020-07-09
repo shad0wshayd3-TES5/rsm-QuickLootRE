@@ -47,6 +47,7 @@ namespace Scaleform
 			assert(a_ref);
 			_src = a_ref;
 			_containerHandler.emplace(_src);
+			UpdateTitle();
 		}
 
 		inline void RefreshInventory()
@@ -117,12 +118,13 @@ namespace Scaleform
 			_viewHandler(),
 			_containerHandler(),
 			_rootObj(),
+			_title(),
 			_weight(),
-			_buttonBar(),
-			_buttonBarProvider(),
 			_itemList(),
 			_itemListProvider(),
-			_itemListImpl()
+			_itemListImpl(),
+			_buttonBar(),
+			_buttonBarProvider()
 		{
 			using Context = RE::UserEvents::INPUT_CONTEXT_ID;
 			using Flag = RE::UI_MENU_FLAGS;
@@ -177,7 +179,7 @@ namespace Scaleform
 
 		inline void RefreshPlatform() override
 		{
-			RefreshButtonBar();
+			UpdateButtonBar();
 		}
 
 	private:
@@ -272,9 +274,10 @@ namespace Scaleform
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
 				element_t{ std::ref(_rootObj), "_root.rootObj" },
-				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar" },
+				element_t{ std::ref(_title), "_root.rootObj.title" },
 				element_t{ std::ref(_weight), "_root.rootObj.weight" },
-				element_t{ std::ref(_itemList), "_root.rootObj.itemList" }
+				element_t{ std::ref(_itemList), "_root.rootObj.itemList" },
+				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar" }
 			};
 
 			for (const auto& [object, path] : objects) {
@@ -286,15 +289,16 @@ namespace Scaleform
 
 			AdjustPosition();
 
+			_title.AutoSize(CLIK::Object{ "left" });
 			_weight.AutoSize(CLIK::Object{ "left" });
-
-			_view->CreateArray(std::addressof(_buttonBarProvider));
-			_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
 
 			_view->CreateArray(std::addressof(_itemListProvider));
 			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
 
-			RefreshButtonBar();
+			_view->CreateArray(std::addressof(_buttonBarProvider));
+			_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
+
+			UpdateButtonBar();
 			ProcessDelegate();
 		}
 
@@ -316,7 +320,17 @@ namespace Scaleform
 			}
 		}
 
-		inline void RefreshButtonBar()
+		inline void Sort()
+		{
+			std::stable_sort(
+				_itemListImpl.begin(),
+				_itemListImpl.end(),
+				[&](auto&& a_lhs, auto&& a_rhs) {
+					return *a_lhs < *a_rhs;
+				});
+		}
+
+		inline void UpdateButtonBar()
 		{
 			using namespace std::string_view_literals;
 			constexpr std::array mappings{
@@ -350,14 +364,14 @@ namespace Scaleform
 			_buttonBar.InvalidateData();
 		}
 
-		inline void Sort()
+		inline void UpdateTitle()
 		{
-			std::stable_sort(
-				_itemListImpl.begin(),
-				_itemListImpl.end(),
-				[&](auto&& a_lhs, auto&& a_rhs) {
-					return *a_lhs < *a_rhs;
-				});
+			auto src = _src.get();
+			if (src) {
+				_title.HTMLText(
+					safe_string(
+						src->GetDisplayFullName()));
+			}
 		}
 
 		inline void UpdateWeight()
@@ -385,11 +399,12 @@ namespace Scaleform
 		std::optional<ViewHandler> _viewHandler;
 		std::optional<ContainerHandler> _containerHandler;
 		CLIK::MovieClip _rootObj;
+		CLIK::TextField _title;
 		CLIK::TextField _weight;
-		CLIK::GFx::Controls::ButtonBar _buttonBar;
-		RE::GFxValue _buttonBarProvider;
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;
+		CLIK::GFx::Controls::ButtonBar _buttonBar;
+		RE::GFxValue _buttonBarProvider;
 	};
 }

@@ -1,4 +1,4 @@
-class LootMenu.Renderer extends gfx.controls.ListItemRenderer
+class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 {
 	/* PRIVATE VARIABLES */
 
@@ -14,7 +14,7 @@ class LootMenu.Renderer extends gfx.controls.ListItemRenderer
 	/* INITIALIZATION */
 
 	// @override gfx.controls.ListItemRenderer
-	public function Renderer(a_obj: Object)
+	public function ListItemRenderer(a_obj: Object)
 	{
 		super();
 
