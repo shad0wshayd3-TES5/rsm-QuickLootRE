@@ -355,7 +355,7 @@ namespace Items
 				{
 					auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
-						result = obj->IsKey();
+						result = obj->IsLockpick();
 					}
 				}
 				break;
@@ -364,7 +364,7 @@ namespace Items
 					auto item = handle.get();
 					auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
-						result = obj->IsKey();
+						result = obj->IsLockpick();
 						break;
 					}
 				}
