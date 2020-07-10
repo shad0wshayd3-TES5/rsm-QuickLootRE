@@ -4,6 +4,12 @@
 
 namespace Scaleform
 {
+	void LootMenu::Close()
+	{
+		auto loot = Loot::GetSingleton();
+		loot->Close();
+	}
+
 	void LootMenu::ProcessDelegate()
 	{
 		auto loot = Loot::GetSingleton();

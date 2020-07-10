@@ -17,6 +17,10 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 	public function ListItemRenderer(a_obj: Object)
 	{
 		super();
+
+		charge._alpha = 0;
+		chargeOutline._alpha = 0;
+
 		chargeX = charge._x;
 		var chargeMask: MovieClip = charge.duplicateMovieClip("chargeMask", charge.getDepth() + 1);
 		chargeMask._width += 1;

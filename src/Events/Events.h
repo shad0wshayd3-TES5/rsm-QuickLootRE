@@ -43,22 +43,21 @@ namespace Events
 				return false;
 			}
 
-			switch (a_ref->GetFormType()) {
-			case RE::FormType::Reference:
-				switch (obj->GetFormType()) {
-				case RE::FormType::Activator:
-					if (auto ashPile = a_ref->extraList.GetAshPileRef(); ashPile) {
-						_cachedAshPile = ashPile;
-						return CanOpen(_cachedAshPile.get());
-					}
-				default:
-					return a_ref->GetContainer();
-				}
-			case RE::FormType::ActorCharacter:
-				return a_ref->IsDead();
-			default:
-				return false;
+			if (obj->Is(RE::FormType::Activator)) {
+				_cachedAshPile = a_ref->extraList.GetAshPileRef();
+				return CanOpen(_cachedAshPile.get());
 			}
+
+			if (auto actor = a_ref->As<RE::Actor>(); actor) {
+				if (!actor->IsDead() ||
+					actor->IsSummoned()) {
+					return false;
+				}
+			}
+
+			return a_ref->HasContainer() &&
+				   !a_ref->IsLocked() &&
+				   !a_ref->IsActivationBlocked();
 		}
 
 		RE::ObjectRefHandle _cachedRef;

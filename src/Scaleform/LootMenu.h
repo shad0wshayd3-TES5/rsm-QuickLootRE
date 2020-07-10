@@ -183,6 +183,11 @@ namespace Scaleform
 
 		inline void AdvanceMovie(float a_interval, UInt32 a_currentTime) override
 		{
+			auto src = _src.get();
+			if (!src || src->IsActivationBlocked()) {
+				Close();
+			}
+
 			ProcessDelegate();
 			super::AdvanceMovie(a_interval, a_currentTime);
 		}
@@ -265,6 +270,8 @@ namespace Scaleform
 					_rootObj.X() + def->GetWidth() / 5);
 			}
 		}
+
+		void Close();
 
 		inline void InitExtensions()
 		{
