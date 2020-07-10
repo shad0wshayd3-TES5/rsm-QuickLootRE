@@ -24,6 +24,7 @@ public:
 	{
 		assert(_menu != nullptr);
 		assert(_view != nullptr);
+		_view->SetVisible(false);
 		Register();
 		Evaluate();
 	}

@@ -3,7 +3,8 @@
 namespace Events
 {
 	class CrosshairRefManager :
-		public RE::BSTEventSink<SKSE::CrosshairRefEvent>
+		public RE::BSTEventSink<SKSE::CrosshairRefEvent>,
+		public RE::BSTEventSink<RE::TESLockChangedEvent>
 	{
 	public:
 		static inline CrosshairRefManager* GetSingleton()
@@ -14,17 +15,48 @@ namespace Events
 
 		static inline void Register()
 		{
-			auto source = SKSE::GetCrosshairRefEventSource();
-			if (source) {
-				source->AddEventSink(GetSingleton());
-				_MESSAGE("Registered %s", typeid(CrosshairRefManager).name());
+			auto crosshair = SKSE::GetCrosshairRefEventSource();
+			if (crosshair) {
+				crosshair->AddEventSink(GetSingleton());
+				_MESSAGE("Registered %s", typeid(SKSE::CrosshairRefEvent).name());
+			}
+
+			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
+			if (scripts) {
+				scripts->AddEventSink<RE::TESLockChangedEvent>(GetSingleton());
+				_MESSAGE("Registered %s", typeid(RE::TESLockChangedEvent).name());
 			}
 		}
 
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 
-		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
+		inline EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override
+		{
+			auto crosshairRef =
+				a_event && a_event->crosshairRef ?
+					a_event->crosshairRef->CreateRefHandle() :
+					RE::ObjectRefHandle();
+			if (_cachedRef == crosshairRef) {
+				return EventResult::kContinue;
+			}
+
+			_cachedRef = crosshairRef;
+			_cachedAshPile.reset();
+			Evaluate(a_event->crosshairRef);
+
+			return EventResult::kContinue;
+		}
+
+		inline EventResult ProcessEvent(const RE::TESLockChangedEvent* a_event, RE::BSTEventSource<RE::TESLockChangedEvent>*) override
+		{
+			if (a_event->lockedObject &&
+				a_event->lockedObject->GetHandle() == _cachedRef) {
+				Evaluate(a_event->lockedObject);
+			}
+
+			return EventResult::kContinue;
+		}
 
 	private:
 		CrosshairRefManager() = default;
@@ -59,6 +91,8 @@ namespace Events
 				   !a_ref->IsLocked() &&
 				   !a_ref->IsActivationBlocked();
 		}
+
+		void Evaluate(RE::TESObjectREFRPtr a_ref);
 
 		RE::ObjectRefHandle _cachedRef;
 		RE::ObjectRefHandle _cachedAshPile;
