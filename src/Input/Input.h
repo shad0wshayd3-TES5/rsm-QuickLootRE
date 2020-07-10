@@ -183,7 +183,7 @@ namespace Input
 					return size + 4 + 2;
 				}();
 
-				simple_array<std::pair<UInt32, std::size_t>, N> arr{};
+				simple_array<std::pair<UInt32, UInt32>, N> arr{};
 				std::size_t idx = 0;
 				std::size_t frame = 266;
 				for (std::size_t key = Key::kUp; key <= Key::kRightShoulder; key <<= 1) {
@@ -251,16 +251,17 @@ namespace Input
 			}
 
 			constexpr auto mappings = []() noexcept {
-				std::array<UInt32, Key::kWheelDown + 1> arr{ INVALID };
+				std::array<std::pair<UInt32, UInt32>, Key::kWheelDown + 1> arr{};
 				for (auto i = Key::kLeftButton; i <= Key::kWheelDown; ++i) {
-					arr[i] = i;
+					arr[i].first = i;
+					arr[i].second = i + 256;
 				}
 
 				return arr;
 			}();
 
 			auto key = controlMap->GetMappedKey(a_userEvent, RE::INPUT_DEVICE::kMouse);
-			return key <= mappings.size() ? mappings[key] : INVALID;
+			return key <= mappings.size() ? mappings[key].second : INVALID;
 		}
 	};
 }
