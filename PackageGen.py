@@ -1,8 +1,9 @@
 import os
 import zipfile
+import zlib
 
 def make_rel_archive(a_parent, a_name):
-	archive = zipfile.ZipFile("build/" + a_name + ".zip", "w")
+	archive = zipfile.ZipFile("build/" + a_name + ".zip", "w", zipfile.ZIP_DEFLATED)
 	def do_write(a_relative):
 		archive.write(a_parent + a_relative, a_relative)
 
@@ -10,7 +11,7 @@ def make_rel_archive(a_parent, a_name):
 	do_write("Interface/LootMenu.swf")
 
 def make_dbg_archive(a_parent, a_name):
-	archive = zipfile.ZipFile("build/" + a_name + "_pdb" + ".zip", "w")
+	archive = zipfile.ZipFile("build/" + a_name + "_pdb" + ".zip", "w", zipfile.ZIP_DEFLATED)
 	archive.write(a_parent + "SKSE/Plugins/" + a_name + ".pdb", a_name + ".pdb")
 
 def main():
