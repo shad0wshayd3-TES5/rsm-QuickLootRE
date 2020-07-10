@@ -6,5 +6,6 @@
 * [span lite](https://github.com/martinmoene/span-lite)
 
 ## End User Dependencies
-* [SKSE64](https://skse.silverlock.org/)
 * [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
+* [SKSE64](https://skse.silverlock.org/)
+* [SkyUI](https://www.nexusmods.com/skyrimspecialedition/mods/12604)
