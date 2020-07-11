@@ -39,6 +39,9 @@
     <ClCompile Include="src\Events\Events.cpp">
       <Filter>src\Events</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hooks.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\Input\InputListeners.cpp">
       <Filter>src\Input</Filter>
     </ClCompile>
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="src\Events\Events.h">
       <Filter>src\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Hooks.h">
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\HUDManager.h">
       <Filter>src</Filter>

@@ -1,9 +1,8 @@
 ﻿#include "AnimationManager.h"
 #include "Events/Events.h"
-#include "HUDManager.h"
+#include "Hooks.h"
 #include "Input/Input.h"
 #include "Loot.h"
-#include "Scaleform/LootMenu.h"
 #include "Scaleform/Scaleform.h"
 #include "version.h"
 
@@ -83,11 +82,12 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		AnimationManager::Install();
-		HUDManager::Install();
+#ifndef NDEBUG
 		InputHandler::Register();
+#endif
+
+		AnimationManager::Install();
 		Events::Register();
-		Input::HookControlMap();
 		Scaleform::Register();
 		break;
 	}
@@ -98,6 +98,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
 	SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
 	SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
+	SKSE::Logger::TrackTrampolineStats(true);
 	SKSE::Logger::UseLogStamp(true);
 
 	_MESSAGE("QuickLootRE v%s", QKLT_VERSION_VERSTRING);
@@ -128,10 +129,16 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
+	if (!SKSE::AllocTrampoline(1 << 6)) {
+		return false;
+	}
+
 	auto message = SKSE::GetMessagingInterface();
 	if (!message->RegisterListener(MessageHandler)) {
 		return false;
 	}
+
+	Hooks::Install();
 
 	return true;
 }
