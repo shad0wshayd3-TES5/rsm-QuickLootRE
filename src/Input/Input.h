@@ -147,7 +147,7 @@ namespace Input
 				}
 			};
 
-			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
+			for_each([](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
 				a_mapping.userEventGroupFlag &= ~QUICKLOOT_FLAG;
 			});
 
@@ -156,6 +156,7 @@ namespace Input
 
 			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
 				if (eventMap(a_device, a_mapping.eventID) || idMap(a_device, a_mapping.inputKey)) {
+					a_mapping.userEventGroupFlag &= ~RE::UserEvents::USER_EVENT_FLAG::kInvalid;
 					a_mapping.userEventGroupFlag |= QUICKLOOT_FLAG;
 				}
 			});
