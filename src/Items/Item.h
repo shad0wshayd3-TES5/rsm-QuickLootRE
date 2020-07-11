@@ -26,15 +26,17 @@ namespace Items
 
 		[[nodiscard]] inline int Compare(const Item& a_rhs) const { return _item.Compare(a_rhs._item); }
 
-		[[nodiscard]] inline std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
-		[[nodiscard]] inline RE::GFxValue Value(RE::GFxMovieView& a_view) const { return _item.Value(a_view); }
+		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const { return _item.GFxValue(a_view); }
 
-		inline void Take(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
-		inline void Take(observer<RE::Actor*> a_dst) { DoTake(a_dst, 1); }
-		inline void TakeAll(observer<RE::Actor*> a_dst) { DoTake(a_dst, Count()); }
+		inline void Take(RE::Actor& a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
+		inline void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }
+		inline void TakeAll(RE::Actor& a_dst) { DoTake(a_dst, Count()); }
 
 	protected:
-		virtual void DoTake(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) = 0;
+		virtual void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) = 0;
+
+		[[nodiscard]] inline std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
+		[[nodiscard]] inline std::ptrdiff_t Value() const { return _item.GetValue(); }
 
 	private:
 		GFxItem _item;

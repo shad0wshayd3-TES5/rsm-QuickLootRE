@@ -58,6 +58,7 @@ namespace Scaleform
 			_src = a_ref;
 			_containerHandler.emplace(_src);
 			UpdateTitle();
+			UpdateButtonBar();
 		}
 
 		inline void RefreshInventory()
@@ -96,7 +97,7 @@ namespace Scaleform
 			Sort();
 			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
-				_itemListProvider.PushBack(elem->Value(*_view));
+				_itemListProvider.PushBack(elem->GFxValue(*_view));
 			}
 			_itemList.InvalidateData();
 
@@ -110,7 +111,7 @@ namespace Scaleform
 			if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
 				auto dst = _dst.get();
 				if (dst) {
-					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(dst.get());
+					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
 				}
 			}
 
@@ -301,7 +302,6 @@ namespace Scaleform
 			_view->CreateArray(std::addressof(_buttonBarProvider));
 			_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
 
-			UpdateButtonBar();
 			ProcessDelegate();
 		}
 
@@ -336,14 +336,20 @@ namespace Scaleform
 		inline void UpdateButtonBar()
 		{
 			using namespace std::string_view_literals;
-			constexpr std::array mappings{
-				std::make_pair("sTake"sv, "Activate"sv),
-				std::make_pair("sSearch"sv, "Ready Weapon"sv)
-			};
-
 			if (!_view) {
 				return;
 			}
+
+			const auto calcActivateString = [this]() {
+				auto dst = _dst.get();
+				auto src = _src.get();
+				return dst && src && dst->WouldBeStealing(src.get()) ? "sSteal"sv : "sTake"sv;
+			};
+
+			const std::array mappings{
+				std::make_pair(calcActivateString(), "Activate"sv),
+				std::make_pair("sSearch"sv, "Ready Weapon"sv)
+			};
 
 			std::array<std::pair<std::string_view, std::ptrdiff_t>, mappings.size()> data;
 			auto gmst = RE::GameSettingCollection::GetSingleton();

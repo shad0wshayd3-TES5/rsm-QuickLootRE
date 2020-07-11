@@ -31,9 +31,8 @@ namespace Items
 		InventoryItem& operator=(InventoryItem&&) = default;
 
 	protected:
-		inline void DoTake(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) override
+		inline void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) override
 		{
-			assert(a_dst != nullptr);
 			auto container = _container.get();
 			if (!container) {
 				assert(false);
@@ -62,12 +61,28 @@ namespace Items
 			}
 
 			const auto object = _entry->GetObject();
+			const auto remove =
+				[&](SInt32 a_count, RE::ExtraDataList* a_extraList, RE::ITEM_REMOVE_REASON a_reason) {
+					container->RemoveItem(object, a_count, a_reason, a_extraList, std::addressof(a_dst));
+				};
+
+			std::function action =
+				[&](SInt32 a_count, RE::ExtraDataList* a_extraList) {
+					remove(a_count, a_extraList, RE::ITEM_REMOVE_REASON::kRemove);
+				};
+			if (a_dst.WouldBeStealing(container.get())) {
+				action =
+					[&](SInt32 a_count, RE::ExtraDataList* a_extraList) {
+						remove(a_count, a_extraList, RE::ITEM_REMOVE_REASON::kSteal);
+						a_dst.StealAlarm(container.get(), object, a_count, Value(), container->GetOwner(), true);
+					};
+			}
+
 			for (const auto& [xList, count] : queued) {
-				container->RemoveItem(object, static_cast<SInt32>(count), RE::ITEM_REMOVE_REASON::kRemove, xList, a_dst);
+				action(static_cast<SInt32>(count), xList);
 			}
 			if (toRemove > 0) {
-				container->RemoveItem(object, static_cast<SInt32>(toRemove), RE::ITEM_REMOVE_REASON::kRemove, nullptr, a_dst);
-				toRemove = 0;
+				action(static_cast<SInt32>(toRemove), nullptr);
 			}
 		}
 

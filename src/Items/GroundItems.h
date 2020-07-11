@@ -26,10 +26,8 @@ namespace Items
 		GroundItems& operator=(GroundItems&&) = default;
 
 	protected:
-		inline void DoTake(observer<RE::Actor*> a_dst, std::ptrdiff_t a_count) override
+		inline void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) override
 		{
-			assert(a_dst != nullptr);
-
 			auto toRemove = std::clamp<std::ptrdiff_t>(a_count, 0, Count());
 			if (toRemove <= 0) {
 				assert(false);
@@ -40,7 +38,7 @@ namespace Items
 				auto item = handle.get();
 				if (item) {
 					const auto xCount = std::min<std::ptrdiff_t>(item->extraList.GetCount(), toRemove);
-					a_dst->PickUpObject(item.get(), static_cast<SInt32>(xCount));
+					a_dst.PickUpObject(item.get(), static_cast<SInt32>(xCount));
 					toRemove -= xCount;
 
 					if (toRemove <= 0) {

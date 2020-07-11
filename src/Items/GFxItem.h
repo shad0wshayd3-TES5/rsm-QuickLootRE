@@ -96,41 +96,6 @@ namespace Items
 			}
 		}
 
-		[[nodiscard]] inline RE::GFxValue Value(RE::GFxMovieView& a_view) const
-		{
-			RE::GFxValue value;
-			a_view.CreateObject(std::addressof(value));
-			value.SetMember("displayName", { _displayName });
-			value.SetMember("count", { _count });
-			if (_enchantmentCharge) {
-				value.SetMember("enchantmentCharge", { *_enchantmentCharge });
-			}
-			return value;
-		}
-
-	private:
-		enum : std::size_t
-		{
-			kQuestItem,
-			kKey,
-			kNote,
-			kBook,
-			kGold,
-			kAmmo,
-			kLockpick,
-			kStolen,
-			kTotal
-		};
-
-		enum : std::size_t
-		{
-			kInventory,
-			kGround
-		};
-
-		using inventory_t = RE::InventoryEntryData*;
-		using ground_t = stl::span<const RE::ObjectRefHandle>;
-
 		[[nodiscard]] inline RE::FormID GetFormID() const
 		{
 			if (_formID) {
@@ -477,6 +442,41 @@ namespace Items
 			_flags.set(kStolen, result);
 			return result;
 		}
+
+		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const
+		{
+			RE::GFxValue value;
+			a_view.CreateObject(std::addressof(value));
+			value.SetMember("displayName", { _displayName });
+			value.SetMember("count", { _count });
+			if (_enchantmentCharge) {
+				value.SetMember("enchantmentCharge", { *_enchantmentCharge });
+			}
+			return value;
+		}
+
+	private:
+		enum : std::size_t
+		{
+			kQuestItem,
+			kKey,
+			kNote,
+			kBook,
+			kGold,
+			kAmmo,
+			kLockpick,
+			kStolen,
+			kTotal
+		};
+
+		enum : std::size_t
+		{
+			kInventory,
+			kGround
+		};
+
+		using inventory_t = RE::InventoryEntryData*;
+		using ground_t = stl::span<const RE::ObjectRefHandle>;
 
 		std::variant<inventory_t, ground_t> _src;
 		std::string _displayName;
