@@ -98,7 +98,7 @@ namespace Scaleform
 			for (const auto& elem : _itemListImpl) {
 				_itemListProvider.PushBack(elem->Value(*_view));
 			}
-			_itemList.Invalidate();
+			_itemList.InvalidateData();
 
 			RestoreIndex(idx);
 			UpdateWeight();
@@ -120,21 +120,7 @@ namespace Scaleform
 	protected:
 		using UIResult = RE::UI_MESSAGE_RESULTS;
 
-		inline LootMenu() :
-			super(),
-			_view(),
-			_dst(RE::PlayerCharacter::GetSingleton()),
-			_src(),
-			_viewHandler(),
-			_containerHandler(),
-			_rootObj(),
-			_title(),
-			_weight(),
-			_itemList(),
-			_itemListProvider(),
-			_itemListImpl(),
-			_buttonBar(),
-			_buttonBarProvider()
+		inline LootMenu()
 		{
 			using Context = RE::UserEvents::INPUT_CONTEXT_ID;
 			using Flag = RE::UI_MENU_FLAGS;
@@ -411,7 +397,7 @@ namespace Scaleform
 		static constexpr SInt8 SORT_PRIORITY{ 3 };
 
 		RE::GPtr<RE::GFxMovieView> _view;
-		RE::ActorHandle _dst;
+		RE::ActorHandle _dst{ RE::PlayerCharacter::GetSingleton() };
 		RE::ObjectRefHandle _src;
 		std::optional<ViewHandler> _viewHandler;
 		std::optional<ContainerHandler> _containerHandler;

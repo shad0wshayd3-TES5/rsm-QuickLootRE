@@ -31,7 +31,15 @@ public:
 
 	void ModSelectedIndex(double a_mod);
 	void ModSelectedPage(double a_mod);
-	inline void RefreshInventory() { _refreshInventory = true; }
+
+	inline void RefreshInventory()
+	{
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([this]() {
+			_refreshInventory = true;
+		});
+	}
+
 	void SetContainer(RE::ObjectRefHandle a_container);
 	void TakeStack();
 
@@ -43,12 +51,7 @@ protected:
 private:
 	using Tasklet = std::function<void(LootMenu&)>;
 
-	inline Loot() :
-		_taskQueue(),
-		_refreshInventory(false),
-		_enabled(true)
-	{}
-
+	Loot() = default;
 	Loot(const Loot&) = delete;
 	Loot(Loot&&) = delete;
 
@@ -80,6 +83,6 @@ private:
 
 	mutable std::mutex _lock;
 	std::vector<Tasklet> _taskQueue;
-	std::atomic_bool _refreshInventory;
-	std::atomic_bool _enabled;
+	std::atomic_bool _enabled{ true };
+	bool _refreshInventory{ false };
 };
