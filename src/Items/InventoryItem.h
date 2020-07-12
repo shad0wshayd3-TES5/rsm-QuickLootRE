@@ -61,6 +61,7 @@ namespace Items
 			}
 
 			const auto object = _entry->GetObject();
+			a_dst.PlayPickUpSound(object, true, false);
 			const auto remove =
 				[&](SInt32 a_count, RE::ExtraDataList* a_extraList, RE::ITEM_REMOVE_REASON a_reason) {
 					container->RemoveItem(object, a_count, a_reason, a_extraList, std::addressof(a_dst));

@@ -86,6 +86,6 @@ namespace stl
 	using nonstd::span;
 }
 
-constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""; }
+constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""sv; }
 
 #define DLLEXPORT __declspec(dllexport)

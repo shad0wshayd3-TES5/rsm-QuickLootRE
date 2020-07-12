@@ -343,7 +343,7 @@ namespace Scaleform
 			const bool stealing = WouldBeStealing();
 			const std::array mappings{
 				std::make_tuple(stealing ? "sSteal"sv : "sTake"sv, "Activate"sv, stealing),
-				std::make_tuple("sSearch"sv, "Ready Weapon"sv, false)
+				std::make_tuple("sSearch"sv, "Ready Weapon"sv, stealing)
 			};
 
 			_buttonBarProvider.ClearElements();

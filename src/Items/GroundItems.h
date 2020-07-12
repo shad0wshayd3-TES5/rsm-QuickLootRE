@@ -38,7 +38,7 @@ namespace Items
 				auto item = handle.get();
 				if (item) {
 					const auto xCount = std::min<std::ptrdiff_t>(item->extraList.GetCount(), toRemove);
-					a_dst.PickUpObject(item.get(), static_cast<SInt32>(xCount));
+					a_dst.PickUpObject(item.get(), static_cast<SInt32>(xCount), false, true);
 					toRemove -= xCount;
 
 					if (toRemove <= 0) {

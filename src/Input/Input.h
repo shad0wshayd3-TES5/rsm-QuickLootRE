@@ -9,7 +9,7 @@ namespace Input
 	public:
 		inline static void Install()
 		{
-			std::array LOCATIONS{
+			constexpr std::array locations{
 				std::make_pair<std::uint64_t, std::size_t>(52374, 0x17),
 				std::make_pair<std::uint64_t, std::size_t>(52400, 0x17),
 				std::make_pair<std::uint64_t, std::size_t>(67234, 0x113),
@@ -17,7 +17,7 @@ namespace Input
 			};
 
 			auto trampoline = SKSE::GetTrampoline();
-			for (const auto& loc : LOCATIONS) {
+			for (const auto& loc : locations) {
 				REL::Offset<std::uintptr_t> target(REL::ID(loc.first), loc.second);
 				_RefreshLinkedMappings = trampoline->Write5CallEx(target.address(), RefreshLinkedMappings);
 			}
@@ -32,8 +32,8 @@ namespace Input
 			inline UserEventMap() :
 				_mappings{}
 			{
-				insert("Activate");
-				insert("Ready Weapon");
+				insert("Activate"sv);
+				insert("Ready Weapon"sv);
 			}
 
 			[[nodiscard]] inline bool operator()(std::size_t a_device, value_type a_value) const

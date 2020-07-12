@@ -34,6 +34,7 @@ public:
 
 	inline void RefreshInventory()
 	{
+		// Need to delay inventory processing so the game has time to process it before us
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([this]() {
 			_refreshInventory = true;
