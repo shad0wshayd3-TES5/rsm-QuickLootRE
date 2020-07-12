@@ -9,6 +9,7 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 
 	public var charge: MovieClip;
 	public var chargeOutline: MovieClip;
+	public var textContainer: MovieClip;
 
 
 	/* INITIALIZATION */
@@ -20,6 +21,8 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 
 		charge._alpha = 0;
 		chargeOutline._alpha = 0;
+
+		textField = textContainer.textField;
 
 		chargeX = charge._x;
 		var chargeMask: MovieClip = charge.duplicateMovieClip("chargeMask", charge.getDepth() + 1);
@@ -36,27 +39,33 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 	 * @param a_data
 	 * 	displayName: String
 	 * 	count: Number
+	 *	doColor: Boolean
 	 * 	[enchantmentCharge: Number]
 	 */
 	public function setData(a_data: Object): Void
 	{
 		super.setData(a_data);
 
-		charge._x = chargeX - charge._width;
+		charge._x = chargeX;
 		charge._visible = false;
 		chargeOutline._visible = false;
 		if (data != null) {
-			var displayName: String = data.displayName;
-			var count: Number = data.count;
+			var displayName: String = data.displayName != null ? data.displayName : "";
+			var count: Number = data.count != null ? data.count : 1;
+			var doColor: Boolean = data.doColor != null ? data.doColor : false;
 
 			if (count > 1) {
 				displayName += " (" + count.toString() + ")";
 			}
 			label = displayName;
 
+			if (doColor) {
+				textField.textColor = 0xEF9A9A;
+			}
+
 			var enchantmentCharge: Number = data.enchantmentCharge;
 			if (enchantmentCharge != null) {
-				var offset: Number = clamp(charge._width * (enchantmentCharge / 100), 0, charge._width);
+				var offset: Number = clamp(charge._width * (1 - enchantmentCharge / 100), 0, charge._width);
 				charge._x += offset;
 				charge._visible = true;
 				chargeOutline._visible = true;

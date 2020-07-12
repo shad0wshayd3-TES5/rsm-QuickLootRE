@@ -37,29 +37,6 @@ class LootMenu.Button extends gfx.controls.Button
 	}
 
 
-	/* PUBLIC FUNCTIONS */
-
-	// @override gfx.controls.Button
-	public function set label(a_value: String): Void
-	{
-		_label = a_value;
-
-		// When the label changes, if autoSize is true, and there is a textField, we want to resize the component to fit the label.
-		// The only exception is when the label is set during initialization.
-        if (initialized) {
-            if (textField != null) {
-				textField.htmlText = a_value;	// Set the text first
-			}
-
-            if (autoSize != "none") {
-				sizeIsInvalid = true;
-			}
-
-            updateAfterStateChange();
-        }
-	}
-
-
 	/* PRIVATE FUNCTIONS */
 
 	// @override UIComponent
@@ -82,21 +59,7 @@ class LootMenu.Button extends gfx.controls.Button
 	private function updateAfterStateChange(): Void
 	{
 		_needsUpdate = true;
-
-		// Redraw should only happen AFTER the initialization.
-		if (!initialized) {
-			return;
-		}
-
-		if (textField != null && _label != null) {
-			textField.htmlText = _label;
-		}
-
-		validateNow();// Ensure that the width/height is up to date.
-		if (constraints != null) {
-			constraints.update(width, height);
-		}
-		dispatchEvent( { type: "stateChange", state: state } );
+		super.updateAfterStateChange();
 	}
 
 
@@ -110,6 +73,11 @@ class LootMenu.Button extends gfx.controls.Button
 
 			var index: Number = data.index != null ? data.index : INVALID;
 			icon.gotoAndStop(index);
+
+			var doColor: Boolean = data.doColor != null ? data.doColor : false;
+			if (doColor) {
+				textField.textColor = 0xEF9A9A;
+			}
 
 			var scale: Number = textField.textHeight / icon._height;
 			icon._width *= scale;

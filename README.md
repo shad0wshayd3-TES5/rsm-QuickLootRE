@@ -1,6 +1,7 @@
 # QuickLootRE
 
 ## Build Dependencies
+* [Boost](https://www.boost.org/)
 * [CommonLibSSE](https://github.com/Ryan-rsm-McKenzie/CommonLibSSE)
 * [frozen](https://github.com/serge-sans-paille/frozen)
 * [span lite](https://github.com/martinmoene/span-lite)

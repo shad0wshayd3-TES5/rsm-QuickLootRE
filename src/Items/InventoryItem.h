@@ -67,14 +67,14 @@ namespace Items
 				};
 
 			std::function action =
-				[&](SInt32 a_count, RE::ExtraDataList* a_extraList) {
-					remove(a_count, a_extraList, RE::ITEM_REMOVE_REASON::kRemove);
+				[&](SInt32 a_num, RE::ExtraDataList* a_extraList) {
+					remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kRemove);
 				};
 			if (a_dst.WouldBeStealing(container.get())) {
 				action =
-					[&](SInt32 a_count, RE::ExtraDataList* a_extraList) {
-						remove(a_count, a_extraList, RE::ITEM_REMOVE_REASON::kSteal);
-						a_dst.StealAlarm(container.get(), object, a_count, Value(), container->GetOwner(), true);
+					[&](SInt32 a_num, RE::ExtraDataList* a_extraList) {
+						remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kSteal);
+						a_dst.StealAlarm(container.get(), object, a_num, Value(), container->GetOwner(), true);
 					};
 			}
 

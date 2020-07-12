@@ -26,7 +26,7 @@ namespace Items
 
 		[[nodiscard]] inline int Compare(const Item& a_rhs) const { return _item.Compare(a_rhs._item); }
 
-		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const { return _item.GFxValue(a_view); }
+		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view, bool a_stealing) const { return _item.GFxValue(a_view, a_stealing); }
 
 		inline void Take(RE::Actor& a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
 		inline void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }

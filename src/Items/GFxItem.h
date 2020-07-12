@@ -443,12 +443,13 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const
+		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view, bool a_stealing) const
 		{
 			RE::GFxValue value;
 			a_view.CreateObject(std::addressof(value));
 			value.SetMember("displayName", { _displayName });
 			value.SetMember("count", { _count });
+			value.SetMember("doColor", { a_stealing ? true : IsStolen() });
 			if (_enchantmentCharge) {
 				value.SetMember("enchantmentCharge", { *_enchantmentCharge });
 			}

@@ -95,9 +95,10 @@ namespace Scaleform
 			}
 
 			Sort();
+			const bool stealing = WouldBeStealing();
 			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
-				_itemListProvider.PushBack(elem->GFxValue(*_view));
+				_itemListProvider.PushBack(elem->GFxValue(*_view, stealing));
 			}
 			_itemList.InvalidateData();
 
@@ -277,11 +278,11 @@ namespace Scaleform
 		{
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
-				element_t{ std::ref(_rootObj), "_root.rootObj" },
-				element_t{ std::ref(_title), "_root.rootObj.title" },
-				element_t{ std::ref(_weight), "_root.rootObj.weight" },
-				element_t{ std::ref(_itemList), "_root.rootObj.itemList" },
-				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar" }
+				element_t{ std::ref(_rootObj), "_root.rootObj"sv },
+				element_t{ std::ref(_title), "_root.rootObj.title"sv },
+				element_t{ std::ref(_weight), "_root.rootObj.weightContainer.textField"sv },
+				element_t{ std::ref(_itemList), "_root.rootObj.itemList"sv },
+				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar"sv }
 			};
 
 			for (const auto& [object, path] : objects) {
@@ -335,41 +336,42 @@ namespace Scaleform
 
 		inline void UpdateButtonBar()
 		{
-			using namespace std::string_view_literals;
 			if (!_view) {
 				return;
 			}
 
-			const auto calcActivateString = [this]() {
-				auto dst = _dst.get();
-				auto src = _src.get();
-				return dst && src && dst->WouldBeStealing(src.get()) ? "sSteal"sv : "sTake"sv;
-			};
-
+			const bool stealing = WouldBeStealing();
 			const std::array mappings{
-				std::make_pair(calcActivateString(), "Activate"sv),
-				std::make_pair("sSearch"sv, "Ready Weapon"sv)
+				std::make_tuple(stealing ? "sSteal"sv : "sTake"sv, "Activate"sv, stealing),
+				std::make_tuple("sSearch"sv, "Ready Weapon"sv, false)
 			};
 
-			std::array<std::pair<std::string_view, std::ptrdiff_t>, mappings.size()> data;
+			_buttonBarProvider.ClearElements();
 			auto gmst = RE::GameSettingCollection::GetSingleton();
+			const boost::regex pattern("<.*>(.*)<.*>", boost::regex_constants::ECMAScript);
 			for (std::size_t i = 0; i < mappings.size(); ++i) {
 				const auto& mapping = mappings[i];
 
-				auto setting = gmst->GetSetting(mapping.first.data());
-				data[i].first = setting ? setting->GetString() : "<undefined>"sv;
-				data[i].second = static_cast<std::ptrdiff_t>(Input::ControlMap()(mapping.second));
-			}
+				auto setting = gmst->GetSetting(std::get<0>(mapping).data());
+				std::string label = setting ? setting->GetString() : "<undefined>"s;
+				boost::smatch matches;
+				if (boost::regex_match(label, matches, pattern)) {
+					if (matches.size() >= 2) {
+						assert(matches.size() == 2);
+						label = matches[1].str();
+					}
+				}
 
-			_buttonBarProvider.ClearElements();
-			for (const auto& elem : data) {
+				const auto index = static_cast<std::ptrdiff_t>(Input::ControlMap()(std::get<1>(mapping)));
+				const auto doColor = std::get<2>(mapping);
+
 				RE::GFxValue obj;
 				_view->CreateObject(std::addressof(obj));
-				obj.SetMember("label", { elem.first });
-				obj.SetMember("index", { elem.second });
+				obj.SetMember("label", { label });
+				obj.SetMember("index", { index });
+				obj.SetMember("doColor", { doColor });
 				_buttonBarProvider.PushBack(obj);
 			}
-
 			_buttonBar.InvalidateData();
 		}
 
@@ -396,6 +398,13 @@ namespace Scaleform
 				text += std::to_string(carryWeight);
 				_weight.HTMLText(text);
 			}
+		}
+
+		[[nodiscard]] inline bool WouldBeStealing() const
+		{
+			auto dst = _dst.get();
+			auto src = _src.get();
+			return dst && src && dst->WouldBeStealing(src.get());
 		}
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
