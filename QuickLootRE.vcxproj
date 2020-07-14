@@ -211,7 +211,6 @@ copy "$(TargetDir)$(TargetName).pdb" "$(Skyrim64Path)\Data\SKSE\Plugins\$(Target
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\AnimationManager.cpp" />
     <ClCompile Include="src\ContainerHandler.cpp" />
     <ClCompile Include="src\Events\Events.cpp" />
     <ClCompile Include="src\Hooks.cpp" />
@@ -233,7 +232,7 @@ copy "$(TargetDir)$(TargetName).pdb" "$(Skyrim64Path)\Data\SKSE\Plugins\$(Target
     <ClCompile Include="src\ViewHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\AnimationManager.h" />
+    <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\CLIK\Array.h" />
     <ClInclude Include="src\CLIK\GFx\Controls\Button.h" />
     <ClInclude Include="src\CLIK\GFx\Controls\ButtonBar.h" />

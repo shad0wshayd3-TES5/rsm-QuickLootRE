@@ -4,6 +4,9 @@
     <Filter Include="src">
       <UniqueIdentifier>{183af39b-b0e5-4f21-b340-09f4f21a8905}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Animation">
+      <UniqueIdentifier>{3bd19eab-ca97-424c-be59-fad4e48118a9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\CLIK">
       <UniqueIdentifier>{3579149f-57aa-493a-8c64-c0d7a25b1c9d}</UniqueIdentifier>
     </Filter>
@@ -30,9 +33,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\AnimationManager.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\ContainerHandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -65,8 +65,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\AnimationManager.h">
-      <Filter>src</Filter>
+    <ClInclude Include="src\Animation\Animation.h">
+      <Filter>src\Animation</Filter>
     </ClInclude>
     <ClInclude Include="src\CLIK\Array.h">
       <Filter>src\CLIK</Filter>

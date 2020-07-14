@@ -74,7 +74,6 @@ private:
 
 		auto player = RE::PlayerCharacter::GetSingleton();
 		if (!player ||
-			player->IsAnimationDriven() ||
 			player->IsGrabbing()) {
 			return false;
 		}

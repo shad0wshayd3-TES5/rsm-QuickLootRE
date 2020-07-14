@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Animation/Animation.h"
 #include "Input/InputDisablers.h"
 #include "Input/InputListeners.h"
 
 class ViewHandler :
-	RE::BSTEventSink<RE::MenuOpenCloseEvent>
+	public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
+	public Animation::IEventSink
 {
 private:
 	using super = RE::BSTEventSink<RE::MenuOpenCloseEvent>;
@@ -15,15 +17,12 @@ public:
 	ViewHandler(ViewHandler&&) = default;
 
 	inline ViewHandler(observer<RE::IMenu*> a_menu) :
-		super(),
 		_menu(a_menu),
-		_view(a_menu->uiMovie),
-		_disablers(),
-		_listeners(),
-		_enabled(false)
+		_view(a_menu->uiMovie)
 	{
 		assert(_menu != nullptr);
 		assert(_view != nullptr);
+
 		_view->SetVisible(false);
 		Register();
 		Evaluate();
@@ -43,34 +42,66 @@ protected:
 		return EventResult::kContinue;
 	}
 
+	inline void ProcessEvent(Animation::Type a_type) override
+	{
+		switch (a_type) {
+		case Animation::Type::kKillMoveStart:
+			_activeAnimations.set(kKillMove, true);
+			break;
+		case Animation::Type::kKillMoveEnd:
+			_activeAnimations.set(kKillMove, false);
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		Evaluate();
+	}
+
 private:
-	enum class Priority
+	enum class Priority : std::size_t
 	{
 		kDefault,
 		kLowest
 	};
 
+	enum Anim : std::size_t
+	{
+		kKillMove,
+		kTotal
+	};
+
 	inline void Register()
 	{
-		auto source = RE::UI::GetSingleton();
-		if (source) {
-			source->AddEventSink(this);
+		auto menuSrc = RE::UI::GetSingleton();
+		if (menuSrc) {
+			menuSrc->AddEventSink(this);
 		}
+
+		auto animSrc = Animation::AnimationManager::GetSingleton();
+		animSrc->SetEventSink(this);
 	}
 
 	inline void Unregister()
 	{
-		auto source = RE::UI::GetSingleton();
-		if (source) {
-			source->RemoveEventSink(this);
+		auto menuSrc = RE::UI::GetSingleton();
+		if (menuSrc) {
+			menuSrc->RemoveEventSink(this);
 		}
+
+		auto animSrc = Animation::AnimationManager::GetSingleton();
+		animSrc->SetEventSink(nullptr);
 	}
 
 	inline void Evaluate()
 	{
-		auto ui = RE::UI::GetSingleton();
-		if (ui) {
-			if (ui->GameIsPaused()) {
+		auto controlMap = RE::ControlMap::GetSingleton();
+		if (controlMap) {
+			const auto& priorityStack = controlMap->contextPriorityStack;
+			if (_activeAnimations.any() ||
+				priorityStack.empty() ||
+				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay) {
 				Disable();
 			} else {
 				Enable();
@@ -112,7 +143,8 @@ private:
 
 	observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;
+	std::bitset<Anim::kTotal> _activeAnimations;
 	Input::Disablers _disablers;
 	Input::Listeners _listeners;
-	bool _enabled;
+	bool _enabled{ false };
 };

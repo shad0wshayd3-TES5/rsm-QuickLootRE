@@ -362,7 +362,9 @@ namespace Scaleform
 					}
 				}
 
-				const auto index = static_cast<std::ptrdiff_t>(Input::ControlMap()(std::get<1>(mapping)));
+				const auto index =
+					static_cast<std::ptrdiff_t>(
+						Input::ControlMap()(std::get<1>(mapping)));
 				const auto doColor = std::get<2>(mapping);
 
 				RE::GFxValue obj;

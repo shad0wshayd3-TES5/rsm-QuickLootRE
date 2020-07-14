@@ -1,4 +1,4 @@
-﻿#include "AnimationManager.h"
+﻿#include "Animation/Animation.h"
 #include "Events/Events.h"
 #include "Hooks.h"
 #include "Input/Input.h"
@@ -86,7 +86,8 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		InputHandler::Register();
 #endif
 
-		AnimationManager::Install();
+		Animation::AnimationManager::Install();
+
 		Events::Register();
 		Scaleform::Register();
 		break;
