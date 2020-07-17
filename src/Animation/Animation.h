@@ -116,7 +116,7 @@ namespace Animation
 				assert(false);
 			}
 
-			_MESSAGE("Installed %s", typeid(decltype(*this)).name());
+			logger::info("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
 		static constexpr std::array EVENTS = {

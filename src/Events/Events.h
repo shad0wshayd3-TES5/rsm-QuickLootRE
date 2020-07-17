@@ -18,13 +18,13 @@ namespace Events
 			auto crosshair = SKSE::GetCrosshairRefEventSource();
 			if (crosshair) {
 				crosshair->AddEventSink(GetSingleton());
-				_MESSAGE("Registered %s", typeid(SKSE::CrosshairRefEvent).name());
+				logger::info("Registered {}"sv, typeid(SKSE::CrosshairRefEvent).name());
 			}
 
 			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
 			if (scripts) {
 				scripts->AddEventSink<RE::TESLockChangedEvent>(GetSingleton());
-				_MESSAGE("Registered %s", typeid(RE::TESLockChangedEvent).name());
+				logger::info("Registered {}"sv, typeid(RE::TESLockChangedEvent).name());
 			}
 		}
 
@@ -101,6 +101,6 @@ namespace Events
 	inline void Register()
 	{
 		CrosshairRefManager::Register();
-		_MESSAGE("Registered all event handlers");
+		logger::info("Registered all event handlers"sv);
 	}
 }

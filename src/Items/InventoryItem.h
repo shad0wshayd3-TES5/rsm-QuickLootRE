@@ -49,7 +49,7 @@ namespace Items
 			if (_entry->extraLists) {
 				for (auto& xList : *_entry->extraLists) {
 					if (xList) {
-						const auto xCount = std::min<std::ptrdiff_t>(xList->GetCount(), toRemove);
+						const auto xCount = std::clamp<std::ptrdiff_t>(xList->GetCount(), 1, toRemove);
 						toRemove -= xCount;
 						queued.emplace_back(xList, xCount);
 

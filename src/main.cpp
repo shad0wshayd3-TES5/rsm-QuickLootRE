@@ -20,7 +20,7 @@ public:
 	{
 		auto input = RE::BSInputDeviceManager::GetSingleton();
 		input->AddEventSink(GetSingleton());
-		_MESSAGE("Registered InputHandler");
+		logger::info("Registered InputHandler"sv);
 	}
 
 protected:
@@ -96,26 +96,43 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
-	SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\QuickLootRE.log");
-	SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
-	SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
-	SKSE::Logger::TrackTrampolineStats(true);
-	SKSE::Logger::UseLogStamp(true);
+	try {
+		auto path = logger::log_directory() / "ExampleProject.log";
+		auto log = spdlog::basic_logger_mt("global log", path.string(), true);
+		log->flush_on(spdlog::level::warn);
 
-	_MESSAGE("QuickLootRE v%s", QKLT_VERSION_VERSTRING);
+#ifndef NDEBUG
+		log->set_level(spdlog::level::debug);
+		log->sinks().push_back(std::make_shared<spdlog::sinks::msvc_sink_mt>());
+#else
+		log->set_level(spdlog::level::info);
 
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "QuickLootRE";
-	a_info->version = QKLT_VERSION_MAJOR;
+#endif
 
-	if (a_skse->IsEditor()) {
-		_FATALERROR("Loaded in editor, marking as incompatible!\n");
+		spdlog::set_default_logger(log);
+		spdlog::set_pattern("%g(%#): [%l] %v");
+
+		logger::info("QuickLootRE v{}", QKLT_VERSION_VERSTRING);
+
+		a_info->infoVersion = SKSE::PluginInfo::kVersion;
+		a_info->name = "QuickLootRE";
+		a_info->version = QKLT_VERSION_MAJOR;
+
+		if (a_skse->IsEditor()) {
+			logger::critical("Loaded in editor, marking as incompatible");
+			return false;
+		}
+
+		const auto ver = a_skse->RuntimeVersion();
+		if (ver < SKSE::RUNTIME_1_5_39) {
+			logger::critical("Unsupported runtime version {}", ver.GetString().c_str());
+			return false;
+		}
+	} catch (const std::exception& e) {
+		logger::critical(e.what());
 		return false;
-	}
-
-	auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_1_5_39) {
-		_FATALERROR("Unsupported runtime version %s!\n", ver.GetString().c_str());
+	} catch (...) {
+		logger::critical("caught unknown exception");
 		return false;
 	}
 
@@ -124,22 +141,30 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-	_MESSAGE("QuickLootRE loaded");
+	try {
+		logger::info("QuickLootRE loaded");
 
-	if (!SKSE::Init(a_skse)) {
+		if (!SKSE::Init(a_skse)) {
+			return false;
+		}
+
+		if (!SKSE::AllocTrampoline(1 << 6)) {
+			return false;
+		}
+
+		auto message = SKSE::GetMessagingInterface();
+		if (!message->RegisterListener(MessageHandler)) {
+			return false;
+		}
+
+		Hooks::Install();
+	} catch (const std::exception& e) {
+		logger::critical(e.what());
+		return false;
+	} catch (...) {
+		logger::critical("caught unknown exception");
 		return false;
 	}
-
-	if (!SKSE::AllocTrampoline(1 << 6)) {
-		return false;
-	}
-
-	auto message = SKSE::GetMessagingInterface();
-	if (!message->RegisterListener(MessageHandler)) {
-		return false;
-	}
-
-	Hooks::Install();
 
 	return true;
 }

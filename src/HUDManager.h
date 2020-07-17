@@ -14,7 +14,7 @@ public:
 		Handler<241857>::Install();	 // TESNPC
 		Handler<234000>::Install();	 // TESObjectACTI
 		Handler<234148>::Install();	 // TESObjectCONT
-		_MESSAGE("Installed %s", typeid(HUDManager).name());
+		logger::info("Installed {}"sv, typeid(HUDManager).name());
 	}
 
 	inline void Enable() noexcept { _enabled = true; }
@@ -29,7 +29,7 @@ protected:
 		{
 			REL::Offset<std::uintptr_t> vtbl = REL::ID(ID);
 			_func = vtbl.write_vfunc(0x4C, GetActivateText);
-			_MESSAGE("Installed %s", typeid(Handler).name());
+			logger::info("Installed {}"sv, typeid(Handler).name());
 		}
 
 	private:
