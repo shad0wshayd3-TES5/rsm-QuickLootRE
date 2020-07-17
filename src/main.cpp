@@ -97,7 +97,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 	try {
-		auto path = logger::log_directory() / "ExampleProject.log";
+		auto path = logger::log_directory() / "QuicklootRE.log";
 		auto log = spdlog::basic_logger_mt("global log", path.string(), true);
 		log->flush_on(spdlog::level::warn);
 
