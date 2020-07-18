@@ -20,7 +20,7 @@ namespace Scaleform
 
 	public:
 		static constexpr std::string_view MenuName() noexcept { return MENU_NAME; }
-		static constexpr SInt8 SortPriority() noexcept { return SORT_PRIORITY; }
+		static constexpr std::int8_t SortPriority() noexcept { return SORT_PRIORITY; }
 
 		static inline void Register()
 		{
@@ -114,6 +114,16 @@ namespace Scaleform
 				if (dst) {
 					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
 				}
+
+#if 0  // TODO: handle activating containers
+				auto src = _src.get();
+				if (src && dst) {
+					auto events = RE::ScriptEventSourceHolder::GetSingleton();
+					events->SendActivateEvent(src, dst);
+					events->SendOpenCloseEvent(src, dst, true);
+					events->SendOpenCloseEvent(src, dst, false);
+				}
+#endif
 			}
 
 			QueueInventoryRefresh();
@@ -160,7 +170,7 @@ namespace Scaleform
 		{
 			using Type = RE::UI_MESSAGE_TYPE;
 
-			switch (a_message.type) {
+			switch (*a_message.type) {
 			case Type::kHide:
 				OnClose();
 				return UIResult::kHandled;
@@ -169,7 +179,7 @@ namespace Scaleform
 			}
 		}
 
-		inline void AdvanceMovie(float a_interval, UInt32 a_currentTime) override
+		inline void AdvanceMovie(float a_interval, std::uint32_t a_currentTime) override
 		{
 			auto src = _src.get();
 			if (!src || src->IsActivationBlocked()) {
@@ -199,7 +209,7 @@ namespace Scaleform
 
 				std::va_list args;
 				va_copy(args, a_argList);
-				std::vector<char> buf(std::vsnprintf(0, 0, fmt.c_str(), a_argList) + 1);
+				std::vector<char> buf(static_cast<std::size_t>(std::vsnprintf(0, 0, fmt.c_str(), a_argList) + 1));
 				std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
 				va_end(args);
 
@@ -295,7 +305,9 @@ namespace Scaleform
 			AdjustPosition();
 
 			_title.AutoSize(CLIK::Object{ "left" });
+			_title.Visible(false);
 			_weight.AutoSize(CLIK::Object{ "left" });
+			_weight.Visible(false);
 
 			_view->CreateArray(std::addressof(_itemListProvider));
 			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
@@ -369,7 +381,7 @@ namespace Scaleform
 
 				RE::GFxValue obj;
 				_view->CreateObject(std::addressof(obj));
-				obj.SetMember("label", { label });
+				obj.SetMember("label", { static_cast<std::string_view>(label) });
 				obj.SetMember("index", { index });
 				obj.SetMember("doColor", { doColor });
 				_buttonBarProvider.PushBack(obj);
@@ -384,6 +396,7 @@ namespace Scaleform
 				_title.HTMLText(
 					safe_string(
 						src->GetDisplayFullName()));
+				_title.Visible(true);
 			}
 		}
 
@@ -399,6 +412,7 @@ namespace Scaleform
 				text += " / ";
 				text += std::to_string(carryWeight);
 				_weight.HTMLText(text);
+				_weight.Visible(true);
 			}
 		}
 
@@ -411,7 +425,7 @@ namespace Scaleform
 
 		static constexpr std::string_view FILE_NAME{ "LootMenu" };
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };
-		static constexpr SInt8 SORT_PRIORITY{ 3 };
+		static constexpr std::int8_t SORT_PRIORITY{ 3 };
 
 		RE::GPtr<RE::GFxMovieView> _view;
 		RE::ActorHandle _dst{ RE::PlayerCharacter::GetSingleton() };

@@ -95,7 +95,7 @@ namespace Animation
 
 		inline void DoInstall()
 		{
-			assert(EVENTS.size() == to_underlying(Type::kTotal));
+			assert(EVENTS.size() == static_cast<std::size_t>(to_underlying(Type::kTotal)));
 
 			auto handlers = RE::ResponseDictionary::GetSingleton();
 			RE::BSSpinLockGuard locker(handlers->definitionLock);
@@ -105,7 +105,7 @@ namespace Animation
 			if (it != definitions.end() && it->second) {
 				auto animResponse = it->second;
 				for (auto i = static_cast<Type>(0); i < Type::kTotal; ++i) {
-					RE::BSFixedString anim{ EVENTS[to_underlying(i)] };
+					RE::BSFixedString anim{ EVENTS[static_cast<std::size_t>(to_underlying(i))] };
 					auto original = animResponse->GetHandler(anim);
 					animResponse->handlerMap.insert_or_assign(
 						{ std::move(anim),
@@ -119,7 +119,7 @@ namespace Animation
 			logger::info("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
-		static constexpr std::array EVENTS = {
+		static constexpr std::array EVENTS{
 			"KillMoveStart"sv,
 			"KillMoveEnd"sv,
 		};

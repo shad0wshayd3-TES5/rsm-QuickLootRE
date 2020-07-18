@@ -447,7 +447,7 @@ namespace Items
 		{
 			RE::GFxValue value;
 			a_view.CreateObject(std::addressof(value));
-			value.SetMember("displayName", { _displayName });
+			value.SetMember("displayName", { static_cast<std::string_view>(_displayName) });
 			value.SetMember("count", { _count });
 			value.SetMember("doColor", { a_stealing ? true : IsStolen() });
 			if (_enchantmentCharge) {

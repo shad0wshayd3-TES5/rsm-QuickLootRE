@@ -40,6 +40,7 @@ using RE::observer;
 using RE::owner;
 
 using namespace std::literals;
+using namespace SKSE::util;
 
 namespace logger = SKSE::log;
 

@@ -31,7 +31,7 @@ namespace Events
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 
-		inline EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override
+		inline EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*) override
 		{
 			auto crosshairRef =
 				a_event && a_event->crosshairRef ?

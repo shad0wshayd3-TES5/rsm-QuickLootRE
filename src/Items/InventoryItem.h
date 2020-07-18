@@ -63,27 +63,27 @@ namespace Items
 			const auto object = _entry->GetObject();
 			a_dst.PlayPickUpSound(object, true, false);
 			const auto remove =
-				[&](SInt32 a_num, RE::ExtraDataList* a_extraList, RE::ITEM_REMOVE_REASON a_reason) {
+				[&](std::int32_t a_num, RE::ExtraDataList* a_extraList, RE::ITEM_REMOVE_REASON a_reason) {
 					container->RemoveItem(object, a_num, a_reason, a_extraList, std::addressof(a_dst));
 				};
 
 			std::function action =
-				[&](SInt32 a_num, RE::ExtraDataList* a_extraList) {
+				[&](std::int32_t a_num, RE::ExtraDataList* a_extraList) {
 					remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kRemove);
 				};
 			if (a_dst.WouldBeStealing(container.get())) {
 				action =
-					[&](SInt32 a_num, RE::ExtraDataList* a_extraList) {
+					[&](std::int32_t a_num, RE::ExtraDataList* a_extraList) {
 						remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kSteal);
-						a_dst.StealAlarm(container.get(), object, a_num, Value(), container->GetOwner(), true);
+						a_dst.StealAlarm(container.get(), object, a_num, static_cast<std::int32_t>(Value()), container->GetOwner(), true);
 					};
 			}
 
 			for (const auto& [xList, count] : queued) {
-				action(static_cast<SInt32>(count), xList);
+				action(static_cast<std::int32_t>(count), xList);
 			}
 			if (toRemove > 0) {
-				action(static_cast<SInt32>(toRemove), nullptr);
+				action(static_cast<std::int32_t>(toRemove), nullptr);
 			}
 		}
 

@@ -70,7 +70,7 @@ namespace Input
 		class IDCodeMap
 		{
 		public:
-			using value_type = UInt32;
+			using value_type = std::uint32_t;
 
 			inline IDCodeMap() :
 				_mappings{}
@@ -147,7 +147,7 @@ namespace Input
 				}
 			};
 
-			for_each([](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
+			for_each([](RE::ControlMap::UserEventMapping& a_mapping, std::size_t) {
 				a_mapping.userEventGroupFlag &= ~QUICKLOOT_FLAG;
 			});
 
@@ -170,7 +170,7 @@ namespace Input
 	class ControlMap
 	{
 	public:
-		[[nodiscard]] inline UInt32 operator()(std::string_view a_userEvent) const
+		[[nodiscard]] inline std::uint32_t operator()(std::string_view a_userEvent) const
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
 			if (!input) {
@@ -186,7 +186,7 @@ namespace Input
 		}
 
 	private:
-		static constexpr UInt32 INVALID = 282;	// ???
+		static constexpr std::uint32_t INVALID = 282;  // ???
 
 		template <class T, std::size_t N>
 		struct simple_array
@@ -194,7 +194,7 @@ namespace Input
 			T c[N];
 		};
 
-		[[nodiscard]] inline UInt32 MapGamepad(std::string_view a_userEvent) const
+		[[nodiscard]] inline std::uint32_t MapGamepad(std::string_view a_userEvent) const
 		{
 			using Key = RE::BSWin32GamepadDevice::Keys;
 
@@ -215,8 +215,8 @@ namespace Input
 				};
 
 				const auto assign = [](auto&& a_elem, auto&& a_first, auto&& a_second) noexcept {
-					a_elem.first = a_first;
-					a_elem.second = a_second;
+					a_elem.first = static_cast<std::uint32_t>(a_first);
+					a_elem.second = static_cast<std::uint32_t>(a_second);
 				};
 
 				constexpr auto N = []() noexcept {
@@ -225,7 +225,7 @@ namespace Input
 					return size + 4 + 2;
 				}();
 
-				simple_array<std::pair<UInt32, UInt32>, N> arr{};
+				simple_array<std::pair<std::uint32_t, std::uint32_t>, N> arr{};
 				std::size_t idx = 0;
 				std::size_t frame = 266;
 				for (std::size_t key = Key::kUp; key <= Key::kRightShoulder; key <<= 1) {
@@ -248,7 +248,7 @@ namespace Input
 			return it != mappings.end() ? it->second : INVALID;
 		}
 
-		[[nodiscard]] inline UInt32 MapKeyboard(std::string_view a_userEvent) const
+		[[nodiscard]] inline std::uint32_t MapKeyboard(std::string_view a_userEvent) const
 		{
 			using Key = RE::BSKeyboardDevice::Keys;
 
@@ -258,13 +258,13 @@ namespace Input
 			}
 
 			constexpr auto mappings = []() noexcept {
-				const auto validate_range = [](auto&& mappings, UInt32 a_begin, UInt32 a_end) noexcept {
+				const auto validate_range = [](auto&& mappings, std::uint32_t a_begin, std::uint32_t a_end) noexcept {
 					for (auto i = a_begin; i <= a_end; ++i) {
 						mappings[i] = i;
 					}
 				};
 
-				std::array<UInt32, Key::kDelete + 1> arr{ INVALID };
+				std::array<std::uint32_t, Key::kDelete + 1> arr{ INVALID };
 				validate_range(arr, Key::kEscape, Key::kKP_Decimal);
 				validate_range(arr, Key::kF11, Key::kF12);
 				validate_range(arr, Key::kKP_Enter, Key::kRightControl);
@@ -283,7 +283,7 @@ namespace Input
 			return key <= mappings.size() ? mappings[key] : INVALID;
 		}
 
-		[[nodiscard]] inline UInt32 MapMouse(std::string_view a_userEvent) const
+		[[nodiscard]] inline std::uint32_t MapMouse(std::string_view a_userEvent) const
 		{
 			using Key = RE::BSWin32MouseDevice::Keys;
 
@@ -293,7 +293,7 @@ namespace Input
 			}
 
 			constexpr auto mappings = []() noexcept {
-				std::array<std::pair<UInt32, UInt32>, Key::kWheelDown + 1> arr{};
+				std::array<std::pair<std::uint32_t, std::uint32_t>, Key::kWheelDown + 1> arr{};
 				for (auto i = Key::kLeftButton; i <= Key::kWheelDown; ++i) {
 					arr[i].first = i;
 					arr[i].second = i + 256;
