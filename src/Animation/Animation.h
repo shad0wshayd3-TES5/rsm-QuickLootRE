@@ -2,7 +2,7 @@
 
 namespace Animation
 {
-	enum class Type
+	enum class Type : std::size_t
 	{
 		kKillMoveStart,
 		kKillMoveEnd,
@@ -95,7 +95,7 @@ namespace Animation
 
 		inline void DoInstall()
 		{
-			assert(EVENTS.size() == static_cast<std::size_t>(to_underlying(Type::kTotal)));
+			assert(EVENTS.size() == stl::to_underlying(Type::kTotal));
 
 			auto handlers = RE::ResponseDictionary::GetSingleton();
 			RE::BSSpinLockGuard locker(handlers->definitionLock);
@@ -104,13 +104,13 @@ namespace Animation
 			auto it = definitions.find("PlayerCharacterResponse"sv);
 			if (it != definitions.end() && it->second) {
 				auto animResponse = it->second;
-				for (auto i = static_cast<Type>(0); i < Type::kTotal; ++i) {
-					RE::BSFixedString anim{ EVENTS[static_cast<std::size_t>(to_underlying(i))] };
+				for (stl::enumeration i = static_cast<Type>(0); i < Type::kTotal; ++i) {
+					RE::BSFixedString anim{ EVENTS[i.underlying()] };
 					auto original = animResponse->GetHandler(anim);
 					animResponse->handlerMap.insert_or_assign(
 						{ std::move(anim),
 							RE::make_smart<AnimHandler>(
-								std::move(original), i) });
+								std::move(original), *i) });
 				}
 			} else {
 				assert(false);

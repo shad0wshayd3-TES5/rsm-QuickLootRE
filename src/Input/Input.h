@@ -148,7 +148,7 @@ namespace Input
 			};
 
 			for_each([](RE::ControlMap::UserEventMapping& a_mapping, std::size_t) {
-				a_mapping.userEventGroupFlag &= ~QUICKLOOT_FLAG;
+				a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
 			});
 
 			UserEventMap eventMap;
@@ -156,8 +156,8 @@ namespace Input
 
 			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
 				if (eventMap(a_device, a_mapping.eventID) || idMap(a_device, a_mapping.inputKey)) {
-					a_mapping.userEventGroupFlag &= ~RE::UserEvents::USER_EVENT_FLAG::kInvalid;
-					a_mapping.userEventGroupFlag |= QUICKLOOT_FLAG;
+					a_mapping.userEventGroupFlag.reset(RE::UserEvents::USER_EVENT_FLAG::kInvalid);
+					a_mapping.userEventGroupFlag.set(QUICKLOOT_FLAG);
 				}
 			});
 
@@ -294,7 +294,7 @@ namespace Input
 
 			constexpr auto mappings = []() noexcept {
 				std::array<std::pair<std::uint32_t, std::uint32_t>, Key::kWheelDown + 1> arr{};
-				for (auto i = Key::kLeftButton; i <= Key::kWheelDown; ++i) {
+				for (std::uint32_t i = Key::kLeftButton; i <= Key::kWheelDown; ++i) {
 					arr[i].first = i;
 					arr[i].second = i + 256;
 				}

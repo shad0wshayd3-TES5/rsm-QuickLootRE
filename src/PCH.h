@@ -40,12 +40,15 @@ using RE::observer;
 using RE::owner;
 
 using namespace std::literals;
-using namespace SKSE::util;
 
 namespace logger = SKSE::log;
 
 namespace stl
 {
+	using namespace SKSE::stl;
+
+	using SKSE::util::to_underlying;
+
 	namespace detail
 	{
 		template <class, class = void>
@@ -88,8 +91,6 @@ namespace stl
 	{
 		return N;
 	}
-
-	using nonstd::span;
 }
 
 constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""sv; }
