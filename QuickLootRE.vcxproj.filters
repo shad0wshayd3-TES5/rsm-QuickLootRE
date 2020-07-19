@@ -33,7 +33,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ContainerHandler.cpp">
+    <ClCompile Include="src\ContainerChangedHandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Events\Events.cpp">
@@ -104,7 +104,7 @@
     <ClInclude Include="src\CLIK\TextField.h">
       <Filter>src\CLIK</Filter>
     </ClInclude>
-    <ClInclude Include="src\ContainerHandler.h">
+    <ClInclude Include="src\ContainerChangedHandler.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Events\Events.h">
@@ -138,6 +138,9 @@
       <Filter>src\Items</Filter>
     </ClInclude>
     <ClInclude Include="src\Loot.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenCloseHandler.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\PCH.h">

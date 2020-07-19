@@ -4,10 +4,11 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
-#include "ContainerHandler.h"
+#include "ContainerChangedHandler.h"
 #include "Items/GroundItems.h"
 #include "Items/InventoryItem.h"
 #include "Items/Item.h"
+#include "OpenCloseHandler.h"
 #include "ViewHandler.h"
 
 namespace Scaleform
@@ -56,7 +57,8 @@ namespace Scaleform
 		{
 			assert(a_ref);
 			_src = a_ref;
-			_containerHandler.emplace(_src);
+			_containerChangedHandler.SetContainer(a_ref);
+			_openCloseHandler.SetSource(a_ref);
 			UpdateTitle();
 			UpdateButtonBar();
 		}
@@ -113,17 +115,17 @@ namespace Scaleform
 				auto dst = _dst.get();
 				if (dst) {
 					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
-				}
-
+					_openCloseHandler.Open();
 #if 0  // TODO: handle activating containers
-				auto src = _src.get();
-				if (src && dst) {
-					auto events = RE::ScriptEventSourceHolder::GetSingleton();
-					events->SendActivateEvent(src, dst);
-					events->SendOpenCloseEvent(src, dst, true);
-					events->SendOpenCloseEvent(src, dst, false);
-				}
+					auto src = _src.get();
+					if (src && dst) {
+						auto events = RE::ScriptEventSourceHolder::GetSingleton();
+						events->SendActivateEvent(src, dst);
+						events->SendOpenCloseEvent(src, dst, true);
+						events->SendOpenCloseEvent(src, dst, false);
+					}
 #endif
+				}
 			}
 
 			QueueInventoryRefresh();
@@ -430,14 +432,19 @@ namespace Scaleform
 		RE::GPtr<RE::GFxMovieView> _view;
 		RE::ActorHandle _dst{ RE::PlayerCharacter::GetSingleton() };
 		RE::ObjectRefHandle _src;
+
 		std::optional<ViewHandler> _viewHandler;
-		std::optional<ContainerHandler> _containerHandler;
+		ContainerChangedHandler _containerChangedHandler;
+		OpenCloseHandler _openCloseHandler{ _dst };
+
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _title;
 		CLIK::TextField _weight;
+
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;
+
 		CLIK::GFx::Controls::ButtonBar _buttonBar;
 		RE::GFxValue _buttonBarProvider;
 	};

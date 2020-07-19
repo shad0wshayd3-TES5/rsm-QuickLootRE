@@ -211,7 +211,7 @@ copy "$(TargetDir)$(TargetName).pdb" "$(Skyrim64Path)\Data\SKSE\Plugins\$(Target
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\ContainerHandler.cpp" />
+    <ClCompile Include="src\ContainerChangedHandler.cpp" />
     <ClCompile Include="src\Events\Events.cpp" />
     <ClCompile Include="src\Hooks.cpp" />
     <ClCompile Include="src\Input\InputListeners.cpp" />
@@ -245,7 +245,7 @@ copy "$(TargetDir)$(TargetName).pdb" "$(Skyrim64Path)\Data\SKSE\Plugins\$(Target
     <ClInclude Include="src\CLIK\MovieClip.h" />
     <ClInclude Include="src\CLIK\Object.h" />
     <ClInclude Include="src\CLIK\TextField.h" />
-    <ClInclude Include="src\ContainerHandler.h" />
+    <ClInclude Include="src\ContainerChangedHandler.h" />
     <ClInclude Include="src\Events\Events.h" />
     <ClInclude Include="src\Hooks.h" />
     <ClInclude Include="src\HUDManager.h" />
@@ -257,6 +257,7 @@ copy "$(TargetDir)$(TargetName).pdb" "$(Skyrim64Path)\Data\SKSE\Plugins\$(Target
     <ClInclude Include="src\Items\InventoryItem.h" />
     <ClInclude Include="src\Items\Item.h" />
     <ClInclude Include="src\Loot.h" />
+    <ClInclude Include="src\OpenCloseHandler.h" />
     <ClInclude Include="src\PCH.h" />
     <ClInclude Include="src\Scaleform\LootMenu.h" />
     <ClInclude Include="src\Scaleform\Scaleform.h" />

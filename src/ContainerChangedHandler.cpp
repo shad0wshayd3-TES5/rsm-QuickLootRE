@@ -1,8 +1,8 @@
-#include "ContainerHandler.h"
+#include "ContainerChangedHandler.h"
 
 #include "Loot.h"
 
-auto ContainerHandler::ProcessEvent(const RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>*)
+auto ContainerChangedHandler::ProcessEvent(const RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>*)
 	-> EventResult
 {
 	auto container = _container.get();

@@ -1,24 +1,25 @@
 #pragma once
 
-class ContainerHandler :
+class ContainerChangedHandler :
 	public RE::BSTEventSink<RE::TESContainerChangedEvent>
 {
 public:
-	ContainerHandler() = delete;
-	ContainerHandler(const ContainerHandler&) = default;
-	ContainerHandler(ContainerHandler&&) = default;
+	ContainerChangedHandler() = default;
+	ContainerChangedHandler(const ContainerChangedHandler&) = default;
+	ContainerChangedHandler(ContainerChangedHandler&&) = default;
 
-	inline ContainerHandler(RE::ObjectRefHandle a_container) :
+	inline ContainerChangedHandler(RE::ObjectRefHandle a_container) :
 		_container(a_container)
 	{
-		assert(_container);
 		Register();
 	}
 
-	inline ~ContainerHandler() { Unregister(); }
+	inline ~ContainerChangedHandler() { Unregister(); }
 
-	ContainerHandler& operator=(const ContainerHandler&) = default;
-	ContainerHandler& operator=(ContainerHandler&&) = default;
+	ContainerChangedHandler& operator=(const ContainerChangedHandler&) = default;
+	ContainerChangedHandler& operator=(ContainerChangedHandler&&) = default;
+
+	inline void SetContainer(RE::ObjectRefHandle a_container) { _container = a_container; }
 
 protected:
 	using EventResult = RE::BSEventNotifyControl;
