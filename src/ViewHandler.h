@@ -42,20 +42,9 @@ protected:
 		return EventResult::kContinue;
 	}
 
-	inline void ProcessEvent(Animation::Type a_type) override
+	inline void OnAnimationChange(bool a_animating) override
 	{
-		switch (a_type) {
-		case Animation::Type::kKillMoveStart:
-			_activeAnimations.set(kKillMove, true);
-			break;
-		case Animation::Type::kKillMoveEnd:
-			_activeAnimations.set(kKillMove, false);
-			break;
-		default:
-			assert(false);
-			break;
-		}
-
+		_animating = a_animating;
 		Evaluate();
 	}
 
@@ -64,12 +53,6 @@ private:
 	{
 		kDefault,
 		kLowest
-	};
-
-	enum Anim : std::size_t
-	{
-		kKillMove,
-		kTotal
 	};
 
 	inline void Register()
@@ -81,6 +64,7 @@ private:
 
 		auto animSrc = Animation::AnimationManager::GetSingleton();
 		animSrc->SetEventSink(this);
+		_animating = animSrc->IsAnimating();
 	}
 
 	inline void Unregister()
@@ -97,9 +81,11 @@ private:
 	inline void Evaluate()
 	{
 		auto controlMap = RE::ControlMap::GetSingleton();
-		if (controlMap) {
+		auto menuControls = RE::MenuControls::GetSingleton();
+		if (controlMap && menuControls) {
 			const auto& priorityStack = controlMap->contextPriorityStack;
-			if (_activeAnimations.any() ||
+			if (_animating ||
+				menuControls->InBeastForm() ||
 				priorityStack.empty() ||
 				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay) {
 				Disable();
@@ -143,8 +129,8 @@ private:
 
 	observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;
-	std::bitset<Anim::kTotal> _activeAnimations;
 	Input::Disablers _disablers;
 	Input::Listeners _listeners;
+	bool _animating{ false };
 	bool _enabled{ false };
 };

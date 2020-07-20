@@ -2,22 +2,15 @@
 
 namespace Animation
 {
-	enum class Type : std::size_t
-	{
-		kKillMoveStart,
-		kKillMoveEnd,
-		kTotal
-	};
-
 	class IEventSink
 	{
 	public:
 		virtual ~IEventSink() = default;
 
-		inline void operator()(Type a_type) { ProcessEvent(a_type); }
+		inline void operator()(bool a_animating) { OnAnimationChange(a_animating); }
 
 	protected:
-		virtual void ProcessEvent(Type a_type) = 0;
+		virtual void OnAnimationChange(bool a_animating) = 0;
 	};
 
 	class AnimationManager
@@ -37,6 +30,8 @@ namespace Animation
 
 		constexpr void SetEventSink(observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
 
+		[[nodiscard]] inline bool IsAnimating() const noexcept { return _activeAnimations.any(); }
+
 	protected:
 		class AnimHandler :
 			public RE::IHandlerFunctor<RE::Actor, RE::BSFixedString>
@@ -47,41 +42,41 @@ namespace Animation
 		public:
 			AnimHandler() = delete;
 
-			AnimHandler(RE::BSTSmartPointer<super> a_original, Type a_type) :
+			inline AnimHandler(RE::BSTSmartPointer<super> a_original, std::size_t a_idx, bool a_active) :
 				super(),
 				_original(std::move(a_original)),
-				_type(a_type)
+				_idx(a_idx),
+				_active(a_active)
 			{}
 
-			bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
+			inline bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
 			{
 				auto manager = AnimationManager::GetSingleton();
-				manager->SendEvent(_type);
+				manager->OnAnimationChange(_idx, _active);
 
 				return _original ? (*_original)(a_handler, a_parameter) : true;
 			}
 
 		private:
 			RE::BSTSmartPointer<super> _original;
-			const Type _type;
+			const std::size_t _idx;
+			const bool _active;
 		};
 
-		void SendEvent(Type a_type)
+		inline void OnAnimationChange(std::size_t a_idx, bool a_active)
 		{
+			_activeAnimations.set(a_idx, a_active);
 			if (_sink) {
-				(*_sink)(a_type);
+				(*_sink)(_activeAnimations.any());
 			}
 		}
 
 	private:
-		struct CICompare
+		enum : std::size_t
 		{
-			using value_type = std::string_view;
-
-			[[nodiscard]] inline bool operator()(const value_type& a_lhs, const value_type& a_rhs) const
-			{
-				return _stricmp(a_lhs.data(), a_rhs.data()) < 0;
-			}
+			kKillMove,
+			kAnimatedCamera,
+			kTotal
 		};
 
 		AnimationManager() = default;
@@ -95,7 +90,7 @@ namespace Animation
 
 		inline void DoInstall()
 		{
-			assert(EVENTS.size() == stl::to_underlying(Type::kTotal));
+			assert(EVENTS.size() == kTotal);
 
 			auto handlers = RE::ResponseDictionary::GetSingleton();
 			RE::BSSpinLockGuard locker(handlers->definitionLock);
@@ -104,13 +99,9 @@ namespace Animation
 			auto it = definitions.find("PlayerCharacterResponse"sv);
 			if (it != definitions.end() && it->second) {
 				auto animResponse = it->second;
-				for (stl::enumeration i = static_cast<Type>(0); i < Type::kTotal; ++i) {
-					RE::BSFixedString anim{ EVENTS[i.underlying()] };
-					auto original = animResponse->GetHandler(anim);
-					animResponse->handlerMap.insert_or_assign(
-						{ std::move(anim),
-							RE::make_smart<AnimHandler>(
-								std::move(original), *i) });
+				for (std::size_t i = 0; i < kTotal; ++i) {
+					InjectHandler(*animResponse, EVENTS[i].first, i, true);
+					InjectHandler(*animResponse, EVENTS[i].second, i, false);
 				}
 			} else {
 				assert(false);
@@ -119,11 +110,22 @@ namespace Animation
 			logger::info("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
+		inline void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation, std::size_t a_idx, bool a_active)
+		{
+			const RE::BSFixedString anim(a_animation);
+			auto original = a_response.GetHandler(anim);
+			a_response.handlerMap.insert_or_assign(
+				{ std::move(anim),
+					RE::make_smart<AnimHandler>(
+						std::move(original), a_idx, a_active) });
+		}
+
 		static constexpr std::array EVENTS{
-			"KillMoveStart"sv,
-			"KillMoveEnd"sv,
+			std::make_pair("KillMoveStart"sv, "KillMoveEnd"sv),
+			std::make_pair("StartAnimatedCamera"sv, "EndAnimatedCamera"sv)
 		};
 
+		std::bitset<kTotal> _activeAnimations;
 		observer<IEventSink*> _sink{ nullptr };
 	};
 }

@@ -35,9 +35,9 @@ protected:
 			return EventResult::kContinue;
 		}
 
-		auto uiStr = RE::InterfaceStrings::GetSingleton();
+		auto intfcStr = RE::InterfaceStrings::GetSingleton();
 		auto ui = RE::UI::GetSingleton();
-		if (ui->IsMenuOpen(uiStr->console)) {
+		if (ui->IsMenuOpen(intfcStr->console)) {
 			return EventResult::kContinue;
 		}
 
@@ -97,42 +97,46 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 	try {
-		auto path = logger::log_directory() / "QuicklootRE.log";
-		auto log = spdlog::basic_logger_mt("global log", path.string(), true);
-		log->flush_on(spdlog::level::warn);
-
 #ifndef NDEBUG
-		log->set_level(spdlog::level::debug);
-		log->sinks().push_back(std::make_shared<spdlog::sinks::msvc_sink_mt>());
+		auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 #else
-		log->set_level(spdlog::level::info);
-
+		auto path = logger::log_directory() / "QuicklootRE.log"sv;
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
 #endif
 
-		spdlog::set_default_logger(log);
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+
+#ifndef NDEBUG
+		log->set_level(spdlog::level::trace);
+#else
+		log->set_level(spdlog::level::info);
+		log->flush_on(spdlog::level::warn);
+#endif
+
+		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("%g(%#): [%l] %v");
 
-		logger::info("QuickLootRE v{}", QKLT_VERSION_VERSTRING);
+		logger::info("QuickLootRE v{}"sv, QKLT_VERSION_VERSTRING);
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "QuickLootRE";
 		a_info->version = QKLT_VERSION_MAJOR;
 
 		if (a_skse->IsEditor()) {
-			logger::critical("Loaded in editor, marking as incompatible");
+			logger::critical("Loaded in editor, marking as incompatible"sv);
 			return false;
 		}
 
 		const auto ver = a_skse->RuntimeVersion();
 		if (ver < SKSE::RUNTIME_1_5_39) {
-			logger::critical("Unsupported runtime version {}", ver.GetString().c_str());
+			logger::critical("Unsupported runtime version {}"sv, ver.GetString().c_str());
 			return false;
 		}
 	} catch (const std::exception& e) {
 		logger::critical(e.what());
 		return false;
 	} catch (...) {
-		logger::critical("caught unknown exception");
+		logger::critical("caught unknown exception"sv);
 		return false;
 	}
 
@@ -142,7 +146,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	try {
-		logger::info("QuickLootRE loaded");
+		logger::info("QuickLootRE loaded"sv);
 
 		if (!SKSE::Init(a_skse)) {
 			return false;
@@ -162,7 +166,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		logger::critical(e.what());
 		return false;
 	} catch (...) {
-		logger::critical("caught unknown exception");
+		logger::critical("caught unknown exception"sv);
 		return false;
 	}
 
