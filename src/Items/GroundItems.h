@@ -4,7 +4,7 @@
 
 namespace Items
 {
-	class GroundItems :
+	class GroundItems final :
 		public Item
 	{
 	private:

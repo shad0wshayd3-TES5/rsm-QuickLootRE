@@ -7,10 +7,10 @@ namespace Animation
 	public:
 		virtual ~IEventSink() = default;
 
-		inline void operator()(bool a_animating) { OnAnimationChange(a_animating); }
+		inline void operator()() { OnAnimationEvent(); }
 
 	protected:
-		virtual void OnAnimationChange(bool a_animating) = 0;
+		virtual void OnAnimationEvent() = 0;
 	};
 
 	class AnimationManager
@@ -30,8 +30,6 @@ namespace Animation
 
 		constexpr void SetEventSink(observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
 
-		[[nodiscard]] inline bool IsAnimating() const noexcept { return _activeAnimations.any(); }
-
 	protected:
 		class AnimHandler :
 			public RE::IHandlerFunctor<RE::Actor, RE::BSFixedString>
@@ -42,43 +40,31 @@ namespace Animation
 		public:
 			AnimHandler() = delete;
 
-			inline AnimHandler(RE::BSTSmartPointer<super> a_original, std::size_t a_idx, bool a_active) :
+			inline AnimHandler(RE::BSTSmartPointer<super> a_original) :
 				super(),
-				_original(std::move(a_original)),
-				_idx(a_idx),
-				_active(a_active)
+				_original(std::move(a_original))
 			{}
 
 			inline bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
 			{
 				auto manager = AnimationManager::GetSingleton();
-				manager->OnAnimationChange(_idx, _active);
+				manager->OnAnimationEvent();
 
 				return _original ? (*_original)(a_handler, a_parameter) : true;
 			}
 
 		private:
 			RE::BSTSmartPointer<super> _original;
-			const std::size_t _idx;
-			const bool _active;
 		};
 
-		inline void OnAnimationChange(std::size_t a_idx, bool a_active)
+		inline void OnAnimationEvent()
 		{
-			_activeAnimations.set(a_idx, a_active);
 			if (_sink) {
-				(*_sink)(_activeAnimations.any());
+				(*_sink)();
 			}
 		}
 
 	private:
-		enum : std::size_t
-		{
-			kKillMove,
-			kAnimatedCamera,
-			kTotal
-		};
-
 		AnimationManager() = default;
 		AnimationManager(const AnimationManager&) = delete;
 		AnimationManager(AnimationManager&&) = delete;
@@ -90,8 +76,6 @@ namespace Animation
 
 		inline void DoInstall()
 		{
-			assert(EVENTS.size() == kTotal);
-
 			auto handlers = RE::ResponseDictionary::GetSingleton();
 			RE::BSSpinLockGuard locker(handlers->definitionLock);
 			auto& definitions = handlers->objectDefinitions;
@@ -99,9 +83,8 @@ namespace Animation
 			auto it = definitions.find("PlayerCharacterResponse"sv);
 			if (it != definitions.end() && it->second) {
 				auto animResponse = it->second;
-				for (std::size_t i = 0; i < kTotal; ++i) {
-					InjectHandler(*animResponse, EVENTS[i].first, i, true);
-					InjectHandler(*animResponse, EVENTS[i].second, i, false);
+				for (const auto& event : EVENTS) {
+					InjectHandler(*animResponse, event);
 				}
 			} else {
 				assert(false);
@@ -110,22 +93,22 @@ namespace Animation
 			logger::info("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
-		inline void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation, std::size_t a_idx, bool a_active)
+		inline void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation)
 		{
 			const RE::BSFixedString anim(a_animation);
 			auto original = a_response.GetHandler(anim);
 			a_response.handlerMap.insert_or_assign(
 				{ std::move(anim),
-					RE::make_smart<AnimHandler>(
-						std::move(original), a_idx, a_active) });
+					RE::make_smart<AnimHandler>(std::move(original)) });
 		}
 
 		static constexpr std::array EVENTS{
-			std::make_pair("KillMoveStart"sv, "KillMoveEnd"sv),
-			std::make_pair("StartAnimatedCamera"sv, "EndAnimatedCamera"sv)
+			"KillMoveStart"sv,
+			"KillMoveEnd"sv,
+			"StartAnimatedCamera"sv,
+			"EndAnimatedCamera"sv
 		};
 
-		std::bitset<kTotal> _activeAnimations;
 		observer<IEventSink*> _sink{ nullptr };
 	};
 }

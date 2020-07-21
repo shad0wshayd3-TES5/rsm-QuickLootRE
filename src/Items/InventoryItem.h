@@ -4,7 +4,7 @@
 
 namespace Items
 {
-	class InventoryItem :
+	class InventoryItem final :
 		public Item
 	{
 	private:
@@ -39,29 +39,11 @@ namespace Items
 				return;
 			}
 
-			auto toRemove = std::clamp<std::ptrdiff_t>(a_count, 0, Count());
-			if (toRemove <= 0) {
-				assert(false);
-				return;
-			}
-
-			std::vector<std::pair<RE::ExtraDataList*, std::ptrdiff_t>> queued;
-			if (_entry->extraLists) {
-				for (auto& xList : *_entry->extraLists) {
-					if (xList) {
-						const auto xCount = std::clamp<std::ptrdiff_t>(xList->GetCount(), 1, toRemove);
-						toRemove -= xCount;
-						queued.emplace_back(xList, xCount);
-
-						if (toRemove <= 0) {
-							break;
-						}
-					}
-				}
-			}
+			const auto [leftover, queued] = GetItemsToRemove(a_count);
 
 			const auto object = _entry->GetObject();
 			a_dst.PlayPickUpSound(object, true, false);
+			TryRemoveArrows3D(*container, *object);
 			const auto remove =
 				[&](std::int32_t a_num, RE::ExtraDataList* a_extraList, RE::ITEM_REMOVE_REASON a_reason) {
 					container->RemoveItem(object, a_num, a_reason, a_extraList, std::addressof(a_dst));
@@ -82,12 +64,43 @@ namespace Items
 			for (const auto& [xList, count] : queued) {
 				action(static_cast<std::int32_t>(count), xList);
 			}
-			if (toRemove > 0) {
-				action(static_cast<std::int32_t>(toRemove), nullptr);
+
+			if (leftover > 0) {
+				action(static_cast<std::int32_t>(leftover), nullptr);
 			}
 		}
 
 	private:
+		static inline void TryRemoveArrows3D(RE::TESObjectREFR& a_container, const RE::TESBoundObject& a_object)
+		{
+			if (a_object.IsAmmo() && a_container.Is(RE::FormType::ActorCharacter)) {
+				auto& container = static_cast<RE::Actor&>(a_container);
+				container.RemoveExtraArrows3D();
+			}
+		}
+
+		inline auto GetItemsToRemove(std::ptrdiff_t a_count)
+			-> std::pair<std::ptrdiff_t, std::vector<std::pair<RE::ExtraDataList*, std::ptrdiff_t>>>
+		{
+			std::vector<std::pair<RE::ExtraDataList*, std::ptrdiff_t>> queued;
+			auto toRemove = std::clamp<std::ptrdiff_t>(a_count, 0, Count());
+			if (toRemove > 0 && _entry->extraLists) {
+				for (auto& xList : *_entry->extraLists) {
+					if (xList) {
+						const auto xCount = std::clamp<std::ptrdiff_t>(xList->GetCount(), 1, toRemove);
+						toRemove -= xCount;
+						queued.emplace_back(xList, xCount);
+
+						if (toRemove <= 0) {
+							break;
+						}
+					}
+				}
+			}
+
+			return { toRemove, std::move(queued) };
+		}
+
 		std::unique_ptr<RE::InventoryEntryData> _entry;
 		RE::ObjectRefHandle _container;
 	};
