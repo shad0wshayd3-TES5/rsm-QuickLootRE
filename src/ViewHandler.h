@@ -8,22 +8,20 @@ class ViewHandler :
 	public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
 	public Animation::IEventSink
 {
-private:
-	using super = RE::BSTEventSink<RE::MenuOpenCloseEvent>;
-
 public:
 	ViewHandler() = delete;
 	ViewHandler(const ViewHandler&) = default;
 	ViewHandler(ViewHandler&&) = default;
 
-	inline ViewHandler(observer<RE::IMenu*> a_menu) :
+	inline ViewHandler(observer<RE::IMenu*> a_menu, RE::ActorHandle a_dst) :
 		_menu(a_menu),
-		_view(a_menu->uiMovie)
+		_view(a_menu ? a_menu->uiMovie : nullptr),
+		_dst(a_dst)
 	{
 		assert(_menu != nullptr);
 		assert(_view != nullptr);
 
-		_view->SetVisible(false);
+		SetVisible(false);
 		Register();
 		Evaluate();
 	}
@@ -42,11 +40,7 @@ protected:
 		return EventResult::kContinue;
 	}
 
-	inline void OnAnimationChange(bool a_animating) override
-	{
-		_animating = a_animating;
-		Evaluate();
-	}
+	inline void OnAnimationEvent() override { Evaluate(); }
 
 private:
 	enum class Priority : std::size_t
@@ -61,10 +55,6 @@ private:
 		if (menuSrc) {
 			menuSrc->AddEventSink(this);
 		}
-
-		auto animSrc = Animation::AnimationManager::GetSingleton();
-		animSrc->SetEventSink(this);
-		_animating = animSrc->IsAnimating();
 	}
 
 	inline void Unregister()
@@ -73,18 +63,17 @@ private:
 		if (menuSrc) {
 			menuSrc->RemoveEventSink(this);
 		}
-
-		auto animSrc = Animation::AnimationManager::GetSingleton();
-		animSrc->SetEventSink(nullptr);
 	}
 
 	inline void Evaluate()
 	{
-		auto controlMap = RE::ControlMap::GetSingleton();
-		auto menuControls = RE::MenuControls::GetSingleton();
+		const auto controlMap = RE::ControlMap::GetSingleton();
+		const auto menuControls = RE::MenuControls::GetSingleton();
+		const auto dst = _dst.get();
 		if (controlMap && menuControls) {
 			const auto& priorityStack = controlMap->contextPriorityStack;
-			if (_animating ||
+			if (dst->IsInKillMove() ||
+				dst->GetOccupiedFurniture() ||
 				menuControls->InBeastForm() ||
 				priorityStack.empty() ||
 				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay) {
@@ -102,7 +91,7 @@ private:
 		task->AddUITask([this, safety]() {
 			if (!_enabled) {
 				AdjustPriority(Priority::kDefault);
-				_view->SetVisible(true);
+				SetVisible(true);
 				_disablers.Enable();
 				_listeners.Enable();
 				_enabled = true;
@@ -117,12 +106,21 @@ private:
 		task->AddUITask([this, safety]() {
 			if (_enabled) {
 				AdjustPriority(Priority::kLowest);
-				_view->SetVisible(false);
+				SetVisible(false);
 				_disablers.Disable();
 				_listeners.Disable();
 				_enabled = false;
 			}
 		});
+	}
+
+	inline void SetVisible(bool a_visible)
+	{
+		if (_view) {
+			_view->SetVisible(a_visible);
+		} else {
+			assert(false);
+		}
 	}
 
 	void AdjustPriority(Priority a_priority);
@@ -131,6 +129,6 @@ private:
 	RE::GPtr<RE::GFxMovieView> _view;
 	Input::Disablers _disablers;
 	Input::Listeners _listeners;
-	bool _animating{ false };
+	RE::ActorHandle _dst;
 	bool _enabled{ false };
 };

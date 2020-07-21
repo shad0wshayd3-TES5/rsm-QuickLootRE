@@ -149,7 +149,7 @@ namespace Scaleform
 				});
 
 			assert(success);
-			_viewHandler.emplace(menu);
+			_viewHandler.emplace(menu, _dst);
 			_view = menu->uiMovie;
 			_view->SetMouseCursorCount(0);	// disable input, we'll handle it ourselves
 			InitExtensions();
