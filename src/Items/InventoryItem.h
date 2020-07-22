@@ -15,8 +15,8 @@ namespace Items
 		InventoryItem(const InventoryItem&) = delete;
 		InventoryItem(InventoryItem&&) = default;
 
-		inline InventoryItem(std::ptrdiff_t a_count, std::unique_ptr<RE::InventoryEntryData> a_item, RE::ObjectRefHandle a_container) :
-			super(a_count, a_item.get()),
+		inline InventoryItem(std::ptrdiff_t a_count, bool a_stealing, std::unique_ptr<RE::InventoryEntryData> a_item, RE::ObjectRefHandle a_container) :
+			super(a_count, a_stealing, a_item.get()),
 			_entry(std::move(a_item)),
 			_container(a_container)
 		{
@@ -53,7 +53,7 @@ namespace Items
 				[&](std::int32_t a_num, RE::ExtraDataList* a_extraList) {
 					remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kRemove);
 				};
-			if (a_dst.WouldBeStealing(container.get())) {
+			if (Stolen()) {
 				action =
 					[&](std::int32_t a_num, RE::ExtraDataList* a_extraList) {
 						remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kSteal);
@@ -75,7 +75,7 @@ namespace Items
 		{
 			if (a_object.IsAmmo() && a_container.Is(RE::FormType::ActorCharacter)) {
 				auto& container = static_cast<RE::Actor&>(a_container);
-				container.RemoveExtraArrows3D();
+				container.ClearExtraArrows();
 			}
 		}
 

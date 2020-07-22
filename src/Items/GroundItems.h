@@ -15,8 +15,8 @@ namespace Items
 		GroundItems(const GroundItems&) = delete;
 		GroundItems(GroundItems&&) = default;
 
-		inline GroundItems(std::ptrdiff_t a_count, std::vector<RE::ObjectRefHandle> a_items) :
-			super(a_count, { a_items.data(), a_items.size() }),
+		inline GroundItems(std::ptrdiff_t a_count, bool a_stealing, std::vector<RE::ObjectRefHandle> a_items) :
+			super(a_count, a_stealing, { a_items.data(), a_items.size() }),
 			_items(std::move(a_items))
 		{}
 

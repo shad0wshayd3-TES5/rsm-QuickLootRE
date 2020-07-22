@@ -2,6 +2,9 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 {
 	/* PRIVATE VARIABLES */
 
+	private static var RED: Number = 0xEF9A9A;
+	private static var WHITE: Number = 0xFFFFFF;
+
 	private var chargeX: Number = 0;
 
 
@@ -57,11 +60,9 @@ class LootMenu.ListItemRenderer extends gfx.controls.ListItemRenderer
 			if (count > 1) {
 				displayName += " (" + count.toString() + ")";
 			}
-			label = displayName;
 
-			if (doColor) {
-				textField.textColor = 0xEF9A9A;
-			}
+			label = displayName;
+			textField.textColor = doColor ? RED : WHITE;
 
 			var enchantmentCharge: Number = data.enchantmentCharge;
 			if (enchantmentCharge != null) {

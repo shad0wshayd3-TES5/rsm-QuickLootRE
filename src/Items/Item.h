@@ -11,12 +11,12 @@ namespace Items
 		Item(const Item&) = delete;
 		Item(Item&&) = default;
 
-		inline Item(std::ptrdiff_t a_count, observer<RE::InventoryEntryData*> a_item) :
-			_item(a_count, a_item)
+		inline Item(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
+			_item(a_count, a_stealing, a_item)
 		{}
 
-		inline Item(std::ptrdiff_t a_count, stl::span<const RE::ObjectRefHandle> a_items) :
-			_item(a_count, a_items)
+		inline Item(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
+			_item(a_count, a_stealing, a_items)
 		{}
 
 		virtual ~Item() = default;
@@ -26,7 +26,7 @@ namespace Items
 
 		[[nodiscard]] inline int Compare(const Item& a_rhs) const { return _item.Compare(a_rhs._item); }
 
-		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view, bool a_stealing) const { return _item.GFxValue(a_view, a_stealing); }
+		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const { return _item.GFxValue(a_view); }
 
 		inline void Take(RE::Actor& a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
 		inline void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }
@@ -37,6 +37,7 @@ namespace Items
 
 		[[nodiscard]] inline std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
 		[[nodiscard]] inline std::ptrdiff_t Value() const { return _item.GetValue(); }
+		[[nodiscard]] inline bool Stolen() const { return _item.IsStolen(); }
 
 	private:
 		GFxItem _item;

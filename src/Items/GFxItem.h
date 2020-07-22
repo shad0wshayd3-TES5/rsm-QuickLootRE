@@ -5,15 +5,10 @@ namespace Items
 	class GFxItem
 	{
 	public:
-		inline GFxItem(std::ptrdiff_t a_count, observer<RE::InventoryEntryData*> a_item) :
+		inline GFxItem(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
 			_src(a_item),
-			_displayName(),
 			_count(a_count),
-			_enchantmentCharge(),
-			_flags(),
-			_cached(),
-			_value(),
-			_formID()
+			_stealing(a_stealing)
 		{
 			assert(a_item != nullptr);
 
@@ -21,15 +16,10 @@ namespace Items
 			_enchantmentCharge = a_item->GetEnchantmentCharge();
 		}
 
-		inline GFxItem(std::ptrdiff_t a_count, stl::span<const RE::ObjectRefHandle> a_items) :
+		inline GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
 			_src(a_items),
-			_displayName(),
 			_count(a_count),
-			_enchantmentCharge(),
-			_flags(),
-			_cached(),
-			_value(),
-			_formID()
+			_stealing(a_stealing)
 		{
 			std::vector<RE::TESObjectREFRPtr> items;
 			items.reserve(a_items.size());
@@ -421,12 +411,12 @@ namespace Items
 			if (player) {
 				switch (_src.index()) {
 				case kInventory:
-					result = !std::get<kInventory>(_src)->IsOwnedBy(player);
+					result = !std::get<kInventory>(_src)->IsOwnedBy(player, !_stealing);
 					break;
 				case kGround:
 					for (auto& handle : std::get<kGround>(_src)) {
 						auto item = handle.get();
-						if (item && player->WouldBeStealing(item.get())) {
+						if (item && item->IsCrimeToActivate()) {
 							result = true;
 							break;
 						}
@@ -443,13 +433,13 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view, bool a_stealing) const
+		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const
 		{
 			RE::GFxValue value;
 			a_view.CreateObject(std::addressof(value));
 			value.SetMember("displayName", { static_cast<std::string_view>(_displayName) });
 			value.SetMember("count", { _count });
-			value.SetMember("doColor", { a_stealing ? true : IsStolen() });
+			value.SetMember("doColor", { IsStolen() });
 			if (_enchantmentCharge) {
 				value.SetMember("enchantmentCharge", { *_enchantmentCharge });
 			}
@@ -483,10 +473,11 @@ namespace Items
 		std::string _displayName;
 		std::ptrdiff_t _count;
 		std::optional<double> _enchantmentCharge;
-		mutable std::bitset<kTotal> _flags;
-		mutable std::bitset<kTotal> _cached;
 		mutable std::optional<std::ptrdiff_t> _value;
 		mutable std::optional<RE::FormID> _formID;
+		mutable std::bitset<kTotal> _flags;
+		mutable std::bitset<kTotal> _cached;
+		bool _stealing;
 	};
 
 	[[nodiscard]] inline bool operator==(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) == 0; }

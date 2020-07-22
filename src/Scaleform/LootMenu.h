@@ -76,13 +76,14 @@ namespace Scaleform
 				return;
 			}
 
+			const auto stealing = WouldBeStealing();
 			auto inv = src->GetInventory();
 			for (auto& [obj, data] : inv) {
 				auto& [count, entry] = data;
 				if (CanDisplay(obj) && count > 0 && entry) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::InventoryItem>(
-							count, std::move(entry), _src));
+							count, stealing, std::move(entry), _src));
 				}
 			}
 
@@ -92,15 +93,14 @@ namespace Scaleform
 				if (CanDisplay(obj) && count > 0 && !items.empty()) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::GroundItems>(
-							count, std::move(items)));
+							count, stealing, std::move(items)));
 				}
 			}
 
 			Sort();
-			const bool stealing = WouldBeStealing();
 			_itemListProvider.ClearElements();
 			for (const auto& elem : _itemListImpl) {
-				_itemListProvider.PushBack(elem->GFxValue(*_view, stealing));
+				_itemListProvider.PushBack(elem->GFxValue(*_view));
 			}
 			_itemList.InvalidateData();
 
