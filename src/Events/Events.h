@@ -50,7 +50,8 @@ namespace Events
 
 		inline EventResult ProcessEvent(const RE::TESLockChangedEvent* a_event, RE::BSTEventSource<RE::TESLockChangedEvent>*) override
 		{
-			if (a_event->lockedObject &&
+			if (a_event &&
+				a_event->lockedObject &&
 				a_event->lockedObject->GetHandle() == _cachedRef) {
 				Evaluate(a_event->lockedObject);
 			}

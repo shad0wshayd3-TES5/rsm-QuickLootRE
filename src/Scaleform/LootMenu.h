@@ -61,6 +61,7 @@ namespace Scaleform
 			_openCloseHandler.SetSource(a_ref);
 			UpdateTitle();
 			UpdateButtonBar();
+			QueueInventoryRefresh();
 		}
 
 		inline void RefreshInventory()

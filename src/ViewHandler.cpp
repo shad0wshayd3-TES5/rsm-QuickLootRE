@@ -1,5 +1,6 @@
 #include "ViewHandler.h"
 
+#include "Loot.h"
 #include "Scaleform/LootMenu.h"
 
 void ViewHandler::AdjustPriority(Priority a_priority)
@@ -29,4 +30,10 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 		[](auto&& a_lhs, auto&& a_rhs) {
 			return a_lhs->depthPriority < a_rhs->depthPriority;
 		});
+}
+
+void ViewHandler::RefreshInventory()
+{
+	auto loot = Loot::GetSingleton();
+	loot->RefreshInventory();
 }

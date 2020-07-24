@@ -117,13 +117,21 @@ private:
 	inline void SetVisible(bool a_visible)
 	{
 		if (_view) {
-			_view->SetVisible(a_visible);
+			const auto prev = _view->GetVisible();
+			if (prev != a_visible) {
+				_view->SetVisible(a_visible);
+
+				if (a_visible) {
+					RefreshInventory();
+				}
+			}
 		} else {
 			assert(false);
 		}
 	}
 
 	void AdjustPriority(Priority a_priority);
+	void RefreshInventory();
 
 	observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;
