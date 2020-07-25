@@ -15,11 +15,37 @@ class LootMenu.InfoBar extends gfx.controls.ButtonBar
 	public function invalidateData(): Void
 	{
 		reflowing = false;
-		super.invalidateData();
+		invalidate();
 	}
 
 
 	/* PRIVATE FUNCTIONS */
+
+	// @override gfx.core.UIComponent
+	private function draw(): Void
+	{
+		if (!reflowing) {
+			// Update current buttons
+			var l: Number = _dataProvider.length;
+			while (renderers.length > l) {
+				var r: MovieClip = MovieClip(renderers.pop());
+				r.group.removeButton(r);
+				r.removeMovieClip();
+			}
+
+			while (renderers.length < l) {
+				renderers.push(createRenderer(renderers.length));
+			}
+
+			populateData();
+			reflowing = true;
+		}
+
+		if (drawLayout() && _selectedIndex != -1) {
+			selectItem(_selectedIndex);
+		}
+	}
+
 
 	/**
 	 * @override gfx.controls.ButtonBar

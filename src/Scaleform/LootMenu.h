@@ -61,9 +61,7 @@ namespace Scaleform
 			_src = a_ref;
 			_containerChangedHandler.SetContainer(a_ref);
 			_openCloseHandler.SetSource(a_ref);
-			UpdateTitle();
-			UpdateButtonBar();
-			QueueInventoryRefresh();
+			QueueUIRefresh();
 		}
 
 		inline void RefreshInventory()
@@ -110,6 +108,13 @@ namespace Scaleform
 			RestoreIndex(idx);
 			UpdateWeight();
 			UpdateInfoBar();
+		}
+
+		inline void RefreshUI()
+		{
+			RefreshInventory();
+			UpdateTitle();
+			UpdateButtonBar();
 		}
 
 		inline void TakeStack()
@@ -330,6 +335,7 @@ namespace Scaleform
 
 		void ProcessDelegate();
 		void QueueInventoryRefresh();
+		void QueueUIRefresh();
 
 		inline void RestoreIndex(std::ptrdiff_t a_oldIdx)
 		{
@@ -370,7 +376,7 @@ namespace Scaleform
 
 			_buttonBarProvider.ClearElements();
 			auto gmst = RE::GameSettingCollection::GetSingleton();
-			const boost::regex pattern("<.*>(.*)<.*>", boost::regex_constants::ECMAScript);
+			const boost::regex pattern("<.*>(.*)<.*>"s, boost::regex_constants::ECMAScript);
 			for (std::size_t i = 0; i < mappings.size(); ++i) {
 				const auto& mapping = mappings[i];
 
@@ -387,13 +393,13 @@ namespace Scaleform
 				const auto index =
 					static_cast<std::ptrdiff_t>(
 						Input::ControlMap()(std::get<1>(mapping)));
-				const auto doColor = std::get<2>(mapping);
+				const auto stolen = std::get<2>(mapping);
 
 				RE::GFxValue obj;
 				_view->CreateObject(std::addressof(obj));
 				obj.SetMember("label", { static_cast<std::string_view>(label) });
 				obj.SetMember("index", { index });
-				obj.SetMember("doColor", { doColor });
+				obj.SetMember("stolen", { stolen });
 				_buttonBarProvider.PushBack(obj);
 			}
 			_buttonBar.InvalidateData();

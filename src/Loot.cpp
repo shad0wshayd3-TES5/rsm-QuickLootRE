@@ -64,10 +64,14 @@ void Loot::Process(LootMenu& a_menu)
 		_taskQueue.clear();
 	}
 
-	if (_refreshInventory) {
+	if (_refreshUI) {
+		a_menu.RefreshUI();
+	} else if (_refreshInventory) {
 		a_menu.RefreshInventory();
-		_refreshInventory = false;
 	}
+
+	_refreshUI = false;
+	_refreshInventory = false;
 }
 
 void Loot::AddTask(Tasklet a_task)

@@ -21,4 +21,10 @@ namespace Scaleform
 		auto loot = Loot::GetSingleton();
 		loot->RefreshInventory();
 	}
+
+	void LootMenu::QueueUIRefresh()
+	{
+		auto loot = Loot::GetSingleton();
+		loot->RefreshUI();
+	}
 }

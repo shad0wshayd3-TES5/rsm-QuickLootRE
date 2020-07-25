@@ -26,6 +26,14 @@ public:
 
 	inline void Enable() { _enabled = true; }
 
+	inline void RefreshUI()
+	{
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([this]() {
+			_refreshUI = true;
+		});
+	}
+
 	void Close();
 	void Open();
 
@@ -84,5 +92,6 @@ private:
 	mutable std::mutex _lock;
 	std::vector<Tasklet> _taskQueue;
 	std::atomic_bool _enabled{ true };
+	bool _refreshUI{ false };
 	bool _refreshInventory{ false };
 };

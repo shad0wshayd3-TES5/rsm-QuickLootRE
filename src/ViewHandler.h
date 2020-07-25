@@ -122,7 +122,7 @@ private:
 				_view->SetVisible(a_visible);
 
 				if (a_visible) {
-					RefreshInventory();	 // TODO: Queue full UI refresh
+					RefreshUI();
 				}
 			}
 		} else {
@@ -131,7 +131,7 @@ private:
 	}
 
 	void AdjustPriority(Priority a_priority);
-	void RefreshInventory();
+	void RefreshUI();
 
 	observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;

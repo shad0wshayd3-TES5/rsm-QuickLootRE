@@ -3,6 +3,8 @@ class LootMenu.Button extends gfx.controls.Button
 	/* PRIVATE VARIABLES */
 
 	static private var INVALID: Number = 282;
+	private static var RED: Number = 0xEF9A9A;
+	private static var WHITE: Number = 0xFFFFFF;
 
 	private var _xVal: Number = 0;
 	private var _yVal: Number = 0;
@@ -68,23 +70,22 @@ class LootMenu.Button extends gfx.controls.Button
 	private function doUpdate(): Void
 	{
 		if (_needsUpdate) {
+			var index: Number = data.index != null ? data.index : INVALID;
+			var stolen: Boolean = data.stolen != null ? data.stolen : false;
+
+			icon.gotoAndStop(index);
+			textField.textColor = stolen ? RED : WHITE;
+
 			icon._x = _xVal;
 			icon._y = _yVal;
 			textField._x = _xVal;
 			textField._y = _yVal;
 
-			var index: Number = data.index != null ? data.index : INVALID;
-			icon.gotoAndStop(index);
-
-			var doColor: Boolean = data.doColor != null ? data.doColor : false;
-			if (doColor) {
-				textField.textColor = 0xEF9A9A;
-			}
-
 			var scale: Number = textField.textHeight / icon._height;
 			icon._width *= scale;
 			icon._height *= scale;
 
+			//icon._y = textField._y + (icon._height - textField.textHeight) / 2;	// center icon
 			textField._x += icon._width + 7;
 
 			var w: Number = textField._x - icon._x + textField.textWidth;
