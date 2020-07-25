@@ -122,7 +122,7 @@ private:
 				_view->SetVisible(a_visible);
 
 				if (a_visible) {
-					RefreshInventory();
+					RefreshInventory();	 // TODO: Queue full UI refresh
 				}
 			}
 		} else {

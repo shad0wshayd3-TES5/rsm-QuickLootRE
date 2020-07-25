@@ -40,6 +40,7 @@ namespace Scaleform
 				idx += a_mod;
 				idx = std::clamp(idx, 0.0, maxIdx);
 				_itemList.SelectedIndex(idx);
+				UpdateInfoBar();
 			}
 		}
 
@@ -51,6 +52,7 @@ namespace Scaleform
 			[[maybe_unused]] auto success =
 				inst.Invoke("modSelectedPage", args);
 			assert(success);
+			UpdateInfoBar();
 		}
 
 		inline void SetContainer(RE::ObjectRefHandle a_ref)
@@ -107,6 +109,7 @@ namespace Scaleform
 
 			RestoreIndex(idx);
 			UpdateWeight();
+			UpdateInfoBar();
 		}
 
 		inline void TakeStack()
@@ -295,6 +298,7 @@ namespace Scaleform
 				element_t{ std::ref(_title), "_root.rootObj.title"sv },
 				element_t{ std::ref(_weight), "_root.rootObj.weightContainer.textField"sv },
 				element_t{ std::ref(_itemList), "_root.rootObj.itemList"sv },
+				element_t{ std::ref(_infoBar), "_root.rootObj.infoBar"sv },
 				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar"sv }
 			};
 
@@ -314,6 +318,9 @@ namespace Scaleform
 
 			_view->CreateArray(std::addressof(_itemListProvider));
 			_itemList.DataProvider(CLIK::Array{ _itemListProvider });
+
+			_view->CreateArray(std::addressof(_infoBarProvider));
+			_infoBar.DataProvider(CLIK::Array{ _infoBarProvider });
 
 			_view->CreateArray(std::addressof(_buttonBarProvider));
 			_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
@@ -392,6 +399,36 @@ namespace Scaleform
 			_buttonBar.InvalidateData();
 		}
 
+		inline void UpdateInfoBar()
+		{
+			_infoBarProvider.ClearElements();
+			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
+			if (0 <= idx && idx < stl::ssize(_itemListImpl)) {
+				const std::array functors{
+					std::function{ [](const Items::Item& a_val) { return fmt::format(FMT_STRING("{:.1f}"), a_val.Weight()); } },
+					std::function{ [](const Items::Item& a_val) { return fmt::format(FMT_STRING("{}"), a_val.Value()); } },
+				};
+
+				const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
+				std::string str;
+				RE::GFxValue obj;
+				for (const auto& functor : functors) {
+					str = functor(*item);
+					obj.SetString(str);
+					_infoBarProvider.PushBack(obj);
+				}
+
+				const auto ench = item->EnchantmentCharge();
+				if (ench >= 0.0) {
+					str = fmt::format(FMT_STRING("{:.1f}%"), ench);
+					obj.SetString(str);
+					_infoBarProvider.PushBack(obj);
+				}
+			}
+
+			_infoBar.InvalidateData();
+		}
+
 		inline void UpdateTitle()
 		{
 			auto src = _src.get();
@@ -445,6 +482,9 @@ namespace Scaleform
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		RE::GFxValue _itemListProvider;
 		std::vector<std::unique_ptr<Items::Item>> _itemListImpl;
+
+		CLIK::GFx::Controls::ButtonBar _infoBar;
+		RE::GFxValue _infoBarProvider;
 
 		CLIK::GFx::Controls::ButtonBar _buttonBar;
 		RE::GFxValue _buttonBarProvider;

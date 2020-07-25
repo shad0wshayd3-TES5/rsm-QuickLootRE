@@ -11,39 +11,13 @@ namespace Items
 			_stealing(a_stealing)
 		{
 			assert(a_item != nullptr);
-
-			_displayName = safe_string(a_item->GetDisplayName());
-			_enchantmentCharge = a_item->GetEnchantmentCharge();
 		}
 
 		inline GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
 			_src(a_items),
 			_count(a_count),
 			_stealing(a_stealing)
-		{
-			std::vector<RE::TESObjectREFRPtr> items;
-			items.reserve(a_items.size());
-			for (auto& item : a_items) {
-				auto ptr = item.get();
-				if (ptr) {
-					items.push_back(std::move(ptr));
-				}
-			}
-
-			for (auto& item : items) {
-				_displayName = safe_string(item->GetDisplayFullName());
-				if (!_displayName.empty()) {
-					break;
-				}
-			}
-
-			for (auto& item : items) {
-				_enchantmentCharge = item->GetEnchantmentCharge();
-				if (_enchantmentCharge) {
-					break;
-				}
-			}
-		}
+		{}
 
 		[[nodiscard]] constexpr std::ptrdiff_t Count() const noexcept { return _count; }
 
@@ -76,7 +50,7 @@ namespace Items
 				return IsLockpick() ? -1 : 1;
 			} else if (GetValue() != a_rhs.GetValue()) {
 				return GetValue() > a_rhs.GetValue() ? -1 : 1;
-			} else if (const auto alphabetical = _stricmp(_displayName.c_str(), a_rhs._displayName.c_str());
+			} else if (const auto alphabetical = _stricmp(GetDisplayName().c_str(), a_rhs.GetDisplayName().c_str());
 					   alphabetical != 0) {
 				return alphabetical < 0 ? -1 : 1;
 			} else if (GetFormID() != a_rhs.GetFormID()) {
@@ -86,28 +60,23 @@ namespace Items
 			}
 		}
 
-		[[nodiscard]] inline RE::FormID GetFormID() const
+		[[nodiscard]] inline const std::string& GetDisplayName() const
 		{
-			if (_formID) {
-				return *_formID;
+			if (_cache[kDisplayName]) {
+				return _cache.DisplayName();
 			}
 
-			_formID = std::numeric_limits<RE::FormID>::max();
+			std::string result;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						_formID = obj->GetFormID();
-					}
-				}
+				result = safe_string(
+					std::get<kInventory>(_src)->GetDisplayName());
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
-					if (obj) {
-						_value = obj->GetFormID();
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					result = item ? safe_string(item->GetDisplayFullName()) : ""sv;
+					if (!result.empty()) {
 						break;
 					}
 				}
@@ -117,31 +86,102 @@ namespace Items
 				break;
 			}
 
-			return *_formID;
+			_cache.DisplayName(std::move(result));
+			return _cache.DisplayName();
+		}
+
+		[[nodiscard]] inline double GetEnchantmentCharge() const
+		{
+			if (_cache[kEnchantmentCharge]) {
+				return _cache.EnchantmentCharge();
+			}
+
+			double result = -1.0;
+			switch (_src.index()) {
+			case kInventory:
+				result =
+					std::get<kInventory>(_src)
+						->GetEnchantmentCharge()
+						.value_or(-1.0);
+				break;
+			case kGround:
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					if (item) {
+						const auto charge = item->GetEnchantmentCharge();
+						if (charge) {
+							result = *charge;
+							break;
+						}
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			_cache.EnchantmentCharge(result);
+			return result;
+		}
+
+		[[nodiscard]] inline RE::FormID GetFormID() const
+		{
+			if (_cache[kFormID]) {
+				return _cache.FormID();
+			}
+
+			auto result = std::numeric_limits<RE::FormID>::max();
+			switch (_src.index()) {
+			case kInventory:
+				{
+					const auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->GetFormID();
+					}
+				}
+				break;
+			case kGround:
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->GetFormID();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			_cache.FormID(result);
+			return result;
 		}
 
 		[[nodiscard]] inline std::ptrdiff_t GetValue() const
 		{
-			if (_value) {
-				return *_value;
+			if (_cache[kValue]) {
+				return _cache.Value();
 			}
 
-			_value = std::numeric_limits<std::ptrdiff_t>::min();
+			auto result = std::numeric_limits<std::ptrdiff_t>::min();
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
-						_value = obj->GetGoldValue() * _count;
+						result = obj->GetGoldValue() * _count;
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
-						_value = obj->GetGoldValue() * _count;
+						result = obj->GetGoldValue() * _count;
 						break;
 					}
 				}
@@ -151,29 +191,65 @@ namespace Items
 				break;
 			}
 
-			return *_value;
+			_cache.Value(result);
+			return result;
+		}
+
+		[[nodiscard]] inline double GetWeight() const
+		{
+			if (_cache[kWeight]) {
+				return _cache.Weight();
+			}
+
+			double result = 0.0;
+			switch (_src.index()) {
+			case kInventory:
+				{
+					const auto obj = std::get<kInventory>(_src)->GetObject();
+					if (obj) {
+						result = obj->GetWeight();
+					}
+				}
+				break;
+			case kGround:
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
+					if (obj) {
+						result = obj->GetWeight();
+						break;
+					}
+				}
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			_cache.Weight(result);
+			return result;
 		}
 
 		[[nodiscard]] inline bool IsAmmo() const
 		{
-			if (_cached[kAmmo]) {
-				return _flags[kAmmo];
+			if (_cache[kAmmo]) {
+				return _cache.Ammo();
 			}
 
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
 						result = obj->IsAmmo();
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
 						result = obj->IsAmmo();
 						break;
@@ -185,31 +261,30 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kAmmo);
-			_flags.set(kAmmo, result);
+			_cache.Ammo(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsBook() const
 		{
-			if (_cached[kBook]) {
-				return _flags[kBook];
+			if (_cache[kBook]) {
+				return _cache.Book();
 			}
 
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
 						result = obj->IsObject();
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
 						result = obj->IsBook();
 						break;
@@ -221,31 +296,30 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kBook);
-			_flags.set(kBook, result);
+			_cache.Book(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsGold() const
 		{
-			if (_cached[kGold]) {
-				return _flags[kGold];
+			if (_cache[kGold]) {
+				return _cache.Gold();
 			}
 
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
 						result = obj->IsGold();
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
 						result = obj->IsGold();
 						break;
@@ -257,31 +331,30 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kGold);
-			_flags.set(kGold, result);
+			_cache.Gold(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsKey() const
 		{
-			if (_cached[kKey]) {
-				return _flags[kKey];
+			if (_cache[kKey]) {
+				return _cache.Key();
 			}
 
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
 						result = obj->IsKey();
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
 						result = obj->IsKey();
 						break;
@@ -293,31 +366,30 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kKey);
-			_flags.set(kKey, result);
+			_cache.Key(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsLockpick() const
 		{
-			if (_cached[kLockpick]) {
-				return _flags[kLockpick];
+			if (_cache[kLockpick]) {
+				return _cache.Lockpick();
 			}
 
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
 						result = obj->IsLockpick();
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
 						result = obj->IsLockpick();
 						break;
@@ -329,31 +401,30 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kLockpick);
-			_flags.set(kLockpick, result);
+			_cache.Lockpick(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsNote() const
 		{
-			if (_cached[kNote]) {
-				return _flags[kNote];
+			if (_cache[kNote]) {
+				return _cache.Note();
 			}
 
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
 				{
-					auto obj = std::get<kInventory>(_src)->GetObject();
+					const auto obj = std::get<kInventory>(_src)->GetObject();
 					if (obj) {
 						result = obj->IsNote();
 					}
 				}
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
-					auto obj = item ? item->GetObjectReference() : nullptr;
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
+					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
 						result = obj->IsNote();
 						break;
@@ -365,15 +436,14 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kNote);
-			_flags.set(kNote, result);
+			_cache.Note(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsQuestItem() const
 		{
-			if (_cached[kQuestItem]) {
-				return _flags[kQuestItem];
+			if (_cache[kQuestItem]) {
+				return _cache.QuestItem();
 			}
 
 			bool result = false;
@@ -382,8 +452,8 @@ namespace Items
 				result = std::get<kInventory>(_src)->IsQuestObject();
 				break;
 			case kGround:
-				for (auto& handle : std::get<kGround>(_src)) {
-					auto item = handle.get();
+				for (const auto& handle : std::get<kGround>(_src)) {
+					const auto item = handle.get();
 					if (item && item->HasQuestObject()) {
 						result = true;
 						break;
@@ -395,15 +465,14 @@ namespace Items
 				break;
 			}
 
-			_cached.set(kQuestItem);
-			_flags.set(kQuestItem, result);
+			_cache.QuestItem(result);
 			return result;
 		}
 
 		[[nodiscard]] inline bool IsStolen() const
 		{
-			if (_cached[kStolen]) {
-				return _flags[kStolen];
+			if (_cache[kStolen]) {
+				return _cache.Stolen();
 			}
 
 			bool result = false;
@@ -414,8 +483,8 @@ namespace Items
 					result = !std::get<kInventory>(_src)->IsOwnedBy(player, !_stealing);
 					break;
 				case kGround:
-					for (auto& handle : std::get<kGround>(_src)) {
-						auto item = handle.get();
+					for (const auto& handle : std::get<kGround>(_src)) {
+						const auto item = handle.get();
 						if (item && item->IsCrimeToActivate()) {
 							result = true;
 							break;
@@ -428,8 +497,7 @@ namespace Items
 				}
 			}
 
-			_cached.set(kStolen);
-			_flags.set(kStolen, result);
+			_cache.Stolen(result);
 			return result;
 		}
 
@@ -437,12 +505,9 @@ namespace Items
 		{
 			RE::GFxValue value;
 			a_view.CreateObject(std::addressof(value));
-			value.SetMember("displayName", { static_cast<std::string_view>(_displayName) });
+			value.SetMember("displayName", { static_cast<std::string_view>(GetDisplayName()) });
 			value.SetMember("count", { _count });
-			value.SetMember("doColor", { IsStolen() });
-			if (_enchantmentCharge) {
-				value.SetMember("enchantmentCharge", { *_enchantmentCharge });
-			}
+			value.SetMember("stolen", { IsStolen() });
 			return value;
 		}
 
@@ -457,7 +522,14 @@ namespace Items
 			kAmmo,
 			kLockpick,
 			kStolen,
-			kTotal
+			kTotalFlags,
+
+			kDisplayName = kTotalFlags,
+			kEnchantmentCharge,
+			kWeight,
+			kValue,
+			kFormID,
+			kTotalCachedFlags
 		};
 
 		enum : std::size_t
@@ -466,17 +538,92 @@ namespace Items
 			kGround
 		};
 
+		class Cache
+		{
+		public:
+			[[nodiscard]] inline bool operator[](std::size_t a_flag) const { return _cached.test(a_flag); }
+
+			[[nodiscard]] inline bool QuestItem() const { return _flags.test(kQuestItem); }
+			[[nodiscard]] inline void QuestItem(bool a_value) { CacheFlag(kQuestItem, a_value); }
+
+			[[nodiscard]] inline bool Key() const { return _flags.test(kKey); }
+			[[nodiscard]] inline void Key(bool a_value) { CacheFlag(kKey, a_value); }
+
+			[[nodiscard]] inline bool Note() const { return _flags.test(kNote); }
+			[[nodiscard]] inline void Note(bool a_value) { CacheFlag(kNote, a_value); }
+
+			[[nodiscard]] inline bool Book() const { return _flags.test(kBook); }
+			[[nodiscard]] inline void Book(bool a_value) { CacheFlag(kBook, a_value); }
+
+			[[nodiscard]] inline bool Gold() const { return _flags.test(kGold); }
+			[[nodiscard]] inline void Gold(bool a_value) { CacheFlag(kGold, a_value); }
+
+			[[nodiscard]] inline bool Ammo() const { return _flags.test(kAmmo); }
+			[[nodiscard]] inline void Ammo(bool a_value) { CacheFlag(kAmmo, a_value); }
+
+			[[nodiscard]] inline bool Lockpick() const { return _flags.test(kLockpick); }
+			[[nodiscard]] inline void Lockpick(bool a_value) { CacheFlag(kLockpick, a_value); }
+
+			[[nodiscard]] inline bool Stolen() const { return _flags.test(kStolen); }
+			[[nodiscard]] inline void Stolen(bool a_value) { CacheFlag(kStolen, a_value); }
+
+			[[nodiscard]] constexpr const std::string& DisplayName() const noexcept { return _displayName; }
+			[[nodiscard]] inline void DisplayName(std::string a_value)
+			{
+				_cached.set(kDisplayName);
+				_displayName = std::move(a_value);
+			}
+
+			[[nodiscard]] constexpr double EnchantmentCharge() const noexcept { return _enchantmentCharge; }
+			[[nodiscard]] inline void EnchantmentCharge(double a_value)
+			{
+				_cached.set(kEnchantmentCharge);
+				_enchantmentCharge = a_value;
+			}
+
+			[[nodiscard]] constexpr double Weight() const noexcept { return _weight; }
+			[[nodiscard]] inline void Weight(double a_value)
+			{
+				_cached.set(kWeight);
+				_weight = a_value;
+			}
+
+			[[nodiscard]] constexpr std::ptrdiff_t Value() const noexcept { return _value; }
+			[[nodiscard]] inline void Value(std::ptrdiff_t a_value)
+			{
+				_cached.set(kValue);
+				_value = a_value;
+			}
+
+			[[nodiscard]] constexpr RE::FormID FormID() const noexcept { return _formID; }
+			[[nodiscard]] inline void FormID(RE::FormID a_value)
+			{
+				_cached.set(kFormID);
+				_formID = a_value;
+			}
+
+		private:
+			inline void CacheFlag(std::size_t a_flag, bool a_value)
+			{
+				_cached.set(a_flag);
+				_flags.set(a_flag, a_value);
+			}
+
+			std::string _displayName;
+			double _enchantmentCharge{ -1.0 };
+			double _weight{ 0.0 };
+			std::ptrdiff_t _value{ 0 };
+			RE::FormID _formID{ 0 };
+			std::bitset<kTotalFlags> _flags;
+			std::bitset<kTotalCachedFlags> _cached;
+		};
+
 		using inventory_t = RE::InventoryEntryData*;
 		using ground_t = stl::span<const RE::ObjectRefHandle>;
 
 		std::variant<inventory_t, ground_t> _src;
-		std::string _displayName;
 		std::ptrdiff_t _count;
-		std::optional<double> _enchantmentCharge;
-		mutable std::optional<std::ptrdiff_t> _value;
-		mutable std::optional<RE::FormID> _formID;
-		mutable std::bitset<kTotal> _flags;
-		mutable std::bitset<kTotal> _cached;
+		mutable Cache _cache;
 		bool _stealing;
 	};
 

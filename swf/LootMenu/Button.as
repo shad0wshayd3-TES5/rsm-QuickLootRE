@@ -28,12 +28,6 @@ class LootMenu.Button extends gfx.controls.Button
 	public function Button(a_obj: Object)
 	{
 		super();
-
-		disableConstraints = true;
-		textField.autoSize = "left";
-
-		_xVal = textField._x;
-		_yVal = textField._y;
 	}
 
 
@@ -42,7 +36,15 @@ class LootMenu.Button extends gfx.controls.Button
 	// @override UIComponent
 	private function configUI(): Void
 	{
+		_xVal = textField._x;
+		_yVal = textField._y;
+
+		disableConstraints = true;
+		textField.autoSize = "left";
+
 		super.configUI();
+
+		constraints.scaled = false;
 		doUpdate();
 	}
 

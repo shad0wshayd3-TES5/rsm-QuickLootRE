@@ -32,11 +32,14 @@ namespace Items
 		inline void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }
 		inline void TakeAll(RE::Actor& a_dst) { DoTake(a_dst, Count()); }
 
+		[[nodiscard]] inline double EnchantmentCharge() const { return _item.GetEnchantmentCharge(); }
+		[[nodiscard]] inline std::ptrdiff_t Value() const { return _item.GetValue(); }
+		[[nodiscard]] inline double Weight() const { return _item.GetWeight(); }
+
 	protected:
 		virtual void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) = 0;
 
 		[[nodiscard]] inline std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
-		[[nodiscard]] inline std::ptrdiff_t Value() const { return _item.GetValue(); }
 		[[nodiscard]] inline bool Stolen() const { return _item.IsStolen(); }
 
 	private:
