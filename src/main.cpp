@@ -114,7 +114,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 #endif
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("%g(%#): [%l] %v");
+		spdlog::set_pattern("%g(%#): [%^%l%$] %v");
 
 		logger::info("QuickLootRE v{}"sv, QKLT_VERSION_VERSTRING);
 

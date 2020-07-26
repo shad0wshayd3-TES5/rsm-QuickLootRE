@@ -125,15 +125,6 @@ namespace Scaleform
 				if (dst) {
 					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
 					_openCloseHandler.Open();
-#if 0  // TODO: handle activating containers
-					auto src = _src.get();
-					if (src && dst) {
-						auto events = RE::ScriptEventSourceHolder::GetSingleton();
-						events->SendActivateEvent(src, dst);
-						events->SendOpenCloseEvent(src, dst, true);
-						events->SendOpenCloseEvent(src, dst, false);
-					}
-#endif
 				}
 			}
 

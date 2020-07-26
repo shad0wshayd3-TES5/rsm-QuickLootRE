@@ -25,14 +25,15 @@ public:
 	{
 		Close();
 		_src = a_src;
-		_doOneShot = true;
+		_doOneShotOpen = true;
+		_doOneShotClose = true;
 	}
 
 	inline void Open()
 	{
 		auto src = _src.get();
 		if (src) {
-			DoOneShot(*src);
+			OneShotOpen(src);
 			const auto state = RE::BGSOpenCloseForm::GetOpenState(src.get());
 			switch (state) {
 			case State::kClosed:
@@ -51,6 +52,7 @@ public:
 	{
 		auto src = _src.get();
 		if (src) {
+			OneShotClose(src);
 			const auto state = RE::BGSOpenCloseForm::GetOpenState(src.get());
 			switch (state) {
 			case State::kOpen:
@@ -87,15 +89,34 @@ private:
 		});
 	}
 
-	inline void DoOneShot(RE::TESObjectREFR& a_src)
+	inline void OneShotOpen(const RE::TESObjectREFRPtr& a_src)
 	{
-		if (_doOneShot) {
+		if (_doOneShotOpen) {
 			auto dst = _dst.get();
 			if (dst) {
-				a_src.InitChildActivates(dst.get());
+				a_src->InitChildActivates(dst.get());
+
+				auto events = RE::ScriptEventSourceHolder::GetSingleton();
+				if (events) {
+					events->SendActivateEvent(a_src, dst);
+					events->SendOpenCloseEvent(a_src, dst, true);
+				}
 			}
 
-			_doOneShot = false;
+			_doOneShotOpen = false;
+		}
+	}
+
+	inline void OneShotClose(const RE::TESObjectREFRPtr& a_src)
+	{
+		if (_doOneShotClose) {
+			auto events = RE::ScriptEventSourceHolder::GetSingleton();
+			auto dst = _dst.get();
+			if (events && dst) {
+				events->SendOpenCloseEvent(a_src, dst, false);
+			}
+
+			_doOneShotClose = false;
 		}
 	}
 
@@ -112,5 +133,6 @@ private:
 
 	RE::ActorHandle _dst;
 	RE::ObjectRefHandle _src;
-	bool _doOneShot{ true };
+	bool _doOneShotOpen{ true };
+	bool _doOneShotClose{ true };
 };
