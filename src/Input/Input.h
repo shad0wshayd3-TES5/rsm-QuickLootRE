@@ -17,8 +17,8 @@ namespace Input
 			};
 
 			auto trampoline = SKSE::GetTrampoline();
-			for (const auto& loc : locations) {
-				REL::Offset<std::uintptr_t> target(REL::ID(loc.first), loc.second);
+			for (const auto& [id, offset] : locations) {
+				REL::Offset<std::uintptr_t> target(REL::ID(id), offset);
 				_RefreshLinkedMappings = trampoline->Write5CallEx(target.address(), RefreshLinkedMappings);
 			}
 		}
@@ -147,8 +147,11 @@ namespace Input
 				}
 			};
 
-			for_each([](RE::ControlMap::UserEventMapping& a_mapping, std::size_t) {
-				a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
+			constexpr auto invalid = RE::UserEvents::USER_EVENT_FLAG::kInvalid;
+			for_each([=](RE::ControlMap::UserEventMapping& a_mapping, std::size_t) {
+				if (a_mapping.userEventGroupFlag.none(invalid)) {
+					a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
+				}
 			});
 
 			UserEventMap eventMap;
@@ -156,7 +159,10 @@ namespace Input
 
 			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
 				if (eventMap(a_device, a_mapping.eventID) || idMap(a_device, a_mapping.inputKey)) {
-					a_mapping.userEventGroupFlag.reset(RE::UserEvents::USER_EVENT_FLAG::kInvalid);
+					if (a_mapping.userEventGroupFlag.all(invalid)) {
+						a_mapping.userEventGroupFlag = RE::UserEvents::USER_EVENT_FLAG::kNone;
+					}
+
 					a_mapping.userEventGroupFlag.set(QUICKLOOT_FLAG);
 				}
 			});
