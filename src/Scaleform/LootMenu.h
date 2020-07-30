@@ -49,7 +49,7 @@ namespace Scaleform
 			auto& inst = _itemList.GetInstance();
 			std::array<RE::GFxValue, 1> args;
 			args[0] = a_mod;
-			[[maybe_unused]] auto success =
+			[[maybe_unused]] const auto success =
 				inst.Invoke("modSelectedPage", args);
 			assert(success);
 			UpdateInfoBar();
@@ -61,6 +61,7 @@ namespace Scaleform
 			_src = a_ref;
 			_containerChangedHandler.SetContainer(a_ref);
 			_openCloseHandler.SetSource(a_ref);
+			_itemList.SelectedIndex(0);
 			QueueUIRefresh();
 		}
 
@@ -98,16 +99,22 @@ namespace Scaleform
 				}
 			}
 
-			Sort();
-			_itemListProvider.ClearElements();
-			for (const auto& elem : _itemListImpl) {
-				_itemListProvider.PushBack(elem->GFxValue(*_view));
-			}
-			_itemList.InvalidateData();
+			if (*Settings::closeOnEmpty && _itemListImpl.empty()) {
+				Close();
+			} else {
+				Sort();
+				_itemListProvider.ClearElements();
+				for (const auto& elem : _itemListImpl) {
+					_itemListProvider.PushBack(elem->GFxValue(*_view));
+				}
+				_itemList.InvalidateData();
 
-			RestoreIndex(idx);
-			UpdateWeight();
-			UpdateInfoBar();
+				RestoreIndex(idx);
+				UpdateWeight();
+				UpdateInfoBar();
+
+				_rootObj.Visible(true);
+			}
 		}
 
 		inline void RefreshUI()
@@ -276,11 +283,11 @@ namespace Scaleform
 		inline void InitExtensions()
 		{
 			const RE::GFxValue boolean{ true };
-			bool success;
+			[[maybe_unused]] bool success = false;
 
 			success = _view->SetVariable("_global.gfxExtensions", boolean);
 			assert(success);
-			success = _view->SetVariable("_global.noInvisibleAdvance", boolean);
+			//success = _view->SetVariable("_global.noInvisibleAdvance", boolean);
 			assert(success);
 		}
 
@@ -306,6 +313,7 @@ namespace Scaleform
 			}
 
 			AdjustPosition();
+			_rootObj.Visible(false);
 
 			_title.AutoSize(CLIK::Object{ "left" });
 			_title.Visible(false);

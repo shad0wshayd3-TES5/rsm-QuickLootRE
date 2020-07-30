@@ -99,9 +99,71 @@ namespace Events
 		RE::ObjectRefHandle _cachedAshPile;
 	};
 
+	class CombatManager :
+		public RE::BSTEventSink<RE::TESCombatEvent>
+	{
+	public:
+		static inline CombatManager* GetSingleton()
+		{
+			static CombatManager singleton;
+			return std::addressof(singleton);
+		}
+
+		static inline void Register()
+		{
+			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
+			if (scripts) {
+				scripts->AddEventSink(GetSingleton());
+				logger::info("Registered {}"sv, typeid(CombatManager).name());
+			}
+		}
+
+	protected:
+		using EventResult = RE::BSEventNotifyControl;
+
+		inline EventResult ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>*) override
+		{
+			using CombatState = RE::ACTOR_COMBAT_STATE;
+
+			const auto isPlayerRef = [](auto&& a_ref) {
+				return a_ref && a_ref->IsPlayerRef();
+			};
+
+			if (a_event && (isPlayerRef(a_event->actor) || isPlayerRef(a_event->targetActor))) {
+				switch (*a_event->newState) {
+				case CombatState::kCombat:
+				case CombatState::kSearching:
+					Close();
+					break;
+				default:
+					break;
+				}
+			}
+
+			return EventResult::kContinue;
+		}
+
+	private:
+		CombatManager() = default;
+		CombatManager(const CombatManager&) = delete;
+		CombatManager(CombatManager&&) = delete;
+
+		~CombatManager() = default;
+
+		CombatManager& operator=(const CombatManager&) = delete;
+		CombatManager& operator=(CombatManager&&) = delete;
+
+		void Close();
+	};
+
 	inline void Register()
 	{
 		CrosshairRefManager::Register();
+
+		if (*Settings::closeInCombat) {
+			CombatManager::Register();
+		}
+
 		logger::info("Registered all event handlers"sv);
 	}
 }

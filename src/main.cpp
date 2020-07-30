@@ -147,6 +147,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	try {
 		logger::info("QuickLootRE loaded"sv);
+		Settings::load();
 
 		if (!SKSE::Init(a_skse)) {
 			return false;

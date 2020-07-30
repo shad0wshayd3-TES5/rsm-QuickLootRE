@@ -152,6 +152,9 @@
     <ClInclude Include="src\Scaleform\Scaleform.h">
       <Filter>src\Scaleform</Filter>
     </ClInclude>
+    <ClInclude Include="src\Settings.h">
+      <Filter>src</Filter>
+    </ClInclude>
     <ClInclude Include="src\version.h">
       <Filter>src</Filter>
     </ClInclude>

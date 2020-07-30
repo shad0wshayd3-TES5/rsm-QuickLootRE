@@ -8,6 +8,7 @@ def make_rel_archive(a_parent, a_name):
 		archive.write(a_parent + a_relative, a_relative)
 
 	do_write("SKSE/Plugins/" + a_name + ".dll")
+	do_write("SKSE/Plugins/" + a_name + ".toml")
 	do_write("Interface/LootMenu.swf")
 
 def make_dbg_archive(a_parent, a_name):

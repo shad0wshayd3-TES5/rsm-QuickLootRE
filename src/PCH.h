@@ -4,6 +4,8 @@
 #include "REL/Relocation.h"
 #include "SKSE/SKSE.h"
 
+#include "AutoTOML.hpp"
+
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -97,3 +99,5 @@ namespace stl
 constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""sv; }
 
 #define DLLEXPORT __declspec(dllexport)
+
+#include "Settings.h"

@@ -13,4 +13,10 @@ namespace Events
 			loot->Close();
 		}
 	}
+
+	void CombatManager::Close()
+	{
+		auto loot = Loot::GetSingleton();
+		loot->Close();
+	}
 }
