@@ -1,6 +1,7 @@
 # QuickLootRE
 
 ## Build Dependencies
+* [AutoTOML](https://github.com/Ryan-rsm-McKenzie/AutoTOML)
 * [Boost.Regex](https://www.boost.org/)
 * [CommonLibSSE](https://github.com/Ryan-rsm-McKenzie/CommonLibSSE)
 * [frozen](https://github.com/serge-sans-paille/frozen)
