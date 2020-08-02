@@ -101,6 +101,8 @@ private:
 					events->SendActivateEvent(a_src, dst);
 					events->SendOpenCloseEvent(a_src, dst, true);
 				}
+
+				RE::ChestsLooted::SendEvent();
 			}
 
 			_doOneShotOpen = false;
