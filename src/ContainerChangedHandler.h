@@ -4,7 +4,10 @@ class ContainerChangedHandler :
 	public RE::BSTEventSink<RE::TESContainerChangedEvent>
 {
 public:
-	ContainerChangedHandler() = default;
+	inline ContainerChangedHandler() :
+		ContainerChangedHandler(RE::ObjectRefHandle{})
+	{}
+
 	ContainerChangedHandler(const ContainerChangedHandler&) = default;
 	ContainerChangedHandler(ContainerChangedHandler&&) = default;
 
