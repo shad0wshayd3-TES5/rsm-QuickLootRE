@@ -126,12 +126,14 @@ namespace Scaleform
 
 		inline void TakeStack()
 		{
+			auto dst = _dst.get();
 			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-			if (0 <= pos && pos < stl::ssize(_itemListImpl)) {
-				auto dst = _dst.get();
-				if (dst) {
-					_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
-					_openCloseHandler.Open();
+			if (dst && 0 <= pos && pos < stl::ssize(_itemListImpl)) {
+				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
+				_openCloseHandler.Open();
+
+				if (*Settings::dispelInvis) {
+					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
 				}
 			}
 

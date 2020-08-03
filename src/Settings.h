@@ -25,4 +25,5 @@ struct Settings
 
 	static inline bSetting closeInCombat{ "General"s, "closeInCombat"s, true };
 	static inline bSetting closeOnEmpty{ "General"s, "closeOnEmpty"s, true };
+	static inline bSetting dispelInvis{ "General"s, "dispelInvis"s, true };
 };
