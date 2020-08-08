@@ -1,78 +1,52 @@
 #include "Input/InputListeners.h"
 
+#include "Input.h"
 #include "Loot.h"
 
 namespace Input
 {
-	bool ScrollHandler::ProcessKeyboard(const RE::ButtonEvent& a_event)
+	ScrollHandler::ScrollHandler()
 	{
+		using Device = RE::INPUT_DEVICE;
+		using Gamepad = RE::BSWin32GamepadDevice::Key;
 		using Keyboard = RE::BSWin32KeyboardDevice::Key;
-
-		auto loot = Loot::GetSingleton();
-		switch (a_event.GetIDCode()) {
-		case Keyboard::kUp:
-			loot->ModSelectedIndex(-1.0);
-			return true;
-		case Keyboard::kDown:
-			loot->ModSelectedIndex(1.0);
-			return true;
-		case Keyboard::kLeft:
-		case Keyboard::kPageUp:
-			loot->ModSelectedPage(-1.0);
-			return true;
-		case Keyboard::kRight:
-		case Keyboard::kPageDown:
-			loot->ModSelectedPage(1.0);
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	bool ScrollHandler::ProcessMouse(const RE::ButtonEvent& a_event)
-	{
 		using Mouse = RE::BSWin32MouseDevice::Key;
 
-		auto loot = Loot::GetSingleton();
-		switch (a_event.GetIDCode()) {
-		case Mouse::kWheelUp:
-			loot->ModSelectedIndex(-1.0);
-			return true;
-		case Mouse::kWheelDown:
-			loot->ModSelectedIndex(1.0);
-			return true;
-		default:
-			return false;
+		const auto& groups = ControlGroups::get();
+
+		if (groups[Group::kPageKeys]) {
+			auto& mappings = _mappings[Device::kKeyboard];
+			mappings.emplace(Keyboard::kPageUp, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Keyboard::kPageDown, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
 		}
-	}
 
-	bool ScrollHandler::ProcessGamepad(const RE::ButtonEvent& a_event)
-	{
-		using Gamepad = RE::BSWin32GamepadDevice::Key;
+		if (groups[Group::kArrowKeys]) {
+			auto& mappings = _mappings[Device::kKeyboard];
+			mappings.emplace(Keyboard::kUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Keyboard::kDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Keyboard::kLeft, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Keyboard::kRight, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+		}
 
-		auto loot = Loot::GetSingleton();
-		switch (a_event.GetIDCode()) {
-		case Gamepad::kUp:
-			loot->ModSelectedIndex(-1.0);
-			return true;
-		case Gamepad::kDown:
-			loot->ModSelectedIndex(1.0);
-			return true;
-		case Gamepad::kLeft:
-			loot->ModSelectedPage(-1.0);
-			return true;
-		case Gamepad::kRight:
-			loot->ModSelectedPage(1.0);
-			return true;
-		default:
-			return false;
+		if (groups[Group::kMouseWheel]) {
+			auto& mappings = _mappings[Device::kMouse];
+			mappings.emplace(Mouse::kWheelUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Mouse::kWheelDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
+		}
+
+		if (groups[Group::kDPAD]) {
+			auto& mappings = _mappings[Device::kGamepad];
+			mappings.emplace(Gamepad::kUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Gamepad::kDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Gamepad::kLeft, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Gamepad::kRight, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
 		}
 	}
 
 	void TakeHandler::TakeStack()
 	{
-		auto loot = Loot::GetSingleton();
-		loot->TakeStack();
+		auto& loot = Loot::GetSingleton();
+		loot.TakeStack();
 	}
 
 	void TakeHandler::TryGrab()
@@ -93,8 +67,8 @@ namespace Input
 			activateHandler->SetHeldButtonActionSuccess(true);
 		}
 
-		auto loot = Loot::GetSingleton();
-		loot->Close();
+		auto& loot = Loot::GetSingleton();
+		loot.Close();
 	}
 
 	void TransferHandler::DoHandle(RE::InputEvent* const& a_event)
@@ -108,7 +82,7 @@ namespace Input
 			auto controlMap = RE::ControlMap::GetSingleton();
 			const auto idCode =
 				controlMap ?
-					controlMap->GetMappedKey("Ready Weapon", event->GetDevice()) :
+					controlMap->GetMappedKey("Ready Weapon"sv, event->GetDevice()) :
 					RE::ControlMap::kInvalid;
 
 			if (event->GetIDCode() == idCode && event->IsDown()) {
@@ -117,8 +91,8 @@ namespace Input
 					player->ActivatePickRef();
 				}
 
-				auto loot = Loot::GetSingleton();
-				loot->Close();
+				auto& loot = Loot::GetSingleton();
+				loot.Close();
 				return;
 			}
 		}

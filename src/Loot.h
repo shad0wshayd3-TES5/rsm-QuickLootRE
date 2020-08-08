@@ -12,10 +12,10 @@ private:
 	using LootMenu = Scaleform::LootMenu;
 
 public:
-	static inline Loot* GetSingleton()
+	static inline Loot& GetSingleton()
 	{
 		static Loot singleton;
-		return std::addressof(singleton);
+		return singleton;
 	}
 
 	inline void Disable()

@@ -10,8 +10,8 @@ auto ContainerChangedHandler::ProcessEvent(const RE::TESContainerChangedEvent* a
 		container &&
 		(a_event->oldContainer == container->GetFormID() ||
 			a_event->newContainer == container->GetFormID())) {
-		auto loot = Loot::GetSingleton();
-		loot->RefreshInventory();
+		auto& loot = Loot::GetSingleton();
+		loot.RefreshInventory();
 	}
 
 	return EventResult::kContinue;

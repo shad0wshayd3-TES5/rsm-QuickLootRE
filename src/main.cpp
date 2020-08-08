@@ -51,13 +51,13 @@ protected:
 				continue;
 			}
 
-			auto loot = Loot::GetSingleton();
+			auto& loot = Loot::GetSingleton();
 			switch (button->idCode) {
 			case Keyboard::kNum0:
-				loot->Enable();
+				loot.Enable();
 				break;
 			case Keyboard::kNum9:
-				loot->Disable();
+				loot.Disable();
 				break;
 			default:
 				break;
@@ -114,7 +114,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 #endif
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("%g(%#): [%^%l%$] %v");
+		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 
 		logger::info("QuickLootRE v{}"sv, QKLT_VERSION_VERSTRING);
 
@@ -129,7 +129,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 		const auto ver = a_skse->RuntimeVersion();
 		if (ver < SKSE::RUNTIME_1_5_39) {
-			logger::critical("Unsupported runtime version {}"sv, ver.GetString().c_str());
+			logger::critical("Unsupported runtime version {}"sv, ver.string());
 			return false;
 		}
 	} catch (const std::exception& e) {

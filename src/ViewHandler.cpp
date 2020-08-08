@@ -34,6 +34,6 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 
 void ViewHandler::RefreshUI()
 {
-	auto loot = Loot::GetSingleton();
-	loot->RefreshUI();
+	auto& loot = Loot::GetSingleton();
+	loot.RefreshUI();
 }

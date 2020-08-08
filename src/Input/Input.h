@@ -4,6 +4,41 @@ namespace Input
 {
 	constexpr inline auto QUICKLOOT_FLAG = static_cast<RE::UserEvents::USER_EVENT_FLAG>(1 << 12);
 
+	class ControlGroups
+	{
+	public:
+		enum Group
+		{
+			kPageKeys,
+			kArrowKeys,
+			kMouseWheel,
+			kDPAD,
+			kTotal
+		};
+
+		[[nodiscard]] static ControlGroups& get() noexcept
+		{
+			static ControlGroups singleton;
+			return singleton;
+		}
+
+		[[nodiscard]] constexpr bool& operator[](Group a_group) noexcept { return _enabled[a_group]; }
+		[[nodiscard]] constexpr bool operator[](Group a_group) const noexcept { return _enabled[a_group]; }
+
+	private:
+		ControlGroups() = default;
+		ControlGroups(const ControlGroups&) = delete;
+		ControlGroups(ControlGroups&&) = delete;
+
+		~ControlGroups() = default;
+
+		ControlGroups& operator=(const ControlGroups&) = delete;
+		ControlGroups& operator=(ControlGroups&&) = delete;
+
+		static inline std::array<bool, kTotal> _enabled{ false };
+	};
+	using Group = ControlGroups::Group;
+
 	class InputManager
 	{
 	public:
@@ -16,10 +51,10 @@ namespace Input
 				std::make_pair<std::uint64_t, std::size_t>(67240, 0x17B),
 			};
 
-			auto trampoline = SKSE::GetTrampoline();
+			auto& trampoline = SKSE::GetTrampoline();
 			for (const auto& [id, offset] : locations) {
-				REL::Offset<std::uintptr_t> target(REL::ID(id), offset);
-				_RefreshLinkedMappings = trampoline->Write5CallEx(target.address(), RefreshLinkedMappings);
+				REL::Relocation<std::uintptr_t> target(REL::ID(id), offset);
+				_RefreshLinkedMappings = trampoline.write_call<5>(target.address(), RefreshLinkedMappings);
 			}
 		}
 
@@ -36,11 +71,19 @@ namespace Input
 				insert("Ready Weapon"sv);
 			}
 
-			[[nodiscard]] inline bool operator()(std::size_t a_device, value_type a_value) const
+			inline void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
 			{
+				using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
+
 				const auto& mapping = _mappings[a_device];
-				auto it = mapping.find(a_value);
-				return it != mapping.end();
+				auto it = mapping.find(a_userEvent.eventID);
+				if (it != mapping.end()) {
+					if (a_userEvent.userEventGroupFlag.all(UEFlag::kInvalid)) {
+						a_userEvent.userEventGroupFlag = UEFlag::kNone;
+					}
+
+					a_userEvent.userEventGroupFlag.set(QUICKLOOT_FLAG);
+				}
 			}
 
 		private:
@@ -49,11 +92,6 @@ namespace Input
 				for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i) {
 					_mappings[i].insert(a_value);
 				}
-			}
-
-			inline void insert(value_type a_value, RE::INPUT_DEVICE a_device)
-			{
-				_mappings[a_device].insert(a_value);
 			}
 
 			struct cicompare
@@ -72,51 +110,134 @@ namespace Input
 		public:
 			using value_type = std::uint32_t;
 
-			inline IDCodeMap() :
-				_mappings{}
+			inline IDCodeMap()
 			{
 				using Device = RE::INPUT_DEVICE;
 				using Gamepad = RE::BSWin32GamepadDevice::Key;
 				using Keyboard = RE::BSWin32KeyboardDevice::Key;
 				using Mouse = RE::BSWin32MouseDevice::Key;
 
-				insert(Keyboard::kPageUp, Device::kKeyboard);
-				insert(Keyboard::kPageDown, Device::kKeyboard);
-				insert(Keyboard::kUp, Device::kKeyboard);
-				insert(Keyboard::kDown, Device::kKeyboard);
-				insert(Keyboard::kLeft, Device::kKeyboard);
-				insert(Keyboard::kRight, Device::kKeyboard);
+				insert<OptionalGroup>(Group::kPageKeys, Device::kKeyboard, { Keyboard::kPageUp, Keyboard::kPageDown });
+				insert<OptionalGroup>(Group::kArrowKeys, Device::kKeyboard, { Keyboard::kUp, Keyboard::kDown, Keyboard::kLeft, Keyboard::kRight });
 
-				insert(Mouse::kWheelUp, Device::kMouse);
-				insert(Mouse::kWheelDown, Device::kMouse);
-
-				insert(Gamepad::kUp, Device::kGamepad);
-				insert(Gamepad::kDown, Device::kGamepad);
-				insert(Gamepad::kLeft, Device::kGamepad);
-				insert(Gamepad::kRight, Device::kGamepad);
+				insert<MandatoryGroup>(Group::kMouseWheel, Device::kMouse, { Mouse::kWheelUp, Mouse::kWheelDown });
+				insert<MandatoryGroup>(Group::kDPAD, Device::kGamepad, { Gamepad::kUp, Gamepad::kDown, Gamepad::kLeft, Gamepad::kRight });
 			}
 
-			[[nodiscard]] inline bool operator()(std::size_t a_device, value_type a_value) const
+			inline void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
 			{
 				const auto& mapping = _mappings[a_device];
-				auto it = mapping.find(a_value);
-				return it != mapping.end();
-			}
-
-		private:
-			inline void insert(value_type a_value)
-			{
-				for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i) {
-					_mappings[i].insert(a_value);
+				auto it = mapping.find(a_userEvent.inputKey);
+				if (it != mapping.end()) {
+					it->second->accept(a_userEvent);
 				}
 			}
 
-			inline void insert(value_type a_value, RE::INPUT_DEVICE a_device)
+			inline void commit()
 			{
-				_mappings[a_device].insert(a_value);
+				for (const auto& mapping : _mappings) {
+					for (const auto& [id, group] : mapping) {
+						group->commit();
+					}
+				}
 			}
 
-			std::array<std::set<value_type>, RE::INPUT_DEVICES::kTotal> _mappings;
+		private:
+			class IControlGroup
+			{
+			public:
+				using value_type = RE::ControlMap::UserEventMapping;
+
+				inline IControlGroup(Group a_group) noexcept :
+					_group(a_group)
+				{}
+
+				virtual ~IControlGroup() = default;
+
+				inline void accept(value_type& a_mapping)
+				{
+					if (_good) {
+						if (can_accept(a_mapping)) {
+							_queued.emplace_back(a_mapping);
+						} else {
+							_good = false;
+						}
+					}
+				}
+
+				inline void commit() noexcept
+				{
+					using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
+
+					if (_good) {
+						for (auto& todo : _queued) {
+							auto& mapping = todo.get();
+							if (mapping.userEventGroupFlag.all(UEFlag::kInvalid)) {
+								mapping.userEventGroupFlag = UEFlag::kNone;
+							}
+
+							mapping.userEventGroupFlag.set(QUICKLOOT_FLAG);
+						}
+					}
+
+					ControlGroups::get()[_group] = _good;
+				}
+
+			protected:
+				[[nodiscard]] virtual bool can_accept(const value_type& a_mapping) const noexcept = 0;
+
+			private:
+				std::vector<std::reference_wrapper<value_type>> _queued;
+				Group _group;
+				bool _good{ true };
+			};
+
+			class MandatoryGroup final :
+				public IControlGroup
+			{
+			private:
+				using super = IControlGroup;
+
+			public:
+				using value_type = typename super::value_type;
+
+				using super::super;
+				using super::operator=;
+
+			protected:
+				[[nodiscard]] inline bool can_accept(const value_type&) const noexcept override { return true; }
+			};
+
+			class OptionalGroup final :
+				public IControlGroup
+			{
+			private:
+				using super = IControlGroup;
+
+			public:
+				using value_type = typename super::value_type;
+
+				using super::super;
+				using super::operator=;
+
+			protected:
+				[[nodiscard]] inline bool can_accept(const value_type& a_mapping) const noexcept override { return !a_mapping.linked; }
+			};
+
+			template <
+				class T,
+				std::enable_if_t<
+					std::is_base_of_v<IControlGroup, T>,
+					int> = 0>
+			inline void insert(Group a_group, RE::INPUT_DEVICE a_device, std::initializer_list<value_type> a_idCodes)
+			{
+				const auto group = std::make_shared<T>(a_group);
+				for (const auto& idCode : a_idCodes) {
+					_mappings[a_device].emplace(idCode, group);
+				}
+			}
+
+			std::array<std::map<value_type, std::shared_ptr<IControlGroup>>, RE::INPUT_DEVICES::kTotal> _mappings;
 		};
 
 		InputManager() = delete;
@@ -147,9 +268,8 @@ namespace Input
 				}
 			};
 
-			constexpr auto invalid = RE::UserEvents::USER_EVENT_FLAG::kInvalid;
 			for_each([=](RE::ControlMap::UserEventMapping& a_mapping, std::size_t) {
-				if (a_mapping.userEventGroupFlag.none(invalid)) {
+				if (a_mapping.userEventGroupFlag.none(RE::UserEvents::USER_EVENT_FLAG::kInvalid)) {
 					a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
 				}
 			});
@@ -158,19 +278,15 @@ namespace Input
 			IDCodeMap idMap;
 
 			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
-				if (eventMap(a_device, a_mapping.eventID) || idMap(a_device, a_mapping.inputKey)) {
-					if (a_mapping.userEventGroupFlag.all(invalid)) {
-						a_mapping.userEventGroupFlag = RE::UserEvents::USER_EVENT_FLAG::kNone;
-					}
-
-					a_mapping.userEventGroupFlag.set(QUICKLOOT_FLAG);
-				}
+				eventMap(a_device, a_mapping);
+				idMap(a_device, a_mapping);
 			});
 
+			idMap.commit();
 			a_controlMap->ToggleControls(QUICKLOOT_FLAG, true);
 		}
 
-		inline static REL::Offset<decltype(RefreshLinkedMappings)> _RefreshLinkedMappings{};
+		inline static REL::Relocation<decltype(RefreshLinkedMappings)> _RefreshLinkedMappings;
 	};
 
 	class ControlMap

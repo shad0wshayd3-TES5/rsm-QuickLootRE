@@ -27,7 +27,7 @@ protected:
 	public:
 		inline static void Install()
 		{
-			REL::Offset<std::uintptr_t> vtbl = REL::ID(ID);
+			REL::Relocation<std::uintptr_t> vtbl{ REL::ID(ID) };
 			_func = vtbl.write_vfunc(0x4C, GetActivateText);
 			logger::info("Installed {}"sv, typeid(Handler).name());
 		}
@@ -52,7 +52,7 @@ protected:
 			}
 		}
 
-		static inline REL::Offset<decltype(GetActivateText)> _func;
+		static inline REL::Relocation<decltype(GetActivateText)> _func;
 	};
 
 	[[nodiscard]] inline bool Enabled() const noexcept { return _enabled; }

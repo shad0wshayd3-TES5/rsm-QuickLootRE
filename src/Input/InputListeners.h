@@ -16,6 +16,9 @@ namespace Input
 	class ScrollHandler :
 		public IHandler
 	{
+	public:
+		ScrollHandler();
+
 	protected:
 		inline void DoHandle(RE::InputEvent* const& a_event) override
 		{
@@ -23,33 +26,15 @@ namespace Input
 
 			for (auto iter = a_event; iter; iter = iter->next) {
 				auto event = iter->AsButtonEvent();
-				if (!event) {
-					continue;
-				}
-
-				switch (event->GetDevice()) {
-				case Device::kKeyboard:
-					if (CanProcess(*event) && ProcessKeyboard(*event)) {
-						return;
-					}
-					break;
-				case Device::kMouse:
-					if (ProcessMouse(*event)) {
-						return;
-					}
-					break;
-				case Device::kGamepad:
-					if (CanProcess(*event) && ProcessGamepad(*event)) {
-						return;
-					}
-					break;
-				default:
-					break;
+				if (event && CanProcess(*event) && ProcessInput(*event)) {
+					return;
 				}
 			}
 		}
 
 	private:
+		using mapping_type = std::map<std::uint32_t, std::function<void()>>;
+
 		class ScrollTimer
 		{
 		public:
@@ -82,21 +67,41 @@ namespace Input
 
 		[[nodiscard]] inline bool CanProcess(const RE::ButtonEvent& a_event)
 		{
-			if (a_event.IsPressed() && a_event.HeldDuration() < _scrollTimer.get()) {
-				return false;
-			} else if (a_event.IsUp()) {
-				_scrollTimer.reset();
-				return false;
-			} else {
-				_scrollTimer.advance();
+			using Device = RE::INPUT_DEVICE;
+			switch (a_event.GetDevice()) {
+			case Device::kMouse:
 				return true;
+			default:
+				if (a_event.IsPressed() && a_event.HeldDuration() < _scrollTimer.get()) {
+					return false;
+				} else if (a_event.IsUp()) {
+					_scrollTimer.reset();
+					return false;
+				} else {
+					_scrollTimer.advance();
+					return true;
+				}
 			}
 		}
 
-		[[nodiscard]] bool ProcessKeyboard(const RE::ButtonEvent& a_event);
-		[[nodiscard]] bool ProcessMouse(const RE::ButtonEvent& a_event);
-		[[nodiscard]] bool ProcessGamepad(const RE::ButtonEvent& a_event);
+		[[nodiscard]] inline bool ProcessInput(const RE::ButtonEvent& a_event)
+		{
+			const auto device = a_event.GetDevice();
+			if (0 <= device && device < _mappings.size()) {
+				const auto& mappings = _mappings[device];
+				const auto it = mappings.find(a_event.GetIDCode());
+				if (it != mappings.end()) {
+					it->second();
+					return true;
+				}
+			} else {
+				assert(false);
+			}
 
+			return false;
+		}
+
+		std::array<mapping_type, RE::INPUT_DEVICES::kTotal> _mappings;
 		ScrollTimer _scrollTimer;
 	};
 

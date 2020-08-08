@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -33,10 +34,11 @@
 #include <boost/regex.hpp>
 #include <frozen/map.h>
 #include <nonstd/span.hpp>
-#include <spdlog/sinks/basic_file_sink.h>
 
 #ifndef NDEBUG
 #include <spdlog/sinks/msvc_sink.h>
+#else
+#include <spdlog/sinks/basic_file_sink.h>
 #endif
 
 using RE::observer;
