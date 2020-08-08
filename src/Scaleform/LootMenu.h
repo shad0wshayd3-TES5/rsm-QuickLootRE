@@ -79,20 +79,20 @@ namespace Scaleform
 			}
 
 			const auto stealing = WouldBeStealing();
-			auto inv = src->GetInventory();
+			auto inv = src->GetInventory(CanDisplay);
 			for (auto& [obj, data] : inv) {
 				auto& [count, entry] = data;
-				if (CanDisplay(obj) && count > 0 && entry) {
+				if (count > 0 && entry) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::InventoryItem>(
 							count, stealing, std::move(entry), _src));
 				}
 			}
 
-			auto dropped = src->GetDroppedInventory();
+			auto dropped = src->GetDroppedInventory(CanDisplay);
 			for (auto& [obj, data] : dropped) {
 				auto& [count, items] = data;
-				if (CanDisplay(obj) && count > 0 && !items.empty()) {
+				if (count > 0 && !items.empty()) {
 					_itemListImpl.push_back(
 						std::make_unique<Items::GroundItems>(
 							count, stealing, std::move(items)));
@@ -145,9 +145,6 @@ namespace Scaleform
 
 		inline LootMenu()
 		{
-			using Context = RE::UserEvents::INPUT_CONTEXT_ID;
-			using Flag = RE::UI_MENU_FLAGS;
-
 			auto menu = static_cast<super*>(this);
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 			[[maybe_unused]] const auto success =
@@ -228,13 +225,9 @@ namespace Scaleform
 			}
 		};
 
-		[[nodiscard]] static inline bool CanDisplay(RE::TESBoundObject* a_object)
+		[[nodiscard]] static inline bool CanDisplay(const RE::TESBoundObject& a_object)
 		{
-			if (!a_object) {
-				return false;
-			}
-
-			switch (a_object->GetFormType()) {
+			switch (a_object.GetFormType()) {
 			case RE::FormType::Scroll:
 			case RE::FormType::Armor:
 			case RE::FormType::Book:
@@ -249,8 +242,8 @@ namespace Scaleform
 				break;
 			case RE::FormType::Light:
 				{
-					auto light = static_cast<RE::TESObjectLIGH*>(a_object);
-					if (!light->CanBeCarried()) {
+					auto& light = static_cast<const RE::TESObjectLIGH&>(a_object);
+					if (!light.CanBeCarried()) {
 						return false;
 					}
 				}
@@ -259,11 +252,11 @@ namespace Scaleform
 				return false;
 			}
 
-			if (!a_object->GetPlayable()) {
+			if (!a_object.GetPlayable()) {
 				return false;
 			}
 
-			auto name = a_object->GetName();
+			auto name = a_object.GetName();
 			if (!name || name[0] == '\0') {
 				return false;
 			}
