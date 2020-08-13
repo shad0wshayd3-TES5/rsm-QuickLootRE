@@ -9,8 +9,8 @@ void Loot::Close()
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
-			auto hud = HUDManager::GetSingleton();
-			hud->Disable();
+			auto& hud = HUDManager::GetSingleton();
+			hud.Disable();
 		}
 	}
 }
@@ -21,8 +21,8 @@ void Loot::Open()
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
 		if (msgQ) {
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
-			auto hud = HUDManager::GetSingleton();
-			hud->Enable();
+			auto& hud = HUDManager::GetSingleton();
+			hud.Enable();
 		}
 	}
 }

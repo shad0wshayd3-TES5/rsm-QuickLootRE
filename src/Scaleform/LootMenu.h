@@ -59,6 +59,7 @@ namespace Scaleform
 		{
 			assert(a_ref);
 			_src = a_ref;
+			_viewHandler->SetSource(a_ref);
 			_containerChangedHandler.SetContainer(a_ref);
 			_openCloseHandler.SetSource(a_ref);
 			_itemList.SelectedIndex(0);

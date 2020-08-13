@@ -153,7 +153,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 			return false;
 		}
 
-		if (!SKSE::AllocTrampoline(1 << 6)) {
+		if (!SKSE::AllocTrampoline(1 << 4)) {
 			return false;
 		}
 

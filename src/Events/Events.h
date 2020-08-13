@@ -35,8 +35,8 @@ namespace Events
 		{
 			auto crosshairRef =
 				a_event && a_event->crosshairRef ?
-					a_event->crosshairRef->CreateRefHandle() :
-					RE::ObjectRefHandle();
+					  a_event->crosshairRef->CreateRefHandle() :
+					  RE::ObjectRefHandle();
 			if (_cachedRef == crosshairRef) {
 				return EventResult::kContinue;
 			}
@@ -88,9 +88,7 @@ namespace Events
 				}
 			}
 
-			return a_ref->HasContainer() &&
-				   !a_ref->IsLocked() &&
-				   !a_ref->IsActivationBlocked();
+			return a_ref->HasContainer();
 		}
 
 		void Evaluate(RE::TESObjectREFRPtr a_ref);

@@ -22,7 +22,7 @@ public:
 	ContainerChangedHandler& operator=(const ContainerChangedHandler&) = default;
 	ContainerChangedHandler& operator=(ContainerChangedHandler&&) = default;
 
-	inline void SetContainer(RE::ObjectRefHandle a_container) { _container = a_container; }
+	inline void SetContainer(RE::ObjectRefHandle a_container) noexcept { _container = a_container; }
 
 protected:
 	using EventResult = RE::BSEventNotifyControl;
