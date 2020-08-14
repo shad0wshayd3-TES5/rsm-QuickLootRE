@@ -16,16 +16,16 @@ namespace Animation
 	class AnimationManager
 	{
 	public:
-		static inline AnimationManager* GetSingleton()
+		static inline AnimationManager& GetSingleton()
 		{
 			static AnimationManager singleton;
-			return std::addressof(singleton);
+			return singleton;
 		}
 
 		static inline void Install()
 		{
-			auto singleton = GetSingleton();
-			singleton->DoInstall();
+			auto& singleton = GetSingleton();
+			singleton.DoInstall();
 		}
 
 		constexpr void SetEventSink(observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
@@ -47,8 +47,8 @@ namespace Animation
 
 			inline bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
 			{
-				auto manager = AnimationManager::GetSingleton();
-				manager->OnAnimationEvent();
+				const auto& manager = AnimationManager::GetSingleton();
+				manager.OnAnimationEvent();
 
 				return _original ? (*_original)(a_handler, a_parameter) : true;
 			}
@@ -57,7 +57,7 @@ namespace Animation
 			RE::BSTSmartPointer<super> _original;
 		};
 
-		inline void OnAnimationEvent()
+		inline void OnAnimationEvent() const
 		{
 			if (_sink) {
 				(*_sink)();
