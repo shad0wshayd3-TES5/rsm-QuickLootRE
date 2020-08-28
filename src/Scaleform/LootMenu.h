@@ -28,7 +28,7 @@ namespace Scaleform
 			auto ui = RE::UI::GetSingleton();
 			if (ui) {
 				ui->Register(MENU_NAME, Creator);
-				logger::info("Registered {}", MENU_NAME);
+				logger::info("Registered {}"sv, MENU_NAME);
 			}
 		}
 
@@ -222,7 +222,7 @@ namespace Scaleform
 				std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
 				va_end(args);
 
-				logger::info("{}: {}", LootMenu::MenuName(), buf.data());
+				logger::info("{}: {}"sv, LootMenu::MenuName(), buf.data());
 			}
 		};
 

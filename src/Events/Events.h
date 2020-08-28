@@ -4,6 +4,7 @@ namespace Events
 {
 	class CrosshairRefManager :
 		public RE::BSTEventSink<SKSE::CrosshairRefEvent>,
+		public RE::BSTEventSink<RE::TESDeathEvent>,
 		public RE::BSTEventSink<RE::TESLockChangedEvent>
 	{
 	public:
@@ -25,6 +26,9 @@ namespace Events
 			if (scripts) {
 				scripts->AddEventSink<RE::TESLockChangedEvent>(GetSingleton());
 				logger::info("Registered {}"sv, typeid(RE::TESLockChangedEvent).name());
+
+				scripts->AddEventSink<RE::TESDeathEvent>(GetSingleton());
+				logger::info("Registered {}"sv, typeid(RE::TESDeathEvent).name());
 			}
 		}
 
@@ -44,6 +48,17 @@ namespace Events
 			_cachedRef = crosshairRef;
 			_cachedAshPile.reset();
 			Evaluate(a_event->crosshairRef);
+
+			return EventResult::kContinue;
+		}
+
+		inline EventResult ProcessEvent(const RE::TESDeathEvent* a_event, RE::BSTEventSource<RE::TESDeathEvent>*) override
+		{
+			if (a_event &&
+				a_event->actorDying &&
+				a_event->actorDying->GetHandle() == _cachedRef) {
+				Evaluate(a_event->actorDying);
+			}
 
 			return EventResult::kContinue;
 		}
