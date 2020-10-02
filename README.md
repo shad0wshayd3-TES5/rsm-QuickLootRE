@@ -2,10 +2,13 @@
 
 ## Build Dependencies
 * [AutoTOML](https://github.com/Ryan-rsm-McKenzie/AutoTOML)
-* [Boost.Regex](https://www.boost.org/)
+* [Boost](https://www.boost.org/)
+	* Regex
 * [CommonLibSSE](https://github.com/Ryan-rsm-McKenzie/CommonLibSSE)
 * [frozen](https://github.com/serge-sans-paille/frozen)
 * [span lite](https://github.com/martinmoene/span-lite)
+* [spdlog](https://github.com/gabime/spdlog)
+* [toml++](https://github.com/marzer/tomlplusplus)
 
 ## End User Dependencies
 * [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444)

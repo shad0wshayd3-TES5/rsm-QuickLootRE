@@ -83,6 +83,7 @@ private:
 		auto player = RE::PlayerCharacter::GetSingleton();
 		if (!player ||
 			player->IsGrabbing() ||
+			player->HasActorDoingCommand() ||
 			(*Settings::closeInCombat && player->IsInCombat())) {
 			return false;
 		}

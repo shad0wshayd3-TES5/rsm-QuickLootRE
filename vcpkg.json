@@ -1,0 +1,14 @@
+{
+  "name": "quicklootre",
+  "version-string": "1",
+  "description": "A quick looting mod for Skyrim: Special Edition akin to Fallout 4.",
+  "homepage": "https://github.com/Ryan-rsm-McKenzie/QuickLootRE",
+  "license": "MIT",
+  "dependencies": [
+    "boost-regex",
+    "frozen",
+    "span-lite",
+    "spdlog",
+    "tomlplusplus"
+  ]
+}

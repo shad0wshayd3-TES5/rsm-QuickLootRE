@@ -1,51 +1,7 @@
 #pragma once
 
-#define SKSE_CUSTOM_WINDEF
-
-#define NOGDICAPMASKS
-#define NOVIRTUALKEYCODES
-//#define NOWINMESSAGES
-#define NOWINSTYLES
-#define NOSYSMETRICS
-#define NOMENUS
-#define NOICONS
-#define NOKEYSTATES
-#define NOSYSCOMMANDS
-#define NORASTEROPS
-#define NOSHOWWINDOW
-#define OEMRESOURCE
-#define NOATOM
-#define NOCLIPBOARD
-#define NOCOLOR
-//#define NOCTLMGR
-#define NODRAWTEXT
-#define NOGDI
-#define NOKERNEL
-//#define NOUSER
-//#define NONLS
-//#define NOMB
-#define NOMEMMGR
-#define NOMETAFILE
-#define NOMINMAX
-//#define NOMSG
-#define NOOPENFILE
-#define NOSCROLL
-#define NOSERVICE
-#define NOSOUND
-#define NOTEXTMETRIC
-#define NOWH
-#define NOWINOFFSETS
-#define NOCOMM
-#define NOKANJI
-#define NOHELP
-#define NOPROFILER
-#define NODEFERWINDOWPOS
-#define NOMCX
-
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
-
-#include "AutoTOML.hpp"
 
 #include <algorithm>
 #include <array>
@@ -75,6 +31,8 @@
 #include <boost/regex.hpp>
 #include <frozen/map.h>
 #include <nonstd/span.hpp>
+
+#include "AutoTOML.hpp"
 
 #ifndef NDEBUG
 #include <spdlog/sinks/msvc_sink.h>
@@ -142,5 +100,7 @@ namespace stl
 constexpr std::string_view safe_string(const char* a_str) { return a_str ? a_str : ""sv; }
 
 #define DLLEXPORT __declspec(dllexport)
+
+#include "Version.h"
 
 #include "Settings.h"

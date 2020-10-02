@@ -120,11 +120,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	spdlog::set_default_logger(std::move(log));
 	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 
-	logger::info("QuickLootRE v{}"sv, QKLT_VERSION_VERSTRING);
+	logger::info("QuickLootRE v{}"sv, Version::NAME);
 
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = "QuickLootRE";
-	a_info->version = QKLT_VERSION_MAJOR;
+	a_info->version = Version::MAJOR;
 
 	if (a_skse->IsEditor()) {
 		logger::critical("Loaded in editor, marking as incompatible"sv);
