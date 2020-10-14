@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.18)
 
 project(
 	QuickLootRE
-	VERSION 2.8.1
+	VERSION 2.8.2
 	LANGUAGES CXX
 )
 
