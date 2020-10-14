@@ -147,6 +147,7 @@ namespace Scaleform
 		inline LootMenu()
 		{
 			auto menu = static_cast<super*>(this);
+			menu->depthPriority = -1;
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 			[[maybe_unused]] const auto success =
 				scaleformManager->LoadMovieEx(menu, FILE_NAME, [](RE::GFxMovieDef* a_def) -> void {
