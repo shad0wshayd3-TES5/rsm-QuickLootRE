@@ -120,8 +120,8 @@ namespace Input
 				auto controlMap = RE::ControlMap::GetSingleton();
 				const auto idCode =
 					controlMap ?
-						controlMap->GetMappedKey("Activate", event->GetDevice()) :
-						RE::ControlMap::kInvalid;
+                        controlMap->GetMappedKey("Activate", event->GetDevice()) :
+                        RE::ControlMap::kInvalid;
 
 				if (event->GetIDCode() == idCode) {
 					if (event->IsHeld() && event->HeldDuration() > GetGrabDelay()) {

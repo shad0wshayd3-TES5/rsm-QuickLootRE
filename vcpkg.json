@@ -9,6 +9,7 @@
     "frozen",
     "span-lite",
     "spdlog",
-    "tomlplusplus"
+    "tomlplusplus",
+    "xbyak"
   ]
 }

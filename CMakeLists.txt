@@ -1,10 +1,13 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.19)
+
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
 
 # ---- Project ----
 
 project(
 	QuickLootRE
-	VERSION 2.8.2
+	VERSION 2.8.3
 	LANGUAGES CXX
 )
 
@@ -31,72 +34,12 @@ endif()
 
 # ---- Globals ----
 
-set(MSVC_COMPILE_OPTIONS
-	/Gy	# Enable Function-Level Linking
-	/MP	# Build with Multiple Processes
-	/Oi	# Generate Intrinsic Functions
-	/sdl	# Enable Additional Security Checks
-	/Zi	# Debug Information Format
-	
-	/permissive-	# Standards conformance
-	
-	/Zc:alignedNew	# C++17 over-aligned allocation
-	/Zc:auto	# Deduce Variable Type
-	/Zc:char8_t
-	/Zc:__cplusplus	# Enable updated __cplusplus macro
-	/Zc:externC
-	/Zc:externConstexpr	# Enable extern constexpr variables
-	/Zc:forScope	# Force Conformance in for Loop Scope
-	/Zc:hiddenFriend
-	/Zc:implicitNoexcept	# Implicit Exception Specifiers
-	/Zc:lambda
-	/Zc:noexceptTypes	# C++17 noexcept rules
-	/Zc:preprocessor	# Enable preprocessor conformance mode
-	/Zc:referenceBinding	# Enforce reference binding rules
-	/Zc:rvalueCast	# Enforce type conversion rules
-	/Zc:sizedDealloc	# Enable Global Sized Deallocation Functions
-	/Zc:strictStrings	# Disable string literal type conversion
-	/Zc:ternary	# Enforce conditional operator rules
-	/Zc:threadSafeInit	# Thread-safe Local Static Initialization
-	/Zc:tlsGuards
-	/Zc:trigraphs	# Trigraphs Substitution
-	/Zc:wchar_t	# wchar_t Is Native Type
-	
-	/experimental:external
-	/external:anglebrackets
-	/external:W0
-	
-	/W4	# Warning level (all warnings)
-	/WX	# Warning level (warnings are errors)
-)
-
-set(MSVC_COMPILE_OPTIONS_DEBUG
-	/Zc:inline-	# Keep unreferenced COMDAT
-	/JMC	# Just My Code debugging
-)
-
-set(MSVC_COMPILE_OPTIONS_RELEASE
-	/Zc:inline	# Remove unreferenced COMDAT
-	/JMC-	# Disable Just My Code debugging
-)
-
-set(MSVC_LINK_OPTIONS_DEBUG
-	/INCREMENTAL	# Link Incrementally
-	/OPT:NOREF	# Optimizations (keep functions/data never referenced)
-	/OPT:NOICF	# Optimizations (prevent identical COMDAT folding)
-)
-
-set(MSVC_LINK_OPTIONS_RELEASE
-	/INCREMENTAL:NO	# Link Incrementally
-	/OPT:REF	# Optimizations (eliminate functions/data never referenced)
-	/OPT:ICF	# Optimizations (perform identical COMDAT folding)
-)
-
 add_compile_definitions(
 	"$<$<BOOL:${MSVC}>:_UNICODE>"
 	TOML_WINDOWS_COMPAT=0
 	
 	SKSE_CUSTOM_WINDEF
+	SKSE_SUPPORT_XBYAK
 	
 	NOGDICAPMASKS
 	NOVIRTUALKEYCODES
@@ -139,16 +82,55 @@ add_compile_definitions(
 	NOMCX
 )
 
-add_compile_options(
-	"$<$<BOOL:${MSVC}>:${MSVC_COMPILE_OPTIONS}>"
-	"$<$<AND:$<BOOL:${MSVC}>,$<CONFIG:DEBUG>>:${MSVC_COMPILE_OPTIONS_DEBUG}>"
-	"$<$<AND:$<BOOL:${MSVC}>,$<CONFIG:RELEASE>>:${MSVC_COMPILE_OPTIONS_RELEASE}>"
-)
-
-add_link_options(
-	"$<$<AND:$<BOOL:${MSVC}>,$<CONFIG:DEBUG>>:${MSVC_LINK_OPTIONS_DEBUG}>"
-	"$<$<AND:$<BOOL:${MSVC}>,$<CONFIG:RELEASE>>:${MSVC_LINK_OPTIONS_RELEASE}>"
-)
+if (MSVC)
+	string(REPLACE " " ";" MY_CXX_FLAGS "${VCPKG_CXX_FLAGS}")
+	string(REPLACE " " ";" MY_CXX_FLAGS_DEBUG "${VCPKG_CXX_FLAGS_DEBUG}")
+	string(REPLACE " " ";" MY_CXX_FLAGS_RELEASE "${VCPKG_CXX_FLAGS_RELEASE}")
+	
+	add_compile_options(		
+		/MP	# Build with Multiple Processes
+		/sdl	# Enable Additional Security Checks
+		/Zi	# Debug Information Format
+		
+		/permissive-	# Standards conformance
+		
+		/Zc:alignedNew	# C++17 over-aligned allocation
+		/Zc:auto	# Deduce Variable Type
+		/Zc:char8_t
+		/Zc:__cplusplus	# Enable updated __cplusplus macro
+		/Zc:externC
+		/Zc:externConstexpr	# Enable extern constexpr variables
+		/Zc:forScope	# Force Conformance in for Loop Scope
+		/Zc:hiddenFriend
+		/Zc:implicitNoexcept	# Implicit Exception Specifiers
+		/Zc:lambda
+		/Zc:noexceptTypes	# C++17 noexcept rules
+		/Zc:preprocessor	# Enable preprocessor conformance mode
+		/Zc:referenceBinding	# Enforce reference binding rules
+		/Zc:rvalueCast	# Enforce type conversion rules
+		/Zc:sizedDealloc	# Enable Global Sized Deallocation Functions
+		/Zc:strictStrings	# Disable string literal type conversion
+		/Zc:ternary	# Enforce conditional operator rules
+		/Zc:threadSafeInit	# Thread-safe Local Static Initialization
+		/Zc:tlsGuards
+		/Zc:trigraphs	# Trigraphs Substitution
+		/Zc:wchar_t	# wchar_t Is Native Type
+		
+		/experimental:external
+		/external:anglebrackets
+		/external:W0
+		
+		/W4	# Warning level
+		/WX	# Warning level (warnings are errors)
+		
+		${MY_CXX_FLAGS}
+		"$<$<CONFIG:DEBUG>:${MY_CXX_FLAGS_DEBUG}>"
+		"$<$<CONFIG:RELEASE>:${MY_CXX_FLAGS_RELEASE};/Zc:inline;/JMC->"
+	)
+		
+	# fix a warning with /Ob2 being overridden with /Ob3
+	string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+endif()
 
 # ---- Dependencies ----
 
@@ -157,7 +139,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_DEBUG_RUNTIME ON)
 
 add_subdirectory($ENV{CommonLibSSEPath} CommonLibSSE)
@@ -171,6 +153,8 @@ find_package(frozen REQUIRED CONFIG)
 find_package(span-lite REQUIRED CONFIG)
 find_package(spdlog REQUIRED CONFIG)
 find_package(tomlplusplus REQUIRED CONFIG)
+
+find_path(XBYAK_INCLUDE_DIRS "xbyak/xbyak.h")
 
 # ---- Add source files ----
 
@@ -192,14 +176,9 @@ source_group(
 
 # ---- Create DLL ----
 
-set(MSVC_TARGET_COMPILE_OPTIONS
-	/TP	# Specify Source File Type (C++)
-	
-	# disable warnings
-	/wd4324 # 'struct_name' : structure was padded due to __declspec(align())
-)
-
-add_library(QuickLootRE SHARED
+add_library(
+	${PROJECT_NAME}
+	SHARED
 	${headers}
 	${sources}
 	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
@@ -210,55 +189,65 @@ add_library(QuickLootRE SHARED
 
 set_property(
 	TARGET
-		QuickLootRE
+		${PROJECT_NAME}
 		CommonLibSSE
 	PROPERTY
-		MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+		MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
 )
 
-target_compile_features(QuickLootRE
+target_compile_features(
+	${PROJECT_NAME}
 	PUBLIC
 		cxx_std_17
 )
 
-target_compile_options(QuickLootRE
-	PRIVATE
-		"$<$<BOOL:${MSVC}>:${MSVC_TARGET_COMPILE_OPTIONS}>"
-)
-
-target_include_directories(QuickLootRE
+target_include_directories(
+	${PROJECT_NAME}
 	PRIVATE 
 		${CMAKE_CURRENT_BINARY_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/src
+		${XBYAK_INCLUDE_DIRS}
 )
 
-target_link_libraries(QuickLootRE
+target_link_libraries(
+	${PROJECT_NAME}
 	PUBLIC
 		Boost::regex
-		CommonLibSSE
+		CommonLibSSE::CommonLibSSE
 		frozen::frozen
 		nonstd::span-lite
 		spdlog::spdlog
 		tomlplusplus::tomlplusplus
 )
 
-target_link_options(QuickLootRE
-	PUBLIC
-		"$<$<AND:$<BOOL:${MSVC}>,$<CONFIG:RELEASE>>:/DEBUG:FULL>"
-)
-
-target_precompile_headers(QuickLootRE
+target_precompile_headers(
+	${PROJECT_NAME}
 	PRIVATE
 		src/PCH.h
 )
 
+if (MSVC)
+	target_compile_options(
+		${PROJECT_NAME}
+		PRIVATE
+			/wd4324 # 'struct_name' : structure was padded due to __declspec(align())
+	)
+	
+	target_link_options(
+		${PROJECT_NAME}
+		PRIVATE
+			"$<$<CONFIG:DEBUG>:/INCREMENTAL;/OPT:NOREF;/OPT:NOICF>"
+			"$<$<CONFIG:RELEASE>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>"
+	)
+endif()
+
 # ---- Post build ----
 
 add_custom_command(
-	TARGET QuickLootRE
+	TARGET ${PROJECT_NAME}
 	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:QuickLootRE> $ENV{Skyrim64Path}/Data/SKSE/Plugins/
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:QuickLootRE> $ENV{Skyrim64Path}/Data/SKSE/Plugins/
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> $ENV{Skyrim64Path}/Data/SKSE/Plugins/
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> $ENV{Skyrim64Path}/Data/SKSE/Plugins/
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/QuickLootRE.toml $ENV{Skyrim64Path}/Data/SKSE/Plugins/
 )

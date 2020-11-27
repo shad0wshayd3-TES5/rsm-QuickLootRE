@@ -4,7 +4,6 @@ namespace Events
 {
 	class CrosshairRefManager :
 		public RE::BSTEventSink<SKSE::CrosshairRefEvent>,
-		public RE::BSTEventSink<RE::TESDeathEvent>,
 		public RE::BSTEventSink<RE::TESLockChangedEvent>
 	{
 	public:
@@ -26,21 +25,20 @@ namespace Events
 			if (scripts) {
 				scripts->AddEventSink<RE::TESLockChangedEvent>(GetSingleton());
 				logger::info("Registered {}"sv, typeid(RE::TESLockChangedEvent).name());
-
-				scripts->AddEventSink<RE::TESDeathEvent>(GetSingleton());
-				logger::info("Registered {}"sv, typeid(RE::TESDeathEvent).name());
 			}
 		}
+
+		void Evaluate(RE::TESObjectREFRPtr a_ref);
 
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 
-		inline EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*) override
+		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*) override
 		{
 			auto crosshairRef =
 				a_event && a_event->crosshairRef ?
-					  a_event->crosshairRef->CreateRefHandle() :
-					  RE::ObjectRefHandle();
+                    a_event->crosshairRef->CreateRefHandle() :
+                    RE::ObjectRefHandle();
 			if (_cachedRef == crosshairRef) {
 				return EventResult::kContinue;
 			}
@@ -52,18 +50,7 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
-		inline EventResult ProcessEvent(const RE::TESDeathEvent* a_event, RE::BSTEventSource<RE::TESDeathEvent>*) override
-		{
-			if (a_event &&
-				a_event->actorDying &&
-				a_event->actorDying->GetHandle() == _cachedRef) {
-				Evaluate(a_event->actorDying);
-			}
-
-			return EventResult::kContinue;
-		}
-
-		inline EventResult ProcessEvent(const RE::TESLockChangedEvent* a_event, RE::BSTEventSource<RE::TESLockChangedEvent>*) override
+		EventResult ProcessEvent(const RE::TESLockChangedEvent* a_event, RE::BSTEventSource<RE::TESLockChangedEvent>*) override
 		{
 			if (a_event &&
 				a_event->lockedObject &&
@@ -84,7 +71,7 @@ namespace Events
 		CrosshairRefManager& operator=(const CrosshairRefManager&) = delete;
 		CrosshairRefManager& operator=(CrosshairRefManager&&) = delete;
 
-		[[nodiscard]] inline bool CanOpen(RE::TESObjectREFRPtr a_ref)
+		[[nodiscard]] bool CanOpen(RE::TESObjectREFRPtr a_ref)
 		{
 			auto obj = a_ref ? a_ref->GetObjectReference() : nullptr;
 			if (!a_ref || !obj) {
@@ -106,8 +93,6 @@ namespace Events
 			return a_ref->HasContainer();
 		}
 
-		void Evaluate(RE::TESObjectREFRPtr a_ref);
-
 		RE::ObjectRefHandle _cachedRef;
 		RE::ObjectRefHandle _cachedAshPile;
 	};
@@ -116,13 +101,13 @@ namespace Events
 		public RE::BSTEventSink<RE::TESCombatEvent>
 	{
 	public:
-		static inline CombatManager* GetSingleton()
+		static CombatManager* GetSingleton()
 		{
 			static CombatManager singleton;
 			return std::addressof(singleton);
 		}
 
-		static inline void Register()
+		static void Register()
 		{
 			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
 			if (scripts) {
@@ -134,7 +119,7 @@ namespace Events
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 
-		inline EventResult ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>*) override
+		EventResult ProcessEvent(const RE::TESCombatEvent* a_event, RE::BSTEventSource<RE::TESCombatEvent>*) override
 		{
 			using CombatState = RE::ACTOR_COMBAT_STATE;
 
@@ -169,9 +154,65 @@ namespace Events
 		void Close();
 	};
 
+	class LifeStateManager
+	{
+	public:
+		static void Register()
+		{
+			struct Patch :
+				Xbyak::CodeGenerator
+			{
+				explicit Patch(std::uintptr_t a_target)
+				{
+					mov(rcx, rsi);  // rsi == Actor* this
+
+					pop(r15);
+					pop(r14);
+					pop(r12);
+					pop(rdi);
+					pop(rsi);
+					pop(rbx);
+					pop(rbp);
+
+					mov(rax, a_target);
+					jmp(rax);
+				}
+			};
+
+			constexpr std::size_t begin = 0x503;
+			constexpr std::size_t end = 0x50D;
+			constexpr std::size_t size = end - begin;
+			static_assert(size >= 6);
+
+			REL::Relocation<std::uintptr_t> target{ REL::ID(36604), begin };
+			REL::safe_fill(target.address(), REL::INT3, size);
+
+			auto& trampoline = SKSE::GetTrampoline();
+			Patch p{ reinterpret_cast<std::uintptr_t>(OnLifeStateChanged) };
+			trampoline.write_branch<6>(
+				target.address(),
+				trampoline.allocate(p));
+
+			logger::info("Registered {}"sv, typeid(LifeStateManager).name());
+		}
+
+	private:
+		static void OnLifeStateChanged(RE::Actor* a_actor)
+		{
+			const auto manager = CrosshairRefManager::GetSingleton();
+			RE::NiPointer<RE::TESObjectREFR> actor{ a_actor };
+
+			assert(manager != nullptr);
+			assert(actor != nullptr);
+
+			manager->Evaluate(std::move(actor));
+		}
+	};
+
 	inline void Register()
 	{
 		CrosshairRefManager::Register();
+		LifeStateManager::Register();
 
 		if (*Settings::closeInCombat) {
 			CombatManager::Register();

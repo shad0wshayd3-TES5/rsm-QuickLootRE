@@ -31,6 +31,7 @@
 #include <boost/regex.hpp>
 #include <frozen/map.h>
 #include <nonstd/span.hpp>
+#include <xbyak/xbyak.h>
 
 #include "AutoTOML.hpp"
 

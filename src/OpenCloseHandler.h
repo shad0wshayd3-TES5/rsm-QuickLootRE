@@ -79,8 +79,8 @@ private:
 			if (src) {
 				const auto sequence =
 					a_open ?
-						src->GetSequence("Open"sv) :
-						src->GetSequence("Close"sv);
+                        src->GetSequence("Open"sv) :
+                        src->GetSequence("Close"sv);
 
 				if (sequence && !sequence->Animating()) {
 					RE::BGSOpenCloseForm::SetOpenState(src.get(), a_open, false);
@@ -126,8 +126,8 @@ private:
 	{
 		const auto sequence =
 			!a_open ?
-				a_src.GetSequence("Open"sv) :
-				a_src.GetSequence("Close"sv);
+                a_src.GetSequence("Open"sv) :
+                a_src.GetSequence("Close"sv);
 		const long double duration = sequence ? sequence->endKeyTime : 0.5;
 		std::thread t(AsyncCallback, duration + 0.1, _src, a_open);
 		t.detach();
