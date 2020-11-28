@@ -28,9 +28,9 @@ namespace Events
 			}
 		}
 
-		void Evaluate(RE::TESObjectREFRPtr a_ref);
-
 	protected:
+		friend class LifeStateManager;
+
 		using EventResult = RE::BSEventNotifyControl;
 
 		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*) override
@@ -61,6 +61,13 @@ namespace Events
 			return EventResult::kContinue;
 		}
 
+		void OnLifeStateChanged(RE::Actor& a_actor)
+		{
+			if (a_actor.GetHandle() == _cachedRef) {
+				Evaluate(RE::TESObjectREFRPtr{ std::addressof(a_actor) });
+			}
+		}
+
 	private:
 		CrosshairRefManager() = default;
 		CrosshairRefManager(const CrosshairRefManager&) = delete;
@@ -70,6 +77,8 @@ namespace Events
 
 		CrosshairRefManager& operator=(const CrosshairRefManager&) = delete;
 		CrosshairRefManager& operator=(CrosshairRefManager&&) = delete;
+
+		void Evaluate(RE::TESObjectREFRPtr a_ref);
 
 		[[nodiscard]] bool CanOpen(RE::TESObjectREFRPtr a_ref)
 		{
@@ -200,12 +209,7 @@ namespace Events
 		static void OnLifeStateChanged(RE::Actor* a_actor)
 		{
 			const auto manager = CrosshairRefManager::GetSingleton();
-			RE::NiPointer<RE::TESObjectREFR> actor{ a_actor };
-
-			assert(manager != nullptr);
-			assert(actor != nullptr);
-
-			manager->Evaluate(std::move(actor));
+			manager->OnLifeStateChanged(*a_actor);
 		}
 	};
 
