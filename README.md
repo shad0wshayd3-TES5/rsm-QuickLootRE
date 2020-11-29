@@ -9,6 +9,7 @@
 * [span lite](https://github.com/martinmoene/span-lite)
 * [spdlog](https://github.com/gabime/spdlog)
 * [toml++](https://github.com/marzer/tomlplusplus)
+* [Xbyak](https://github.com/herumi/xbyak)
 
 ## End User Dependencies
 * [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
