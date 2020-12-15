@@ -5,6 +5,8 @@
   "homepage": "https://github.com/Ryan-rsm-McKenzie/QuickLootRE",
   "license": "MIT",
   "dependencies": [
+    "autotoml",
+    "boost-atomic",
     "boost-regex",
     "frozen",
     "span-lite",

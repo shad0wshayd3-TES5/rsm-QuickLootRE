@@ -1,5 +1,4 @@
 set(headers ${headers}
-	include/AutoTOML.hpp
 	src/ContainerChangedHandler.h
 	src/Hooks.h
 	src/HUDManager.h

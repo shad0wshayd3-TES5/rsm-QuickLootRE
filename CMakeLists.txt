@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.19)
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/ports" CACHE STRING "")
 set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
 
 # ---- Project ----
 
 project(
 	QuickLootRE
-	VERSION 2.8.4
+	VERSION 2.8.5
 	LANGUAGES CXX
 )
 
@@ -35,54 +36,15 @@ endif()
 # ---- Globals ----
 
 add_compile_definitions(
-	"$<$<BOOL:${MSVC}>:_UNICODE>"
 	TOML_WINDOWS_COMPAT=0
-	
-	SKSE_CUSTOM_WINDEF
 	SKSE_SUPPORT_XBYAK
-	
-	NOGDICAPMASKS
-	NOVIRTUALKEYCODES
-	#NOWINMESSAGES
-	NOWINSTYLES
-	NOSYSMETRICS
-	NOMENUS
-	NOICONS
-	NOKEYSTATES
-	NOSYSCOMMANDS
-	NORASTEROPS
-	NOSHOWWINDOW
-	OEMRESOURCE
-	NOATOM
-	NOCLIPBOARD
-	NOCOLOR
-	#NOCTLMGR
-	NODRAWTEXT
-	NOGDI
-	NOKERNEL
-	#NOUSER
-	#NONLS
-	#NOMB
-	NOMEMMGR
-	NOMETAFILE
-	NOMINMAX
-	#NOMSG
-	NOOPENFILE
-	NOSCROLL
-	NOSERVICE
-	NOSOUND
-	NOTEXTMETRIC
-	NOWH
-	NOWINOFFSETS
-	NOCOMM
-	NOKANJI
-	NOHELP
-	NOPROFILER
-	NODEFERWINDOWPOS
-	NOMCX
 )
 
 if (MSVC)
+	add_compile_definitions(
+		_UNICODE
+	)
+	
 	string(REPLACE " " ";" MY_CXX_FLAGS "${VCPKG_CXX_FLAGS}")
 	string(REPLACE " " ";" MY_CXX_FLAGS_DEBUG "${VCPKG_CXX_FLAGS_DEBUG}")
 	string(REPLACE " " ";" MY_CXX_FLAGS_RELEASE "${VCPKG_CXX_FLAGS_RELEASE}")
@@ -153,8 +115,7 @@ find_package(frozen REQUIRED CONFIG)
 find_package(span-lite REQUIRED CONFIG)
 find_package(spdlog REQUIRED CONFIG)
 find_package(tomlplusplus REQUIRED CONFIG)
-
-find_path(XBYAK_INCLUDE_DIRS "xbyak/xbyak.h")
+find_package(xbyak REQUIRED CONFIG)
 
 # ---- Add source files ----
 
@@ -205,9 +166,7 @@ target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE 
 		${CMAKE_CURRENT_BINARY_DIR}/include
-		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/src
-		${XBYAK_INCLUDE_DIRS}
 )
 
 target_link_libraries(
@@ -219,6 +178,7 @@ target_link_libraries(
 		nonstd::span-lite
 		spdlog::spdlog
 		tomlplusplus::tomlplusplus
+		xbyak::xbyak
 )
 
 target_precompile_headers(

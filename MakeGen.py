@@ -37,7 +37,7 @@ def make_cmake(a_directories):
 def main():
 	cur = os.path.dirname(os.path.realpath(__file__))
 	os.chdir(cur)
-	make_cmake([ "include", "src" ])
+	make_cmake([ "src" ])
 
 if __name__ == "__main__":
 	main()
