@@ -23,7 +23,7 @@ namespace Scaleform
 		static constexpr std::string_view MenuName() noexcept { return MENU_NAME; }
 		static constexpr std::int8_t SortPriority() noexcept { return SORT_PRIORITY; }
 
-		static inline void Register()
+		static void Register()
 		{
 			auto ui = RE::UI::GetSingleton();
 			if (ui) {
@@ -32,7 +32,7 @@ namespace Scaleform
 			}
 		}
 
-		inline void ModSelectedIndex(double a_mod)
+		void ModSelectedIndex(double a_mod)
 		{
 			const auto maxIdx = static_cast<double>(_itemListImpl.size()) - 1.0;
 			if (maxIdx >= 0.0) {
@@ -44,7 +44,7 @@ namespace Scaleform
 			}
 		}
 
-		inline void ModSelectedPage(double a_mod)
+		void ModSelectedPage(double a_mod)
 		{
 			auto& inst = _itemList.GetInstance();
 			std::array<RE::GFxValue, 1> args;
@@ -55,7 +55,7 @@ namespace Scaleform
 			UpdateInfoBar();
 		}
 
-		inline void SetContainer(RE::ObjectRefHandle a_ref)
+		void SetContainer(RE::ObjectRefHandle a_ref)
 		{
 			assert(a_ref);
 			_src = a_ref;
@@ -66,7 +66,7 @@ namespace Scaleform
 			QueueUIRefresh();
 		}
 
-		inline void RefreshInventory()
+		void RefreshInventory()
 		{
 			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 
@@ -118,14 +118,14 @@ namespace Scaleform
 			}
 		}
 
-		inline void RefreshUI()
+		void RefreshUI()
 		{
 			RefreshInventory();
 			UpdateTitle();
 			UpdateButtonBar();
 		}
 
-		inline void TakeStack()
+		void TakeStack()
 		{
 			auto dst = _dst.get();
 			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
@@ -144,7 +144,7 @@ namespace Scaleform
 	protected:
 		using UIResult = RE::UI_MESSAGE_RESULTS;
 
-		inline LootMenu()
+		LootMenu()
 		{
 			auto menu = static_cast<super*>(this);
 			menu->depthPriority = -1;
@@ -171,12 +171,12 @@ namespace Scaleform
 		LootMenu& operator=(const LootMenu&) = default;
 		LootMenu& operator=(LootMenu&&) = default;
 
-		static inline owner<RE::IMenu*> Creator() { return new LootMenu(); }
+		static owner<RE::IMenu*> Creator() { return new LootMenu(); }
 
 		// IMenu
-		inline void PostCreate() override { OnOpen(); }
+		void PostCreate() override { OnOpen(); }
 
-		inline UIResult ProcessMessage(RE::UIMessage& a_message) override
+		UIResult ProcessMessage(RE::UIMessage& a_message) override
 		{
 			using Type = RE::UI_MESSAGE_TYPE;
 
@@ -189,7 +189,7 @@ namespace Scaleform
 			}
 		}
 
-		inline void AdvanceMovie(float a_interval, std::uint32_t a_currentTime) override
+		void AdvanceMovie(float a_interval, std::uint32_t a_currentTime) override
 		{
 			auto src = _src.get();
 			if (!src || src->IsActivationBlocked()) {
@@ -200,7 +200,7 @@ namespace Scaleform
 			super::AdvanceMovie(a_interval, a_currentTime);
 		}
 
-		inline void RefreshPlatform() override
+		void RefreshPlatform() override
 		{
 			UpdateButtonBar();
 		}
@@ -210,7 +210,7 @@ namespace Scaleform
 			public RE::GFxLog
 		{
 		public:
-			inline void LogMessageVarg(LogMessageType, const char* a_fmt, std::va_list a_argList) override
+			void LogMessageVarg(LogMessageType, const char* a_fmt, std::va_list a_argList) override
 			{
 				std::string fmt(a_fmt ? a_fmt : "");
 				while (!fmt.empty() && fmt.back() == '\n') {
@@ -227,7 +227,7 @@ namespace Scaleform
 			}
 		};
 
-		[[nodiscard]] static inline bool CanDisplay(const RE::TESBoundObject& a_object)
+		[[nodiscard]] static bool CanDisplay(const RE::TESBoundObject& a_object)
 		{
 			switch (a_object.GetFormType()) {
 			case RE::FormType::Scroll:
@@ -266,7 +266,7 @@ namespace Scaleform
 			return true;
 		}
 
-		inline void AdjustPosition()
+		void AdjustPosition()
 		{
 			auto def = _view->GetMovieDef();
 			if (def) {
@@ -277,7 +277,7 @@ namespace Scaleform
 
 		void Close();
 
-		inline void InitExtensions()
+		void InitExtensions()
 		{
 			const RE::GFxValue boolean{ true };
 			[[maybe_unused]] bool success = false;
@@ -288,9 +288,9 @@ namespace Scaleform
 			assert(success);
 		}
 
-		inline void OnClose() { return; }
+		void OnClose() { return; }
 
-		inline void OnOpen()
+		void OnOpen()
 		{
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
@@ -333,7 +333,7 @@ namespace Scaleform
 		void QueueInventoryRefresh();
 		void QueueUIRefresh();
 
-		inline void RestoreIndex(std::ptrdiff_t a_oldIdx)
+		void RestoreIndex(std::ptrdiff_t a_oldIdx)
 		{
 			if (const auto ssize = stl::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize) {
 				_itemList.SelectedIndex(static_cast<double>(a_oldIdx));
@@ -348,7 +348,7 @@ namespace Scaleform
 			}
 		}
 
-		inline void Sort()
+		void Sort()
 		{
 			std::stable_sort(
 				_itemListImpl.begin(),
@@ -358,7 +358,7 @@ namespace Scaleform
 				});
 		}
 
-		inline void UpdateButtonBar()
+		void UpdateButtonBar()
 		{
 			if (!_view) {
 				return;
@@ -401,7 +401,7 @@ namespace Scaleform
 			_buttonBar.InvalidateData();
 		}
 
-		inline void UpdateInfoBar()
+		void UpdateInfoBar()
 		{
 			_infoBarProvider.ClearElements();
 			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
@@ -431,7 +431,7 @@ namespace Scaleform
 			_infoBar.InvalidateData();
 		}
 
-		inline void UpdateTitle()
+		void UpdateTitle()
 		{
 			auto src = _src.get();
 			if (src) {
@@ -442,7 +442,7 @@ namespace Scaleform
 			}
 		}
 
-		inline void UpdateWeight()
+		void UpdateWeight()
 		{
 			auto dst = _dst.get();
 			if (dst) {
@@ -458,7 +458,7 @@ namespace Scaleform
 			}
 		}
 
-		[[nodiscard]] inline bool WouldBeStealing() const
+		[[nodiscard]] bool WouldBeStealing() const
 		{
 			auto dst = _dst.get();
 			auto src = _src.get();

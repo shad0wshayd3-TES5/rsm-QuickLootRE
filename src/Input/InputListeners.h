@@ -7,7 +7,7 @@ namespace Input
 	public:
 		virtual ~IHandler() = default;
 
-		inline void operator()(RE::InputEvent* const& a_event) { DoHandle(a_event); }
+		void operator()(RE::InputEvent* const& a_event) { DoHandle(a_event); }
 
 	protected:
 		virtual void DoHandle(RE::InputEvent* const& a_event) = 0;
@@ -20,7 +20,7 @@ namespace Input
 		ScrollHandler();
 
 	protected:
-		inline void DoHandle(RE::InputEvent* const& a_event) override
+		void DoHandle(RE::InputEvent* const& a_event) override
 		{
 			using Device = RE::INPUT_DEVICE;
 
@@ -65,7 +65,7 @@ namespace Input
 			bool _doDelay{ true };
 		};
 
-		[[nodiscard]] inline bool CanProcess(const RE::ButtonEvent& a_event)
+		[[nodiscard]] bool CanProcess(const RE::ButtonEvent& a_event)
 		{
 			using Device = RE::INPUT_DEVICE;
 			switch (a_event.GetDevice()) {
@@ -84,7 +84,7 @@ namespace Input
 			}
 		}
 
-		[[nodiscard]] inline bool ProcessInput(const RE::ButtonEvent& a_event)
+		[[nodiscard]] bool ProcessInput(const RE::ButtonEvent& a_event)
 		{
 			const auto device = a_event.GetDevice();
 			if (0 <= device && device < _mappings.size()) {
@@ -109,7 +109,7 @@ namespace Input
 		public IHandler
 	{
 	protected:
-		inline void DoHandle(RE::InputEvent* const& a_event) override
+		void DoHandle(RE::InputEvent* const& a_event) override
 		{
 			for (auto iter = a_event; iter; iter = iter->next) {
 				auto event = iter->AsButtonEvent();
@@ -136,7 +136,7 @@ namespace Input
 		}
 
 	private:
-		inline float GetGrabDelay() const
+		float GetGrabDelay() const
 		{
 			if (_grabDelay) {
 				return _grabDelay->GetFloat();
@@ -163,7 +163,7 @@ namespace Input
 		public RE::BSTEventSink<RE::InputEvent*>
 	{
 	public:
-		inline Listeners()
+		Listeners()
 		{
 			_callbacks.push_back(std::make_unique<TakeHandler>());
 			_callbacks.push_back(std::make_unique<ScrollHandler>());
@@ -173,12 +173,12 @@ namespace Input
 		Listeners(const Listeners&) = default;
 		Listeners(Listeners&&) = default;
 
-		inline ~Listeners() { Disable(); }
+		~Listeners() { Disable(); }
 
 		Listeners& operator=(const Listeners&) = default;
 		Listeners& operator=(Listeners&&) = default;
 
-		inline void Enable()
+		void Enable()
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
 			if (input) {
@@ -186,7 +186,7 @@ namespace Input
 			}
 		}
 
-		inline void Disable()
+		void Disable()
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
 			if (input) {
@@ -197,7 +197,7 @@ namespace Input
 	private:
 		using EventResult = RE::BSEventNotifyControl;
 
-		inline EventResult ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*) override
+		EventResult ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*) override
 		{
 			if (a_event) {
 				for (auto& callback : _callbacks) {

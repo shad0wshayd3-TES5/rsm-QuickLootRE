@@ -5,7 +5,7 @@ struct Settings
 	using ISetting = AutoTOML::ISetting;
 	using bSetting = AutoTOML::bSetting;
 
-	static inline void load()
+	static void load()
 	{
 		try {
 			const auto table = toml::parse_file("Data/SKSE/Plugins/QuickLootRE.toml"s);

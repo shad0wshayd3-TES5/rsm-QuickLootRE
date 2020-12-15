@@ -15,7 +15,7 @@ namespace Items
 		InventoryItem(const InventoryItem&) = delete;
 		InventoryItem(InventoryItem&&) = default;
 
-		inline InventoryItem(std::ptrdiff_t a_count, bool a_stealing, std::unique_ptr<RE::InventoryEntryData> a_item, RE::ObjectRefHandle a_container) :
+		InventoryItem(std::ptrdiff_t a_count, bool a_stealing, std::unique_ptr<RE::InventoryEntryData> a_item, RE::ObjectRefHandle a_container) :
 			super(a_count, a_stealing, a_item.get()),
 			_entry(std::move(a_item)),
 			_container(a_container)
@@ -31,7 +31,7 @@ namespace Items
 		InventoryItem& operator=(InventoryItem&&) = default;
 
 	protected:
-		inline void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) override
+		void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) override
 		{
 			auto container = _container.get();
 			if (!container) {
@@ -71,7 +71,7 @@ namespace Items
 		}
 
 	private:
-		static inline void TryRemoveArrows3D(RE::TESObjectREFR& a_container, const RE::TESBoundObject& a_object)
+		static void TryRemoveArrows3D(RE::TESObjectREFR& a_container, const RE::TESBoundObject& a_object)
 		{
 			if (a_object.IsAmmo() && a_container.Is(RE::FormType::ActorCharacter)) {
 				auto& container = static_cast<RE::Actor&>(a_container);
@@ -79,7 +79,7 @@ namespace Items
 			}
 		}
 
-		inline auto GetItemsToRemove(std::ptrdiff_t a_count)
+		auto GetItemsToRemove(std::ptrdiff_t a_count)
 			-> std::pair<std::ptrdiff_t, std::vector<std::pair<RE::ExtraDataList*, std::ptrdiff_t>>>
 		{
 			std::vector<std::pair<RE::ExtraDataList*, std::ptrdiff_t>> queued;

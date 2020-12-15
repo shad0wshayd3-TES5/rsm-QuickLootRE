@@ -7,13 +7,13 @@ namespace Events
 		public RE::BSTEventSink<RE::TESLockChangedEvent>
 	{
 	public:
-		static inline CrosshairRefManager* GetSingleton()
+		[[nodiscard]] static CrosshairRefManager* GetSingleton()
 		{
 			static CrosshairRefManager singleton;
 			return std::addressof(singleton);
 		}
 
-		static inline void Register()
+		static void Register()
 		{
 			auto crosshair = SKSE::GetCrosshairRefEventSource();
 			if (crosshair) {
@@ -213,7 +213,7 @@ namespace Events
 		}
 	};
 
-	inline void Register()
+	void Register()
 	{
 		CrosshairRefManager::Register();
 		LifeStateManager::Register();

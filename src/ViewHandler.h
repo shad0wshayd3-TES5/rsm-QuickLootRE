@@ -13,7 +13,7 @@ public:
 	ViewHandler(const ViewHandler&) = default;
 	ViewHandler(ViewHandler&&) = default;
 
-	inline ViewHandler(observer<RE::IMenu*> a_menu, RE::ActorHandle a_dst) :
+	ViewHandler(observer<RE::IMenu*> a_menu, RE::ActorHandle a_dst) :
 		_menu(a_menu),
 		_view(a_menu ? a_menu->uiMovie : nullptr),
 		_dst(a_dst)
@@ -26,7 +26,7 @@ public:
 		Evaluate();
 	}
 
-	inline ~ViewHandler()
+	~ViewHandler()
 	{
 		Unregister();
 		ShowHUD();
@@ -35,7 +35,7 @@ public:
 	ViewHandler& operator=(const ViewHandler&) = default;
 	ViewHandler& operator=(ViewHandler&&) = default;
 
-	inline void SetSource(RE::ObjectRefHandle a_src)
+	void SetSource(RE::ObjectRefHandle a_src)
 	{
 		_src = a_src;
 		Evaluate();
@@ -44,7 +44,7 @@ public:
 protected:
 	using EventResult = RE::BSEventNotifyControl;
 
-	inline EventResult ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override
+	EventResult ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override
 	{
 		auto intfcStr = RE::InterfaceStrings::GetSingleton();
 		if (intfcStr &&
@@ -57,7 +57,7 @@ protected:
 		return EventResult::kContinue;
 	}
 
-	inline void OnAnimationEvent() override { Evaluate(); }
+	void OnAnimationEvent() override { Evaluate(); }
 
 private:
 	enum class Priority : std::size_t
@@ -80,7 +80,7 @@ private:
 		kFieldText
 	};
 
-	inline void Register()
+	void Register()
 	{
 		auto menuSrc = RE::UI::GetSingleton();
 		if (menuSrc) {
@@ -88,7 +88,7 @@ private:
 		}
 	}
 
-	inline void Unregister()
+	void Unregister()
 	{
 		auto menuSrc = RE::UI::GetSingleton();
 		if (menuSrc) {
@@ -96,7 +96,7 @@ private:
 		}
 	}
 
-	inline void Evaluate()
+	void Evaluate()
 	{
 		const auto controlMap = RE::ControlMap::GetSingleton();
 		const auto menuControls = RE::MenuControls::GetSingleton();
@@ -120,7 +120,7 @@ private:
 		}
 	}
 
-	inline void Enable()
+	void Enable()
 	{
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
@@ -136,7 +136,7 @@ private:
 		});
 	}
 
-	inline void Disable()
+	void Disable()
 	{
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
@@ -152,7 +152,7 @@ private:
 		});
 	}
 
-	inline void SetVisible(bool a_visible)
+	void SetVisible(bool a_visible)
 	{
 		if (_view) {
 			const auto prev = _view->GetVisible();
@@ -168,7 +168,7 @@ private:
 		}
 	}
 
-	[[nodiscard]] inline RE::GFxValue GetHUDObject()
+	[[nodiscard]] RE::GFxValue GetHUDObject()
 	{
 		RE::GFxValue object;
 
@@ -182,7 +182,7 @@ private:
 		return object;
 	}
 
-	inline void ShowHUD()
+	void ShowHUD()
 	{
 		DisableHUDBlocker();
 
@@ -205,7 +205,7 @@ private:
 		}
 	}
 
-	inline void HideHUD()
+	void HideHUD()
 	{
 		auto hud = GetHUDObject();
 		if (hud.IsObject()) {

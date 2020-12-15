@@ -42,7 +42,7 @@ namespace Input
 	class InputManager
 	{
 	public:
-		inline static void Install()
+		static void Install()
 		{
 			constexpr std::array locations{
 				std::make_pair<std::uint64_t, std::size_t>(52374, 0x17),
@@ -64,14 +64,14 @@ namespace Input
 		public:
 			using value_type = std::string_view;
 
-			inline UserEventMap() :
+			UserEventMap() :
 				_mappings{}
 			{
 				insert("Activate"sv);
 				insert("Ready Weapon"sv);
 			}
 
-			inline void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
+			void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
 			{
 				using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
 
@@ -87,7 +87,7 @@ namespace Input
 			}
 
 		private:
-			inline void insert(value_type a_value)
+			void insert(value_type a_value)
 			{
 				for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i) {
 					_mappings[i].insert(a_value);
@@ -96,7 +96,7 @@ namespace Input
 
 			struct cicompare
 			{
-				[[nodiscard]] inline bool operator()(const value_type& a_lhs, const value_type& a_rhs) const
+				[[nodiscard]] bool operator()(const value_type& a_lhs, const value_type& a_rhs) const
 				{
 					return _stricmp(a_lhs.data(), a_rhs.data()) < 0;
 				}
@@ -110,7 +110,7 @@ namespace Input
 		public:
 			using value_type = std::uint32_t;
 
-			inline IDCodeMap()
+			IDCodeMap()
 			{
 				using Device = RE::INPUT_DEVICE;
 				using Gamepad = RE::BSWin32GamepadDevice::Key;
@@ -124,7 +124,7 @@ namespace Input
 				insert<MandatoryGroup>(Group::kDPAD, Device::kGamepad, { Gamepad::kUp, Gamepad::kDown, Gamepad::kLeft, Gamepad::kRight });
 			}
 
-			inline void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
+			void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
 			{
 				const auto& mapping = _mappings[a_device];
 				auto it = mapping.find(a_userEvent.inputKey);
@@ -133,7 +133,7 @@ namespace Input
 				}
 			}
 
-			inline void commit()
+			void commit()
 			{
 				for (const auto& mapping : _mappings) {
 					for (const auto& [id, group] : mapping) {
@@ -148,13 +148,13 @@ namespace Input
 			public:
 				using value_type = RE::ControlMap::UserEventMapping;
 
-				inline IControlGroup(Group a_group) noexcept :
+				IControlGroup(Group a_group) noexcept :
 					_group(a_group)
 				{}
 
 				virtual ~IControlGroup() = default;
 
-				inline void accept(value_type& a_mapping)
+				void accept(value_type& a_mapping)
 				{
 					if (_good) {
 						if (can_accept(a_mapping)) {
@@ -165,7 +165,7 @@ namespace Input
 					}
 				}
 
-				inline void commit() noexcept
+				void commit() noexcept
 				{
 					using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
 
@@ -205,7 +205,7 @@ namespace Input
 				using super::operator=;
 
 			protected:
-				[[nodiscard]] inline bool can_accept(const value_type&) const noexcept override { return true; }
+				[[nodiscard]] bool can_accept(const value_type&) const noexcept override { return true; }
 			};
 
 			class OptionalGroup final :
@@ -221,7 +221,7 @@ namespace Input
 				using super::operator=;
 
 			protected:
-				[[nodiscard]] inline bool can_accept(const value_type& a_mapping) const noexcept override { return !a_mapping.linked; }
+				[[nodiscard]] bool can_accept(const value_type& a_mapping) const noexcept override { return !a_mapping.linked; }
 			};
 
 			template <
@@ -229,7 +229,7 @@ namespace Input
 				std::enable_if_t<
 					std::is_base_of_v<IControlGroup, T>,
 					int> = 0>
-			inline void insert(Group a_group, RE::INPUT_DEVICE a_device, std::initializer_list<value_type> a_idCodes)
+			void insert(Group a_group, RE::INPUT_DEVICE a_device, std::initializer_list<value_type> a_idCodes)
 			{
 				const auto group = std::make_shared<T>(a_group);
 				for (const auto& idCode : a_idCodes) {
@@ -249,7 +249,7 @@ namespace Input
 		InputManager& operator=(const InputManager&) = delete;
 		InputManager& operator=(InputManager&&) = delete;
 
-		inline static void RefreshLinkedMappings(RE::ControlMap* a_controlMap)
+		static void RefreshLinkedMappings(RE::ControlMap* a_controlMap)
 		{
 			_RefreshLinkedMappings(a_controlMap);
 			if (!a_controlMap) {
@@ -292,7 +292,7 @@ namespace Input
 	class ControlMap
 	{
 	public:
-		[[nodiscard]] inline std::uint32_t operator()(std::string_view a_userEvent) const
+		[[nodiscard]] std::uint32_t operator()(std::string_view a_userEvent) const
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
 			if (!input) {
@@ -316,7 +316,7 @@ namespace Input
 			T c[N];
 		};
 
-		[[nodiscard]] inline std::uint32_t MapGamepad(std::string_view a_userEvent) const
+		[[nodiscard]] std::uint32_t MapGamepad(std::string_view a_userEvent) const
 		{
 			using Key = RE::BSWin32GamepadDevice::Keys;
 
@@ -370,7 +370,7 @@ namespace Input
 			return it != mappings.end() ? it->second : INVALID;
 		}
 
-		[[nodiscard]] inline std::uint32_t MapKeyboard(std::string_view a_userEvent) const
+		[[nodiscard]] std::uint32_t MapKeyboard(std::string_view a_userEvent) const
 		{
 			using Key = RE::BSKeyboardDevice::Keys;
 
@@ -405,7 +405,7 @@ namespace Input
 			return key <= mappings.size() ? mappings[key] : INVALID;
 		}
 
-		[[nodiscard]] inline std::uint32_t MapMouse(std::string_view a_userEvent) const
+		[[nodiscard]] std::uint32_t MapMouse(std::string_view a_userEvent) const
 		{
 			using Key = RE::BSWin32MouseDevice::Keys;
 

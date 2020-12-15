@@ -7,7 +7,7 @@ namespace Animation
 	public:
 		virtual ~IEventSink() = default;
 
-		inline void operator()() { OnAnimationEvent(); }
+		void operator()() { OnAnimationEvent(); }
 
 	protected:
 		virtual void OnAnimationEvent() = 0;
@@ -16,13 +16,13 @@ namespace Animation
 	class AnimationManager
 	{
 	public:
-		static inline AnimationManager& GetSingleton()
+		static AnimationManager& GetSingleton()
 		{
 			static AnimationManager singleton;
 			return singleton;
 		}
 
-		static inline void Install()
+		static void Install()
 		{
 			auto& singleton = GetSingleton();
 			singleton.DoInstall();
@@ -40,12 +40,12 @@ namespace Animation
 		public:
 			AnimHandler() = delete;
 
-			inline AnimHandler(RE::BSTSmartPointer<super> a_original) :
+			AnimHandler(RE::BSTSmartPointer<super> a_original) :
 				super(),
 				_original(std::move(a_original))
 			{}
 
-			inline bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
+			bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
 			{
 				const auto& manager = AnimationManager::GetSingleton();
 				manager.OnAnimationEvent();
@@ -57,7 +57,7 @@ namespace Animation
 			RE::BSTSmartPointer<super> _original;
 		};
 
-		inline void OnAnimationEvent() const
+		void OnAnimationEvent() const
 		{
 			if (_sink) {
 				(*_sink)();
@@ -74,7 +74,7 @@ namespace Animation
 		AnimationManager& operator=(const AnimationManager&) = delete;
 		AnimationManager& operator=(AnimationManager&&) = delete;
 
-		inline void DoInstall()
+		void DoInstall()
 		{
 			auto handlers = RE::ResponseDictionary::GetSingleton();
 			RE::BSSpinLockGuard locker(handlers->definitionLock);
@@ -93,7 +93,7 @@ namespace Animation
 			logger::info("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
-		inline void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation)
+		void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation)
 		{
 			const RE::BSFixedString anim(a_animation);
 			auto original = a_response.GetHandler(anim);

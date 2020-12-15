@@ -5,7 +5,7 @@ namespace Items
 	class GFxItem
 	{
 	public:
-		inline GFxItem(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
+		GFxItem(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
 			_src(a_item),
 			_count(a_count),
 			_stealing(a_stealing)
@@ -13,7 +13,7 @@ namespace Items
 			assert(a_item != nullptr);
 		}
 
-		inline GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
+		GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
 			_src(a_items),
 			_count(a_count),
 			_stealing(a_stealing)
@@ -32,7 +32,7 @@ namespace Items
 		// Value
 		// Alphabetical
 		// FormID
-		[[nodiscard]] inline int Compare(const GFxItem& a_rhs) const
+		[[nodiscard]] int Compare(const GFxItem& a_rhs) const
 		{
 			if (IsQuestItem() != a_rhs.IsQuestItem()) {
 				return IsQuestItem() ? -1 : 1;
@@ -60,7 +60,7 @@ namespace Items
 			}
 		}
 
-		[[nodiscard]] inline const std::string& GetDisplayName() const
+		[[nodiscard]] const std::string& GetDisplayName() const
 		{
 			if (_cache[kDisplayName]) {
 				return _cache.DisplayName();
@@ -90,7 +90,7 @@ namespace Items
 			return _cache.DisplayName();
 		}
 
-		[[nodiscard]] inline double GetEnchantmentCharge() const
+		[[nodiscard]] double GetEnchantmentCharge() const
 		{
 			if (_cache[kEnchantmentCharge]) {
 				return _cache.EnchantmentCharge();
@@ -125,7 +125,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline RE::FormID GetFormID() const
+		[[nodiscard]] RE::FormID GetFormID() const
 		{
 			if (_cache[kFormID]) {
 				return _cache.FormID();
@@ -160,7 +160,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline std::ptrdiff_t GetValue() const
+		[[nodiscard]] std::ptrdiff_t GetValue() const
 		{
 			if (_cache[kValue]) {
 				return _cache.Value();
@@ -195,7 +195,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline double GetWeight() const
+		[[nodiscard]] double GetWeight() const
 		{
 			if (_cache[kWeight]) {
 				return _cache.Weight();
@@ -230,7 +230,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsAmmo() const
+		[[nodiscard]] bool IsAmmo() const
 		{
 			if (_cache[kAmmo]) {
 				return _cache.Ammo();
@@ -265,7 +265,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsBook() const
+		[[nodiscard]] bool IsBook() const
 		{
 			if (_cache[kBook]) {
 				return _cache.Book();
@@ -300,7 +300,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsGold() const
+		[[nodiscard]] bool IsGold() const
 		{
 			if (_cache[kGold]) {
 				return _cache.Gold();
@@ -335,7 +335,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsKey() const
+		[[nodiscard]] bool IsKey() const
 		{
 			if (_cache[kKey]) {
 				return _cache.Key();
@@ -370,7 +370,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsLockpick() const
+		[[nodiscard]] bool IsLockpick() const
 		{
 			if (_cache[kLockpick]) {
 				return _cache.Lockpick();
@@ -405,7 +405,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsNote() const
+		[[nodiscard]] bool IsNote() const
 		{
 			if (_cache[kNote]) {
 				return _cache.Note();
@@ -440,7 +440,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsQuestItem() const
+		[[nodiscard]] bool IsQuestItem() const
 		{
 			if (_cache[kQuestItem]) {
 				return _cache.QuestItem();
@@ -469,7 +469,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline bool IsStolen() const
+		[[nodiscard]] bool IsStolen() const
 		{
 			if (_cache[kStolen]) {
 				return _cache.Stolen();
@@ -501,7 +501,7 @@ namespace Items
 			return result;
 		}
 
-		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const
+		[[nodiscard]] RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const
 		{
 			RE::GFxValue value;
 			a_view.CreateObject(std::addressof(value));
@@ -541,69 +541,69 @@ namespace Items
 		class Cache
 		{
 		public:
-			[[nodiscard]] inline bool operator[](std::size_t a_flag) const { return _cached.test(a_flag); }
+			[[nodiscard]] bool operator[](std::size_t a_flag) const { return _cached.test(a_flag); }
 
-			[[nodiscard]] inline bool QuestItem() const { return _flags.test(kQuestItem); }
-			[[nodiscard]] inline void QuestItem(bool a_value) { CacheFlag(kQuestItem, a_value); }
+			[[nodiscard]] bool QuestItem() const { return _flags.test(kQuestItem); }
+			[[nodiscard]] void QuestItem(bool a_value) { CacheFlag(kQuestItem, a_value); }
 
-			[[nodiscard]] inline bool Key() const { return _flags.test(kKey); }
-			[[nodiscard]] inline void Key(bool a_value) { CacheFlag(kKey, a_value); }
+			[[nodiscard]] bool Key() const { return _flags.test(kKey); }
+			[[nodiscard]] void Key(bool a_value) { CacheFlag(kKey, a_value); }
 
-			[[nodiscard]] inline bool Note() const { return _flags.test(kNote); }
-			[[nodiscard]] inline void Note(bool a_value) { CacheFlag(kNote, a_value); }
+			[[nodiscard]] bool Note() const { return _flags.test(kNote); }
+			[[nodiscard]] void Note(bool a_value) { CacheFlag(kNote, a_value); }
 
-			[[nodiscard]] inline bool Book() const { return _flags.test(kBook); }
-			[[nodiscard]] inline void Book(bool a_value) { CacheFlag(kBook, a_value); }
+			[[nodiscard]] bool Book() const { return _flags.test(kBook); }
+			[[nodiscard]] void Book(bool a_value) { CacheFlag(kBook, a_value); }
 
-			[[nodiscard]] inline bool Gold() const { return _flags.test(kGold); }
-			[[nodiscard]] inline void Gold(bool a_value) { CacheFlag(kGold, a_value); }
+			[[nodiscard]] bool Gold() const { return _flags.test(kGold); }
+			[[nodiscard]] void Gold(bool a_value) { CacheFlag(kGold, a_value); }
 
-			[[nodiscard]] inline bool Ammo() const { return _flags.test(kAmmo); }
-			[[nodiscard]] inline void Ammo(bool a_value) { CacheFlag(kAmmo, a_value); }
+			[[nodiscard]] bool Ammo() const { return _flags.test(kAmmo); }
+			[[nodiscard]] void Ammo(bool a_value) { CacheFlag(kAmmo, a_value); }
 
-			[[nodiscard]] inline bool Lockpick() const { return _flags.test(kLockpick); }
-			[[nodiscard]] inline void Lockpick(bool a_value) { CacheFlag(kLockpick, a_value); }
+			[[nodiscard]] bool Lockpick() const { return _flags.test(kLockpick); }
+			[[nodiscard]] void Lockpick(bool a_value) { CacheFlag(kLockpick, a_value); }
 
-			[[nodiscard]] inline bool Stolen() const { return _flags.test(kStolen); }
-			[[nodiscard]] inline void Stolen(bool a_value) { CacheFlag(kStolen, a_value); }
+			[[nodiscard]] bool Stolen() const { return _flags.test(kStolen); }
+			[[nodiscard]] void Stolen(bool a_value) { CacheFlag(kStolen, a_value); }
 
 			[[nodiscard]] constexpr const std::string& DisplayName() const noexcept { return _displayName; }
-			[[nodiscard]] inline void DisplayName(std::string a_value)
+			[[nodiscard]] void DisplayName(std::string a_value)
 			{
 				_cached.set(kDisplayName);
 				_displayName = std::move(a_value);
 			}
 
 			[[nodiscard]] constexpr double EnchantmentCharge() const noexcept { return _enchantmentCharge; }
-			[[nodiscard]] inline void EnchantmentCharge(double a_value)
+			[[nodiscard]] void EnchantmentCharge(double a_value)
 			{
 				_cached.set(kEnchantmentCharge);
 				_enchantmentCharge = a_value;
 			}
 
 			[[nodiscard]] constexpr double Weight() const noexcept { return _weight; }
-			[[nodiscard]] inline void Weight(double a_value)
+			[[nodiscard]] void Weight(double a_value)
 			{
 				_cached.set(kWeight);
 				_weight = a_value;
 			}
 
 			[[nodiscard]] constexpr std::ptrdiff_t Value() const noexcept { return _value; }
-			[[nodiscard]] inline void Value(std::ptrdiff_t a_value)
+			[[nodiscard]] void Value(std::ptrdiff_t a_value)
 			{
 				_cached.set(kValue);
 				_value = a_value;
 			}
 
 			[[nodiscard]] constexpr RE::FormID FormID() const noexcept { return _formID; }
-			[[nodiscard]] inline void FormID(RE::FormID a_value)
+			[[nodiscard]] void FormID(RE::FormID a_value)
 			{
 				_cached.set(kFormID);
 				_formID = a_value;
 			}
 
 		private:
-			inline void CacheFlag(std::size_t a_flag, bool a_value)
+			void CacheFlag(std::size_t a_flag, bool a_value)
 			{
 				_cached.set(a_flag);
 				_flags.set(a_flag, a_value);
@@ -627,10 +627,10 @@ namespace Items
 		bool _stealing;
 	};
 
-	[[nodiscard]] inline bool operator==(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) == 0; }
-	[[nodiscard]] inline bool operator!=(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) != 0; }
-	[[nodiscard]] inline bool operator<(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) < 0; }
-	[[nodiscard]] inline bool operator>(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) > 0; }
-	[[nodiscard]] inline bool operator<=(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) <= 0; }
-	[[nodiscard]] inline bool operator>=(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) >= 0; }
+	[[nodiscard]] bool operator==(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) == 0; }
+	[[nodiscard]] bool operator!=(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) != 0; }
+	[[nodiscard]] bool operator<(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) < 0; }
+	[[nodiscard]] bool operator>(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) > 0; }
+	[[nodiscard]] bool operator<=(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) <= 0; }
+	[[nodiscard]] bool operator>=(const GFxItem& a_lhs, const GFxItem& a_rhs) { return a_lhs.Compare(a_rhs) >= 0; }
 }

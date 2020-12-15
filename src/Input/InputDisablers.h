@@ -11,12 +11,12 @@ namespace Input
 		Disablers(const Disablers&) = default;
 		Disablers(Disablers&&) = default;
 
-		inline ~Disablers() { Disable(); }
+		~Disablers() { Disable(); }
 
 		Disablers& operator=(const Disablers&) = default;
 		Disablers& operator=(Disablers&&) = default;
 
-		inline void Enable()
+		void Enable()
 		{
 			auto controlMap = RE::ControlMap::GetSingleton();
 			if (controlMap) {
@@ -24,7 +24,7 @@ namespace Input
 			}
 		}
 
-		inline void Disable()
+		void Disable()
 		{
 			auto controlMap = RE::ControlMap::GetSingleton();
 			if (controlMap) {

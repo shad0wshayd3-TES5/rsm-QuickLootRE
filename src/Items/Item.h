@@ -11,11 +11,11 @@ namespace Items
 		Item(const Item&) = delete;
 		Item(Item&&) = default;
 
-		inline Item(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
+		Item(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
 			_item(a_count, a_stealing, a_item)
 		{}
 
-		inline Item(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
+		Item(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
 			_item(a_count, a_stealing, a_items)
 		{}
 
@@ -24,32 +24,32 @@ namespace Items
 		Item& operator=(const Item&) = delete;
 		Item& operator=(Item&&) = default;
 
-		[[nodiscard]] inline int Compare(const Item& a_rhs) const { return _item.Compare(a_rhs._item); }
+		[[nodiscard]] int Compare(const Item& a_rhs) const { return _item.Compare(a_rhs._item); }
 
-		[[nodiscard]] inline RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const { return _item.GFxValue(a_view); }
+		[[nodiscard]] RE::GFxValue GFxValue(RE::GFxMovieView& a_view) const { return _item.GFxValue(a_view); }
 
-		inline void Take(RE::Actor& a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
-		inline void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }
-		inline void TakeAll(RE::Actor& a_dst) { DoTake(a_dst, Count()); }
+		void Take(RE::Actor& a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
+		void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }
+		void TakeAll(RE::Actor& a_dst) { DoTake(a_dst, Count()); }
 
-		[[nodiscard]] inline double EnchantmentCharge() const { return _item.GetEnchantmentCharge(); }
-		[[nodiscard]] inline std::ptrdiff_t Value() const { return _item.GetValue(); }
-		[[nodiscard]] inline double Weight() const { return _item.GetWeight(); }
+		[[nodiscard]] double EnchantmentCharge() const { return _item.GetEnchantmentCharge(); }
+		[[nodiscard]] std::ptrdiff_t Value() const { return _item.GetValue(); }
+		[[nodiscard]] double Weight() const { return _item.GetWeight(); }
 
 	protected:
 		virtual void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) = 0;
 
-		[[nodiscard]] inline std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
-		[[nodiscard]] inline bool Stolen() const { return _item.IsStolen(); }
+		[[nodiscard]] std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
+		[[nodiscard]] bool Stolen() const { return _item.IsStolen(); }
 
 	private:
 		GFxItem _item;
 	};
 
-	[[nodiscard]] inline bool operator==(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) == 0; }
-	[[nodiscard]] inline bool operator!=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) != 0; }
-	[[nodiscard]] inline bool operator<(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) < 0; }
-	[[nodiscard]] inline bool operator>(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) > 0; }
-	[[nodiscard]] inline bool operator<=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) <= 0; }
-	[[nodiscard]] inline bool operator>=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) >= 0; }
+	[[nodiscard]] bool operator==(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) == 0; }
+	[[nodiscard]] bool operator!=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) != 0; }
+	[[nodiscard]] bool operator<(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) < 0; }
+	[[nodiscard]] bool operator>(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) > 0; }
+	[[nodiscard]] bool operator<=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) <= 0; }
+	[[nodiscard]] bool operator>=(const Item& a_lhs, const Item& a_rhs) { return a_lhs.Compare(a_rhs) >= 0; }
 }

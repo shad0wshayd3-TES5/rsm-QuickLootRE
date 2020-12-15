@@ -20,11 +20,11 @@ namespace CLIK
 				UIComponent(UIComponent&&) = default;
 				using super::super;
 
-				inline UIComponent(const super& a_rhs) :
+				UIComponent(const super& a_rhs) :
 					super(a_rhs)
 				{}
 
-				inline UIComponent(super&& a_rhs) :
+				UIComponent(super&& a_rhs) :
 					super(std::move(a_rhs))
 				{}
 
@@ -34,31 +34,31 @@ namespace CLIK
 				UIComponent& operator=(UIComponent&&) = default;
 				using super::operator=;
 
-				inline UIComponent& operator=(const super& a_rhs)
+				UIComponent& operator=(const super& a_rhs)
 				{
 					super::operator=(a_rhs);
 					return *this;
 				}
 
-				inline UIComponent& operator=(super&& a_rhs)
+				UIComponent& operator=(super&& a_rhs)
 				{
 					super::operator=(std::move(a_rhs));
 					return *this;
 				}
 
-				inline bool Disabled() const { return GetBoolean("disabled"); }
-				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
+				bool Disabled() const { return GetBoolean("disabled"); }
+				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
-				inline bool Visible() const { return GetBoolean("visible"); }
-				inline void Visible(bool a_visible) { SetBoolean("visible", a_visible); }
+				bool Visible() const { return GetBoolean("visible"); }
+				void Visible(bool a_visible) { SetBoolean("visible", a_visible); }
 
-				inline double Width() const { return GetNumber("width"); }
-				inline void Width(double a_width) { SetNumber("width", a_width); }
+				double Width() const { return GetNumber("width"); }
+				void Width(double a_width) { SetNumber("width", a_width); }
 
-				inline double Height() const { return GetNumber("height"); }
-				inline void Height(double a_height) { SetNumber("height", a_height); }
+				double Height() const { return GetNumber("height"); }
+				void Height(double a_height) { SetNumber("height", a_height); }
 
-				inline void SetSize(double a_width, double a_height)
+				void SetSize(double a_width, double a_height)
 				{
 					enum
 					{
@@ -80,29 +80,29 @@ namespace CLIK
 					assert(success);
 				}
 
-				inline double Focused() const { return GetNumber("focused"); }
-				inline void Focused(double a_focused) { SetNumber("focused", a_focused); }
+				double Focused() const { return GetNumber("focused"); }
+				void Focused(double a_focused) { SetNumber("focused", a_focused); }
 
-				inline bool DisplayFocus() const { return GetBoolean("displayFocus"); }
-				inline void DisplayFocus(bool a_displayFocus) { SetBoolean("displayFocus", a_displayFocus); }
+				bool DisplayFocus() const { return GetBoolean("displayFocus"); }
+				void DisplayFocus(bool a_displayFocus) { SetBoolean("displayFocus", a_displayFocus); }
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				inline void Invalidate()
+				void Invalidate()
 				{
 					[[maybe_unused]] const auto success =
 						Invoke("invalidate");
 					assert(success);
 				}
 
-				inline void ValidateNow()
+				void ValidateNow()
 				{
 					[[maybe_unused]] const auto success =
 						Invoke("validateNow");
 					assert(success);
 				}
 
-				inline std::string ToString()
+				std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =
@@ -111,7 +111,7 @@ namespace CLIK
 					return str.GetString();
 				}
 
-				inline void DispatchEventToGame(Object& a_event)
+				void DispatchEventToGame(Object& a_event)
 				{
 					enum
 					{

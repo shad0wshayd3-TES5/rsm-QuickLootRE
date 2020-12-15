@@ -16,12 +16,12 @@ public:
 		_src(a_src)
 	{}
 
-	inline ~OpenCloseHandler() { Close(); }
+	~OpenCloseHandler() { Close(); }
 
 	OpenCloseHandler& operator=(const OpenCloseHandler&) = default;
 	OpenCloseHandler& operator=(OpenCloseHandler&&) = default;
 
-	inline void SetSource(RE::ObjectRefHandle a_src)
+	void SetSource(RE::ObjectRefHandle a_src)
 	{
 		Close();
 		_src = a_src;
@@ -29,7 +29,7 @@ public:
 		_doOneShotClose = true;
 	}
 
-	inline void Open()
+	void Open()
 	{
 		auto src = _src.get();
 		if (src) {
@@ -48,7 +48,7 @@ public:
 		}
 	}
 
-	inline void Close()
+	void Close()
 	{
 		auto src = _src.get();
 		if (src) {
@@ -70,7 +70,7 @@ public:
 private:
 	using State = RE::BGSOpenCloseForm::OPEN_STATE;
 
-	static inline void AsyncCallback(long double a_wait, RE::ObjectRefHandle a_src, bool a_open)
+	static void AsyncCallback(long double a_wait, RE::ObjectRefHandle a_src, bool a_open)
 	{
 		std::this_thread::sleep_for(std::chrono::duration<long double>(a_wait));
 		auto task = SKSE::GetTaskInterface();
@@ -89,7 +89,7 @@ private:
 		});
 	}
 
-	inline void OneShotOpen(const RE::TESObjectREFRPtr& a_src)
+	void OneShotOpen(const RE::TESObjectREFRPtr& a_src)
 	{
 		if (_doOneShotOpen) {
 			auto dst = _dst.get();
@@ -109,7 +109,7 @@ private:
 		}
 	}
 
-	inline void OneShotClose(const RE::TESObjectREFRPtr& a_src)
+	void OneShotClose(const RE::TESObjectREFRPtr& a_src)
 	{
 		if (_doOneShotClose) {
 			auto events = RE::ScriptEventSourceHolder::GetSingleton();
@@ -122,7 +122,7 @@ private:
 		}
 	}
 
-	inline void AsyncPlayAnimation(const RE::TESObjectREFR& a_src, bool a_open)
+	void AsyncPlayAnimation(const RE::TESObjectREFR& a_src, bool a_open)
 	{
 		const auto sequence =
 			!a_open ?

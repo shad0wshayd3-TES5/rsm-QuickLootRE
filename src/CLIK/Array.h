@@ -16,27 +16,27 @@ namespace CLIK
 		Array(Array&&) = default;
 		using super::super;
 
-		inline Array(const super& a_rhs) :
+		Array(const super& a_rhs) :
 			super(a_rhs)
 		{}
 
-		inline Array(super&& a_rhs) :
+		Array(super&& a_rhs) :
 			super(std::move(a_rhs))
 		{}
 
-		inline Array(const RE::GFxValue& a_rhs) :
+		Array(const RE::GFxValue& a_rhs) :
 			super(a_rhs)
 		{
 			assert(IsArray());
 		}
 
-		inline Array(RE::GFxValue&& a_rhs) :
+		Array(RE::GFxValue&& a_rhs) :
 			super(std::move(a_rhs))
 		{
 			assert(IsArray());
 		}
 
-		inline Array(RE::GPtr<RE::GFxMovieView> a_rhs) :
+		Array(RE::GPtr<RE::GFxMovieView> a_rhs) :
 			super()
 		{
 			CreateArray(std::move(a_rhs));
@@ -48,33 +48,33 @@ namespace CLIK
 		Array& operator=(Array&&) = default;
 		using super::operator=;
 
-		inline Array& operator=(const super& a_rhs)
+		Array& operator=(const super& a_rhs)
 		{
 			super::operator=(a_rhs);
 			return *this;
 		}
 
-		inline Array& operator=(super&& a_rhs)
+		Array& operator=(super&& a_rhs)
 		{
 			super::operator=(std::move(a_rhs));
 			return *this;
 		}
 
-		inline Array& operator=(const RE::GFxValue& a_rhs)
+		Array& operator=(const RE::GFxValue& a_rhs)
 		{
 			super::operator=(a_rhs);
 			assert(IsArray());
 			return *this;
 		}
 
-		inline Array& operator=(RE::GFxValue&& a_rhs)
+		Array& operator=(RE::GFxValue&& a_rhs)
 		{
 			super::operator=(std::move(a_rhs));
 			assert(IsArray());
 			return *this;
 		}
 
-		inline Array& operator=(RE::GPtr<RE::GFxMovieView> a_rhs)
+		Array& operator=(RE::GPtr<RE::GFxMovieView> a_rhs)
 		{
 			CreateArray(std::move(a_rhs));
 			return *this;
@@ -87,11 +87,11 @@ namespace CLIK
 		static constexpr double RETURNINDEXEDARRAY = 8;
 		static constexpr double UNIQUESORT = 4;
 
-		inline double Length() const { return GetNumber("length"); }
-		inline void Length(double a_length) { SetNumber("length", a_length); }
+		double Length() const { return GetNumber("length"); }
+		void Length(double a_length) { SetNumber("length", a_length); }
 
 		// methods
-		inline Array Concat(std::optional<std::reference_wrapper<Object>> a_value)
+		Array Concat(std::optional<std::reference_wrapper<Object>> a_value)
 		{
 			RE::GFxValue arr;
 
@@ -119,7 +119,7 @@ namespace CLIK
 			return Array(arr);
 		}
 
-		inline std::string Join(std::optional<std::string_view> a_delimiter)
+		std::string Join(std::optional<std::string_view> a_delimiter)
 		{
 			enum
 			{
@@ -145,7 +145,7 @@ namespace CLIK
 			return str.GetString();
 		}
 
-		inline Object Pop()
+		Object Pop()
 		{
 			RE::GFxValue object;
 			[[maybe_unused]] const auto success =
@@ -154,7 +154,7 @@ namespace CLIK
 			return Object(object);
 		}
 
-		inline double Push(Object& a_value)
+		double Push(Object& a_value)
 		{
 			enum
 			{
@@ -174,14 +174,14 @@ namespace CLIK
 			return number.GetNumber();
 		}
 
-		inline void Reverse()
+		void Reverse()
 		{
 			[[maybe_unused]] const auto success =
 				Invoke("reverse");
 			assert(success);
 		}
 
-		inline Object Shift()
+		Object Shift()
 		{
 			RE::GFxValue object;
 			[[maybe_unused]] const auto success =
@@ -190,7 +190,7 @@ namespace CLIK
 			return Object(object);
 		}
 
-		inline void Splice(double a_startIndex, std::optional<double> a_deleteCount, std::optional<Object> a_value)
+		void Splice(double a_startIndex, std::optional<double> a_deleteCount, std::optional<Object> a_value)
 		{
 			enum
 			{

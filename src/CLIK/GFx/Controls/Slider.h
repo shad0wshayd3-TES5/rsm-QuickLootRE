@@ -19,11 +19,11 @@ namespace CLIK
 				Slider(Slider&&) = default;
 				using super::super;
 
-				inline Slider(const super& a_rhs) :
+				Slider(const super& a_rhs) :
 					super(a_rhs)
 				{}
 
-				inline Slider(super&& a_rhs) :
+				Slider(super&& a_rhs) :
 					super(std::move(a_rhs))
 				{}
 
@@ -33,42 +33,42 @@ namespace CLIK
 				Slider& operator=(Slider&&) = default;
 				using super::operator=;
 
-				inline Slider& operator=(const super& a_rhs)
+				Slider& operator=(const super& a_rhs)
 				{
 					super::operator=(a_rhs);
 					return *this;
 				}
 
-				inline Slider& operator=(super&& a_rhs)
+				Slider& operator=(super&& a_rhs)
 				{
 					super::operator=(std::move(a_rhs));
 					return *this;
 				}
 
-				inline double Maximum() const { return GetNumber("maximum"); }
-				inline void Maximum(double a_maximum) { SetNumber("maximum", a_maximum); }
+				double Maximum() const { return GetNumber("maximum"); }
+				void Maximum(double a_maximum) { SetNumber("maximum", a_maximum); }
 
-				inline double Minimum() const { return GetNumber("minimum"); }
-				inline void Minimum(double a_minimum) { SetNumber("minimum", a_minimum); }
+				double Minimum() const { return GetNumber("minimum"); }
+				void Minimum(double a_minimum) { SetNumber("minimum", a_minimum); }
 
-				inline double Value() const { return GetNumber("value"); }
-				inline void Value(double a_value) { SetNumber("value", a_value); }
+				double Value() const { return GetNumber("value"); }
+				void Value(double a_value) { SetNumber("value", a_value); }
 
-				inline bool Disabled() const { return GetBoolean("disabled"); }
-				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
+				bool Disabled() const { return GetBoolean("disabled"); }
+				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
-				inline double Position() const { return GetNumber("position"); }
-				inline void Position(double a_position) { SetNumber("position", a_position); }
+				double Position() const { return GetNumber("position"); }
+				void Position(double a_position) { SetNumber("position", a_position); }
 
-				inline bool Snapping() const { return GetBoolean("snapping"); }
-				inline void Snapping(bool a_snapping) { SetBoolean("snapping", a_snapping); }
+				bool Snapping() const { return GetBoolean("snapping"); }
+				void Snapping(bool a_snapping) { SetBoolean("snapping", a_snapping); }
 
-				inline double SnapInterval() const { return GetNumber("snapInterval"); }
-				inline void SnapInterval(double a_snapInterval) { SetNumber("snapInterval", a_snapInterval); }
+				double SnapInterval() const { return GetNumber("snapInterval"); }
+				void SnapInterval(double a_snapInterval) { SetNumber("snapInterval", a_snapInterval); }
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				inline std::string ToString()
+				std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =

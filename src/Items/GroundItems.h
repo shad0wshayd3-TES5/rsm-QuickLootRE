@@ -15,7 +15,7 @@ namespace Items
 		GroundItems(const GroundItems&) = delete;
 		GroundItems(GroundItems&&) = default;
 
-		inline GroundItems(std::ptrdiff_t a_count, bool a_stealing, std::vector<RE::ObjectRefHandle> a_items) :
+		 GroundItems(std::ptrdiff_t a_count, bool a_stealing, std::vector<RE::ObjectRefHandle> a_items) :
 			super(a_count, a_stealing, { a_items.data(), a_items.size() }),
 			_items(std::move(a_items))
 		{}
@@ -26,7 +26,7 @@ namespace Items
 		GroundItems& operator=(GroundItems&&) = default;
 
 	protected:
-		inline void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) override
+		 void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) override
 		{
 			auto toRemove = std::clamp<std::ptrdiff_t>(a_count, 0, Count());
 			if (toRemove <= 0) {

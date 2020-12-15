@@ -4,25 +4,25 @@ class ContainerChangedHandler :
 	public RE::BSTEventSink<RE::TESContainerChangedEvent>
 {
 public:
-	inline ContainerChangedHandler() :
+	ContainerChangedHandler() :
 		ContainerChangedHandler(RE::ObjectRefHandle{})
 	{}
 
 	ContainerChangedHandler(const ContainerChangedHandler&) = default;
 	ContainerChangedHandler(ContainerChangedHandler&&) = default;
 
-	inline ContainerChangedHandler(RE::ObjectRefHandle a_container) :
+	ContainerChangedHandler(RE::ObjectRefHandle a_container) :
 		_container(a_container)
 	{
 		Register();
 	}
 
-	inline ~ContainerChangedHandler() { Unregister(); }
+	~ContainerChangedHandler() { Unregister(); }
 
 	ContainerChangedHandler& operator=(const ContainerChangedHandler&) = default;
 	ContainerChangedHandler& operator=(ContainerChangedHandler&&) = default;
 
-	inline void SetContainer(RE::ObjectRefHandle a_container) noexcept { _container = a_container; }
+	void SetContainer(RE::ObjectRefHandle a_container) noexcept { _container = a_container; }
 
 protected:
 	using EventResult = RE::BSEventNotifyControl;
@@ -30,7 +30,7 @@ protected:
 	EventResult ProcessEvent(const RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>* a_eventSource) override;
 
 private:
-	inline void Register()
+	void Register()
 	{
 		auto source = RE::ScriptEventSourceHolder::GetSingleton();
 		if (source) {
@@ -38,7 +38,7 @@ private:
 		}
 	}
 
-	inline void Unregister()
+	void Unregister()
 	{
 		auto source = RE::ScriptEventSourceHolder::GetSingleton();
 		if (source) {

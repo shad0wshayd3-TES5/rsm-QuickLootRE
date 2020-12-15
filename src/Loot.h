@@ -12,21 +12,21 @@ private:
 	using LootMenu = Scaleform::LootMenu;
 
 public:
-	static inline Loot& GetSingleton()
+	static Loot& GetSingleton()
 	{
 		static Loot singleton;
 		return singleton;
 	}
 
-	inline void Disable()
+	void Disable()
 	{
 		_enabled = false;
 		Close();
 	}
 
-	inline void Enable() { _enabled = true; }
+	void Enable() { _enabled = true; }
 
-	inline void RefreshUI()
+	void RefreshUI()
 	{
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([this]() {
@@ -40,7 +40,7 @@ public:
 	void ModSelectedIndex(double a_mod);
 	void ModSelectedPage(double a_mod);
 
-	inline void RefreshInventory()
+	void RefreshInventory()
 	{
 		// Need to delay inventory processing so the game has time to process it before us
 		auto task = SKSE::GetTaskInterface();
@@ -74,7 +74,7 @@ private:
 	[[nodiscard]] RE::GPtr<LootMenu> GetMenu() const;
 	[[nodiscard]] bool IsOpen() const;
 
-	[[nodiscard]] inline bool ShouldOpen() const
+	[[nodiscard]] bool ShouldOpen() const
 	{
 		if (!_enabled || IsOpen()) {
 			return false;

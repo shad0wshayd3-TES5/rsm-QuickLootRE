@@ -20,11 +20,11 @@ namespace CLIK
 				ScrollingList(ScrollingList&&) = default;
 				using super::super;
 
-				inline ScrollingList(const super& a_rhs) :
+				ScrollingList(const super& a_rhs) :
 					super(a_rhs)
 				{}
 
-				inline ScrollingList(super&& a_rhs) :
+				ScrollingList(super&& a_rhs) :
 					super(std::move(a_rhs))
 				{}
 
@@ -34,34 +34,34 @@ namespace CLIK
 				ScrollingList& operator=(ScrollingList&&) = default;
 				using super::operator=;
 
-				inline ScrollingList& operator=(const super& a_rhs)
+				ScrollingList& operator=(const super& a_rhs)
 				{
 					super::operator=(a_rhs);
 					return *this;
 				}
 
-				inline ScrollingList& operator=(super&& a_rhs)
+				ScrollingList& operator=(super&& a_rhs)
 				{
 					super::operator=(std::move(a_rhs));
 					return *this;
 				}
 
-				inline Object ScrollBar() const { return GetObject("scrollBar"); }
-				inline void ScrollBar(const Object& a_scrollBar) { SetObject("scrollBar", a_scrollBar); }
+				Object ScrollBar() const { return GetObject("scrollBar"); }
+				void ScrollBar(const Object& a_scrollBar) { SetObject("scrollBar", a_scrollBar); }
 
-				inline double RowHeight() const { return GetNumber("rowHeight"); }
-				inline void RowHeight(double a_rowHeight) { SetNumber("rowHeight", a_rowHeight); }
+				double RowHeight() const { return GetNumber("rowHeight"); }
+				void RowHeight(double a_rowHeight) { SetNumber("rowHeight", a_rowHeight); }
 
-				inline double ScrollPosition() const { return GetNumber("scrollPosition"); }
-				inline void ScrollPosition(double a_scrollPosition) { SetNumber("scrollPosition", a_scrollPosition); }
+				double ScrollPosition() const { return GetNumber("scrollPosition"); }
+				void ScrollPosition(double a_scrollPosition) { SetNumber("scrollPosition", a_scrollPosition); }
 
-				inline double SelectedIndex() const { return GetNumber("selectedIndex"); }
-				inline void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
+				double SelectedIndex() const { return GetNumber("selectedIndex"); }
+				void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
 
-				inline bool Disabled() const { return GetBoolean("disabled"); }
-				inline void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
+				bool Disabled() const { return GetBoolean("disabled"); }
+				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
-				inline void ScrollToIndex(double a_index)
+				void ScrollToIndex(double a_index)
 				{
 					enum
 					{
@@ -79,10 +79,10 @@ namespace CLIK
 					assert(success);
 				}
 
-				inline double RowCount() const { return GetNumber("rowCount"); }
-				inline void RowCount(double a_rowCount) { SetNumber("rowCount", a_rowCount); }
+				double RowCount() const { return GetNumber("rowCount"); }
+				void RowCount(double a_rowCount) { SetNumber("rowCount", a_rowCount); }
 
-				inline void InvalidateData()
+				void InvalidateData()
 				{
 					[[maybe_unused]] const auto success =
 						Invoke("invalidateData");
@@ -91,9 +91,9 @@ namespace CLIK
 
 				//bool handleInput(InputDetails& a_details, Array& a_pathToFocus);
 
-				inline double AvailableWidth() const { return GetNumber("availableWidth"); }
+				double AvailableWidth() const { return GetNumber("availableWidth"); }
 
-				inline std::string ToString()
+				std::string ToString()
 				{
 					RE::GFxValue str;
 					[[maybe_unused]] const auto success =
