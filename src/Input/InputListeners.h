@@ -112,23 +112,30 @@ namespace Input
 		void DoHandle(RE::InputEvent* const& a_event) override
 		{
 			for (auto iter = a_event; iter; iter = iter->next) {
-				auto event = iter->AsButtonEvent();
+				const auto event = iter->AsButtonEvent();
 				if (!event) {
 					continue;
 				}
 
-				auto controlMap = RE::ControlMap::GetSingleton();
+				const auto controlMap = RE::ControlMap::GetSingleton();
 				const auto idCode =
 					controlMap ?
                         controlMap->GetMappedKey("Activate", event->GetDevice()) :
                         RE::ControlMap::kInvalid;
 
 				if (event->GetIDCode() == idCode) {
+					if (!_context && !event->IsDown()) {
+						continue;
+					}
+					_context = true;
+
 					if (event->IsHeld() && event->HeldDuration() > GetGrabDelay()) {
 						TryGrab();
+						_context = false;
 						return;
 					} else if (event->IsUp()) {
 						TakeStack();
+						_context = false;
 						return;
 					}
 				}
@@ -150,6 +157,7 @@ namespace Input
 		void TryGrab();
 
 		observer<RE::Setting*> _grabDelay{ RE::GetINISetting("fZKeyDelay:Controls") };
+		bool _context{ false };
 	};
 
 	class TransferHandler :
