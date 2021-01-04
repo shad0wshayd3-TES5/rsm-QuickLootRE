@@ -10,7 +10,7 @@ set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
 
 project(
 	QuickLootRE
-	VERSION 2.8.5
+	VERSION 2.8.6
 	LANGUAGES CXX
 )
 
