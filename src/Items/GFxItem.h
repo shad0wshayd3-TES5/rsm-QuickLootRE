@@ -134,11 +134,8 @@ namespace Items
 			auto result = std::numeric_limits<RE::FormID>::max();
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->GetFormID();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->GetFormID();
 				}
 				break;
 			case kGround:
@@ -169,12 +166,7 @@ namespace Items
 			auto result = std::numeric_limits<std::ptrdiff_t>::min();
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->GetGoldValue() * _count;
-					}
-				}
+				result = std::get<kInventory>(_src)->GetValue() * _count;
 				break;
 			case kGround:
 				for (const auto& handle : std::get<kGround>(_src)) {
@@ -204,19 +196,14 @@ namespace Items
 			double result = 0.0;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->GetWeight();
-					}
-				}
+				result = std::get<kInventory>(_src)->GetWeight() * _count;
 				break;
 			case kGround:
 				for (const auto& handle : std::get<kGround>(_src)) {
 					const auto item = handle.get();
 					const auto obj = item ? item->GetObjectReference() : nullptr;
 					if (obj) {
-						result = obj->GetWeight();
+						result = obj->GetWeight() * _count;
 						break;
 					}
 				}
@@ -239,11 +226,8 @@ namespace Items
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->IsAmmo();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->IsAmmo();
 				}
 				break;
 			case kGround:
@@ -274,11 +258,8 @@ namespace Items
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->IsObject();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->IsBook();
 				}
 				break;
 			case kGround:
@@ -309,11 +290,8 @@ namespace Items
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->IsGold();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->IsGold();
 				}
 				break;
 			case kGround:
@@ -344,11 +322,8 @@ namespace Items
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->IsKey();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->IsKey();
 				}
 				break;
 			case kGround:
@@ -379,11 +354,8 @@ namespace Items
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->IsLockpick();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->IsLockpick();
 				}
 				break;
 			case kGround:
@@ -414,11 +386,8 @@ namespace Items
 			bool result = false;
 			switch (_src.index()) {
 			case kInventory:
-				{
-					const auto obj = std::get<kInventory>(_src)->GetObject();
-					if (obj) {
-						result = obj->IsNote();
-					}
+				if (const auto obj = std::get<kInventory>(_src)->GetObject(); obj) {
+					result = obj->IsNote();
 				}
 				break;
 			case kGround:

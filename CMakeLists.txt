@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
+# ---- Cache build vars ----
+
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/ports" CACHE STRING "")
 set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
@@ -159,7 +161,7 @@ set_property(
 target_compile_features(
 	${PROJECT_NAME}
 	PUBLIC
-		cxx_std_17
+		cxx_std_20
 )
 
 target_include_directories(
@@ -197,6 +199,7 @@ if (MSVC)
 	target_link_options(
 		${PROJECT_NAME}
 		PRIVATE
+			/WX	# Treat Linker Warnings as Errors
 			"$<$<CONFIG:DEBUG>:/INCREMENTAL;/OPT:NOREF;/OPT:NOICF>"
 			"$<$<CONFIG:RELEASE>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>"
 	)
