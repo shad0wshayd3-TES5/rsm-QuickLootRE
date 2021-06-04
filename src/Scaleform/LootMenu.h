@@ -129,7 +129,7 @@ namespace Scaleform
 		{
 			auto dst = _dst.get();
 			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-			if (dst && 0 <= pos && pos < stl::ssize(_itemListImpl)) {
+			if (dst && 0 <= pos && pos < std::ssize(_itemListImpl)) {
 				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
 				_openCloseHandler.Open();
 
@@ -171,7 +171,7 @@ namespace Scaleform
 		LootMenu& operator=(const LootMenu&) = default;
 		LootMenu& operator=(LootMenu&&) = default;
 
-		static owner<RE::IMenu*> Creator() { return new LootMenu(); }
+		static stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
 
 		// IMenu
 		void PostCreate() override { OnOpen(); }
@@ -335,7 +335,7 @@ namespace Scaleform
 
 		void RestoreIndex(std::ptrdiff_t a_oldIdx)
 		{
-			if (const auto ssize = stl::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize) {
+			if (const auto ssize = std::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize) {
 				_itemList.SelectedIndex(static_cast<double>(a_oldIdx));
 			} else if (!_itemListImpl.empty()) {
 				if (a_oldIdx >= ssize) {
@@ -405,7 +405,7 @@ namespace Scaleform
 		{
 			_infoBarProvider.ClearElements();
 			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-			if (0 <= idx && idx < stl::ssize(_itemListImpl)) {
+			if (0 <= idx && idx < std::ssize(_itemListImpl)) {
 				const std::array functors{
 					std::function{ [](const Items::Item& a_val) { return fmt::format(FMT_STRING("{:.1f}"), a_val.Weight()); } },
 					std::function{ [](const Items::Item& a_val) { return fmt::format(FMT_STRING("{}"), a_val.Value()); } },
@@ -436,7 +436,7 @@ namespace Scaleform
 			auto src = _src.get();
 			if (src) {
 				_title.HTMLText(
-					safe_string(
+					stl::safe_string(
 						src->GetDisplayFullName()));
 				_title.Visible(true);
 			}

@@ -13,7 +13,7 @@ public:
 	ViewHandler(const ViewHandler&) = default;
 	ViewHandler(ViewHandler&&) = default;
 
-	ViewHandler(observer<RE::IMenu*> a_menu, RE::ActorHandle a_dst) :
+	ViewHandler(stl::observer<RE::IMenu*> a_menu, RE::ActorHandle a_dst) :
 		_menu(a_menu),
 		_view(a_menu ? a_menu->uiMovie : nullptr),
 		_dst(a_dst)
@@ -228,7 +228,7 @@ private:
 	void EnableHUDBlocker();
 	void DisableHUDBlocker();
 
-	observer<RE::IMenu*> _menu;
+	stl::observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;
 	Input::Disablers _disablers;
 	Input::Listeners _listeners;

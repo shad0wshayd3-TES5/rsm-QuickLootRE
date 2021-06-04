@@ -8,8 +8,8 @@
     "autotoml",
     "boost-atomic",
     "boost-regex",
+    "boost-stl-interfaces",
     "frozen",
-    "span-lite",
     "spdlog",
     "tomlplusplus",
     "xbyak"

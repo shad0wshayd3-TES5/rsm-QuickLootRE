@@ -325,7 +325,7 @@ namespace Input
 				return INVALID;
 			}
 
-			const auto make_mappings = []() noexcept {
+			constexpr auto mappings = []() noexcept {
 				const auto map = [](std::size_t a_key) noexcept {
 					for (std::size_t i = 0; i < 32; ++i) {
 						auto to = (a_key >> i) & 1;
@@ -347,23 +347,21 @@ namespace Input
 					return size + 4 + 2;
 				}();
 
-				simple_array<std::pair<std::uint32_t, std::uint32_t>, N> arr{};
+				std::array<std::pair<std::uint32_t, std::uint32_t>, N> arr{};
 				std::size_t idx = 0;
 				std::size_t frame = 266;
 				for (std::size_t key = Key::kUp; key <= Key::kRightShoulder; key <<= 1) {
-					assign(arr.c[idx++], key, map(key) + frame);
+					assign(arr[idx++], key, map(key) + frame);
 				}
 				for (std::size_t key = Key::kA; key <= Key::kY; key <<= 1) {
-					assign(arr.c[idx++], key, map(key >> 2) + frame);
+					assign(arr[idx++], key, map(key >> 2) + frame);
 				}
 
-				assign(arr.c[idx], Key::kLeftTrigger, frame + idx);
+				assign(arr[idx], Key::kLeftTrigger, frame + idx);
 				++idx;
-				assign(arr.c[idx], Key::kRightTrigger, frame + idx);
-				return arr;
-			};
-
-			constexpr auto mappings = frozen::make_map(make_mappings().c);
+				assign(arr[idx], Key::kRightTrigger, frame + idx);
+				return frozen::make_map(arr);
+			}();
 
 			auto key = controlMap->GetMappedKey(a_userEvent, RE::INPUT_DEVICE::kGamepad);
 			auto it = mappings.find(key);

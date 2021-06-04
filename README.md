@@ -6,9 +6,7 @@
 	* Regex
 * [CommonLibSSE](https://github.com/Ryan-rsm-McKenzie/CommonLibSSE)
 * [frozen](https://github.com/serge-sans-paille/frozen)
-* [span lite](https://github.com/martinmoene/span-lite)
 * [spdlog](https://github.com/gabime/spdlog)
-* [toml++](https://github.com/marzer/tomlplusplus)
 * [Xbyak](https://github.com/herumi/xbyak)
 
 ## End User Dependencies

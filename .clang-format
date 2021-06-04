@@ -63,7 +63,7 @@ IndentCaseBlocks: 'true'
 IndentCaseLabels: 'false'
 IndentExternBlock: Indent
 IndentGotoLabels: 'false'
-IndentPPDirectives: None
+IndentPPDirectives: AfterHash
 IndentWidth: 4
 IndentWrappedFunctionNames: 'true'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
@@ -93,7 +93,7 @@ SpacesInConditionalStatement: 'false'
 SpacesInContainerLiterals: 'true'
 SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
-Standard: c++17
+Standard: Latest
 TabWidth: 4
 UseCRLF: 'true'
 UseTab: AlignWithSpaces

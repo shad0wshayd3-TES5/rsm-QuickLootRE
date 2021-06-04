@@ -1,4 +1,4 @@
-﻿#include "Animation/Animation.h"
+#include "Animation/Animation.h"
 #include "Events/Events.h"
 #include "Hooks.h"
 #include "Input/Input.h"
@@ -97,7 +97,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 #ifndef NDEBUG
-	auto sink = std::make_shared<logger::msvc_sink_mt>();
+	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 #else
 	auto path = logger::log_directory();
 	if (!path) {

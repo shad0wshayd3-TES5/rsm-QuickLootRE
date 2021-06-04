@@ -28,7 +28,7 @@ namespace Animation
 			singleton.DoInstall();
 		}
 
-		constexpr void SetEventSink(observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
+		constexpr void SetEventSink(stl::observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
 
 	protected:
 		class AnimHandler :
@@ -95,11 +95,14 @@ namespace Animation
 
 		void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation)
 		{
-			const RE::BSFixedString anim(a_animation);
-			auto original = a_response.GetHandler(anim);
-			a_response.handlerMap.insert_or_assign(
-				{ std::move(anim),
-					RE::make_smart<AnimHandler>(std::move(original)) });
+			auto& map = a_response.handlerMap;
+			RE::BSFixedString anim{ a_animation };
+			auto handler = RE::make_smart<AnimHandler>(a_response.GetHandler(anim));
+			if (const auto it = map.find(anim); it != map.end()) {
+				it->second = std::move(handler);
+			} else {
+				map.emplace(std::move(anim), std::move(handler));
+			}
 		}
 
 		static constexpr std::array EVENTS{
@@ -109,6 +112,6 @@ namespace Animation
 			"EndAnimatedCamera"sv
 		};
 
-		observer<IEventSink*> _sink{ nullptr };
+		stl::observer<IEventSink*> _sink{ nullptr };
 	};
 }

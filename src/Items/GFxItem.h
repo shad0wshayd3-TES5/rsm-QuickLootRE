@@ -5,7 +5,7 @@ namespace Items
 	class GFxItem
 	{
 	public:
-		GFxItem(std::ptrdiff_t a_count, bool a_stealing, observer<RE::InventoryEntryData*> a_item) :
+		GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::observer<RE::InventoryEntryData*> a_item) :
 			_src(a_item),
 			_count(a_count),
 			_stealing(a_stealing)
@@ -13,7 +13,7 @@ namespace Items
 			assert(a_item != nullptr);
 		}
 
-		GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::span<const RE::ObjectRefHandle> a_items) :
+		GFxItem(std::ptrdiff_t a_count, bool a_stealing, std::span<const RE::ObjectRefHandle> a_items) :
 			_src(a_items),
 			_count(a_count),
 			_stealing(a_stealing)
@@ -69,13 +69,13 @@ namespace Items
 			std::string result;
 			switch (_src.index()) {
 			case kInventory:
-				result = safe_string(
+				result = stl::safe_string(
 					std::get<kInventory>(_src)->GetDisplayName());
 				break;
 			case kGround:
 				for (const auto& handle : std::get<kGround>(_src)) {
 					const auto item = handle.get();
-					result = item ? safe_string(item->GetDisplayFullName()) : ""sv;
+					result = item ? stl::safe_string(item->GetDisplayFullName()) : ""sv;
 					if (!result.empty()) {
 						break;
 					}
@@ -588,7 +588,7 @@ namespace Items
 		};
 
 		using inventory_t = RE::InventoryEntryData*;
-		using ground_t = stl::span<const RE::ObjectRefHandle>;
+		using ground_t = std::span<const RE::ObjectRefHandle>;
 
 		std::variant<inventory_t, ground_t> _src;
 		std::ptrdiff_t _count;
