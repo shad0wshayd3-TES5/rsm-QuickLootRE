@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # ---- Options ----
 
-option(COPY_BUILD "Copy the build output to the Fallout 4 directory." ON)
+option(COPY_BUILD "Copy the build output to the Skyrim directory." ON)
 
 # ---- Cache build vars ----
 
