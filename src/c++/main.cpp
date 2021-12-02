@@ -4,7 +4,6 @@
 #include "Input/Input.h"
 #include "Loot.h"
 #include "Scaleform/Scaleform.h"
-#include "version.h"
 
 class InputHandler :
 	public RE::BSTEventSink<RE::InputEvent*>
@@ -78,71 +77,70 @@ private:
 	InputHandler& operator=(InputHandler&&) = delete;
 };
 
-void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
+namespace
 {
-	switch (a_msg->type) {
-	case SKSE::MessagingInterface::kDataLoaded:
+	void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
+	{
+		switch (a_msg->type) {
+		case SKSE::MessagingInterface::kDataLoaded:
 #ifndef NDEBUG
-		InputHandler::Register();
+			InputHandler::Register();
 #endif
 
-		Animation::AnimationManager::Install();
+			Animation::AnimationManager::Install();
 
-		Events::Register();
-		Scaleform::Register();
-		break;
+			Events::Register();
+			Scaleform::Register();
+			break;
+		}
+	}
+
+	void InitializeLog()
+	{
+#ifndef NDEBUG
+		auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+#else
+		auto path = logger::log_directory();
+		if (!path) {
+			stl::report_and_fail("Failed to find standard logging directory"sv);
+		}
+
+		*path /= fmt::format("{}.log", Plugin::NAME);
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+#endif
+
+#ifndef NDEBUG
+		const auto level = spdlog::level::trace;
+#else
+		const auto level = spdlog::level::info;
+#endif
+
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		log->set_level(level);
+		log->flush_on(level);
+
+		spdlog::set_default_logger(std::move(log));
+		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 	}
 }
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
-{
-#ifndef NDEBUG
-	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-#else
-	auto path = logger::log_directory();
-	if (!path) {
-		return false;
-	}
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+	SKSE::PluginVersionData v;
 
-	*path /= "QuicklootRE.log"sv;
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-#endif
+	v.PluginVersion(Plugin::VERSION);
+	v.PluginName(Plugin::NAME);
 
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+	v.UsesAddressLibrary(true);
+	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
 
-#ifndef NDEBUG
-	log->set_level(spdlog::level::trace);
-#else
-	log->set_level(spdlog::level::info);
-	log->flush_on(spdlog::level::warn);
-#endif
-
-	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
-
-	logger::info("QuickLootRE v{}"sv, Version::NAME);
-
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "QuickLootRE";
-	a_info->version = Version::MAJOR;
-
-	if (a_skse->IsEditor()) {
-		logger::critical("Loaded in editor, marking as incompatible"sv);
-		return false;
-	}
-
-	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_1_5_39) {
-		logger::critical("Unsupported runtime version {}"sv, ver.string());
-		return false;
-	}
-
-	return true;
-}
+	return v;
+}();
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-	logger::info("QuickLootRE loaded"sv);
+	InitializeLog();
+	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
+
 	Settings::load();
 
 	SKSE::Init(a_skse);

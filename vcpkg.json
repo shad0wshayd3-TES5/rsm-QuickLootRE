@@ -6,11 +6,11 @@
   "license": "MIT",
   "dependencies": [
     "autotoml",
-    "boost-atomic",
     "boost-regex",
     "boost-stl-interfaces",
     "frozen",
     "spdlog",
+    "rsm-binary-io",
     "tomlplusplus",
     "xbyak"
   ]

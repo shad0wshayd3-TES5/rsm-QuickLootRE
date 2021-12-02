@@ -43,6 +43,10 @@
 
 #include "AutoTOML.hpp"
 
+#undef GetObject
+#undef max
+#undef min
+
 namespace logger = SKSE::log;
 namespace WinAPI = SKSE::WinAPI;
 
@@ -57,6 +61,6 @@ namespace stl
 
 #define DLLEXPORT __declspec(dllexport)
 
-#include "Version.h"
+#include "Plugin.h"
 
 #include "Settings.h"
