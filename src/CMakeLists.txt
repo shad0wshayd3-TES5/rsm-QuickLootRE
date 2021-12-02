@@ -25,6 +25,7 @@ add_custom_target(
 		"${SCRIPT}"
 		"--bin-dir=${CMAKE_CURRENT_BINARY_DIR}"
 		"--plugin-files=$<TARGET_FILE:${PROJECT_NAME}>"
+		"--config-files=${ROOT_DIR}/QuickLootRE.toml"
 		"--pdbs=$<TARGET_PDB_FILE:${PROJECT_NAME}>"
 		"--project=${PROJECT_NAME}"
 	DEPENDS

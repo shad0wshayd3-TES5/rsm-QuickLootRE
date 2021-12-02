@@ -63,7 +63,9 @@ target_include_directories(
 		"${SOURCE_DIR}"
 )
 
-add_subdirectory("${ROOT_DIR}/extern/CommonLibSSE" CommonLibSSE)
+set(SKSE_SUPPORT_XBYAK ON CACHE BOOL "")
+
+add_subdirectory("${ROOT_DIR}/external/CommonLibSSE" CommonLibSSE)
 
 find_package(AutoTOML REQUIRED CONFIG)
 find_package(Boost
@@ -87,14 +89,10 @@ target_link_libraries(
 		xbyak::xbyak
 )
 
-add_compile_definitions(
-	SKSE_SUPPORT_XBYAK
-)
-
 target_precompile_headers(
 	"${PROJECT_NAME}"
 	PRIVATE
-		"${ROOT_DIR}/src/c++/PCH.h"
+		"${SOURCE_DIR}/PCH.h"
 )
 
 if("${COPY_OUTPUT}")
@@ -102,6 +100,7 @@ if("${COPY_OUTPUT}")
 		TARGET "${PROJECT_NAME}"
 		POST_BUILD
 		COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${Skyrim64Path}/Data/SKSE/Plugins/"
+		COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ROOT_DIR}/QuickLootRE.toml" "${Skyrim64Path}/Data/SKSE/Plugins/"
 		VERBATIM
 	)
 endif()

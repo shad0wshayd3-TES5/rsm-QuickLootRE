@@ -71,14 +71,12 @@ namespace Events
 		{
 			explicit Patch(std::uintptr_t a_target)
 			{
-				mov(rcx, rsi);  // rsi == Actor* this
+				mov(rcx, rdi);  // rdi == Actor* this
 
 				pop(r15);
 				pop(r14);
-				// pop(r12);
 				pop(rdi);
 				pop(rsi);
-				// pop(rbx);
 				pop(rbp);
 
 				mov(rax, a_target);

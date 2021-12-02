@@ -15,8 +15,17 @@ def make_rel_archive(a_name, a_args):
 	for file in a_args.plugin_files:
 		write(file, "SKSE/Plugins")
 
-	for file in a_args.papyrus_pex_files:
-		write(file, "Scripts")
+	if (a_args.config_files):
+		for file in a_args.config_files:
+			write(file, "SKSE/Plugins")
+
+	if (a_args.papyrus_pex_files):
+		for file in a_args.papyrus_pex_files:
+			write(file, "Scripts")
+
+	if (a_args.papyrus_psc_files):
+		for file in a_args.papyrus_psc_files:
+			write(file, "Source/Scripts")
 
 def make_dbg_archive(a_name, a_args):
 	zip = make_zipfile("{}_pdbs".format(a_name))
@@ -26,8 +35,10 @@ def make_dbg_archive(a_name, a_args):
 def parse_arguments():
 	parser = argparse.ArgumentParser(description="archive build artifacts for distribution")
 	parser.add_argument("--bin-dir", type=str, help="the project binary directory", required=True)
-	parser.add_argument("--papyrus-pex-files", type=str, help="the compiled papyrus files", nargs="+", required=True)
+	parser.add_argument("--papyrus-pex-files", type=str, help="the compiled papyrus files", nargs="+", required=False)
+	parser.add_argument("--papyrus-psc-files", type=str, help="the papyrus  source files", nargs="+", required=False)
 	parser.add_argument("--plugin-files", type=str, help="the files to archive", nargs="+", required=True)
+	parser.add_argument("--config-files", type=str, help="the config files to archive", nargs="+", required=False)
 	parser.add_argument("--pdbs", type=str, help="the pdbs to archive", nargs="+", required=True)
 	parser.add_argument("--project", type=str, help="the project's name", required=True)
 	return parser.parse_args()
