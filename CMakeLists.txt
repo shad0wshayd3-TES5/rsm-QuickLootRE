@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 set(NAME "QuickLootRE")
-set(VERSION 2.8.6)
+set(VERSION 2.16.0)
 set(AE_VERSION 1)
 
 # ---- Options ----
