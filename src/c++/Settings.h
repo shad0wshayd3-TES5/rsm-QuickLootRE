@@ -8,7 +8,7 @@ struct Settings
 	static void load()
 	{
 		try {
-			const auto table = toml::parse_file("Data/SKSE/Plugins/QuickLootRE.toml"s);
+			const auto table = toml::parse_file("Data/SKSE/Plugins/QuickLootRE/config.toml"s);
 			for (const auto& setting : ISetting::get_settings()) {
 				setting->load(table);
 			}
@@ -18,7 +18,7 @@ struct Settings
 				<< "Error parsing file \'" << *e.source().path << "\':\n"
 				<< '\t' << e.description() << '\n'
 				<< "\t\t(" << e.source().begin << ')';
-			logger::error(ss.str());
+			logger::error(FMT_STRING("{:s}"sv), ss.str());
 			throw std::runtime_error("failed to load settings"s);
 		}
 	}
