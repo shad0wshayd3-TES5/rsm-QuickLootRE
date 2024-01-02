@@ -52,12 +52,14 @@ namespace Items
 			std::function action =
 				[&](std::int32_t a_num, RE::ExtraDataList* a_extraList) {
 					remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kRemove);
+					HandleStoryEvent(object, container.get(), RE::AQUIRE_TYPE::kContainer);
 				};
 			if (Stolen()) {
 				action =
 					[&](std::int32_t a_num, RE::ExtraDataList* a_extraList) {
 						remove(a_num, a_extraList, RE::ITEM_REMOVE_REASON::kSteal);
 						a_dst.StealAlarm(container.get(), object, a_num, static_cast<std::int32_t>(Value()), container->GetOwner(), true);
+						HandleStoryEvent(object, container.get(), RE::AQUIRE_TYPE::kSteal);
 					};
 			}
 
@@ -76,6 +78,32 @@ namespace Items
 			if (a_object.IsAmmo() && a_container.Is(RE::FormType::ActorCharacter)) {
 				auto& container = static_cast<RE::Actor&>(a_container);
 				container.ClearExtraArrows();
+			}
+		}
+
+		static void HandleStoryEvent(RE::TESBoundObject* a_object, RE::TESObjectREFR* a_container, RE::AQUIRE_TYPE a_aquireType)
+		{
+			auto player = RE::PlayerCharacter::GetSingleton();
+			if (player) {
+				if (a_container->Is(RE::FormType::ActorCharacter)) {
+					if (auto container = static_cast<RE::Actor*>(a_container)) {
+						switch (a_aquireType) {
+							case RE::AQUIRE_TYPE::kSteal:
+								if (!container->IsDead()) {
+									player->AddPlayerAddItemEvent(a_object, a_container->GetOwner(), a_container, RE::AQUIRE_TYPE::kPickPocket);
+								}
+								break;
+							case RE::AQUIRE_TYPE::kContainer:
+								if (container->IsDead()) {
+									player->AddPlayerAddItemEvent(a_object, a_container->GetOwner(), a_container, RE::AQUIRE_TYPE::kDeadBody);
+								}
+								break;
+							default:
+								break;
+						}
+					}
+				}
+				player->AddPlayerAddItemEvent(a_object, a_container->GetOwner(), a_container, a_aquireType);
 			}
 		}
 

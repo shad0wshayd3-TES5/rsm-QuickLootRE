@@ -136,6 +136,10 @@ namespace Scaleform
 				if (*Settings::dispelInvis) {
 					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
 				}
+
+				if (*Settings::dispelEthereal) {
+					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kEtherealize, false);
+				}
 			}
 
 			QueueInventoryRefresh();
