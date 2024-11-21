@@ -33,7 +33,8 @@ private:
 	void Register()
 	{
 		auto source = RE::ScriptEventSourceHolder::GetSingleton();
-		if (source) {
+		if (source)
+		{
 			source->AddEventSink(this);
 		}
 	}
@@ -41,7 +42,8 @@ private:
 	void Unregister()
 	{
 		auto source = RE::ScriptEventSourceHolder::GetSingleton();
-		if (source) {
+		if (source)
+		{
 			source->RemoveEventSink(this);
 		}
 	}

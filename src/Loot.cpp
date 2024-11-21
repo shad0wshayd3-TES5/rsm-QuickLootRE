@@ -5,9 +5,11 @@
 
 void Loot::Close()
 {
-	if (IsOpen()) {
+	if (IsOpen())
+	{
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
-		if (msgQ) {
+		if (msgQ)
+		{
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
 			auto& hud = HUDManager::GetSingleton();
 			hud.Disable();
@@ -17,9 +19,11 @@ void Loot::Close()
 
 void Loot::Open()
 {
-	if (ShouldOpen()) {
+	if (ShouldOpen())
+	{
 		auto msgQ = RE::UIMessageQueue::GetSingleton();
-		if (msgQ) {
+		if (msgQ)
+		{
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
 			auto& hud = HUDManager::GetSingleton();
 			hud.Enable();
@@ -29,44 +33,45 @@ void Loot::Open()
 
 void Loot::ModSelectedIndex(double a_mod)
 {
-	AddTask([a_mod](LootMenu& a_menu) {
-		a_menu.ModSelectedIndex(a_mod);
-	});
+	AddTask([a_mod](LootMenu& a_menu)
+	        { a_menu.ModSelectedIndex(a_mod); });
 }
 
 void Loot::ModSelectedPage(double a_mod)
 {
-	AddTask([a_mod](LootMenu& a_menu) {
-		a_menu.ModSelectedPage(a_mod);
-	});
+	AddTask([a_mod](LootMenu& a_menu)
+	        { a_menu.ModSelectedPage(a_mod); });
 }
 
 void Loot::SetContainer(RE::ObjectRefHandle a_container)
 {
-	AddTask([a_container](LootMenu& a_menu) {
-		a_menu.SetContainer(a_container);
-	});
+	AddTask([a_container](LootMenu& a_menu)
+	        { a_menu.SetContainer(a_container); });
 }
 
 void Loot::TakeStack()
 {
-	AddTask([](LootMenu& a_menu) {
-		a_menu.TakeStack();
-	});
+	AddTask([](LootMenu& a_menu)
+	        { a_menu.TakeStack(); });
 }
 
 void Loot::Process(LootMenu& a_menu)
 {
-	if (!_taskQueue.empty()) {
-		for (auto& task : _taskQueue) {
+	if (!_taskQueue.empty())
+	{
+		for (auto& task : _taskQueue)
+		{
 			task(a_menu);
 		}
 		_taskQueue.clear();
 	}
 
-	if (_refreshUI) {
+	if (_refreshUI)
+	{
 		a_menu.RefreshUI();
-	} else if (_refreshInventory) {
+	}
+	else if (_refreshInventory)
+	{
 		a_menu.RefreshInventory();
 	}
 

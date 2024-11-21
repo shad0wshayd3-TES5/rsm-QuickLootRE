@@ -88,6 +88,7 @@ namespace CLIK
 		static constexpr double UNIQUESORT = 4;
 
 		double Length() const { return GetNumber("length"); }
+
 		void Length(double a_length) { SetNumber("length", a_length); }
 
 		// methods
@@ -95,7 +96,8 @@ namespace CLIK
 		{
 			RE::GFxValue arr;
 
-			if (a_value) {
+			if (a_value)
+			{
 				enum
 				{
 					kValue,
@@ -110,7 +112,9 @@ namespace CLIK
 				[[maybe_unused]] const auto success =
 					Invoke("concat", std::addressof(arr), args.data(), args.size());
 				assert(success);
-			} else {
+			}
+			else
+			{
 				[[maybe_unused]] const auto success =
 					Invoke("concat", std::addressof(arr), nullptr, 0);
 				assert(success);
@@ -130,7 +134,8 @@ namespace CLIK
 			std::array<RE::GFxValue, kNumArgs> args;
 			std::size_t size = 0;
 
-			if (a_delimiter) {
+			if (a_delimiter)
+			{
 				args[kDelimiter] = *a_delimiter;
 				assert(args[kDelimiter].IsString());
 				++size;
@@ -206,12 +211,14 @@ namespace CLIK
 			args[kStartIndex] = a_startIndex;
 			assert(args[kStartIndex].IsNumber());
 
-			if (a_deleteCount) {
+			if (a_deleteCount)
+			{
 				args[kDeleteCount] = *a_deleteCount;
 				assert(args[kDeleteCount].IsNumber());
 				++size;
 
-				if (a_value) {
+				if (a_value)
+				{
 					args[kValue] = a_value->GetInstance();
 					++size;
 				}

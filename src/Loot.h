@@ -29,9 +29,8 @@ public:
 	void RefreshUI()
 	{
 		auto task = SKSE::GetTaskInterface();
-		task->AddTask([this]() {
-			_refreshUI = true;
-		});
+		task->AddTask([this]()
+		              { _refreshUI = true; });
 	}
 
 	void Close();
@@ -44,9 +43,8 @@ public:
 	{
 		// Need to delay inventory processing so the game has time to process it before us
 		auto task = SKSE::GetTaskInterface();
-		task->AddTask([this]() {
-			_refreshInventory = true;
-		});
+		task->AddTask([this]()
+		              { _refreshInventory = true; });
 	}
 
 	void SetContainer(RE::ObjectRefHandle a_container);
@@ -76,15 +74,17 @@ private:
 
 	[[nodiscard]] bool ShouldOpen() const
 	{
-		if (!_enabled || IsOpen()) {
+		if (!_enabled || IsOpen())
+		{
 			return false;
 		}
 
 		auto player = RE::PlayerCharacter::GetSingleton();
 		if (!player ||
-			player->IsGrabbing() ||
-			player->HasActorDoingCommand() ||
-			(*Settings::closeInCombat && player->IsInCombat())) {
+		    player->IsGrabbing() ||
+		    player->HasActorDoingCommand() ||
+		    (*Settings::closeInCombat && player->IsInCombat()))
+		{
 			return false;
 		}
 

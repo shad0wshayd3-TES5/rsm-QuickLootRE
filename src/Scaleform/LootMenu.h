@@ -21,12 +21,14 @@ namespace Scaleform
 
 	public:
 		static constexpr std::string_view MenuName() noexcept { return MENU_NAME; }
+
 		static constexpr std::int8_t SortPriority() noexcept { return SORT_PRIORITY; }
 
 		static void Register()
 		{
 			auto ui = RE::UI::GetSingleton();
-			if (ui) {
+			if (ui)
+			{
 				ui->Register(MENU_NAME, Creator);
 				SKSE::log::info("Registered {}"sv, MENU_NAME);
 			}
@@ -35,7 +37,8 @@ namespace Scaleform
 		void ModSelectedIndex(double a_mod)
 		{
 			const auto maxIdx = static_cast<double>(_itemListImpl.size()) - 1.0;
-			if (maxIdx >= 0.0) {
+			if (maxIdx >= 0.0)
+			{
 				auto idx = _itemList.SelectedIndex();
 				idx += a_mod;
 				idx = std::clamp(idx, 0.0, maxIdx);
@@ -72,7 +75,8 @@ namespace Scaleform
 
 			_itemListImpl.clear();
 			auto src = _src.get();
-			if (!src) {
+			if (!src)
+			{
 				_itemListProvider.ClearElements();
 				_itemList.Invalidate();
 				_itemList.SelectedIndex(-1.0);
@@ -81,31 +85,44 @@ namespace Scaleform
 
 			const auto stealing = WouldBeStealing();
 			auto inv = src->GetInventory(CanDisplay);
-			for (auto& [obj, data] : inv) {
+			for (auto& [obj, data] : inv)
+			{
 				auto& [count, entry] = data;
-				if (count > 0 && entry) {
+				if (count > 0 && entry)
+				{
 					_itemListImpl.push_back(
 						std::make_unique<Items::InventoryItem>(
-							count, stealing, std::move(entry), _src));
+							count,
+							stealing,
+							std::move(entry),
+							_src));
 				}
 			}
 
 			auto dropped = src->GetDroppedInventory(CanDisplay);
-			for (auto& [obj, data] : dropped) {
+			for (auto& [obj, data] : dropped)
+			{
 				auto& [count, items] = data;
-				if (count > 0 && !items.empty()) {
+				if (count > 0 && !items.empty())
+				{
 					_itemListImpl.push_back(
 						std::make_unique<Items::GroundItems>(
-							count, stealing, std::move(items)));
+							count,
+							stealing,
+							std::move(items)));
 				}
 			}
 
-			if (*Settings::closeOnEmpty && _itemListImpl.empty()) {
+			if (*Settings::closeOnEmpty && _itemListImpl.empty())
+			{
 				Close();
-			} else {
+			}
+			else
+			{
 				Sort();
 				_itemListProvider.ClearElements();
-				for (const auto& elem : _itemListImpl) {
+				for (const auto& elem : _itemListImpl)
+				{
 					_itemListProvider.PushBack(elem->GFxValue(*_view));
 				}
 				_itemList.InvalidateData();
@@ -129,15 +146,18 @@ namespace Scaleform
 		{
 			auto dst = _dst.get();
 			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-			if (dst && 0 <= pos && pos < std::ssize(_itemListImpl)) {
+			if (dst && 0 <= pos && pos < std::ssize(_itemListImpl))
+			{
 				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
 				_openCloseHandler.Open();
 
-				if (*Settings::dispelInvis) {
+				if (*Settings::dispelInvis)
+				{
 					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
 				}
 
-				if (*Settings::dispelEthereal) {
+				if (*Settings::dispelEthereal)
+				{
 					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kEtherealize, false);
 				}
 			}
@@ -154,11 +174,10 @@ namespace Scaleform
 			menu->depthPriority = -1;
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 			[[maybe_unused]] const auto success =
-				scaleformManager->LoadMovieEx(menu, FILE_NAME, [](RE::GFxMovieDef* a_def) -> void {
-					a_def->SetState(
-						RE::GFxState::StateType::kLog,
-						RE::make_gptr<Logger>().get());
-				});
+				scaleformManager->LoadMovieEx(menu, FILE_NAME, [](RE::GFxMovieDef* a_def) -> void
+			                                  { a_def->SetState(
+													RE::GFxState::StateType::kLog,
+													RE::make_gptr<Logger>().get()); });
 
 			assert(success);
 			_viewHandler.emplace(menu, _dst);
@@ -184,7 +203,8 @@ namespace Scaleform
 		{
 			using Type = RE::UI_MESSAGE_TYPE;
 
-			switch (*a_message.type) {
+			switch (*a_message.type)
+			{
 			case Type::kHide:
 				OnClose();
 				return UIResult::kHandled;
@@ -196,7 +216,8 @@ namespace Scaleform
 		void AdvanceMovie(float a_interval, std::uint32_t a_currentTime) override
 		{
 			auto src = _src.get();
-			if (!src || src->IsActivationBlocked()) {
+			if (!src || src->IsActivationBlocked())
+			{
 				Close();
 			}
 
@@ -217,7 +238,8 @@ namespace Scaleform
 			void LogMessageVarg(LogMessageType, const char* a_fmt, std::va_list a_argList) override
 			{
 				std::string fmt(a_fmt ? a_fmt : "");
-				while (!fmt.empty() && fmt.back() == '\n') {
+				while (!fmt.empty() && fmt.back() == '\n')
+				{
 					fmt.pop_back();
 				}
 
@@ -233,7 +255,8 @@ namespace Scaleform
 
 		[[nodiscard]] static bool CanDisplay(const RE::TESBoundObject& a_object)
 		{
-			switch (a_object.GetFormType()) {
+			switch (a_object.GetFormType())
+			{
 			case RE::FormType::Scroll:
 			case RE::FormType::Armor:
 			case RE::FormType::Book:
@@ -247,23 +270,26 @@ namespace Scaleform
 			case RE::FormType::SoulGem:
 				break;
 			case RE::FormType::Light:
+			{
+				auto& light = static_cast<const RE::TESObjectLIGH&>(a_object);
+				if (!light.CanBeCarried())
 				{
-					auto& light = static_cast<const RE::TESObjectLIGH&>(a_object);
-					if (!light.CanBeCarried()) {
-						return false;
-					}
+					return false;
 				}
-				break;
+			}
+			break;
 			default:
 				return false;
 			}
 
-			if (!a_object.GetPlayable()) {
+			if (!a_object.GetPlayable())
+			{
 				return false;
 			}
 
 			auto name = a_object.GetName();
-			if (!name || name[0] == '\0') {
+			if (!name || name[0] == '\0')
+			{
 				return false;
 			}
 
@@ -273,7 +299,8 @@ namespace Scaleform
 		void AdjustPosition()
 		{
 			auto def = _view->GetMovieDef();
-			if (def) {
+			if (def)
+			{
 				_rootObj.X(
 					_rootObj.X() + def->GetWidth() / 5);
 			}
@@ -298,15 +325,16 @@ namespace Scaleform
 		{
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
-				element_t{ std::ref(_rootObj), "_root.rootObj"sv },
-				element_t{ std::ref(_title), "_root.rootObj.title"sv },
-				element_t{ std::ref(_weight), "_root.rootObj.weightContainer.textField"sv },
-				element_t{ std::ref(_itemList), "_root.rootObj.itemList"sv },
-				element_t{ std::ref(_infoBar), "_root.rootObj.infoBar"sv },
-				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar"sv }
+				element_t{std::ref(_rootObj),    "_root.rootObj"sv                          },
+				element_t{ std::ref(_title),     "_root.rootObj.title"sv                    },
+				element_t{ std::ref(_weight),    "_root.rootObj.weightContainer.textField"sv},
+				element_t{ std::ref(_itemList),  "_root.rootObj.itemList"sv                 },
+				element_t{ std::ref(_infoBar),   "_root.rootObj.infoBar"sv                  },
+				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar"sv                }
 			};
 
-			for (const auto& [object, path] : objects) {
+			for (const auto& [object, path] : objects)
+			{
 				auto& instance = object.get().GetInstance();
 				[[maybe_unused]] const auto success =
 					_view->GetVariable(std::addressof(instance), path.data());
@@ -339,15 +367,23 @@ namespace Scaleform
 
 		void RestoreIndex(std::ptrdiff_t a_oldIdx)
 		{
-			if (const auto ssize = std::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize) {
+			if (const auto ssize = std::ssize(_itemListImpl); 0 <= a_oldIdx && a_oldIdx < ssize)
+			{
 				_itemList.SelectedIndex(static_cast<double>(a_oldIdx));
-			} else if (!_itemListImpl.empty()) {
-				if (a_oldIdx >= ssize) {
+			}
+			else if (!_itemListImpl.empty())
+			{
+				if (a_oldIdx >= ssize)
+				{
 					_itemList.SelectedIndex(static_cast<double>(ssize) - 1.0);
-				} else {
+				}
+				else
+				{
 					_itemList.SelectedIndex(0.0);
 				}
-			} else {
+			}
+			else
+			{
 				_itemList.SelectedIndex(-1.0);
 			}
 		}
@@ -357,14 +393,16 @@ namespace Scaleform
 			std::stable_sort(
 				_itemListImpl.begin(),
 				_itemListImpl.end(),
-				[&](auto&& a_lhs, auto&& a_rhs) {
+				[&](auto&& a_lhs, auto&& a_rhs)
+				{
 					return *a_lhs < *a_rhs;
 				});
 		}
 
 		void UpdateButtonBar()
 		{
-			if (!_view) {
+			if (!_view)
+			{
 				return;
 			}
 
@@ -377,14 +415,17 @@ namespace Scaleform
 			_buttonBarProvider.ClearElements();
 			auto gmst = RE::GameSettingCollection::GetSingleton();
 			const boost::regex pattern("<.*>(.*)<.*>"s, boost::regex_constants::ECMAScript);
-			for (std::size_t i = 0; i < mappings.size(); ++i) {
+			for (std::size_t i = 0; i < mappings.size(); ++i)
+			{
 				const auto& mapping = mappings[i];
 
 				auto setting = gmst->GetSetting(std::get<0>(mapping).data());
 				std::string label = setting ? setting->GetString() : "<undefined>"s;
 				boost::smatch matches;
-				if (boost::regex_match(label, matches, pattern)) {
-					if (matches.size() >= 2) {
+				if (boost::regex_match(label, matches, pattern))
+				{
+					if (matches.size() >= 2)
+					{
 						assert(matches.size() == 2);
 						label = matches[1].str();
 					}
@@ -409,23 +450,32 @@ namespace Scaleform
 		{
 			_infoBarProvider.ClearElements();
 			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-			if (0 <= idx && idx < std::ssize(_itemListImpl)) {
+			if (0 <= idx && idx < std::ssize(_itemListImpl))
+			{
 				const std::array functors{
-					std::function{ [](const Items::Item& a_val) { return std::format("{:.1f}"sv, a_val.Weight()); } },
-					std::function{ [](const Items::Item& a_val) { return std::format("{}"sv, a_val.Value()); } },
+					std::function{ [](const Items::Item& a_val)
+					               {
+									   return std::format("{:.1f}"sv, a_val.Weight());
+								   } },
+					std::function{ [](const Items::Item& a_val)
+					               {
+									   return std::format("{}"sv, a_val.Value());
+								   } },
 				};
 
 				const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
 				std::string str;
 				RE::GFxValue obj;
-				for (const auto& functor : functors) {
+				for (const auto& functor : functors)
+				{
 					str = functor(*item);
 					obj.SetString(str);
 					_infoBarProvider.PushBack(obj);
 				}
 
 				const auto ench = item->EnchantmentCharge();
-				if (ench >= 0.0) {
+				if (ench >= 0.0)
+				{
 					str = std::format("{:.1f}%"sv, ench);
 					obj.SetString(str);
 					_infoBarProvider.PushBack(obj);
@@ -438,7 +488,8 @@ namespace Scaleform
 		void UpdateTitle()
 		{
 			auto src = _src.get();
-			if (src) {
+			if (src)
+			{
 				_title.HTMLText(stl::safe_string(src->GetDisplayFullName()));
 				_title.Visible(true);
 			}
@@ -447,7 +498,8 @@ namespace Scaleform
 		void UpdateWeight()
 		{
 			auto dst = _dst.get();
-			if (dst) {
+			if (dst)
+			{
 				auto inventoryWeight =
 					static_cast<std::ptrdiff_t>(dst->GetWeightInContainer());
 				auto carryWeight =

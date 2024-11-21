@@ -47,15 +47,19 @@ namespace CLIK
 				}
 
 				bool Disabled() const { return GetBoolean("disabled"); }
+
 				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
 				bool Visible() const { return GetBoolean("visible"); }
+
 				void Visible(bool a_visible) { SetBoolean("visible", a_visible); }
 
 				double Width() const { return GetNumber("width"); }
+
 				void Width(double a_width) { SetNumber("width", a_width); }
 
 				double Height() const { return GetNumber("height"); }
+
 				void Height(double a_height) { SetNumber("height", a_height); }
 
 				void SetSize(double a_width, double a_height)
@@ -81,9 +85,11 @@ namespace CLIK
 				}
 
 				double Focused() const { return GetNumber("focused"); }
+
 				void Focused(double a_focused) { SetNumber("focused", a_focused); }
 
 				bool DisplayFocus() const { return GetBoolean("displayFocus"); }
+
 				void DisplayFocus(bool a_displayFocus) { SetBoolean("displayFocus", a_displayFocus); }
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);

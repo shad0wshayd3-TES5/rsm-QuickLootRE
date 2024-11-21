@@ -59,7 +59,8 @@ namespace Animation
 
 		void OnAnimationEvent() const
 		{
-			if (_sink) {
+			if (_sink)
+			{
 				(*_sink)();
 			}
 		}
@@ -81,12 +82,16 @@ namespace Animation
 			auto& definitions = handlers->objectDefinitions;
 
 			auto it = definitions.find("PlayerCharacterResponse"sv);
-			if (it != definitions.end() && it->second) {
+			if (it != definitions.end() && it->second)
+			{
 				auto animResponse = it->second;
-				for (const auto& event : EVENTS) {
+				for (const auto& event : EVENTS)
+				{
 					InjectHandler(*animResponse, event);
 				}
-			} else {
+			}
+			else
+			{
 				assert(false);
 			}
 
@@ -98,9 +103,12 @@ namespace Animation
 			auto& map = a_response.handlerMap;
 			RE::BSFixedString anim{ a_animation };
 			auto handler = RE::make_smart<AnimHandler>(a_response.GetHandler(anim));
-			if (const auto it = map.find(anim); it != map.end()) {
+			if (const auto it = map.find(anim); it != map.end())
+			{
 				it->second = std::move(handler);
-			} else {
+			}
+			else
+			{
 				map.emplace(std::move(anim), std::move(handler));
 			}
 		}

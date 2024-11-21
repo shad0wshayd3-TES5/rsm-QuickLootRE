@@ -46,24 +46,31 @@ namespace CLIK
 				}
 
 				double Maximum() const { return GetNumber("maximum"); }
+
 				void Maximum(double a_maximum) { SetNumber("maximum", a_maximum); }
 
 				double Minimum() const { return GetNumber("minimum"); }
+
 				void Minimum(double a_minimum) { SetNumber("minimum", a_minimum); }
 
 				double Value() const { return GetNumber("value"); }
+
 				void Value(double a_value) { SetNumber("value", a_value); }
 
 				bool Disabled() const { return GetBoolean("disabled"); }
+
 				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
 				double Position() const { return GetNumber("position"); }
+
 				void Position(double a_position) { SetNumber("position", a_position); }
 
 				bool Snapping() const { return GetBoolean("snapping"); }
+
 				void Snapping(bool a_snapping) { SetBoolean("snapping", a_snapping); }
 
 				double SnapInterval() const { return GetNumber("snapInterval"); }
+
 				void SnapInterval(double a_snapInterval) { SetNumber("snapInterval", a_snapInterval); }
 
 				//bool HandleInput(InputDetails& a_details, Array& a_pathToFocus);

@@ -49,12 +49,15 @@ namespace CLIK
 				}
 
 				std::string ItemRenderer() const { return GetString("itemRenderer"); }
+
 				void ItemRenderer(std::string_view a_itemRenderer) { SetString("itemRenderer", a_itemRenderer); }
 
 				Object DataProvider() const { return GetObject("dataProvider"); }
+
 				void DataProvider(const Object& a_dataProvider) { SetObject("dataProvider", a_dataProvider); }
 
 				double SelectedIndex() const { return GetNumber("selectedIndex"); }
+
 				void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
 
 				void ScrollToIndex(double a_index)
@@ -76,6 +79,7 @@ namespace CLIK
 				}
 
 				std::string LabelField() const { return GetString("labelField"); }
+
 				void LabelField(std::string_view a_labelField) { SetString("labelField", a_labelField); }
 
 				//Function& LabelFunction() const;
@@ -132,6 +136,7 @@ namespace CLIK
 				}
 
 				std::string RendererInstanceName() const { return GetString("rendererInstanceName"); }
+
 				void RendererInstanceName(std::string_view a_rendererInstanceName) { SetString("rendererInstanceName", a_rendererInstanceName); }
 
 				std::string ToString()

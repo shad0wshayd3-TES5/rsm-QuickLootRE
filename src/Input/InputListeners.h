@@ -24,9 +24,11 @@ namespace Input
 		{
 			using Device = RE::INPUT_DEVICE;
 
-			for (auto iter = a_event; iter; iter = iter->next) {
+			for (auto iter = a_event; iter; iter = iter->next)
+			{
 				auto event = iter->AsButtonEvent();
-				if (event && CanProcess(*event) && ProcessInput(*event)) {
+				if (event && CanProcess(*event) && ProcessInput(*event))
+				{
 					return;
 				}
 			}
@@ -42,10 +44,13 @@ namespace Input
 
 			constexpr void advance() noexcept
 			{
-				if (_doDelay) {
+				if (_doDelay)
+				{
 					_timer += _delay;
 					_doDelay = false;
-				} else {
+				}
+				else
+				{
 					_timer += _speed;
 				}
 			}
@@ -68,16 +73,22 @@ namespace Input
 		[[nodiscard]] bool CanProcess(const RE::ButtonEvent& a_event)
 		{
 			using Device = RE::INPUT_DEVICE;
-			switch (a_event.GetDevice()) {
+			switch (a_event.GetDevice())
+			{
 			case Device::kMouse:
 				return true;
 			default:
-				if (a_event.IsPressed() && a_event.HeldDuration() < _scrollTimer.get()) {
+				if (a_event.IsPressed() && a_event.HeldDuration() < _scrollTimer.get())
+				{
 					return false;
-				} else if (a_event.IsUp()) {
+				}
+				else if (a_event.IsUp())
+				{
 					_scrollTimer.reset();
 					return false;
-				} else {
+				}
+				else
+				{
 					_scrollTimer.advance();
 					return true;
 				}
@@ -87,14 +98,18 @@ namespace Input
 		[[nodiscard]] bool ProcessInput(const RE::ButtonEvent& a_event)
 		{
 			const auto device = a_event.GetDevice();
-			if (0 <= device && device < _mappings.size()) {
+			if (0 <= device && device < _mappings.size())
+			{
 				const auto& mappings = _mappings[device];
 				const auto it = mappings.find(a_event.GetIDCode());
-				if (it != mappings.end()) {
+				if (it != mappings.end())
+				{
 					it->second();
 					return true;
 				}
-			} else {
+			}
+			else
+			{
 				assert(false);
 			}
 
@@ -111,29 +126,34 @@ namespace Input
 	protected:
 		void DoHandle(RE::InputEvent* const& a_event) override
 		{
-			for (auto iter = a_event; iter; iter = iter->next) {
+			for (auto iter = a_event; iter; iter = iter->next)
+			{
 				const auto event = iter->AsButtonEvent();
-				if (!event) {
+				if (!event)
+				{
 					continue;
 				}
 
 				const auto controlMap = RE::ControlMap::GetSingleton();
 				const auto idCode =
-					controlMap ?
-                        controlMap->GetMappedKey("Activate", event->GetDevice()) :
-                        RE::ControlMap::kInvalid;
+					controlMap ? controlMap->GetMappedKey("Activate", event->GetDevice()) : RE::ControlMap::kInvalid;
 
-				if (event->GetIDCode() == idCode) {
-					if (!_context && !event->IsDown()) {
+				if (event->GetIDCode() == idCode)
+				{
+					if (!_context && !event->IsDown())
+					{
 						continue;
 					}
 					_context = true;
 
-					if (event->IsHeld() && event->HeldDuration() > GetGrabDelay()) {
+					if (event->IsHeld() && event->HeldDuration() > GetGrabDelay())
+					{
 						TryGrab();
 						_context = false;
 						return;
-					} else if (event->IsUp()) {
+					}
+					else if (event->IsUp())
+					{
 						TakeStack();
 						_context = false;
 						return;
@@ -145,9 +165,12 @@ namespace Input
 	private:
 		float GetGrabDelay() const
 		{
-			if (_grabDelay) {
+			if (_grabDelay)
+			{
 				return _grabDelay->GetFloat();
-			} else {
+			}
+			else
+			{
 				assert(false);
 				return std::numeric_limits<float>::max();
 			}
@@ -189,7 +212,8 @@ namespace Input
 		void Enable()
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
-			if (input) {
+			if (input)
+			{
 				input->AddEventSink(this);
 			}
 		}
@@ -197,7 +221,8 @@ namespace Input
 		void Disable()
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
-			if (input) {
+			if (input)
+			{
 				input->RemoveEventSink(this);
 			}
 		}
@@ -207,8 +232,10 @@ namespace Input
 
 		EventResult ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*) override
 		{
-			if (a_event) {
-				for (auto& callback : _callbacks) {
+			if (a_event)
+			{
+				for (auto& callback : _callbacks)
+				{
 					(*callback)(*a_event);
 				}
 			}

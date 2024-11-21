@@ -16,13 +16,15 @@ namespace Events
 		static void Register()
 		{
 			auto crosshair = SKSE::GetCrosshairRefEventSource();
-			if (crosshair) {
+			if (crosshair)
+			{
 				crosshair->AddEventSink(GetSingleton());
 				SKSE::log::info("Registered {}"sv, typeid(SKSE::CrosshairRefEvent).name());
 			}
 
 			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
-			if (scripts) {
+			if (scripts)
+			{
 				scripts->AddEventSink<RE::TESLockChangedEvent>(GetSingleton());
 				SKSE::log::info("Registered {}"sv, typeid(RE::TESLockChangedEvent).name());
 			}
@@ -36,10 +38,9 @@ namespace Events
 		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*) override
 		{
 			auto crosshairRef =
-				a_event && a_event->crosshairRef ?
-                    a_event->crosshairRef->CreateRefHandle() :
-                    RE::ObjectRefHandle();
-			if (_cachedRef == crosshairRef) {
+				a_event && a_event->crosshairRef ? a_event->crosshairRef->CreateRefHandle() : RE::ObjectRefHandle();
+			if (_cachedRef == crosshairRef)
+			{
 				return EventResult::kContinue;
 			}
 
@@ -53,8 +54,9 @@ namespace Events
 		EventResult ProcessEvent(const RE::TESLockChangedEvent* a_event, RE::BSTEventSource<RE::TESLockChangedEvent>*) override
 		{
 			if (a_event &&
-				a_event->lockedObject &&
-				a_event->lockedObject->GetHandle() == _cachedRef) {
+			    a_event->lockedObject &&
+			    a_event->lockedObject->GetHandle() == _cachedRef)
+			{
 				Evaluate(a_event->lockedObject);
 			}
 
@@ -63,7 +65,8 @@ namespace Events
 
 		void OnLifeStateChanged(RE::Actor& a_actor)
 		{
-			if (a_actor.GetHandle() == _cachedRef) {
+			if (a_actor.GetHandle() == _cachedRef)
+			{
 				Evaluate(RE::TESObjectREFRPtr{ std::addressof(a_actor) });
 			}
 		}
@@ -83,18 +86,22 @@ namespace Events
 		[[nodiscard]] bool CanOpen(RE::TESObjectREFRPtr a_ref)
 		{
 			auto obj = a_ref ? a_ref->GetObjectReference() : nullptr;
-			if (!a_ref || !obj) {
+			if (!a_ref || !obj)
+			{
 				return false;
 			}
 
-			if (obj->Is(RE::FormType::Activator)) {
+			if (obj->Is(RE::FormType::Activator))
+			{
 				_cachedAshPile = a_ref->extraList.GetAshPileRef();
 				return CanOpen(_cachedAshPile.get());
 			}
 
-			if (auto actor = a_ref->As<RE::Actor>(); actor) {
+			if (auto actor = a_ref->As<RE::Actor>(); actor)
+			{
 				if (!actor->IsDead() ||
-					actor->IsSummoned()) {
+				    actor->IsSummoned())
+				{
 					return false;
 				}
 			}
@@ -119,7 +126,8 @@ namespace Events
 		static void Register()
 		{
 			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
-			if (scripts) {
+			if (scripts)
+			{
 				scripts->AddEventSink(GetSingleton());
 				SKSE::log::info("Registered {}"sv, typeid(CombatManager).name());
 			}
@@ -132,12 +140,15 @@ namespace Events
 		{
 			using CombatState = RE::ACTOR_COMBAT_STATE;
 
-			const auto isPlayerRef = [](auto&& a_ref) {
+			const auto isPlayerRef = [](auto&& a_ref)
+			{
 				return a_ref && a_ref->IsPlayerRef();
 			};
 
-			if (a_event && (isPlayerRef(a_event->actor) || isPlayerRef(a_event->targetActor))) {
-				switch (*a_event->newState) {
+			if (a_event && (isPlayerRef(a_event->actor) || isPlayerRef(a_event->targetActor)))
+			{
+				switch (*a_event->newState)
+				{
 				case CombatState::kCombat:
 				case CombatState::kSearching:
 					Close();
@@ -181,7 +192,8 @@ namespace Events
 		CrosshairRefManager::Register();
 		LifeStateManager::Register();
 
-		if (*Settings::closeInCombat) {
+		if (*Settings::closeInCombat)
+		{
 			CombatManager::Register();
 		}
 

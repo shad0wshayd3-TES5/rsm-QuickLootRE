@@ -7,12 +7,14 @@
 void ViewHandler::AdjustPriority(Priority a_priority)
 {
 	auto ui = RE::UI::GetSingleton();
-	if (!ui) {
+	if (!ui)
+	{
 		assert(false);
 		return;
 	}
 
-	switch (a_priority) {
+	switch (a_priority)
+	{
 	case Priority::kDefault:
 		_menu->depthPriority =
 			Scaleform::LootMenu::SortPriority();
@@ -28,7 +30,8 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 	std::stable_sort(
 		ui->menuStack.begin(),
 		ui->menuStack.end(),
-		[](auto&& a_lhs, auto&& a_rhs) noexcept {
+		[](auto&& a_lhs, auto&& a_rhs) noexcept
+		{
 			return a_lhs->depthPriority < a_rhs->depthPriority;
 		});
 }

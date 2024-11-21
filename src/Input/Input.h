@@ -23,6 +23,7 @@ namespace Input
 		}
 
 		[[nodiscard]] constexpr bool& operator[](Group a_group) noexcept { return _enabled[a_group]; }
+
 		[[nodiscard]] constexpr bool operator[](Group a_group) const noexcept { return _enabled[a_group]; }
 
 	private:
@@ -37,6 +38,7 @@ namespace Input
 
 		static inline std::array<bool, kTotal> _enabled{ false };
 	};
+
 	using Group = ControlGroups::Group;
 
 	class InputManager
@@ -52,7 +54,8 @@ namespace Input
 			};
 
 			auto& trampoline = SKSE::GetTrampoline();
-			for (const auto& [id, offset] : locations) {
+			for (const auto& [id, offset] : locations)
+			{
 				REL::Relocation<std::uintptr_t> target(REL::ID(id), offset);
 				_RefreshLinkedMappings = trampoline.write_call<5>(target.address(), RefreshLinkedMappings);
 			}
@@ -77,8 +80,10 @@ namespace Input
 
 				const auto& mapping = _mappings[a_device];
 				auto it = mapping.find(a_userEvent.eventID);
-				if (it != mapping.end()) {
-					if (a_userEvent.userEventGroupFlag.all(UEFlag::kInvalid)) {
+				if (it != mapping.end())
+				{
+					if (a_userEvent.userEventGroupFlag.all(UEFlag::kInvalid))
+					{
 						a_userEvent.userEventGroupFlag = UEFlag::kNone;
 					}
 
@@ -89,7 +94,8 @@ namespace Input
 		private:
 			void insert(value_type a_value)
 			{
-				for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i) {
+				for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i)
+				{
 					_mappings[i].insert(a_value);
 				}
 			}
@@ -128,15 +134,18 @@ namespace Input
 			{
 				const auto& mapping = _mappings[a_device];
 				auto it = mapping.find(a_userEvent.inputKey);
-				if (it != mapping.end()) {
+				if (it != mapping.end())
+				{
 					it->second->accept(a_userEvent);
 				}
 			}
 
 			void commit()
 			{
-				for (const auto& mapping : _mappings) {
-					for (const auto& [id, group] : mapping) {
+				for (const auto& mapping : _mappings)
+				{
+					for (const auto& [id, group] : mapping)
+					{
 						group->commit();
 					}
 				}
@@ -156,10 +165,14 @@ namespace Input
 
 				void accept(value_type& a_mapping)
 				{
-					if (_good) {
-						if (can_accept(a_mapping)) {
+					if (_good)
+					{
+						if (can_accept(a_mapping))
+						{
 							_queued.emplace_back(a_mapping);
-						} else {
+						}
+						else
+						{
 							_good = false;
 						}
 					}
@@ -169,10 +182,13 @@ namespace Input
 				{
 					using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
 
-					if (_good) {
-						for (auto& todo : _queued) {
+					if (_good)
+					{
+						for (auto& todo : _queued)
+						{
 							auto& mapping = todo.get();
-							if (mapping.userEventGroupFlag.all(UEFlag::kInvalid)) {
+							if (mapping.userEventGroupFlag.all(UEFlag::kInvalid))
+							{
 								mapping.userEventGroupFlag = UEFlag::kNone;
 							}
 
@@ -232,7 +248,8 @@ namespace Input
 			void insert(Group a_group, RE::INPUT_DEVICE a_device, std::initializer_list<value_type> a_idCodes)
 			{
 				const auto group = std::make_shared<T>(a_group);
-				for (const auto& idCode : a_idCodes) {
+				for (const auto& idCode : a_idCodes)
+				{
 					_mappings[a_device].emplace(idCode, group);
 				}
 			}
@@ -252,15 +269,21 @@ namespace Input
 		static void RefreshLinkedMappings(RE::ControlMap* a_controlMap)
 		{
 			_RefreshLinkedMappings(a_controlMap);
-			if (!a_controlMap) {
+			if (!a_controlMap)
+			{
 				return;
 			}
 
-			const auto for_each = [&](std::function<void(RE::ControlMap::UserEventMapping&, std::size_t)> a_functor) {
-				for (auto& map : a_controlMap->controlMap) {
-					if (map) {
-						for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i) {
-							for (auto& userMapping : map->deviceMappings[i]) {
+			const auto for_each = [&](std::function<void(RE::ControlMap::UserEventMapping&, std::size_t)> a_functor)
+			{
+				for (auto& map : a_controlMap->controlMap)
+				{
+					if (map)
+					{
+						for (std::size_t i = 0; i < RE::INPUT_DEVICES::kTotal; ++i)
+						{
+							for (auto& userMapping : map->deviceMappings[i])
+							{
 								a_functor(userMapping, i);
 							}
 						}
@@ -268,19 +291,19 @@ namespace Input
 				}
 			};
 
-			for_each([=](RE::ControlMap::UserEventMapping& a_mapping, std::size_t) {
+			for_each([=](RE::ControlMap::UserEventMapping& a_mapping, std::size_t)
+			         {
 				if (a_mapping.userEventGroupFlag.none(RE::UserEvents::USER_EVENT_FLAG::kInvalid)) {
 					a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
-				}
-			});
+				} });
 
 			UserEventMap eventMap;
 			IDCodeMap idMap;
 
-			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device) {
+			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device)
+			         {
 				eventMap(a_device, a_mapping);
-				idMap(a_device, a_mapping);
-			});
+				idMap(a_device, a_mapping); });
 
 			idMap.commit();
 			a_controlMap->ToggleControls(QUICKLOOT_FLAG, true);
@@ -295,13 +318,17 @@ namespace Input
 		[[nodiscard]] std::uint32_t operator()(std::string_view a_userEvent) const
 		{
 			auto input = RE::BSInputDeviceManager::GetSingleton();
-			if (!input) {
+			if (!input)
+			{
 				return INVALID;
 			}
 
-			if (input->IsGamepadEnabled()) {
+			if (input->IsGamepadEnabled())
+			{
 				return MapGamepad(a_userEvent);
-			} else {
+			}
+			else
+			{
 				auto result = MapKeyboard(a_userEvent);
 				return result != INVALID ? result : MapMouse(a_userEvent);
 			}
@@ -321,39 +348,51 @@ namespace Input
 			using Key = RE::BSWin32GamepadDevice::Keys;
 
 			auto controlMap = RE::ControlMap::GetSingleton();
-			if (!controlMap) {
+			if (!controlMap)
+			{
 				return INVALID;
 			}
 
-			constexpr auto mappings = []() noexcept {
-				const auto map = [](std::size_t a_key) noexcept {
-					for (std::size_t i = 0; i < 32; ++i) {
+			constexpr auto mappings = []() noexcept
+			{
+				const auto map = [](std::size_t a_key) noexcept
+				{
+					for (std::size_t i = 0; i < 32; ++i)
+					{
 						auto to = (a_key >> i) & 1;
-						if (to != 0) {
+						if (to != 0)
+						{
 							return i;
 						}
 					}
 					return static_cast<std::size_t>(0);
 				};
 
-				const auto assign = [](auto&& a_elem, auto&& a_first, auto&& a_second) noexcept {
+				const auto assign = [](auto&& a_elem, auto&& a_first, auto&& a_second) noexcept
+				{
 					a_elem.first = static_cast<std::uint32_t>(a_first);
 					a_elem.second = static_cast<std::uint32_t>(a_second);
 				};
 
-				constexpr auto N = []() noexcept {
+				constexpr auto N = []() noexcept
+				{
 					std::size_t size = 0;
-					for (std::size_t i = Key::kRightShoulder; i != 0; i >>= 1) { ++size; }
+					for (std::size_t i = Key::kRightShoulder; i != 0; i >>= 1)
+					{
+						++size;
+					}
 					return size + 4 + 2;
 				}();
 
 				std::array<std::pair<std::uint32_t, std::uint32_t>, N> arr{};
 				std::size_t idx = 0;
 				std::size_t frame = 266;
-				for (std::size_t key = Key::kUp; key <= Key::kRightShoulder; key <<= 1) {
+				for (std::size_t key = Key::kUp; key <= Key::kRightShoulder; key <<= 1)
+				{
 					assign(arr[idx++], key, map(key) + frame);
 				}
-				for (std::size_t key = Key::kA; key <= Key::kY; key <<= 1) {
+				for (std::size_t key = Key::kA; key <= Key::kY; key <<= 1)
+				{
 					assign(arr[idx++], key, map(key >> 2) + frame);
 				}
 
@@ -373,13 +412,17 @@ namespace Input
 			using Key = RE::BSKeyboardDevice::Keys;
 
 			auto controlMap = RE::ControlMap::GetSingleton();
-			if (!controlMap) {
+			if (!controlMap)
+			{
 				return INVALID;
 			}
 
-			constexpr auto mappings = []() noexcept {
-				const auto validate_range = [](auto&& mappings, std::uint32_t a_begin, std::uint32_t a_end) noexcept {
-					for (auto i = a_begin; i <= a_end; ++i) {
+			constexpr auto mappings = []() noexcept
+			{
+				const auto validate_range = [](auto&& mappings, std::uint32_t a_begin, std::uint32_t a_end) noexcept
+				{
+					for (auto i = a_begin; i <= a_end; ++i)
+					{
 						mappings[i] = i;
 					}
 				};
@@ -408,13 +451,16 @@ namespace Input
 			using Key = RE::BSWin32MouseDevice::Keys;
 
 			auto controlMap = RE::ControlMap::GetSingleton();
-			if (!controlMap) {
+			if (!controlMap)
+			{
 				return INVALID;
 			}
 
-			constexpr auto mappings = []() noexcept {
+			constexpr auto mappings = []() noexcept
+			{
 				std::array<std::pair<std::uint32_t, std::uint32_t>, Key::kWheelDown + 1> arr{};
-				for (std::uint32_t i = Key::kLeftButton; i <= Key::kWheelDown; ++i) {
+				for (std::uint32_t i = Key::kLeftButton; i <= Key::kWheelDown; ++i)
+				{
 					arr[i].first = i;
 					arr[i].second = i + 256;
 				}

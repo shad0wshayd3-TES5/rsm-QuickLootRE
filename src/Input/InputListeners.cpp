@@ -14,32 +14,48 @@ namespace Input
 
 		const auto& groups = ControlGroups::get();
 
-		if (groups[Group::kPageKeys]) {
+		if (groups[Group::kPageKeys])
+		{
 			auto& mappings = _mappings[Device::kKeyboard];
-			mappings.emplace(Keyboard::kPageUp, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
-			mappings.emplace(Keyboard::kPageDown, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+			mappings.emplace(Keyboard::kPageUp, []
+			                 { Loot::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Keyboard::kPageDown, []
+			                 { Loot::GetSingleton().ModSelectedPage(1.0); });
 		}
 
-		if (groups[Group::kArrowKeys]) {
+		if (groups[Group::kArrowKeys])
+		{
 			auto& mappings = _mappings[Device::kKeyboard];
-			mappings.emplace(Keyboard::kUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
-			mappings.emplace(Keyboard::kDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
-			mappings.emplace(Keyboard::kLeft, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
-			mappings.emplace(Keyboard::kRight, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+			mappings.emplace(Keyboard::kUp, []
+			                 { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Keyboard::kDown, []
+			                 { Loot::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Keyboard::kLeft, []
+			                 { Loot::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Keyboard::kRight, []
+			                 { Loot::GetSingleton().ModSelectedPage(1.0); });
 		}
 
-		if (groups[Group::kMouseWheel]) {
+		if (groups[Group::kMouseWheel])
+		{
 			auto& mappings = _mappings[Device::kMouse];
-			mappings.emplace(Mouse::kWheelUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
-			mappings.emplace(Mouse::kWheelDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Mouse::kWheelUp, []
+			                 { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Mouse::kWheelDown, []
+			                 { Loot::GetSingleton().ModSelectedIndex(1.0); });
 		}
 
-		if (groups[Group::kDPAD]) {
+		if (groups[Group::kDPAD])
+		{
 			auto& mappings = _mappings[Device::kGamepad];
-			mappings.emplace(Gamepad::kUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
-			mappings.emplace(Gamepad::kDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
-			mappings.emplace(Gamepad::kLeft, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
-			mappings.emplace(Gamepad::kRight, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+			mappings.emplace(Gamepad::kUp, []
+			                 { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Gamepad::kDown, []
+			                 { Loot::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Gamepad::kLeft, []
+			                 { Loot::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Gamepad::kRight, []
+			                 { Loot::GetSingleton().ModSelectedPage(1.0); });
 		}
 	}
 
@@ -52,18 +68,21 @@ namespace Input
 	void TakeHandler::TryGrab()
 	{
 		auto player = RE::PlayerCharacter::GetSingleton();
-		if (!player) {
+		if (!player)
+		{
 			return;
 		}
 
 		player->StartGrabObject();
-		if (!player->IsGrabbing()) {
+		if (!player->IsGrabbing())
+		{
 			return;
 		}
 
 		auto playerControls = RE::PlayerControls::GetSingleton();
 		auto activateHandler = playerControls ? playerControls->GetActivateHandler() : nullptr;
-		if (activateHandler) {
+		if (activateHandler)
+		{
 			activateHandler->SetHeldButtonActionSuccess(true);
 		}
 
@@ -73,21 +92,23 @@ namespace Input
 
 	void TransferHandler::DoHandle(RE::InputEvent* const& a_event)
 	{
-		for (auto iter = a_event; iter; iter = iter->next) {
+		for (auto iter = a_event; iter; iter = iter->next)
+		{
 			auto event = iter->AsButtonEvent();
-			if (!event) {
+			if (!event)
+			{
 				continue;
 			}
 
 			auto controlMap = RE::ControlMap::GetSingleton();
 			const auto idCode =
-				controlMap ?
-                    controlMap->GetMappedKey("Ready Weapon"sv, event->GetDevice()) :
-                    RE::ControlMap::kInvalid;
+				controlMap ? controlMap->GetMappedKey("Ready Weapon"sv, event->GetDevice()) : RE::ControlMap::kInvalid;
 
-			if (event->GetIDCode() == idCode && event->IsDown()) {
+			if (event->GetIDCode() == idCode && event->IsDown())
+			{
 				auto player = RE::PlayerCharacter::GetSingleton();
-				if (player) {
+				if (player)
+				{
 					player->ActivatePickRef();
 				}
 

@@ -51,9 +51,12 @@ namespace Events
 	void CrosshairRefManager::Evaluate(RE::TESObjectREFRPtr a_ref)
 	{
 		auto& loot = Loot::GetSingleton();
-		if (CanOpen(std::move(a_ref))) {
+		if (CanOpen(std::move(a_ref)))
+		{
 			loot.SetContainer(_cachedAshPile ? _cachedAshPile : _cachedRef);
-		} else {
+		}
+		else
+		{
 			loot.Close();
 		}
 	}

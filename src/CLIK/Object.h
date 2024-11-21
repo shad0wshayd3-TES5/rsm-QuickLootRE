@@ -155,6 +155,7 @@ namespace CLIK
 		Object Prototype() const { return GetObject("__proto__"); }
 
 		Object Resolve() const { return GetObject("__resolve"); }
+
 		void Resolve(Object& a_resolve) { SetObject("__resolve", a_resolve); }
 
 		// methods
@@ -264,10 +265,13 @@ namespace CLIK
 
 	protected:
 		bool IsArray() const { return _instance.IsArray(); }
+
 		bool IsObject() const { return _instance.IsObject(); }
 
 		bool Invoke(const char* a_name) { return _instance.Invoke(a_name, nullptr, nullptr, 0); }
+
 		bool Invoke(const char* a_name, RE::GFxValue* a_result) { return _instance.Invoke(a_name, a_result, nullptr, 0); }
+
 		bool Invoke(const char* a_name, RE::GFxValue* a_result, const RE::GFxValue* a_args, RE::UPInt a_numArgs) { return _instance.Invoke(a_name, a_result, a_args, a_numArgs); }
 
 		bool GetBoolean(const char* a_path) const
@@ -344,26 +348,36 @@ namespace CLIK
 		}
 
 		void SetInstance(std::nullptr_t) { _instance = nullptr; }
+
 		void SetInstance(double a_val) { _instance = a_val; }
+
 		void SetInstance(bool a_val) { _instance = a_val; }
+
 		void SetInstance(const char* a_val) { _instance = a_val; }
+
 		void SetInstance(std::string_view a_val) { _instance = a_val; }
+
 		void SetInstance(const wchar_t* a_val) { _instance = a_val; }
+
 		void SetInstance(std::wstring_view a_val) { _instance = a_val; }
+
 		void SetInstance(const RE::GFxValue& a_val) { _instance = a_val; }
+
 		void SetInstance(RE::GFxValue&& a_val) { _instance = std::move(a_val); }
 
 	private:
 		void SetInstance(const Object& a_val)
 		{
-			if (this != std::addressof(a_val)) {
+			if (this != std::addressof(a_val))
+			{
 				_instance = a_val._instance;
 			}
 		}
 
 		void SetInstance(Object&& a_val)
 		{
-			if (this != std::addressof(a_val)) {
+			if (this != std::addressof(a_val))
+			{
 				_instance = std::move(a_val._instance);
 			}
 		}

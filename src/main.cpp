@@ -30,28 +30,34 @@ protected:
 		using InputType = RE::INPUT_EVENT_TYPE;
 		using Keyboard = RE::BSWin32KeyboardDevice::Key;
 
-		if (!a_event) {
+		if (!a_event)
+		{
 			return EventResult::kContinue;
 		}
 
 		auto intfcStr = RE::InterfaceStrings::GetSingleton();
 		auto ui = RE::UI::GetSingleton();
-		if (ui->IsMenuOpen(intfcStr->console)) {
+		if (ui->IsMenuOpen(intfcStr->console))
+		{
 			return EventResult::kContinue;
 		}
 
-		for (auto event = *a_event; event; event = event->next) {
-			if (event->eventType != InputType::kButton) {
+		for (auto event = *a_event; event; event = event->next)
+		{
+			if (event->eventType != InputType::kButton)
+			{
 				continue;
 			}
 
 			auto button = static_cast<RE::ButtonEvent*>(event);
-			if (!button->IsDown() || button->device != RE::INPUT_DEVICE::kKeyboard) {
+			if (!button->IsDown() || button->device != RE::INPUT_DEVICE::kKeyboard)
+			{
 				continue;
 			}
 
 			auto& loot = Loot::GetSingleton();
-			switch (button->idCode) {
+			switch (button->idCode)
+			{
 			case Keyboard::kNum0:
 				loot.Enable();
 				break;
@@ -105,14 +111,14 @@ namespace
 		}
 	}
 
-SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
-{
-	Settings::load();
+	SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
+	{
+		Settings::load();
 
-	SKSE::Init(a_skse);
-	SKSE::AllocTrampoline(1 << 6);
+		SKSE::Init(a_skse);
+		SKSE::AllocTrampoline(1 << 6);
 
-	SKSE::GetMessagingInterface()->RegisterListener(MessageHandler);
+		SKSE::GetMessagingInterface()->RegisterListener(MessageHandler);
 
-	return true;
-}
+		return true;
+	}

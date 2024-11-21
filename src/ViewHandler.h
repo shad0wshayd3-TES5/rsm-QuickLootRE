@@ -48,8 +48,9 @@ protected:
 	{
 		auto intfcStr = RE::InterfaceStrings::GetSingleton();
 		if (intfcStr &&
-			a_event &&
-			a_event->menuName == intfcStr->lockpickingMenu) {
+		    a_event &&
+		    a_event->menuName == intfcStr->lockpickingMenu)
+		{
 			Close();
 		}
 
@@ -83,7 +84,8 @@ private:
 	void Register()
 	{
 		auto menuSrc = RE::UI::GetSingleton();
-		if (menuSrc) {
+		if (menuSrc)
+		{
 			menuSrc->AddEventSink(this);
 		}
 	}
@@ -91,7 +93,8 @@ private:
 	void Unregister()
 	{
 		auto menuSrc = RE::UI::GetSingleton();
-		if (menuSrc) {
+		if (menuSrc)
+		{
 			menuSrc->RemoveEventSink(this);
 		}
 	}
@@ -102,19 +105,23 @@ private:
 		const auto menuControls = RE::MenuControls::GetSingleton();
 		const auto src = _src.get();
 		const auto dst = _dst.get();
-		if (controlMap && menuControls) {
+		if (controlMap && menuControls)
+		{
 			const auto& priorityStack = controlMap->contextPriorityStack;
 			if (!src ||
-				src->IsLocked() ||
-				src->IsActivationBlocked() ||
-				!dst ||
-				dst->IsInKillMove() ||
-				dst->GetOccupiedFurniture() ||
-				menuControls->InBeastForm() ||
-				priorityStack.empty() ||
-				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay) {
+			    src->IsLocked() ||
+			    src->IsActivationBlocked() ||
+			    !dst ||
+			    dst->IsInKillMove() ||
+			    dst->GetOccupiedFurniture() ||
+			    menuControls->InBeastForm() ||
+			    priorityStack.empty() ||
+			    priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay)
+			{
 				Disable();
-			} else {
+			}
+			else
+			{
 				Enable();
 			}
 		}
@@ -124,7 +131,8 @@ private:
 	{
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
-		task->AddUITask([this, safety]() {
+		task->AddUITask([this, safety]()
+		                {
 			HideHUD();
 			if (!_enabled) {
 				AdjustPriority(Priority::kDefault);
@@ -132,15 +140,15 @@ private:
 				_disablers.Enable();
 				_listeners.Enable();
 				_enabled = true;
-			}
-		});
+			} });
 	}
 
 	void Disable()
 	{
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
-		task->AddUITask([this, safety]() {
+		task->AddUITask([this, safety]()
+		                {
 			ShowHUD();
 			if (_enabled) {
 				AdjustPriority(Priority::kLowest);
@@ -148,22 +156,26 @@ private:
 				_disablers.Disable();
 				_listeners.Disable();
 				_enabled = false;
-			}
-		});
+			} });
 	}
 
 	void SetVisible(bool a_visible)
 	{
-		if (_view) {
+		if (_view)
+		{
 			const auto prev = _view->GetVisible();
-			if (prev != a_visible) {
+			if (prev != a_visible)
+			{
 				_view->SetVisible(a_visible);
 
-				if (a_visible) {
+				if (a_visible)
+				{
 					RefreshUI();
 				}
 			}
-		} else {
+		}
+		else
+		{
 			assert(false);
 		}
 	}
@@ -175,7 +187,8 @@ private:
 		auto ui = RE::UI::GetSingleton();
 		auto hud = ui ? ui->GetMenu<RE::HUDMenu>() : nullptr;
 		auto view = hud ? hud->uiMovie : nullptr;
-		if (view) {
+		if (view)
+		{
 			view->GetVariable(std::addressof(object), "_root.HUDMovieBaseInstance");
 		}
 
@@ -187,7 +200,8 @@ private:
 		DisableHUDBlocker();
 
 		auto hud = GetHUDObject();
-		if (hud.IsObject()) {
+		if (hud.IsObject())
+		{
 			std::array<RE::GFxValue, 10> args;
 			args[kActivate] = true;
 			args[kShowButton] = true;
@@ -196,7 +210,8 @@ private:
 			const auto src = _src.get();
 			const auto objRef = src ? src->GetObjectReference() : nullptr;
 			RE::BSString name;
-			if (objRef) {
+			if (objRef)
+			{
 				objRef->GetActivateText(src.get(), name);
 			}
 			args[kName] = name.empty() ? "" : name.c_str();
@@ -208,7 +223,8 @@ private:
 	void HideHUD()
 	{
 		auto hud = GetHUDObject();
-		if (hud.IsObject()) {
+		if (hud.IsObject())
+		{
 			std::array<RE::GFxValue, 10> args;
 			args[kActivate] = false;
 			args[kShowButton] = false;

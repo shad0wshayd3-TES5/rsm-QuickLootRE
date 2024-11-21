@@ -47,30 +47,39 @@ namespace CLIK
 				}
 
 				std::string LabelID() const { return GetString("labelID"); }
+
 				void LabelID(std::string_view a_labelID) { SetString("labelID", a_labelID); }
 
 				std::string Label() const { return GetString("label"); }
+
 				void Label(std::string_view a_label) { SetString("label", a_label); }
 
 				bool Disabled() const { return GetBoolean("disabled"); }
+
 				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
 				bool Selected() const { return GetBoolean("selected"); }
+
 				void Selected(bool a_selected) { SetBoolean("selected", a_selected); }
 
 				std::string GroupName() const { return GetString("groupName"); }
+
 				void GroupName(std::string_view a_groupName) { SetString("groupName", a_groupName); }
 
 				Object Group() const { return GetObject("group"); }
+
 				void Group(const Object& a_group) { SetObject("group", a_group); }
 
 				bool DisableFocus() const { return GetBoolean("disableFocus"); }
+
 				void DisableFocus(bool a_disableFocus) { SetBoolean("disableFocus", a_disableFocus); }
 
 				bool DisableConstraints() const { return GetBoolean("disableConstraints"); }
+
 				void DisableConstraints(bool a_disableConstraints) { SetBoolean("disableConstraints", a_disableConstraints); }
 
 				std::string AutoSize() const { return GetString("autoSize"); }
+
 				void AutoSize(std::string_view a_autoSize) { SetString("autoSize", a_autoSize); }
 
 				void SetSize(double a_width, double a_height)

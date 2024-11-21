@@ -7,12 +7,16 @@ struct Settings
 
 	static void load()
 	{
-		try {
+		try
+		{
 			const auto table = toml::parse_file("Data/SKSE/Plugins/QuickLootRE/config.toml"s);
-			for (const auto& setting : ISetting::get_settings()) {
+			for (const auto& setting : ISetting::get_settings())
+			{
 				setting->load(table);
 			}
-		} catch (const toml::parse_error& e) {
+		}
+		catch (const toml::parse_error& e)
+		{
 			std::ostringstream ss;
 			ss
 				<< "Error parsing file \'" << *e.source().path << "\':\n"

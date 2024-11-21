@@ -47,27 +47,35 @@ namespace CLIK
 				}
 
 				Object Dropdown() const { return GetObject("dropdown"); }
+
 				void Dropdown(const Object& a_dropdown) { SetObject("dropdown", a_dropdown); }
 
 				Object ItemRenderer() const { return GetObject("itemRenderer"); }
+
 				void ItemRenderer(const Object& a_itemRenderer) { SetObject("itemRenderer", a_itemRenderer); }
 
 				Object ScrollBar() const { return GetObject("scrollBar"); }
+
 				void ScrollBar(const Object& a_scrollBar) { SetObject("scrollBar", a_scrollBar); }
 
 				Object DropdownWidth() const { return GetObject("scrollBar"); }
+
 				void DropdownWidth(const Object& a_dropdownWidth) { SetObject("scrollBar", a_dropdownWidth); }
 
 				double RowCount() const { return GetNumber("rowCount"); }
+
 				void RowCount(double a_rowCount) { SetNumber("rowCount", a_rowCount); }
 
 				Object DataProvider() const { return GetObject("dataProvider"); }
+
 				void DataProvider(const Object& a_dataProvider) { SetObject("dataProvider", a_dataProvider); }
 
 				double SelectedIndex() const { return GetNumber("selectedIndex"); }
+
 				void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
 
 				std::string LabelField() const { return GetString("labelField"); }
+
 				void LabelField(std::string_view a_selectedIndex) { SetString("labelField", a_selectedIndex); }
 
 				//Function LabelFunction() const;

@@ -47,18 +47,23 @@ namespace CLIK
 				}
 
 				Object ScrollBar() const { return GetObject("scrollBar"); }
+
 				void ScrollBar(const Object& a_scrollBar) { SetObject("scrollBar", a_scrollBar); }
 
 				double RowHeight() const { return GetNumber("rowHeight"); }
+
 				void RowHeight(double a_rowHeight) { SetNumber("rowHeight", a_rowHeight); }
 
 				double ScrollPosition() const { return GetNumber("scrollPosition"); }
+
 				void ScrollPosition(double a_scrollPosition) { SetNumber("scrollPosition", a_scrollPosition); }
 
 				double SelectedIndex() const { return GetNumber("selectedIndex"); }
+
 				void SelectedIndex(double a_selectedIndex) { SetNumber("selectedIndex", a_selectedIndex); }
 
 				bool Disabled() const { return GetBoolean("disabled"); }
+
 				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
 				void ScrollToIndex(double a_index)
@@ -80,6 +85,7 @@ namespace CLIK
 				}
 
 				double RowCount() const { return GetNumber("rowCount"); }
+
 				void RowCount(double a_rowCount) { SetNumber("rowCount", a_rowCount); }
 
 				void InvalidateData()

@@ -18,6 +18,7 @@ public:
 	}
 
 	void Enable() noexcept { _enabled = true; }
+
 	void Disable() noexcept { _enabled = false; }
 
 protected:
@@ -45,9 +46,12 @@ protected:
 		static bool GetActivateText(RE::TESBoundObject* a_this, RE::TESObjectREFR* a_activator, RE::BSString& a_dst)
 		{
 			const auto& proxy = HUDManager::GetSingleton();
-			if (proxy.Enabled()) {
+			if (proxy.Enabled())
+			{
 				return false;
-			} else {
+			}
+			else
+			{
 				return _func(a_this, a_activator, a_dst);
 			}
 		}
@@ -56,6 +60,7 @@ protected:
 	};
 
 	[[nodiscard]] bool Enabled() const noexcept { return _enabled; }
+
 	[[nodiscard]] bool Disabled() const noexcept { return !_enabled; }
 
 private:

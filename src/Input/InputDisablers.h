@@ -19,7 +19,8 @@ namespace Input
 		void Enable()
 		{
 			auto controlMap = RE::ControlMap::GetSingleton();
-			if (controlMap) {
+			if (controlMap)
+			{
 				controlMap->ToggleControls(QUICKLOOT_FLAG, false);
 			}
 		}
@@ -27,7 +28,8 @@ namespace Input
 		void Disable()
 		{
 			auto controlMap = RE::ControlMap::GetSingleton();
-			if (controlMap) {
+			if (controlMap)
+			{
 				controlMap->ToggleControls(QUICKLOOT_FLAG, true);
 			}
 		}

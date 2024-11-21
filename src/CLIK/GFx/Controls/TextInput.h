@@ -47,24 +47,31 @@ namespace CLIK
 				}
 
 				std::string TextID() const { return GetString("textID"); }
+
 				void TextID(std::string_view a_textID) { SetString("textID", a_textID); }
 
 				std::string Text() const { return GetString("text"); }
+
 				void Text(std::string_view a_text) { SetString("text", a_text); }
 
 				std::string HTMLText() const { return GetString("htmlText"); }
+
 				void HTMLText(std::string_view a_htmlText) { SetString("htmlText", a_htmlText); }
 
 				bool Editable() const { return GetBoolean("editable"); }
+
 				void Editable(bool a_editable) { SetBoolean("editable", a_editable); }
 
 				bool Password() const { return GetBoolean("password"); }
+
 				void Password(bool a_password) { SetBoolean("password", a_password); }
 
 				double MaxChars() const { return GetNumber("maxChars"); }
+
 				void MaxChars(double a_maxChars) { SetNumber("maxChars", a_maxChars); }
 
 				bool Disabled() const { return GetBoolean("disabled"); }
+
 				void Disabled(bool a_disabled) { SetBoolean("disabled", a_disabled); }
 
 				void AppendText(std::string_view a_text)

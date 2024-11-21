@@ -32,10 +32,12 @@ public:
 	void Open()
 	{
 		auto src = _src.get();
-		if (src) {
+		if (src)
+		{
 			OneShotOpen(src);
 			const auto state = RE::BGSOpenCloseForm::GetOpenState(src.get());
-			switch (state) {
+			switch (state)
+			{
 			case State::kClosed:
 				RE::BGSOpenCloseForm::SetOpenState(src.get(), true, false);
 				break;
@@ -51,10 +53,12 @@ public:
 	void Close()
 	{
 		auto src = _src.get();
-		if (src) {
+		if (src)
+		{
 			OneShotClose(src);
 			const auto state = RE::BGSOpenCloseForm::GetOpenState(src.get());
-			switch (state) {
+			switch (state)
+			{
 			case State::kOpen:
 				RE::BGSOpenCloseForm::SetOpenState(src.get(), false, false);
 				break;
@@ -74,7 +78,8 @@ private:
 	{
 		std::this_thread::sleep_for(std::chrono::duration<long double>(a_wait));
 		auto task = SKSE::GetTaskInterface();
-		task->AddTask([=]() {
+		task->AddTask([=]()
+		              {
 			const auto src = a_src.get();
 			if (src) {
 				const auto sequence =
@@ -85,19 +90,21 @@ private:
 				if (sequence && !sequence->Animating()) {
 					RE::BGSOpenCloseForm::SetOpenState(src.get(), a_open, false);
 				}
-			}
-		});
+			} });
 	}
 
 	void OneShotOpen(const RE::TESObjectREFRPtr& a_src)
 	{
-		if (_doOneShotOpen) {
+		if (_doOneShotOpen)
+		{
 			auto dst = _dst.get();
-			if (dst) {
+			if (dst)
+			{
 				a_src->InitChildActivates(dst.get());
 
 				auto events = RE::ScriptEventSourceHolder::GetSingleton();
-				if (events) {
+				if (events)
+				{
 					events->SendActivateEvent(a_src, dst);
 					events->SendOpenCloseEvent(a_src, dst, true);
 				}
@@ -111,10 +118,12 @@ private:
 
 	void OneShotClose(const RE::TESObjectREFRPtr& a_src)
 	{
-		if (_doOneShotClose) {
+		if (_doOneShotClose)
+		{
 			auto events = RE::ScriptEventSourceHolder::GetSingleton();
 			auto dst = _dst.get();
-			if (events && dst) {
+			if (events && dst)
+			{
 				events->SendOpenCloseEvent(a_src, dst, false);
 			}
 
@@ -125,9 +134,7 @@ private:
 	void AsyncPlayAnimation(const RE::TESObjectREFR& a_src, bool a_open)
 	{
 		const auto sequence =
-			!a_open ?
-                a_src.GetSequence("Open"sv) :
-                a_src.GetSequence("Close"sv);
+			!a_open ? a_src.GetSequence("Open"sv) : a_src.GetSequence("Close"sv);
 		const long double duration = sequence ? sequence->endKeyTime : 0.5;
 		std::thread t(AsyncCallback, duration + 0.1, _src, a_open);
 		t.detach();
