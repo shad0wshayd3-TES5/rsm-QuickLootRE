@@ -28,7 +28,7 @@ namespace Animation
 			singleton.DoInstall();
 		}
 
-		constexpr void SetEventSink(stl::observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
+		constexpr void SetEventSink(RE::stl::observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
 
 	protected:
 		class AnimHandler :
@@ -90,7 +90,7 @@ namespace Animation
 				assert(false);
 			}
 
-			logger::info("Installed {}"sv, typeid(decltype(*this)).name());
+			SKSE::log::info("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
 		void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation)
@@ -112,6 +112,6 @@ namespace Animation
 			"EndAnimatedCamera"sv
 		};
 
-		stl::observer<IEventSink*> _sink{ nullptr };
+		RE::stl::observer<IEventSink*> _sink{ nullptr };
 	};
 }

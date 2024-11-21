@@ -5,7 +5,7 @@ namespace Items
 	class GFxItem
 	{
 	public:
-		GFxItem(std::ptrdiff_t a_count, bool a_stealing, stl::observer<RE::InventoryEntryData*> a_item) :
+		GFxItem(std::ptrdiff_t a_count, bool a_stealing, RE::stl::observer<RE::InventoryEntryData*> a_item) :
 			_src(a_item),
 			_count(a_count),
 			_stealing(a_stealing)
@@ -69,8 +69,7 @@ namespace Items
 			std::string result;
 			switch (_src.index()) {
 			case kInventory:
-				result = stl::safe_string(
-					std::get<kInventory>(_src)->GetDisplayName());
+				result = stl::safe_string(std::get<kInventory>(_src)->GetDisplayName());
 				break;
 			case kGround:
 				for (const auto& handle : std::get<kGround>(_src)) {

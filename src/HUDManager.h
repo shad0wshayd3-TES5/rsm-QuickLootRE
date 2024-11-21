@@ -14,7 +14,7 @@ public:
 		Handler<195816>::Install();  // TESNPC
 		Handler<189485>::Install();  // TESObjectACTI
 		Handler<189633>::Install();  // TESObjectCONT
-		logger::info("Installed {}"sv, typeid(HUDManager).name());
+		SKSE::log::info("Installed {}"sv, typeid(HUDManager).name());
 	}
 
 	void Enable() noexcept { _enabled = true; }
@@ -29,7 +29,7 @@ protected:
 		{
 			REL::Relocation<std::uintptr_t> vtbl{ REL::ID(ID) };
 			_func = vtbl.write_vfunc(0x4C, GetActivateText);
-			logger::info("Installed {}"sv, typeid(Handler).name());
+			SKSE::log::info("Installed {}"sv, typeid(Handler).name());
 		}
 
 	private:

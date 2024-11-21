@@ -28,7 +28,7 @@ namespace Scaleform
 			auto ui = RE::UI::GetSingleton();
 			if (ui) {
 				ui->Register(MENU_NAME, Creator);
-				logger::info("Registered {}"sv, MENU_NAME);
+				SKSE::log::info("Registered {}"sv, MENU_NAME);
 			}
 		}
 
@@ -175,7 +175,7 @@ namespace Scaleform
 		LootMenu& operator=(const LootMenu&) = default;
 		LootMenu& operator=(LootMenu&&) = default;
 
-		static stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
+		static RE::stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
 
 		// IMenu
 		void PostCreate() override { OnOpen(); }
@@ -227,7 +227,7 @@ namespace Scaleform
 				std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
 				va_end(args);
 
-				logger::info("{}: {}"sv, LootMenu::MenuName(), buf.data());
+				SKSE::log::info("{}: {}"sv, LootMenu::MenuName(), buf.data());
 			}
 		};
 
@@ -411,8 +411,8 @@ namespace Scaleform
 			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 			if (0 <= idx && idx < std::ssize(_itemListImpl)) {
 				const std::array functors{
-					std::function{ [](const Items::Item& a_val) { return fmt::format(FMT_STRING("{:.1f}"), a_val.Weight()); } },
-					std::function{ [](const Items::Item& a_val) { return fmt::format(FMT_STRING("{}"), a_val.Value()); } },
+					std::function{ [](const Items::Item& a_val) { return std::format("{:.1f}"sv, a_val.Weight()); } },
+					std::function{ [](const Items::Item& a_val) { return std::format("{}"sv, a_val.Value()); } },
 				};
 
 				const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
@@ -426,7 +426,7 @@ namespace Scaleform
 
 				const auto ench = item->EnchantmentCharge();
 				if (ench >= 0.0) {
-					str = fmt::format(FMT_STRING("{:.1f}%"), ench);
+					str = std::format("{:.1f}%"sv, ench);
 					obj.SetString(str);
 					_infoBarProvider.PushBack(obj);
 				}
@@ -439,9 +439,7 @@ namespace Scaleform
 		{
 			auto src = _src.get();
 			if (src) {
-				_title.HTMLText(
-					stl::safe_string(
-						src->GetDisplayFullName()));
+				_title.HTMLText(stl::safe_string(src->GetDisplayFullName()));
 				_title.Visible(true);
 			}
 		}

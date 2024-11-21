@@ -11,7 +11,7 @@ namespace Items
 		Item(const Item&) = delete;
 		Item(Item&&) = default;
 
-		Item(std::ptrdiff_t a_count, bool a_stealing, stl::observer<RE::InventoryEntryData*> a_item) :
+		Item(std::ptrdiff_t a_count, bool a_stealing, RE::stl::observer<RE::InventoryEntryData*> a_item) :
 			_item(a_count, a_stealing, a_item)
 		{}
 

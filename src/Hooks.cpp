@@ -9,6 +9,6 @@ namespace Hooks
 	{
 		HUDManager::Install();
 		Input::InputManager::Install();
-		logger::info("Installed all hooks"sv);
+		SKSE::log::info("Installed all hooks"sv);
 	}
 }

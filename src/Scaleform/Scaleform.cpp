@@ -7,6 +7,6 @@ namespace Scaleform
 	void Register()
 	{
 		LootMenu::Register();
-		logger::info("Registered all movies");
+		SKSE::log::info("Registered all movies");
 	}
 }

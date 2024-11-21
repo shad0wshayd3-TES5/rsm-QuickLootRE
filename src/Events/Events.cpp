@@ -98,6 +98,6 @@ namespace Events
 			target.address(),
 			trampoline.allocate(p));
 
-		logger::info("Registered {}"sv, typeid(LifeStateManager).name());
+		SKSE::log::info("Registered {}"sv, typeid(LifeStateManager).name());
 	}
 }
