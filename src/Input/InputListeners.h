@@ -179,7 +179,7 @@ namespace Input
 		void TakeStack();
 		void TryGrab();
 
-		RE::stl::observer<const RE::Setting*> _grabDelay{ RE::GetINISetting("fZKeyDelay:Controls") };
+		const RE::Setting* _grabDelay{ RE::GetINISetting("fZKeyDelay:Controls") };
 		bool _context{ false };
 	};
 

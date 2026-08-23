@@ -30,7 +30,7 @@ namespace Scaleform
 			if (ui)
 			{
 				ui->Register(MENU_NAME, Creator);
-				SKSE::log::info("Registered {}"sv, MENU_NAME);
+				REX::INFO("Registered {}"sv, MENU_NAME);
 			}
 		}
 
@@ -113,7 +113,7 @@ namespace Scaleform
 				}
 			}
 
-			if (*Settings::closeOnEmpty && _itemListImpl.empty())
+			if (Settings::closeOnEmpty && _itemListImpl.empty())
 			{
 				Close();
 			}
@@ -151,12 +151,12 @@ namespace Scaleform
 				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
 				_openCloseHandler.Open();
 
-				if (*Settings::dispelInvis)
+				if (Settings::dispelInvis)
 				{
 					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
 				}
 
-				if (*Settings::dispelEthereal)
+				if (Settings::dispelEthereal)
 				{
 					dst->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kEtherealize, false);
 				}
@@ -174,10 +174,13 @@ namespace Scaleform
 			menu->depthPriority = -1;
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 			[[maybe_unused]] const auto success =
-				scaleformManager->LoadMovieEx(menu, FILE_NAME, [](RE::GFxMovieDef* a_def) -> void
-			                                  { a_def->SetState(
-													RE::GFxState::StateType::kLog,
-													RE::make_gptr<Logger>().get()); });
+				scaleformManager->LoadMovieEx(menu, FILE_NAME,
+					[](RE::GFxMovieDef* a_def) -> void
+					{
+						a_def->SetState(
+							RE::GFxState::StateType::kLog,
+							RE::make_gptr<Logger>().get());
+					});
 
 			assert(success);
 			_viewHandler.emplace(menu, _dst);
@@ -194,7 +197,7 @@ namespace Scaleform
 		LootMenu& operator=(const LootMenu&) = default;
 		LootMenu& operator=(LootMenu&&) = default;
 
-		static RE::stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
+		static RE::IMenu* Creator() { return new LootMenu(); }
 
 		// IMenu
 		void PostCreate() override { OnOpen(); }
@@ -249,7 +252,7 @@ namespace Scaleform
 				std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
 				va_end(args);
 
-				SKSE::log::info("{}: {}"sv, LootMenu::MenuName(), buf.data());
+				REX::INFO("{}: {}"sv, LootMenu::MenuName(), buf.data());
 			}
 		};
 
@@ -325,12 +328,12 @@ namespace Scaleform
 		{
 			using element_t = std::pair<std::reference_wrapper<CLIK::Object>, std::string_view>;
 			std::array objects{
-				element_t{std::ref(_rootObj),    "_root.rootObj"sv                          },
-				element_t{ std::ref(_title),     "_root.rootObj.title"sv                    },
-				element_t{ std::ref(_weight),    "_root.rootObj.weightContainer.textField"sv},
-				element_t{ std::ref(_itemList),  "_root.rootObj.itemList"sv                 },
-				element_t{ std::ref(_infoBar),   "_root.rootObj.infoBar"sv                  },
-				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar"sv                }
+				element_t{ std::ref(_rootObj),   "_root.rootObj"sv                           },
+				element_t{ std::ref(_title),     "_root.rootObj.title"sv                     },
+				element_t{ std::ref(_weight),    "_root.rootObj.weightContainer.textField"sv },
+				element_t{ std::ref(_itemList),  "_root.rootObj.itemList"sv                  },
+				element_t{ std::ref(_infoBar),   "_root.rootObj.infoBar"sv                   },
+				element_t{ std::ref(_buttonBar), "_root.rootObj.buttonBar"sv                 }
 			};
 
 			for (const auto& [object, path] : objects)
@@ -454,13 +457,13 @@ namespace Scaleform
 			{
 				const std::array functors{
 					std::function{ [](const Items::Item& a_val)
-					               {
-									   return std::format("{:.1f}"sv, a_val.Weight());
-								   } },
+						{
+							return std::format("{:.1f}"sv, a_val.Weight());
+						} },
 					std::function{ [](const Items::Item& a_val)
-					               {
-									   return std::format("{}"sv, a_val.Value());
-								   } },
+						{
+							return std::format("{}"sv, a_val.Value());
+						} },
 				};
 
 				const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
@@ -490,7 +493,7 @@ namespace Scaleform
 			auto src = _src.get();
 			if (src)
 			{
-				_title.HTMLText(stl::safe_string(src->GetDisplayFullName()));
+				_title.HTMLText(src->GetDisplayFullName());
 				_title.Visible(true);
 			}
 		}

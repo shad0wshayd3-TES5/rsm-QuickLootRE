@@ -18,51 +18,51 @@ namespace Input
 		{
 			auto& mappings = _mappings[Device::kKeyboard];
 			mappings.emplace(Keyboard::kPageUp, []
-			                 { Loot::GetSingleton().ModSelectedPage(-1.0); });
+				{ Loot::GetSingleton()->ModSelectedPage(-1.0); });
 			mappings.emplace(Keyboard::kPageDown, []
-			                 { Loot::GetSingleton().ModSelectedPage(1.0); });
+				{ Loot::GetSingleton()->ModSelectedPage(1.0); });
 		}
 
 		if (groups[Group::kArrowKeys])
 		{
 			auto& mappings = _mappings[Device::kKeyboard];
 			mappings.emplace(Keyboard::kUp, []
-			                 { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+				{ Loot::GetSingleton()->ModSelectedIndex(-1.0); });
 			mappings.emplace(Keyboard::kDown, []
-			                 { Loot::GetSingleton().ModSelectedIndex(1.0); });
+				{ Loot::GetSingleton()->ModSelectedIndex(1.0); });
 			mappings.emplace(Keyboard::kLeft, []
-			                 { Loot::GetSingleton().ModSelectedPage(-1.0); });
+				{ Loot::GetSingleton()->ModSelectedPage(-1.0); });
 			mappings.emplace(Keyboard::kRight, []
-			                 { Loot::GetSingleton().ModSelectedPage(1.0); });
+				{ Loot::GetSingleton()->ModSelectedPage(1.0); });
 		}
 
 		if (groups[Group::kMouseWheel])
 		{
 			auto& mappings = _mappings[Device::kMouse];
 			mappings.emplace(Mouse::kWheelUp, []
-			                 { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+				{ Loot::GetSingleton()->ModSelectedIndex(-1.0); });
 			mappings.emplace(Mouse::kWheelDown, []
-			                 { Loot::GetSingleton().ModSelectedIndex(1.0); });
+				{ Loot::GetSingleton()->ModSelectedIndex(1.0); });
 		}
 
 		if (groups[Group::kDPAD])
 		{
 			auto& mappings = _mappings[Device::kGamepad];
 			mappings.emplace(Gamepad::kUp, []
-			                 { Loot::GetSingleton().ModSelectedIndex(-1.0); });
+				{ Loot::GetSingleton()->ModSelectedIndex(-1.0); });
 			mappings.emplace(Gamepad::kDown, []
-			                 { Loot::GetSingleton().ModSelectedIndex(1.0); });
+				{ Loot::GetSingleton()->ModSelectedIndex(1.0); });
 			mappings.emplace(Gamepad::kLeft, []
-			                 { Loot::GetSingleton().ModSelectedPage(-1.0); });
+				{ Loot::GetSingleton()->ModSelectedPage(-1.0); });
 			mappings.emplace(Gamepad::kRight, []
-			                 { Loot::GetSingleton().ModSelectedPage(1.0); });
+				{ Loot::GetSingleton()->ModSelectedPage(1.0); });
 		}
 	}
 
 	void TakeHandler::TakeStack()
 	{
-		auto& loot = Loot::GetSingleton();
-		loot.TakeStack();
+		auto loot = Loot::GetSingleton();
+		loot->TakeStack();
 	}
 
 	void TakeHandler::TryGrab()
@@ -86,8 +86,8 @@ namespace Input
 			activateHandler->SetHeldButtonActionSuccess(true);
 		}
 
-		auto& loot = Loot::GetSingleton();
-		loot.Close();
+		auto loot = Loot::GetSingleton();
+		loot->Close();
 	}
 
 	void TransferHandler::DoHandle(RE::InputEvent* const& a_event)
@@ -112,8 +112,8 @@ namespace Input
 					player->ActivatePickRef();
 				}
 
-				auto& loot = Loot::GetSingleton();
-				loot.Close();
+				auto loot = Loot::GetSingleton();
+				loot->Close();
 				return;
 			}
 		}

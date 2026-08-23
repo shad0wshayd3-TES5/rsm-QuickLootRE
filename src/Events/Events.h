@@ -4,29 +4,24 @@ namespace Events
 {
 	class CrosshairRefManager :
 		public RE::BSTEventSink<SKSE::CrosshairRefEvent>,
-		public RE::BSTEventSink<RE::TESLockChangedEvent>
+		public RE::BSTEventSink<RE::TESLockChangedEvent>,
+		public REX::TSingleton<CrosshairRefManager>
 	{
 	public:
-		[[nodiscard]] static CrosshairRefManager* GetSingleton()
-		{
-			static CrosshairRefManager singleton;
-			return std::addressof(singleton);
-		}
-
 		static void Register()
 		{
 			auto crosshair = SKSE::GetCrosshairRefEventSource();
 			if (crosshair)
 			{
 				crosshair->AddEventSink(GetSingleton());
-				SKSE::log::info("Registered {}"sv, typeid(SKSE::CrosshairRefEvent).name());
+				REX::INFO("Registered {}"sv, typeid(SKSE::CrosshairRefEvent).name());
 			}
 
 			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
 			if (scripts)
 			{
 				scripts->AddEventSink<RE::TESLockChangedEvent>(GetSingleton());
-				SKSE::log::info("Registered {}"sv, typeid(RE::TESLockChangedEvent).name());
+				REX::INFO("Registered {}"sv, typeid(RE::TESLockChangedEvent).name());
 			}
 		}
 
@@ -37,8 +32,7 @@ namespace Events
 
 		EventResult ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>*) override
 		{
-			auto crosshairRef =
-				a_event && a_event->crosshairRef ? a_event->crosshairRef->CreateRefHandle() : RE::ObjectRefHandle();
+			auto crosshairRef = a_event && a_event->crosshairRef ? a_event->crosshairRef->CreateRefHandle() : RE::ObjectRefHandle();
 			if (_cachedRef == crosshairRef)
 			{
 				return EventResult::kContinue;
@@ -54,8 +48,8 @@ namespace Events
 		EventResult ProcessEvent(const RE::TESLockChangedEvent* a_event, RE::BSTEventSource<RE::TESLockChangedEvent>*) override
 		{
 			if (a_event &&
-			    a_event->lockedObject &&
-			    a_event->lockedObject->GetHandle() == _cachedRef)
+				a_event->lockedObject &&
+				a_event->lockedObject->GetHandle() == _cachedRef)
 			{
 				Evaluate(a_event->lockedObject);
 			}
@@ -72,15 +66,6 @@ namespace Events
 		}
 
 	private:
-		CrosshairRefManager() = default;
-		CrosshairRefManager(const CrosshairRefManager&) = delete;
-		CrosshairRefManager(CrosshairRefManager&&) = delete;
-
-		~CrosshairRefManager() = default;
-
-		CrosshairRefManager& operator=(const CrosshairRefManager&) = delete;
-		CrosshairRefManager& operator=(CrosshairRefManager&&) = delete;
-
 		void Evaluate(RE::TESObjectREFRPtr a_ref);
 
 		[[nodiscard]] bool CanOpen(RE::TESObjectREFRPtr a_ref)
@@ -100,7 +85,7 @@ namespace Events
 			if (auto actor = a_ref->As<RE::Actor>(); actor)
 			{
 				if (!actor->IsDead() ||
-				    actor->IsSummoned())
+					actor->IsSummoned())
 				{
 					return false;
 				}
@@ -114,22 +99,17 @@ namespace Events
 	};
 
 	class CombatManager :
-		public RE::BSTEventSink<RE::TESCombatEvent>
+		public RE::BSTEventSink<RE::TESCombatEvent>,
+		public REX::TSingleton<CombatManager>
 	{
 	public:
-		static CombatManager* GetSingleton()
-		{
-			static CombatManager singleton;
-			return std::addressof(singleton);
-		}
-
 		static void Register()
 		{
 			auto scripts = RE::ScriptEventSourceHolder::GetSingleton();
 			if (scripts)
 			{
 				scripts->AddEventSink(GetSingleton());
-				SKSE::log::info("Registered {}"sv, typeid(CombatManager).name());
+				REX::INFO("Registered {}"sv, typeid(CombatManager).name());
 			}
 		}
 
@@ -162,15 +142,6 @@ namespace Events
 		}
 
 	private:
-		CombatManager() = default;
-		CombatManager(const CombatManager&) = delete;
-		CombatManager(CombatManager&&) = delete;
-
-		~CombatManager() = default;
-
-		CombatManager& operator=(const CombatManager&) = delete;
-		CombatManager& operator=(CombatManager&&) = delete;
-
 		void Close();
 	};
 
@@ -192,11 +163,11 @@ namespace Events
 		CrosshairRefManager::Register();
 		LifeStateManager::Register();
 
-		if (*Settings::closeInCombat)
+		if (Settings::closeInCombat)
 		{
 			CombatManager::Register();
 		}
 
-		SKSE::log::info("Registered all event handlers"sv);
+		REX::INFO("Registered all event handlers"sv);
 	}
 }

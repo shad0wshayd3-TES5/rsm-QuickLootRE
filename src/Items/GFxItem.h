@@ -5,7 +5,7 @@ namespace Items
 	class GFxItem
 	{
 	public:
-		GFxItem(std::ptrdiff_t a_count, bool a_stealing, RE::stl::observer<RE::InventoryEntryData*> a_item) :
+		GFxItem(std::ptrdiff_t a_count, bool a_stealing, RE::InventoryEntryData* a_item) :
 			_src(a_item),
 			_count(a_count),
 			_stealing(a_stealing)
@@ -67,7 +67,7 @@ namespace Items
 				return GetValue() > a_rhs.GetValue() ? -1 : 1;
 			}
 			else if (const auto alphabetical = _stricmp(GetDisplayName().c_str(), a_rhs.GetDisplayName().c_str());
-			         alphabetical != 0)
+				alphabetical != 0)
 			{
 				return alphabetical < 0 ? -1 : 1;
 			}
@@ -92,13 +92,13 @@ namespace Items
 			switch (_src.index())
 			{
 			case kInventory:
-				result = stl::safe_string(std::get<kInventory>(_src)->GetDisplayName());
+				result = std::get<kInventory>(_src)->GetDisplayName();
 				break;
 			case kGround:
 				for (const auto& handle : std::get<kGround>(_src))
 				{
 					const auto item = handle.get();
-					result = item ? stl::safe_string(item->GetDisplayFullName()) : ""sv;
+					result = item ? item->GetDisplayFullName() : ""sv;
 					if (!result.empty())
 					{
 						break;

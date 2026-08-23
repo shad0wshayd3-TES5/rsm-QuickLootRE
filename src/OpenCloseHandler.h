@@ -79,7 +79,7 @@ private:
 		std::this_thread::sleep_for(std::chrono::duration<long double>(a_wait));
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([=]()
-		              {
+			{
 			const auto src = a_src.get();
 			if (src) {
 				const auto sequence =

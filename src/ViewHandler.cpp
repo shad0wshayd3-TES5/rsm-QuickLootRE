@@ -38,24 +38,24 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 
 void ViewHandler::Close()
 {
-	auto& loot = Loot::GetSingleton();
-	loot.Close();
+	auto loot = Loot::GetSingleton();
+	loot->Close();
 }
 
 void ViewHandler::RefreshUI()
 {
-	auto& loot = Loot::GetSingleton();
-	loot.RefreshUI();
+	auto loot = Loot::GetSingleton();
+	loot->RefreshUI();
 }
 
 void ViewHandler::EnableHUDBlocker()
 {
-	auto& hud = HUDManager::GetSingleton();
-	hud.Enable();
+	auto hud = HUDManager::GetSingleton();
+	hud->Enable();
 }
 
 void ViewHandler::DisableHUDBlocker()
 {
-	auto& hud = HUDManager::GetSingleton();
-	hud.Disable();
+	auto hud = HUDManager::GetSingleton();
+	hud->Disable();
 }

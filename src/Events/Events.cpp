@@ -50,27 +50,26 @@ namespace Events
 {
 	void CrosshairRefManager::Evaluate(RE::TESObjectREFRPtr a_ref)
 	{
-		auto& loot = Loot::GetSingleton();
+		auto loot = Loot::GetSingleton();
 		if (CanOpen(std::move(a_ref)))
 		{
-			loot.SetContainer(_cachedAshPile ? _cachedAshPile : _cachedRef);
+			loot->SetContainer(_cachedAshPile ? _cachedAshPile : _cachedRef);
 		}
 		else
 		{
-			loot.Close();
+			loot->Close();
 		}
 	}
 
 	void CombatManager::Close()
 	{
-		auto& loot = Loot::GetSingleton();
-		loot.Close();
+		auto loot = Loot::GetSingleton();
+		loot->Close();
 	}
 
 	void LifeStateManager::Register()
 	{
-		struct Patch :
-			Xbyak::CodeGenerator
+		struct Patch : Xbyak::CodeGenerator
 		{
 			explicit Patch(std::uintptr_t a_target)
 			{
@@ -93,14 +92,14 @@ namespace Events
 		static_assert(size >= 6);
 
 		REL::Relocation<std::uintptr_t> target{ REL::ID(37612), begin };
-		REL::safe_fill(target.address(), REL::INT3, size);
+		REL::WriteSafeFill(target.address(), REL::INT3, size);
 
-		auto& trampoline = SKSE::GetTrampoline();
+		auto& trampoline = REL::GetTrampoline();
 		Patch p{ reinterpret_cast<std::uintptr_t>(OnLifeStateChanged) };
-		trampoline.write_branch<6>(
+		trampoline.write_jmp<6>(
 			target.address(),
 			trampoline.allocate(p));
 
-		SKSE::log::info("Registered {}"sv, typeid(LifeStateManager).name());
+		REX::INFO("Registered {}"sv, typeid(LifeStateManager).name());
 	}
 }

@@ -11,8 +11,8 @@ void Loot::Close()
 		if (msgQ)
 		{
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
-			auto& hud = HUDManager::GetSingleton();
-			hud.Disable();
+			auto hud = HUDManager::GetSingleton();
+			hud->Disable();
 		}
 	}
 }
@@ -25,8 +25,8 @@ void Loot::Open()
 		if (msgQ)
 		{
 			msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
-			auto& hud = HUDManager::GetSingleton();
-			hud.Enable();
+			auto hud = HUDManager::GetSingleton();
+			hud->Enable();
 		}
 	}
 }
@@ -34,25 +34,25 @@ void Loot::Open()
 void Loot::ModSelectedIndex(double a_mod)
 {
 	AddTask([a_mod](LootMenu& a_menu)
-	        { a_menu.ModSelectedIndex(a_mod); });
+		{ a_menu.ModSelectedIndex(a_mod); });
 }
 
 void Loot::ModSelectedPage(double a_mod)
 {
 	AddTask([a_mod](LootMenu& a_menu)
-	        { a_menu.ModSelectedPage(a_mod); });
+		{ a_menu.ModSelectedPage(a_mod); });
 }
 
 void Loot::SetContainer(RE::ObjectRefHandle a_container)
 {
 	AddTask([a_container](LootMenu& a_menu)
-	        { a_menu.SetContainer(a_container); });
+		{ a_menu.SetContainer(a_container); });
 }
 
 void Loot::TakeStack()
 {
 	AddTask([](LootMenu& a_menu)
-	        { a_menu.TakeStack(); });
+		{ a_menu.TakeStack(); });
 }
 
 void Loot::Process(LootMenu& a_menu)

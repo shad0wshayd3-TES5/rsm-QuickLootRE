@@ -13,7 +13,7 @@ public:
 	ViewHandler(const ViewHandler&) = default;
 	ViewHandler(ViewHandler&&) = default;
 
-	ViewHandler(RE::stl::observer<RE::IMenu*> a_menu, RE::ActorHandle a_dst) :
+	ViewHandler(RE::IMenu* a_menu, RE::ActorHandle a_dst) :
 		_menu(a_menu),
 		_view(a_menu ? a_menu->uiMovie : nullptr),
 		_dst(a_dst)
@@ -48,8 +48,8 @@ protected:
 	{
 		auto intfcStr = RE::InterfaceStrings::GetSingleton();
 		if (intfcStr &&
-		    a_event &&
-		    a_event->menuName == intfcStr->lockpickingMenu)
+			a_event &&
+			a_event->menuName == intfcStr->lockpickingMenu)
 		{
 			Close();
 		}
@@ -109,14 +109,14 @@ private:
 		{
 			const auto& priorityStack = controlMap->contextPriorityStack;
 			if (!src ||
-			    src->IsLocked() ||
-			    src->IsActivationBlocked() ||
-			    !dst ||
-			    dst->IsInKillMove() ||
-			    dst->GetOccupiedFurniture() ||
-			    menuControls->InBeastForm() ||
-			    priorityStack.empty() ||
-			    priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay)
+				src->IsLocked() ||
+				src->IsActivationBlocked() ||
+				!dst ||
+				dst->IsInKillMove() ||
+				dst->GetOccupiedFurniture() ||
+				menuControls->InBeastForm() ||
+				priorityStack.empty() ||
+				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay)
 			{
 				Disable();
 			}
@@ -131,32 +131,38 @@ private:
 	{
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
-		task->AddUITask([this, safety]()
-		                {
-			HideHUD();
-			if (!_enabled) {
-				AdjustPriority(Priority::kDefault);
-				SetVisible(true);
-				_disablers.Enable();
-				_listeners.Enable();
-				_enabled = true;
-			} });
+		task->AddUITask(
+			[this, safety]()
+			{
+				HideHUD();
+				if (!_enabled)
+				{
+					AdjustPriority(Priority::kDefault);
+					SetVisible(true);
+					_disablers.Enable();
+					_listeners.Enable();
+					_enabled = true;
+				}
+			});
 	}
 
 	void Disable()
 	{
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
-		task->AddUITask([this, safety]()
-		                {
-			ShowHUD();
-			if (_enabled) {
-				AdjustPriority(Priority::kLowest);
-				SetVisible(false);
-				_disablers.Disable();
-				_listeners.Disable();
-				_enabled = false;
-			} });
+		task->AddUITask(
+			[this, safety]()
+			{
+				ShowHUD();
+				if (_enabled)
+				{
+					AdjustPriority(Priority::kLowest);
+					SetVisible(false);
+					_disablers.Disable();
+					_listeners.Disable();
+					_enabled = false;
+				}
+			});
 	}
 
 	void SetVisible(bool a_visible)
@@ -244,7 +250,7 @@ private:
 	void EnableHUDBlocker();
 	void DisableHUDBlocker();
 
-	RE::stl::observer<RE::IMenu*> _menu;
+	RE::IMenu*                 _menu;
 	RE::GPtr<RE::GFxMovieView> _view;
 	Input::Disablers _disablers;
 	Input::Listeners _listeners;

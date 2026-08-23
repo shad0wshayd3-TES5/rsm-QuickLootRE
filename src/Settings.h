@@ -1,34 +1,18 @@
 #pragma once
 
-struct Settings
+namespace Settings
 {
-	using ISetting = AutoTOML::ISetting;
-	using bSetting = AutoTOML::bSetting;
+	static REX::TOML::Bool closeInCombat{"General"sv, "closeInCombat"sv, true};
+	static REX::TOML::Bool closeOnEmpty{"General"sv, "closeOnEmpty"sv, true};
+	static REX::TOML::Bool dispelInvis{"General"sv, "dispelInvis"sv, true};
+	static REX::TOML::Bool dispelEthereal{ "General"sv, "dispelEthereal"sv, true };
 
-	static void load()
+	static void Load()
 	{
-		try
-		{
-			const auto table = toml::parse_file("Data/SKSE/Plugins/QuickLootRE/config.toml"s);
-			for (const auto& setting : ISetting::get_settings())
-			{
-				setting->load(table);
-			}
-		}
-		catch (const toml::parse_error& e)
-		{
-			std::ostringstream ss;
-			ss
-				<< "Error parsing file \'" << *e.source().path << "\':\n"
-				<< '\t' << e.description() << '\n'
-				<< "\t\t(" << e.source().begin << ')';
-			logger::error(FMT_STRING("{:s}"sv), ss.str());
-			throw std::runtime_error("failed to load settings"s);
-		}
+		auto toml = REX::TOML::SettingStore::GetSingleton();
+		toml->Init(
+			"Data/SKSE/Plugins/QuickLootRE/config.toml",
+			"Data/SKSE/Plugins/QuickLootRE/configCustom.toml");
+		toml->Load();
 	}
-
-	static inline bSetting closeInCombat{ "General"s, "closeInCombat"s, true };
-	static inline bSetting closeOnEmpty{ "General"s, "closeOnEmpty"s, true };
-	static inline bSetting dispelInvis{ "General"s, "dispelInvis"s, true };
-	inline static bSetting dispelEthereal{ "General"s, "dispelEthereal", true };
-};
+}

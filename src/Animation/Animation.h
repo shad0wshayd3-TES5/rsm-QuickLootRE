@@ -13,22 +13,17 @@ namespace Animation
 		virtual void OnAnimationEvent() = 0;
 	};
 
-	class AnimationManager
+	class AnimationManager :
+		public REX::TSingleton<AnimationManager>
 	{
 	public:
-		static AnimationManager& GetSingleton()
-		{
-			static AnimationManager singleton;
-			return singleton;
-		}
-
 		static void Install()
 		{
-			auto& singleton = GetSingleton();
-			singleton.DoInstall();
+			auto singleton = GetSingleton();
+			singleton->DoInstall();
 		}
 
-		constexpr void SetEventSink(RE::stl::observer<IEventSink*> a_sink) noexcept { _sink = a_sink; }
+		constexpr void SetEventSink(IEventSink* a_sink) noexcept { _sink = a_sink; }
 
 	protected:
 		class AnimHandler :
@@ -47,8 +42,8 @@ namespace Animation
 
 			bool ExecuteHandler(RE::Actor& a_handler, const RE::BSFixedString& a_parameter) override
 			{
-				const auto& manager = AnimationManager::GetSingleton();
-				manager.OnAnimationEvent();
+				const auto manager = AnimationManager::GetSingleton();
+				manager->OnAnimationEvent();
 
 				return _original ? (*_original)(a_handler, a_parameter) : true;
 			}
@@ -66,15 +61,6 @@ namespace Animation
 		}
 
 	private:
-		AnimationManager() = default;
-		AnimationManager(const AnimationManager&) = delete;
-		AnimationManager(AnimationManager&&) = delete;
-
-		~AnimationManager() = default;
-
-		AnimationManager& operator=(const AnimationManager&) = delete;
-		AnimationManager& operator=(AnimationManager&&) = delete;
-
 		void DoInstall()
 		{
 			auto handlers = RE::ResponseDictionary::GetSingleton();
@@ -95,7 +81,7 @@ namespace Animation
 				assert(false);
 			}
 
-			SKSE::log::info("Installed {}"sv, typeid(decltype(*this)).name());
+			REX::INFO("Installed {}"sv, typeid(decltype(*this)).name());
 		}
 
 		void InjectHandler(RE::AnimResponse& a_response, std::string_view a_animation)
@@ -120,6 +106,6 @@ namespace Animation
 			"EndAnimatedCamera"sv
 		};
 
-		RE::stl::observer<IEventSink*> _sink{ nullptr };
+		IEventSink* _sink{ nullptr };
 	};
 }

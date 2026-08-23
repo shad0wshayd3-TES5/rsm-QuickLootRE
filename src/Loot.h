@@ -6,18 +6,13 @@ namespace Scaleform
 }
 
 // Interface for interacting with the loot menu outside of UI threads
-class Loot
+class Loot :
+	public REX::TSingleton<Loot>
 {
 private:
 	using LootMenu = Scaleform::LootMenu;
 
 public:
-	static Loot& GetSingleton()
-	{
-		static Loot singleton;
-		return singleton;
-	}
-
 	void Disable()
 	{
 		_enabled = false;
@@ -30,7 +25,7 @@ public:
 	{
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([this]()
-		              { _refreshUI = true; });
+			{ _refreshUI = true; });
 	}
 
 	void Close();
@@ -44,7 +39,7 @@ public:
 		// Need to delay inventory processing so the game has time to process it before us
 		auto task = SKSE::GetTaskInterface();
 		task->AddTask([this]()
-		              { _refreshInventory = true; });
+			{ _refreshInventory = true; });
 	}
 
 	void SetContainer(RE::ObjectRefHandle a_container);
@@ -57,15 +52,6 @@ protected:
 
 private:
 	using Tasklet = std::function<void(LootMenu&)>;
-
-	Loot() = default;
-	Loot(const Loot&) = delete;
-	Loot(Loot&&) = delete;
-
-	~Loot() = default;
-
-	Loot& operator=(const Loot&) = delete;
-	Loot& operator=(Loot&&) = delete;
 
 	void AddTask(Tasklet a_task);
 
@@ -81,9 +67,9 @@ private:
 
 		auto player = RE::PlayerCharacter::GetSingleton();
 		if (!player ||
-		    player->IsGrabbing() ||
-		    player->HasActorDoingCommand() ||
-		    (*Settings::closeInCombat && player->IsInCombat()))
+			player->IsGrabbing() ||
+			player->HasActorDoingCommand() ||
+			(Settings::closeInCombat && player->IsInCombat()))
 		{
 			return false;
 		}

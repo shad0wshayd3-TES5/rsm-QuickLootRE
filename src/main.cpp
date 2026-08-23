@@ -6,20 +6,15 @@
 #include "Scaleform/Scaleform.h"
 
 class InputHandler :
-	public RE::BSTEventSink<RE::InputEvent*>
+	public RE::BSTEventSink<RE::InputEvent*>,
+	public REX::TSingleton<InputHandler>
 {
 public:
-	static InputHandler* GetSingleton()
-	{
-		static InputHandler singleton;
-		return std::addressof(singleton);
-	}
-
 	static void Register()
 	{
 		auto input = RE::BSInputDeviceManager::GetSingleton();
 		input->AddEventSink(GetSingleton());
-		SKSE::log::info("Registered InputHandler"sv);
+		REX::INFO("Registered InputHandler"sv);
 	}
 
 protected:
@@ -55,14 +50,14 @@ protected:
 				continue;
 			}
 
-			auto& loot = Loot::GetSingleton();
+			auto loot = Loot::GetSingleton();
 			switch (button->idCode)
 			{
 			case Keyboard::kNum0:
-				loot.Enable();
+				loot->Enable();
 				break;
 			case Keyboard::kNum9:
-				loot.Disable();
+				loot->Disable();
 				break;
 			default:
 				break;
@@ -71,16 +66,6 @@ protected:
 
 		return EventResult::kContinue;
 	}
-
-private:
-	InputHandler() = default;
-	InputHandler(const InputHandler&) = delete;
-	InputHandler(InputHandler&&) = delete;
-
-	~InputHandler() = default;
-
-	InputHandler& operator=(const InputHandler&) = delete;
-	InputHandler& operator=(InputHandler&&) = delete;
 };
 
 namespace
@@ -110,15 +95,14 @@ namespace
 			break;
 		}
 	}
+}
 
-	SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
-	{
-		Settings::load();
+SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* a_skse)
+{
+	Settings::Load();
 
-		SKSE::Init(a_skse);
-		SKSE::AllocTrampoline(1 << 6);
+	SKSE::Init(a_skse, { .trampoline = true, .trampolineSize = 64 });
+	SKSE::GetMessagingInterface()->RegisterListener(MessageHandler);
 
-		SKSE::GetMessagingInterface()->RegisterListener(MessageHandler);
-
-		return true;
-	}
+	return true;
+}

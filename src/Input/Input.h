@@ -49,11 +49,12 @@ namespace Input
 			constexpr std::array locations{
 				std::make_pair<std::uint64_t, std::size_t>(53270, 0x17),
 				std::make_pair<std::uint64_t, std::size_t>(53299, 0x17),
-				std::make_pair<std::uint64_t, std::size_t>(68534, 0x165),
+				std::make_pair<std::uint64_t, std::size_t>(524030, 0x2F),
+				std::make_pair<std::uint64_t, std::size_t>(68534, 0x16B),
 				std::make_pair<std::uint64_t, std::size_t>(68540, 0x266),
 			};
 
-			auto& trampoline = SKSE::GetTrampoline();
+			auto& trampoline = REL::GetTrampoline();
 			for (const auto& [id, offset] : locations)
 			{
 				REL::Relocation<std::uintptr_t> target(REL::ID(id), offset);
@@ -291,22 +292,27 @@ namespace Input
 				}
 			};
 
-			for_each([=](RE::ControlMap::UserEventMapping& a_mapping, std::size_t)
-			         {
-				if (a_mapping.userEventGroupFlag.none(RE::UserEvents::USER_EVENT_FLAG::kInvalid)) {
-					a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
-				} });
+			for_each(
+				[=](RE::ControlMap::UserEventMapping& a_mapping, std::size_t)
+				{
+					if (a_mapping.userEventGroupFlag.none(RE::UserEvents::USER_EVENT_FLAG::kInvalid))
+					{
+						a_mapping.userEventGroupFlag.reset(QUICKLOOT_FLAG);
+					}
+				});
 
 			UserEventMap eventMap;
 			IDCodeMap idMap;
 
-			for_each([&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device)
-			         {
-				eventMap(a_device, a_mapping);
-				idMap(a_device, a_mapping); });
+			for_each(
+				[&](RE::ControlMap::UserEventMapping& a_mapping, std::size_t a_device)
+				{
+					eventMap(a_device, a_mapping);
+					idMap(a_device, a_mapping);
+				});
 
 			idMap.commit();
-			a_controlMap->ToggleControls(QUICKLOOT_FLAG, true);
+			a_controlMap->ToggleControls(QUICKLOOT_FLAG, true, true);
 		}
 
 		inline static REL::Relocation<decltype(RefreshLinkedMappings)> _RefreshLinkedMappings;
