@@ -36,6 +36,3 @@ target("QuickLootRE")
     add_headerfiles("src/**.h")
     add_includedirs("src")
     set_pcxxheader("src/pch.h")
-
-    -- add extra files
-    add_extrafiles(".clang-format")
